@@ -1,6 +1,5 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 public class UserEntity {
