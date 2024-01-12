@@ -40,18 +40,19 @@ public class UserService {
 
 
     @Transactional(readOnly = false)
-    public List<UserResponse> createUser(UserRequest userRequest) {
+    public UserResponse createUser(UserRequest userRequest) {
 
         UserEntity userEntity = modelMapper.map(userRequest, UserEntity.class);
 
         try {
-            userRepository.save(userEntity);
+            userEntity = userRepository.save(userEntity);
         } catch (Exception exception) {
             throw new RuntimeException("Erro ao criar o usuário: " + exception.getMessage() + ".");
         }
 
-        return findAllUsers();
+        return modelMapper.map(userEntity, UserResponse.class);
     }
+
 
     @Transactional(readOnly = true)
     public UserResponse findUserById(Long id) {
@@ -63,7 +64,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = false)
-    public List<UserResponse> updateUser(UserRequest userRequest) {
+    public UserResponse updateUser(UserRequest userRequest) {
 
         UserEntity userEntity = modelMapper.map(userRequest, UserEntity.class);
 
@@ -72,23 +73,21 @@ public class UserService {
         }
 
         try {
-            userRepository.save(userEntity);
-        }catch (Exception exception) {
+            userEntity = userRepository.save(userEntity);
+        } catch (Exception exception) {
             throw new RuntimeException("Erro ao atualizar usuário: " + exception.getMessage());
         }
 
-        return findAllUsers();
+        return modelMapper.map(userEntity, UserResponse.class);
     }
 
     @Transactional(readOnly = false)
-    public List<UserResponse> deleteUser(Long id) {
+    public void deleteUser(Long id) {
 
         if (!userRepository.existsById(id)) {
             throw new RuntimeException("Usuário não encontrado com o ID: " + id + ".");
         }
 
         userRepository.deleteById(id);
-
-        return findAllUsers();
     }
 }
