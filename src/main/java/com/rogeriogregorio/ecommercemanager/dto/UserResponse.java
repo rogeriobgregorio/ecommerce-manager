@@ -1,8 +1,45 @@
 package com.rogeriogregorio.ecommercemanager.dto;
 
-import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
+public class UserResponse {
 
-import java.util.Optional;
+    private Long id;
+    private String name;
+    private String email;
+    private String phone;
 
-public record UserResponse(String name, String email, String phone) {
+
+    public UserResponse() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 }
