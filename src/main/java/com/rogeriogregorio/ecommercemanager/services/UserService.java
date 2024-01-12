@@ -4,7 +4,7 @@ import com.rogeriogregorio.ecommercemanager.dto.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
-import org.modelmapper.ModelMapper;
+import com.rogeriogregorio.ecommercemanager.util.UserConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,12 +16,12 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final ModelMapper modelMapper;
+    private final UserConverter userConverter;
 
     @Autowired
-    public UserService(UserRepository userRepository, ModelMapper modelMapper) {
+    public UserService(UserRepository userRepository, UserConverter userConverter) {
         this.userRepository = userRepository;
-        this.modelMapper = modelMapper;
+        this.userConverter = userConverter;
     }
 
     @Transactional(readOnly = true)
@@ -34,7 +34,7 @@ public class UserService {
         return userRepository
                 .findAll()
                 .stream()
-                .map(userEntity -> modelMapper.map(userEntity, UserResponse.class))
+                .map(userConverter::entityToResponse)
                 .collect(Collectors.toList());
     }
 
@@ -42,15 +42,15 @@ public class UserService {
     @Transactional(readOnly = false)
     public UserResponse createUser(UserRequest userRequest) {
 
-        UserEntity userEntity = modelMapper.map(userRequest, UserEntity.class);
+        UserEntity userEntity = userConverter.requestToEntity(userRequest);
 
         try {
-            userEntity = userRepository.save(userEntity);
+            userRepository.save(userEntity);
         } catch (Exception exception) {
             throw new RuntimeException("Erro ao criar o usuário: " + exception.getMessage() + ".");
         }
 
-        return modelMapper.map(userEntity, UserResponse.class);
+        return userConverter.entityToResponse(userEntity);
     }
 
 
@@ -59,14 +59,14 @@ public class UserService {
 
         return userRepository
                 .findById(id)
-                .map(userEntity -> modelMapper.map(userEntity, UserResponse.class))
+                .map(userConverter::entityToResponse)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
     public UserResponse updateUser(UserRequest userRequest) {
 
-        UserEntity userEntity = modelMapper.map(userRequest, UserEntity.class);
+        UserEntity userEntity = userConverter.requestToEntity(userRequest);
 
         if (!userRepository.existsById(userEntity.getId())) {
             throw new RuntimeException("Usuário não encontrado com o ID: " + userEntity.getId() + ".");
@@ -78,7 +78,7 @@ public class UserService {
             throw new RuntimeException("Erro ao atualizar usuário: " + exception.getMessage());
         }
 
-        return modelMapper.map(userEntity, UserResponse.class);
+        return userConverter.entityToResponse(userEntity);
     }
 
     @Transactional(readOnly = false)

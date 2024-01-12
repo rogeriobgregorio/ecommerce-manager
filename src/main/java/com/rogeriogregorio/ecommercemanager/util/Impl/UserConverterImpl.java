@@ -5,7 +5,9 @@ import com.rogeriogregorio.ecommercemanager.dto.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.util.UserConverter;
 import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserConverterImpl implements UserConverter {
 
     private static final ModelMapper modelMapper = new ModelMapper();
