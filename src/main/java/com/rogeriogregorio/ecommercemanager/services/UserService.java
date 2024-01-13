@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.services.impl;
+package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.UserResponse;
