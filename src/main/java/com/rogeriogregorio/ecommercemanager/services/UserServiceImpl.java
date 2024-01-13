@@ -4,6 +4,7 @@ import com.rogeriogregorio.ecommercemanager.dto.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
+import com.rogeriogregorio.ecommercemanager.services.impl.UserService;
 import com.rogeriogregorio.ecommercemanager.util.UserConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,13 +14,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class UserService {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserConverter userConverter;
 
     @Autowired
-    public UserService(UserRepository userRepository, UserConverter userConverter) {
+    public UserServiceImpl(UserRepository userRepository, UserConverter userConverter) {
         this.userRepository = userRepository;
         this.userConverter = userConverter;
     }
@@ -38,7 +39,6 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-
     @Transactional(readOnly = false)
     public UserResponse createUser(UserRequest userRequest) {
 
@@ -52,7 +52,6 @@ public class UserService {
 
         return userConverter.entityToResponse(userEntity);
     }
-
 
     @Transactional(readOnly = true)
     public UserResponse findUserById(Long id) {

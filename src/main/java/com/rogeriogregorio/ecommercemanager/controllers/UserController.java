@@ -2,7 +2,7 @@ package com.rogeriogregorio.ecommercemanager.controllers;
 
 import com.rogeriogregorio.ecommercemanager.dto.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.UserResponse;
-import com.rogeriogregorio.ecommercemanager.services.UserService;
+import com.rogeriogregorio.ecommercemanager.services.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +14,12 @@ import java.util.List;
 @RequestMapping(value = "/api")
 public class UserController {
 
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
 
     @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(UserServiceImpl userServiceImpl) {
+
+        this.userServiceImpl = userServiceImpl;
     }
 
     @GetMapping(value = "/users")
@@ -26,7 +27,7 @@ public class UserController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(userService.findAllUsers());
+                .body(userServiceImpl.findAllUsers());
     }
 
     @PostMapping(value = "/users")
@@ -34,7 +35,7 @@ public class UserController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(userService.createUser(userRequest));
+                .body(userServiceImpl.createUser(userRequest));
     }
 
     @GetMapping(value = "/users/{id}")
@@ -42,7 +43,7 @@ public class UserController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(userService.findUserById(id));
+                .body(userServiceImpl.findUserById(id));
     }
 
     @PutMapping(value = "/users")
@@ -50,13 +51,13 @@ public class UserController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(userService.updateUser(userRequest));
+                .body(userServiceImpl.updateUser(userRequest));
     }
 
     @DeleteMapping(value = "/users/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
 
-        userService.deleteUser(id);
+        userServiceImpl.deleteUser(id);
 
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
