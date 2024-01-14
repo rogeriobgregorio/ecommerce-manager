@@ -28,15 +28,18 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public List<UserResponse> findAllUsers() {
 
-        if (userRepository.findAll().isEmpty()){
-            throw new RuntimeException("Nenhum usuário encontrado.");
-        }
+        try {
+            return userRepository
+                    .findAll()
+                    .stream()
+                    .map(userConverter::entityToResponse)
+                    .collect(Collectors.toList());
+        } catch (Exception exception) {
+            /* ToDo logar o erro com log4j2 */
 
-        return userRepository
-                .findAll()
-                .stream()
-                .map(userConverter::entityToResponse)
-                .collect(Collectors.toList());
+            /* ToDo implementar uma exceção personalizada*/
+            throw new RuntimeException("Erro ao buscar usuário: " + exception.getMessage() + ".");
+        }
     }
 
     @Transactional(readOnly = false)
@@ -47,6 +50,9 @@ public class UserServiceImpl implements UserService {
         try {
             userRepository.save(userEntity);
         } catch (Exception exception) {
+            /* ToDo logar o erro com log4j2 */
+
+            /* ToDo implementar uma exceção personalizada*/
             throw new RuntimeException("Erro ao criar o usuário: " + exception.getMessage() + ".");
         }
 
@@ -59,6 +65,7 @@ public class UserServiceImpl implements UserService {
         return userRepository
                 .findById(id)
                 .map(userConverter::entityToResponse)
+                /* ToDo implementar uma exceção personalizada*/
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id + "."));
     }
 
@@ -68,13 +75,17 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userConverter.requestToEntity(userRequest);
 
         if (!userRepository.existsById(userEntity.getId())) {
+            /* ToDo implementar uma exceção personalizada*/
             throw new RuntimeException("Usuário não encontrado com o ID: " + userEntity.getId() + ".");
         }
 
         try {
-            userEntity = userRepository.save(userEntity);
+            userRepository.save(userEntity);
         } catch (Exception exception) {
-            throw new RuntimeException("Erro ao atualizar usuário: " + exception.getMessage());
+            /* ToDo logar o erro com log4j2 */
+
+            /* ToDo implementar uma exceção personalizada*/
+            throw new RuntimeException("Erro ao tentar atualizar o usuário: " + exception.getMessage() + ".");
         }
 
         return userConverter.entityToResponse(userEntity);
@@ -84,9 +95,18 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long id) {
 
         if (!userRepository.existsById(id)) {
+            /* ToDo implementar uma exceção personalizada*/
             throw new RuntimeException("Usuário não encontrado com o ID: " + id + ".");
         }
 
-        userRepository.deleteById(id);
+        try {
+            userRepository.deleteById(id);
+        } catch (Exception exception) {
+            /* ToDo logar o erro com log4j2 */
+
+            /* ToDo implementar uma exceção personalizada*/
+            throw new RuntimeException("Erro ao tentar excluir o usuário: " + exception.getMessage() + ".");
+        }
+
     }
 }
