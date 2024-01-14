@@ -3,10 +3,13 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 import com.rogeriogregorio.ecommercemanager.dto.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
+import com.rogeriogregorio.ecommercemanager.exceptions.*;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.UserConverter;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,8 +40,7 @@ public class UserServiceImpl implements UserService {
         } catch (Exception exception) {
             /* ToDo logar o erro com log4j2 */
 
-            /* ToDo implementar uma exceção personalizada*/
-            throw new RuntimeException("Erro ao buscar usuário: " + exception.getMessage() + ".");
+            throw new UserQueryException("Erro ao buscar usuário: " + exception.getMessage() + ".");
         }
     }
 
@@ -50,10 +52,15 @@ public class UserServiceImpl implements UserService {
         try {
             userRepository.save(userEntity);
         } catch (Exception exception) {
+            if (exception instanceof DataIntegrityViolationException || exception instanceof ConstraintViolationException) {
+
+                /* ToDo logar o erro com log4j2 */
+
+                throw new UserCreationException("Erro ao criar o usuário: E-mail já cadastrado.");
+            }
             /* ToDo logar o erro com log4j2 */
 
-            /* ToDo implementar uma exceção personalizada*/
-            throw new RuntimeException("Erro ao criar o usuário: " + exception.getMessage() + ".");
+            throw new UserCreationException("Erro ao criar o usuário: " + exception.getMessage() + ".");
         }
 
         return userConverter.entityToResponse(userEntity);
@@ -65,8 +72,7 @@ public class UserServiceImpl implements UserService {
         return userRepository
                 .findById(id)
                 .map(userConverter::entityToResponse)
-                /* ToDo implementar uma exceção personalizada*/
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id + "."));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com o ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -75,8 +81,7 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userConverter.requestToEntity(userRequest);
 
         if (!userRepository.existsById(userEntity.getId())) {
-            /* ToDo implementar uma exceção personalizada*/
-            throw new RuntimeException("Usuário não encontrado com o ID: " + userEntity.getId() + ".");
+            throw new UserNotFoundException("Usuário não encontrado com o ID: " + userEntity.getId() + ".");
         }
 
         try {
@@ -84,8 +89,7 @@ public class UserServiceImpl implements UserService {
         } catch (Exception exception) {
             /* ToDo logar o erro com log4j2 */
 
-            /* ToDo implementar uma exceção personalizada*/
-            throw new RuntimeException("Erro ao tentar atualizar o usuário: " + exception.getMessage() + ".");
+            throw new UserUpdateException("Erro ao tentar atualizar o usuário: " + exception.getMessage() + ".");
         }
 
         return userConverter.entityToResponse(userEntity);
@@ -95,8 +99,7 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long id) {
 
         if (!userRepository.existsById(id)) {
-            /* ToDo implementar uma exceção personalizada*/
-            throw new RuntimeException("Usuário não encontrado com o ID: " + id + ".");
+            throw new UserNotFoundException("Usuário não encontrado com o ID: " + id + ".");
         }
 
         try {
@@ -104,8 +107,7 @@ public class UserServiceImpl implements UserService {
         } catch (Exception exception) {
             /* ToDo logar o erro com log4j2 */
 
-            /* ToDo implementar uma exceção personalizada*/
-            throw new RuntimeException("Erro ao tentar excluir o usuário: " + exception.getMessage() + ".");
+            throw new UserDeletionException("Erro ao tentar excluir o usuário: " + exception.getMessage() + ".");
         }
 
     }

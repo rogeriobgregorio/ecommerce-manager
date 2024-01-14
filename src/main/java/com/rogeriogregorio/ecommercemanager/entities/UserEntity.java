@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "tb_users")
+@Table(name = "tb_users", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "email", name = "unique_email_constraint")
+})
 public class UserEntity {
 
     @Id
@@ -15,7 +17,7 @@ public class UserEntity {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     private String email;
 
     @Column(name = "phone")
