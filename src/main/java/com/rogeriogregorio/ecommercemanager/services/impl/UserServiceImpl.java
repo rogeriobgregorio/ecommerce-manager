@@ -53,6 +53,7 @@ public class UserServiceImpl implements UserService {
 
         try {
             userRepository.save(userEntity);
+            logger.warn("Usuário criado: {}", userEntity);
 
         } catch (DataIntegrityViolationException exception) {
             logger.error("Erro ao criar o usuário: E-mail já cadastrado.", exception);
@@ -73,7 +74,7 @@ public class UserServiceImpl implements UserService {
                     .findById(id)
                     .map(userConverter::entityToResponse)
                     .orElseThrow(() -> {
-                        logger.error("Usuário não encontrado com o ID: {}", id);
+                        logger.warn("Usuário não encontrado com o ID: {}", id);
                         return new UserNotFoundException("Usuário não encontrado com o ID: " + id + ".");
                     });
     }
@@ -84,12 +85,13 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userConverter.requestToEntity(userRequest);
 
         if (!userRepository.existsById(userEntity.getId())) {
-            logger.error("Usuário não encontrado com o ID: {}", userEntity.getId());
+            logger.warn("Usuário não encontrado com o ID: {}", userEntity.getId());
             throw new UserNotFoundException("Usuário não encontrado com o ID: " + userEntity.getId() + ".");
         }
 
         try {
             userRepository.save(userEntity);
+            logger.warn("Usuário atualizado: {}", userEntity);
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar atualizar o usuário: {}", exception.getMessage(), exception);
@@ -103,12 +105,13 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long id) {
 
         if (!userRepository.existsById(id)) {
-            logger.error("Usuário não encontrado com o ID: {}", id);
+            logger.warn("Usuário não encontrado com o ID: {}", id);
             throw new UserNotFoundException("Usuário não encontrado com o ID: " + id + ".");
         }
 
         try {
             userRepository.deleteById(id);
+            logger.warn("Usuário removido: {}", id);
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar excluir o usuário: {}", exception.getMessage(), exception);
