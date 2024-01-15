@@ -2,10 +2,14 @@ package com.rogeriogregorio.ecommercemanager.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 @ControllerAdvice
 public class UserExceptionHandler {
@@ -37,6 +41,21 @@ public class UserExceptionHandler {
     @ExceptionHandler(UserDeletionException.class)
     public ResponseEntity<StandardError> handleUserDeletionException(UserDeletionException ex) {
         StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro ao excluir usuário", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<StandardError> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> erros = new HashMap<>();
+
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String field = ((FieldError) error).getField();
+            String message = error.getDefaultMessage();
+            erros.put(field, message);
+        });
+
+        StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de validação", erros.toString());
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 

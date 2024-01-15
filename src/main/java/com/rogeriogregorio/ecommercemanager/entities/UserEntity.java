@@ -1,6 +1,10 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.util.Objects;
 
@@ -15,15 +19,24 @@ public class UserEntity {
     private Long id;
 
     @Column(name = "name")
+    @NotBlank(message = "O nome não deve estar em branco")
+    @Pattern(regexp = "^[\\p{L}\\s.]{3,250}$", message = "O nome deve ter apenas letras e espaços.")
+    @Size(max = 250, message = "O nome deve ter no máximo 250 caracteres.")
     private String name;
 
     @Column(name = "email", unique = true)
+    @NotBlank(message = "O e-mail não deve estar em branco")
+    @Email(message = "E-mail inválido")
     private String email;
 
     @Column(name = "phone")
+    @NotBlank(message = "O telefone não deve estar em branco")
+    @Pattern(regexp = "^[0-9]{8,11}$", message = "O telefone deve conter entre 8 e 11 números.")
     private String phone;
 
     @Column(name = "password")
+    @NotBlank(message = "A senha não deve estar em branco")
+    @Size(min = 6, message = "A senha não deve ter menos de 6 caracteres.")
     private String password;
 
     public UserEntity() {

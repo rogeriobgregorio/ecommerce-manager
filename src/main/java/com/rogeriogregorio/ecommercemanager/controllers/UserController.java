@@ -3,6 +3,7 @@ package com.rogeriogregorio.ecommercemanager.controllers;
 import com.rogeriogregorio.ecommercemanager.dto.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.UserResponse;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/users")
-    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -47,7 +48,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/users")
-    public ResponseEntity<UserResponse> updateUser(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<UserResponse> updateUser(@Valid @RequestBody UserRequest userRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
