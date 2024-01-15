@@ -51,8 +51,9 @@ public class UserServiceImpl implements UserService {
 
         try {
             userRepository.save(userEntity);
+
         } catch (Exception exception) {
-            if (exception instanceof DataIntegrityViolationException || exception instanceof ConstraintViolationException) {
+            if (exception instanceof DataIntegrityViolationException) {
 
                 /* ToDo logar o erro com log4j2 */
 
