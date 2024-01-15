@@ -69,16 +69,13 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserResponse findUserById(Long id) {
 
-        try {
             return userRepository
                     .findById(id)
                     .map(userConverter::entityToResponse)
-                    .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com o ID: " + id + "."));
-
-        } catch (Exception exception) {
-            logger.error("Erro ao buscar usuário por ID: {}", id, exception);
-            throw new UserQueryException("Erro ao buscar usuário por ID: " + id + ".");
-        }
+                    .orElseThrow(() -> {
+                        logger.error("Usuário não encontrado com o ID: {}", id);
+                        return new UserNotFoundException("Usuário não encontrado com o ID: " + id + ".");
+                    });
     }
 
     @Transactional(readOnly = false)

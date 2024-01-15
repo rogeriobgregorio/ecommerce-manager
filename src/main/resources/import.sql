@@ -9,3 +9,4 @@ INSERT INTO tb_users (name, email, phone, password) VALUES ('Patricia Costa', 'p
 INSERT INTO tb_users (name, email, phone, password) VALUES ('Gustavo Silva', 'gustavo.silva@email.com', '111222333', 'senhaPQR');
 INSERT INTO tb_users (name, email, phone, password) VALUES ('Juliana Santos', 'juliana.santos@email.com', '888999000', 'senhaSTU');
 INSERT INTO tb_users (name, email, phone, password) VALUES ('Rafaela Oliveira', 'rafaela.oliveira@email.com', '666777888', 'senhaVWX');
+

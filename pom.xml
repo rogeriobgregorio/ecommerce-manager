@@ -59,6 +59,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-jdbc-dbcp2</artifactId>
+			<version>2.22.1</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.modelmapper</groupId>
 			<artifactId>modelmapper</artifactId>
 			<version>3.1.1</version>
