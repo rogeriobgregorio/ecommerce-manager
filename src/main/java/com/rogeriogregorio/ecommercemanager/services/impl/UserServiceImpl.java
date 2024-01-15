@@ -7,7 +7,8 @@ import com.rogeriogregorio.ecommercemanager.exceptions.*;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.UserConverter;
-import org.hibernate.exception.ConstraintViolationException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserConverter userConverter;
+    private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, UserConverter userConverter) {
@@ -37,10 +39,10 @@ public class UserServiceImpl implements UserService {
                     .stream()
                     .map(userConverter::entityToResponse)
                     .collect(Collectors.toList());
-        } catch (Exception exception) {
-            /* ToDo logar o erro com log4j2 */
 
-            throw new UserQueryException("Erro ao buscar usuário: " + exception.getMessage() + ".");
+        } catch (Exception exception) {
+            logger.error("Erro ao buscar usuários: {}", exception.getMessage(), exception);
+            throw new UserQueryException("Erro ao buscar usuários: " + exception.getMessage() + ".");
         }
     }
 
@@ -52,15 +54,12 @@ public class UserServiceImpl implements UserService {
         try {
             userRepository.save(userEntity);
 
+        } catch (DataIntegrityViolationException exception) {
+            logger.error("Erro ao criar o usuário: E-mail já cadastrado.", exception);
+            throw new UserCreationException("Erro ao criar o usuário: E-mail já cadastrado.");
+
         } catch (Exception exception) {
-            if (exception instanceof DataIntegrityViolationException) {
-
-                /* ToDo logar o erro com log4j2 */
-
-                throw new UserCreationException("Erro ao criar o usuário: E-mail já cadastrado.");
-            }
-            /* ToDo logar o erro com log4j2 */
-
+            logger.error("Erro ao criar o usuário: {}", exception.getMessage(), exception);
             throw new UserCreationException("Erro ao criar o usuário: " + exception.getMessage() + ".");
         }
 
@@ -70,10 +69,16 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserResponse findUserById(Long id) {
 
-        return userRepository
-                .findById(id)
-                .map(userConverter::entityToResponse)
-                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com o ID: " + id + "."));
+        try {
+            return userRepository
+                    .findById(id)
+                    .map(userConverter::entityToResponse)
+                    .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado com o ID: " + id + "."));
+
+        } catch (Exception exception) {
+            logger.error("Erro ao buscar usuário por ID: {}", id, exception);
+            throw new UserQueryException("Erro ao buscar usuário por ID: " + id + ".");
+        }
     }
 
     @Transactional(readOnly = false)
@@ -82,14 +87,15 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userConverter.requestToEntity(userRequest);
 
         if (!userRepository.existsById(userEntity.getId())) {
+            logger.error("Usuário não encontrado com o ID: {}", userEntity.getId());
             throw new UserNotFoundException("Usuário não encontrado com o ID: " + userEntity.getId() + ".");
         }
 
         try {
             userRepository.save(userEntity);
-        } catch (Exception exception) {
-            /* ToDo logar o erro com log4j2 */
 
+        } catch (Exception exception) {
+            logger.error("Erro ao tentar atualizar o usuário: {}", exception.getMessage(), exception);
             throw new UserUpdateException("Erro ao tentar atualizar o usuário: " + exception.getMessage() + ".");
         }
 
@@ -100,16 +106,16 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long id) {
 
         if (!userRepository.existsById(id)) {
+            logger.error("Usuário não encontrado com o ID: {}", id);
             throw new UserNotFoundException("Usuário não encontrado com o ID: " + id + ".");
         }
 
         try {
             userRepository.deleteById(id);
-        } catch (Exception exception) {
-            /* ToDo logar o erro com log4j2 */
 
+        } catch (Exception exception) {
+            logger.error("Erro ao tentar excluir o usuário: {}", exception.getMessage(), exception);
             throw new UserDeletionException("Erro ao tentar excluir o usuário: " + exception.getMessage() + ".");
         }
-
     }
 }
