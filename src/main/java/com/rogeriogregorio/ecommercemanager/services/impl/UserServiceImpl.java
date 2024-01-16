@@ -53,6 +53,8 @@ public class UserServiceImpl implements UserService {
 
         UserEntity userEntity = userConverter.requestToEntity(userRequest);
 
+        validateUser(userEntity);
+
         try {
             userRepository.save(userEntity);
             logger.warn("Usuário criado: {}", userEntity);
@@ -86,12 +88,12 @@ public class UserServiceImpl implements UserService {
 
         UserEntity userEntity = userConverter.requestToEntity(userRequest);
 
+        validateUser(userEntity);
+
         if (!userRepository.existsById(userEntity.getId())) {
             logger.warn("Usuário não encontrado com o ID: {}", userEntity.getId());
             throw new UserNotFoundException("Usuário não encontrado com o ID: " + userEntity.getId() + ".");
         }
-
-        validateUser(userEntity);
 
         try {
             userRepository.save(userEntity);
@@ -124,14 +126,15 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateUser(UserEntity userEntity) {
-        Validator validator;
-        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-            validator = factory.getValidator();
-        }
-        Set<ConstraintViolation<UserEntity>> violations = validator.validate(userEntity);
 
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException("Validation failed", violations);
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            Validator validator = factory.getValidator();
+
+            Set<ConstraintViolation<UserEntity>> violations = validator.validate(userEntity);
+
+            if (!violations.isEmpty()) {
+                throw new ConstraintViolationException("Validation failed", violations);
+            }
         }
     }
 }
