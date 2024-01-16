@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
 
         try {
             userRepository.save(userEntity);
-            logger.warn("Usuário criado: {}", userEntity);
+            logger.info("Usuário criado: {}", userEntity);
 
         } catch (DataIntegrityViolationException exception) {
             logger.error("Erro ao criar o usuário: E-mail já cadastrado.", exception);
@@ -133,7 +133,7 @@ public class UserServiceImpl implements UserService {
             Set<ConstraintViolation<UserEntity>> violations = validator.validate(userEntity);
 
             if (!violations.isEmpty()) {
-                throw new ConstraintViolationException("Validation failed", violations);
+                throw new ConstraintViolationException("Falha na validação", violations);
             }
         }
     }

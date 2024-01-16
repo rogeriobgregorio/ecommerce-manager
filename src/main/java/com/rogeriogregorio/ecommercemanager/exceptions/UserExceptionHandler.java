@@ -1,12 +1,15 @@
 package com.rogeriogregorio.ecommercemanager.exceptions;
 
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -68,6 +71,38 @@ public class UserExceptionHandler {
         });
 
         StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de validação", errors.toString());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<StandardError> handleNoResourceFoundException(
+            org.springframework.web.servlet.resource.NoResourceFoundException ex) {
+        String message = "Recurso não encontrado";
+        StandardError error = createStandardError(HttpStatus.NOT_FOUND, "Nenhum recurso estático.", message);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<StandardError> handleMethodArgumentTypeMismatchException(
+            MethodArgumentTypeMismatchException ex) {
+        String message = "Erro de tipo de argumento: " + ex.getName() +
+                " deve ser do tipo " + ex.getRequiredType().getSimpleName();
+        StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de argumento inválido", message);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(InvalidDataAccessApiUsageException.class)
+    public ResponseEntity<StandardError> handleInvalidDataAccessApiUsageException(
+            InvalidDataAccessApiUsageException ex) {
+        String message = "O ID fornecido não pode ser nulo.";
+        StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de argumento inválido", message);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<StandardError> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        String message = "O formato do JSON enviado é inválido.";
+        StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de argumento inválido", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
