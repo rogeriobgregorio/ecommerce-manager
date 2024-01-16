@@ -7,6 +7,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.*;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.UserConverter;
+import jakarta.validation.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -89,6 +91,8 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException("Usuário não encontrado com o ID: " + userEntity.getId() + ".");
         }
 
+        validateUser(userEntity);
+
         try {
             userRepository.save(userEntity);
             logger.warn("Usuário atualizado: {}", userEntity);
@@ -116,6 +120,18 @@ public class UserServiceImpl implements UserService {
         } catch (Exception exception) {
             logger.error("Erro ao tentar excluir o usuário: {}", exception.getMessage(), exception);
             throw new UserDeleteException("Erro ao tentar excluir o usuário: " + exception.getMessage() + ".");
+        }
+    }
+
+    private void validateUser(UserEntity userEntity) {
+        Validator validator;
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            validator = factory.getValidator();
+        }
+        Set<ConstraintViolation<UserEntity>> violations = validator.validate(userEntity);
+
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException("Validation failed", violations);
         }
     }
 }
