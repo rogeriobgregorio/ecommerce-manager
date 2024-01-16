@@ -57,11 +57,11 @@ public class UserServiceImpl implements UserService {
 
         } catch (DataIntegrityViolationException exception) {
             logger.error("Erro ao criar o usuário: E-mail já cadastrado.", exception);
-            throw new UserCreationException("Erro ao criar o usuário: E-mail já cadastrado.");
+            throw new UserCreateException("Erro ao criar o usuário: E-mail já cadastrado.");
 
         } catch (Exception exception) {
             logger.error("Erro ao criar o usuário: {}", exception.getMessage(), exception);
-            throw new UserCreationException("Erro ao criar o usuário: " + exception.getMessage() + ".");
+            throw new UserCreateException("Erro ao criar o usuário: " + exception.getMessage() + ".");
         }
 
         return userConverter.entityToResponse(userEntity);
@@ -115,7 +115,7 @@ public class UserServiceImpl implements UserService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar excluir o usuário: {}", exception.getMessage(), exception);
-            throw new UserDeletionException("Erro ao tentar excluir o usuário: " + exception.getMessage() + ".");
+            throw new UserDeleteException("Erro ao tentar excluir o usuário: " + exception.getMessage() + ".");
         }
     }
 }
