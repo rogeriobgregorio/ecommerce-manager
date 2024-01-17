@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -77,7 +78,7 @@ public class UserExceptionHandler {
     @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
     public ResponseEntity<StandardError> handleNoResourceFoundException(
             org.springframework.web.servlet.resource.NoResourceFoundException ex) {
-        String message = "Recurso não encontrado";
+        String message = "Recurso não encontrado: " + ex.getMessage();
         StandardError error = createStandardError(HttpStatus.NOT_FOUND, "Nenhum recurso estático.", message);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
@@ -86,7 +87,7 @@ public class UserExceptionHandler {
     public ResponseEntity<StandardError> handleMethodArgumentTypeMismatchException(
             MethodArgumentTypeMismatchException ex) {
         String message = "Erro de tipo de argumento: " + ex.getName() +
-                " deve ser do tipo " + ex.getRequiredType().getSimpleName();
+                " deve ser um número inteiro.";
         StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de argumento inválido", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
@@ -94,7 +95,7 @@ public class UserExceptionHandler {
     @ExceptionHandler(InvalidDataAccessApiUsageException.class)
     public ResponseEntity<StandardError> handleInvalidDataAccessApiUsageException(
             InvalidDataAccessApiUsageException ex) {
-        String message = "O ID fornecido não pode ser nulo.";
+        String message = "O ID fornecido não pode ser nulo: " + ex.getMessage();
         StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de argumento inválido", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
@@ -102,6 +103,13 @@ public class UserExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<StandardError> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         String message = "JSON inválido, verifique os dados enviados.";
+        StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de argumento inválido", message);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(MissingPathVariableException.class)
+    public ResponseEntity<StandardError> handleMissingPathVariableException(MissingPathVariableException ex) {
+        String message = "O valor do id enviado é nulo.";
         StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de argumento inválido", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
