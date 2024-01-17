@@ -9461,3 +9461,61 @@ insert into tb_users (email,name,password,phone,id) values (?,?,?,?,default) [23
 2024-01-16T21:59:24,077 WARN  org.springframework.beans.factory.support.DisposableBeanAdapter - Invocation of destroy method failed on bean with name 'inMemoryDatabaseShutdownExecutor': org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database is already closed (to disable automatic closing at VM shutdown, add ";DB_CLOSE_ON_EXIT=FALSE" to the db URL) [90121-224]
 2024-01-16T21:59:24,078 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
 2024-01-16T21:59:24,079 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2024-01-16T22:58:56,358 INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2024-01-16T22:58:56,390 INFO  com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - Starting ECommerceManagerApplication using Java 17.0.9 with PID 21010 (/home/rogerio/projetos/ecommerce-manager/target/classes started by rogerio in /home/rogerio/projetos/ecommerce-manager)
+2024-01-16T22:58:56,392 DEBUG com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - Running with Spring Boot v3.2.1, Spring v6.1.2
+2024-01-16T22:58:56,393 INFO  com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - The following 1 profile is active: "test"
+2024-01-16T22:58:56,428 INFO  org.springframework.boot.devtools.env.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-01-16T22:58:56,428 INFO  org.springframework.boot.devtools.env.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-01-16T22:58:56,915 INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-01-16T22:58:56,959 INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 38 ms. Found 1 JPA repository interface.
+2024-01-16T22:58:57,425 INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2024-01-16T22:58:57,433 INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2024-01-16T22:58:57,435 INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2024-01-16T22:58:57,435 INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.17]
+2024-01-16T22:58:57,466 INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2024-01-16T22:58:57,467 INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1037 ms
+2024-01-16T22:58:57,498 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2024-01-16T22:58:57,647 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
+2024-01-16T22:58:57,649 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2024-01-16T22:58:57,658 INFO  org.springframework.boot.autoconfigure.h2.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:testdb'
+2024-01-16T22:58:57,759 INFO  org.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-01-16T22:58:57,793 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.1.Final
+2024-01-16T22:58:57,815 INFO  org.hibernate.cache.internal.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2024-01-16T22:58:57,953 INFO  org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-01-16T22:58:57,984 WARN  org.hibernate.orm.deprecation - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-01-16T22:58:58,520 INFO  org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-01-16T22:58:58,550 INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-01-16T22:58:59,084 INFO  org.springframework.boot.devtools.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2024-01-16T22:58:59,096 INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2024-01-16T22:58:59,106 INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2024-01-16T22:58:59,114 INFO  com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - Started ECommerceManagerApplication in 3.036 seconds (process running for 3.594)
+2024-01-16T22:59:12,236 INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-01-16T22:59:12,236 INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2024-01-16T22:59:12,237 INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2024-01-16T22:59:20,881 WARN  com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl - Usuário não encontrado com o ID: 12
+2024-01-16T22:59:20,888 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [com.rogeriogregorio.ecommercemanager.exceptions.UserNotFoundException: Usuário não encontrado com o ID: 12.]
+2024-01-16T22:59:26,857 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource api/users.]
+2024-01-16T22:59:32,683 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "a"]
+2024-01-16T22:59:39,592 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: ""a""]
+2024-01-16T22:59:47,839 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "´"]
+2024-01-16T22:59:59,885 WARN  com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl - Usuário não encontrado com o ID: 12
+2024-01-16T22:59:59,887 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [com.rogeriogregorio.ecommercemanager.exceptions.UserNotFoundException: Usuário não encontrado com o ID: 12.]
+2024-01-16T23:00:19,904 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [jakarta.validation.ConstraintViolationException: Falha na validação]
+2024-01-16T23:00:37,682 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [jakarta.validation.ConstraintViolationException: Falha na validação]
+2024-01-16T23:00:52,509 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [jakarta.validation.ConstraintViolationException: Falha na validação]
+2024-01-16T23:01:04,117 INFO  com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl - Usuário criado: com.rogeriogregorio.ecommercemanager.entities.UserEntity@2b
+2024-01-16T23:01:12,300 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [org.springframework.dao.InvalidDataAccessApiUsageException: The given id must not be null]
+2024-01-16T23:01:24,202 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Unexpected character ('a' (code 97)): was expecting comma to separate Object entries]
+2024-01-16T23:01:30,647 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Unrecognized token 'a': was expecting (JSON String, Number, Array, Object or token 'null', 'true' or 'false')]
+2024-01-16T23:01:53,902 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Cannot deserialize value of type `java.lang.Long` from String "a": not a valid `java.lang.Long` value]
+2024-01-16T23:02:08,233 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [jakarta.validation.ConstraintViolationException: Falha na validação]
+2024-01-16T23:02:22,302 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource api/users.]
+2024-01-16T23:02:26,691 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Failed to convert value of type 'java.lang.String' to required type 'java.lang.Long'; For input string: "a"]
+2024-01-16T23:02:34,554 WARN  com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl - Usuário não encontrado com o ID: 14
+2024-01-16T23:02:34,556 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [com.rogeriogregorio.ecommercemanager.exceptions.UserNotFoundException: Usuário não encontrado com o ID: 14.]
+2024-01-16T23:02:38,215 WARN  com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl - Usuário removido: 12
+2024-01-16T23:02:41,667 INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-01-16T23:02:41,672 WARN  org.springframework.beans.factory.support.DisposableBeanAdapter - Invocation of destroy method failed on bean with name 'inMemoryDatabaseShutdownExecutor': org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database is already closed (to disable automatic closing at VM shutdown, add ";DB_CLOSE_ON_EXIT=FALSE" to the db URL) [90121-224]
+2024-01-16T23:02:41,673 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2024-01-16T23:02:41,675 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

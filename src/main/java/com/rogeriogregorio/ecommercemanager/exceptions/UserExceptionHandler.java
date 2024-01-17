@@ -101,7 +101,7 @@ public class UserExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<StandardError> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        String message = "O formato do JSON enviado é inválido.";
+        String message = "JSON inválido, verifique os dados enviados.";
         StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de argumento inválido", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }

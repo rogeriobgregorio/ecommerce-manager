@@ -5,13 +5,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
 @Table(name = "tb_users", uniqueConstraints = {
         @UniqueConstraint(columnNames = "email", name = "unique_email_constraint")
 })
-public class UserEntity {
+public class UserEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
