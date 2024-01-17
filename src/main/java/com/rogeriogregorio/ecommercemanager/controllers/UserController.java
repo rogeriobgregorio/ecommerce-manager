@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -63,5 +64,13 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .build();
+    }
+
+    @GetMapping(value = "/users/search")
+    public ResponseEntity<List<UserResponse>> getUserByName(@RequestParam("name") String name) {
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userService.findUserByName(name));
     }
 }

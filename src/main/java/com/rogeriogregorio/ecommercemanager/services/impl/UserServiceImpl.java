@@ -12,7 +12,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,13 +74,13 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserResponse findUserById(Long id) {
 
-            return userRepository
-                    .findById(id)
-                    .map(userConverter::entityToResponse)
-                    .orElseThrow(() -> {
-                        logger.warn("Usuário não encontrado com o ID: {}", id);
-                        return new UserNotFoundException("Usuário não encontrado com o ID: " + id + ".");
-                    });
+        return userRepository
+                .findById(id)
+                .map(userConverter::entityToResponse)
+                .orElseThrow(() -> {
+                    logger.warn("Usuário não encontrado com o ID: {}", id);
+                    return new UserNotFoundException("Usuário não encontrado com o ID: " + id + ".");
+                });
     }
 
     @Transactional(readOnly = false)
@@ -123,6 +122,28 @@ public class UserServiceImpl implements UserService {
         } catch (Exception exception) {
             logger.error("Erro ao tentar excluir o usuário: {}", exception.getMessage(), exception);
             throw new UserDeleteException("Erro ao tentar excluir o usuário: " + exception.getMessage() + ".");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponse> findUserByName(String name) {
+
+
+        List<UserEntity> users = userRepository.findByName(name);
+
+        if (users.isEmpty()) {
+            logger.warn("Nenhum usuário encontrado com o nome: {}", name);
+            throw new UserNotFoundException("Nenhum usuário com nome " + name + " encontrado.");
+        }
+
+        try {
+            return users.stream()
+                    .map(userConverter::entityToResponse)
+                    .collect(Collectors.toList());
+
+        } catch (Exception exception) {
+            logger.error("Erro ao buscar usuários pelo nome: {}", exception.getMessage(), exception);
+            throw new UserQueryException("Erro ao buscar usuários pelo nome: " + exception.getMessage() + ".");
         }
     }
 
