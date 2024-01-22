@@ -4,6 +4,7 @@ import com.rogeriogregorio.ecommercemanager.dto.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.UserCreateException;
+import com.rogeriogregorio.ecommercemanager.exceptions.UserNotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.UserQueryException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl;
@@ -18,8 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -45,7 +46,6 @@ public class UserServiceImplTest {
 
     @Test
     void findAllUsers_returnsListUsersResponse() {
-
         // Arrange
         UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
         List<UserEntity> userEntityList = new ArrayList<>();
@@ -126,10 +126,12 @@ public class UserServiceImplTest {
 
         // Act and Assert
         assertThrows(UserCreateException.class, () -> userService.createUser(userRequest));
+        verify(userConverter, times(1)).requestToEntity(userRequest);
+        verify(userRepository, times(1)).save(any());
     }
 
     @Test
-    void createUser_throwsUserCreateExceptionGenericException() {
+    void createUser_handlesUserCreateExceptionGeneric() {
         // Arrange
         UserRequest userRequest = new UserRequest("João Silva", "joao@email.com", "11912345678", "senha123");
         UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
@@ -139,6 +141,35 @@ public class UserServiceImplTest {
 
         // Act and Assert
         assertThrows(UserCreateException.class, () -> userService.createUser(userRequest));
+        verify(userConverter, times(1)).requestToEntity(userRequest);
+        verify(userRepository, times(1)).save(any());
     }
 
+    @Test
+    void findUserById_returnsUserResponse() {
+        // Arrange
+        UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
+        UserResponse userResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
+        when(userConverter.entityToResponse(userEntity)).thenReturn(userResponse);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
+
+        // Act
+        UserResponse returnsUserResponse = userService.findUserById(1L);
+
+        // Assert
+        assertNotNull(returnsUserResponse);
+        assertEquals(userResponse, returnsUserResponse);
+        verify(userConverter, times(1)).entityToResponse(userEntity);
+        verify(userRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void findUserById_handlesUserNotFoundException() {
+        // Arrange
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Act and Assert
+        assertThrows(UserNotFoundException.class, () -> userService.findUserById(1L));
+        verify(userRepository, times(1)).findById(1L);
+    }
 }
