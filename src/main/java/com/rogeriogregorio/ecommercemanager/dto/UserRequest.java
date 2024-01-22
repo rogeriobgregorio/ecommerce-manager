@@ -11,6 +11,13 @@ public class UserRequest {
     public UserRequest() {
     }
 
+    public UserRequest(String name, String email, String phone, String password) {
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.password = password;
+    }
+
     public Long getId() {
         return id;
     }
