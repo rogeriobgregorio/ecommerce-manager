@@ -9,6 +9,7 @@ import com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl;
 import com.rogeriogregorio.ecommercemanager.util.UserConverter;
 import jakarta.validation.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -42,6 +43,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("findAllUsers - Busca bem-sucedida retorna lista de usuários")
     void findAllUsers_SuccessfulSearch_ReturnsListResponse() {
         // Arrange
         UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
@@ -65,6 +67,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("findAllUsers - Busca bem-sucedida retorna lista de usuários vazia")
     void findAllUsers_SuccessfulSearch_ReturnsEmptyList() {
         /// Arrange
         List<UserEntity> emptyUserEntityList = Collections.emptyList();
@@ -82,6 +85,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("findAllUsers - Exceção ao consultar lista de usuários")
     void findAllUsers_UserQueryExceptionHandling() {
         // Arrange
         when(userRepository.findAll()).thenThrow(new RuntimeException("Simulating a repository exception"));
@@ -91,6 +95,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("createUser - Criação bem-sucedida retorna usuário criado")
     void createUser_SuccessfulCreation_ReturnsUserResponse() {
         // Arrange
         UserRequest userRequest = new UserRequest("João Silva", "joao@email.com", "11912345678", "senha123");
@@ -114,6 +119,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("createUser - Exceção ao criar usuário com e-mail já registrado")
     void createUser_UserCreateException_EmailAlreadyRegistered() {
         // Arrange
         UserRequest userRequest = new UserRequest("João Silva", "joao@email.com", "11912345678", "senha123");
@@ -130,6 +136,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("createUser - Exceção genérica ao criar usuário")
     void createUser_UserCreateException_Generic() {
         // Arrange
         UserRequest userRequest = new UserRequest("João Silva", "joao@email.com", "11912345678", "senha123");
@@ -146,6 +153,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("findUserById - Busca bem-sucedida retorna usuário")
     void findUserById_SuccessfulSearch_ReturnsUserResponse() {
         // Arrange
         UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
@@ -165,6 +173,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("findUserById - Exceção ao buscar usuário inexistente")
     void findUserById_UserNotFoundExceptionHandling() {
         // Arrange
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
@@ -176,6 +185,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("updateUser - Atualização bem-sucedida retorna usuário atualizado")
     void updateUser_SuccessfulUpdate_ReturnsUserResponse() {
         // Arrange
         UserRequest userRequest = new UserRequest(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
@@ -204,6 +214,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("updateUser - Exceção ao atualizar usuário inexistente")
     void updateUser_UserNotFoundExceptionHandling() {
         // Arrange
         UserRequest userRequest = new UserRequest(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
@@ -220,6 +231,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("updateUser - Exceção ao atualizar usuário")
     void updateUser_UserUpdateExceptionHandling() {
         // Arrange
         UserRequest userRequest = new UserRequest(1L,"João Silva", "joao@email.com", "11912345678", "senha123");
@@ -238,6 +250,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("deleteUser - Exclusão bem-sucedida do usuário")
     void deleteUser_DeletesUserSuccessfully() {
         // Arrange
         Long userId = 1L;
@@ -252,6 +265,7 @@ public class UserServiceImplTest {
 
 
     @Test
+    @DisplayName("deleteUser - Exceção ao excluir usuário inexistente")
     void deleteUser_UserNotFoundExceptionHandling() {
         // Arrange
         Long userId = 1L;
@@ -263,6 +277,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("deleteUser - Exceção ao excluir usuário")
     void deleteUser_UserDeleteExceptionHandling() {
         // Arrange
         Long userId = 1L;
@@ -276,6 +291,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("findUserByName - Busca bem-sucedida pelo nome retorna lista de usuários")
     void findUserByName_SuccessfulSearch_ReturnsListUsersResponse() {
         // Arrange
         String userName = "João Silva";
@@ -303,6 +319,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("findUserByName - Exceção ao buscar usuário inexistente pelo nome")
     void findUserByName_UserNotFoundExceptionHandling() {
         // Arrange
         String userName = "Inexistente";
@@ -315,6 +332,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("findUserByName - Exceção ao buscar usuário pelo nome")
     void findUserByName_UserQueryExceptionHandling() {
         // Arrange
         String userName = "Erro";
@@ -329,6 +347,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("validateUser - Validação bem-sucedida do usuário")
     void validateUser_SuccessfulValidation() {
         // Arrange
         UserEntity validUser = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
@@ -344,6 +363,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("validateUser - Exceção ao validar usuário com violação de restrição")
     void validateUser_ConstraintViolationExceptionHandling() {
         // Arrange
         UserEntity invalidUser = new UserEntity("", "invalid_email", "invalid_phone", "");
