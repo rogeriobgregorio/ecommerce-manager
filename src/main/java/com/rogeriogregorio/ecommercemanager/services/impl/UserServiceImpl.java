@@ -8,6 +8,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.UserConverter;
 import jakarta.validation.*;
+import jakarta.validation.constraints.NotNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,8 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = false)
     public UserResponse createUser(UserRequest userRequest) {
+
+        userRequest.setId(null);
 
         UserEntity userEntity = userConverter.requestToEntity(userRequest);
 
