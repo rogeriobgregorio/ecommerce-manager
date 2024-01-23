@@ -147,7 +147,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void validateUser(UserEntity userEntity) {
+    public void validateUser(UserEntity userEntity) {
 
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
             Validator validator = factory.getValidator();

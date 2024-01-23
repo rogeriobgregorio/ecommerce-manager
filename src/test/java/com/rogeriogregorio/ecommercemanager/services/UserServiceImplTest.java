@@ -3,12 +3,11 @@ package com.rogeriogregorio.ecommercemanager.services;
 import com.rogeriogregorio.ecommercemanager.dto.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
-import com.rogeriogregorio.ecommercemanager.exceptions.UserCreateException;
-import com.rogeriogregorio.ecommercemanager.exceptions.UserNotFoundException;
-import com.rogeriogregorio.ecommercemanager.exceptions.UserQueryException;
+import com.rogeriogregorio.ecommercemanager.exceptions.*;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl;
 import com.rogeriogregorio.ecommercemanager.util.UserConverter;
+import jakarta.validation.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,9 +17,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -45,7 +42,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void findAllUsers_returnsListUsersResponse() {
+    void findAllUsers_returnsListUsersResponse_OnSuccessfulSearch() {
         // Arrange
         UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
         List<UserEntity> userEntityList = new ArrayList<>();
@@ -69,9 +66,10 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void findAllUsers_returnsEmptyList() {
+    void findAllUsers_returnsEmptyList_OnSuccessfulSearch() {
         // Arrange
         List<UserEntity> userEntityListEmpty = new ArrayList<>();
+
         when(userRepository.findAll()).thenReturn(userEntityListEmpty);
 
         // Act
@@ -94,7 +92,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void createUser_returnsUserResponse() {
+    void createUser_returnsUserResponse_OnSuccessfulCreated() {
         // Arrange
         UserRequest userRequest = new UserRequest("João Silva", "joao@email.com", "11912345678", "senha123");
         UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
@@ -116,7 +114,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void createUser_handlesUserCreateExceptionEmailAlreadyRegistered() {
+    void createUser_handlesUserCreateException_EmailAlreadyRegistered() {
         // Arrange
         UserRequest userRequest = new UserRequest("João Silva", "joao@email.com", "11912345678", "senha123");
         UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
@@ -131,7 +129,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void createUser_handlesUserCreateExceptionGeneric() {
+    void createUser_handlesUserCreateException_Generic() {
         // Arrange
         UserRequest userRequest = new UserRequest("João Silva", "joao@email.com", "11912345678", "senha123");
         UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
@@ -146,10 +144,11 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void findUserById_returnsUserResponse() {
+    void findUserById_returnsUserResponse_OnSuccessfulSearchById() {
         // Arrange
         UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
         UserResponse userResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
+
         when(userConverter.entityToResponse(userEntity)).thenReturn(userResponse);
         when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
 
@@ -171,5 +170,176 @@ public class UserServiceImplTest {
         // Act and Assert
         assertThrows(UserNotFoundException.class, () -> userService.findUserById(1L));
         verify(userRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void updateUser_returnsUserResponse_OnSuccessfulUpdate() {
+        // Arrange
+        UserRequest userRequest = new UserRequest(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        UserResponse userResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
+
+        when(userConverter.requestToEntity(userRequest)).thenReturn(userEntity);
+        when(userRepository.existsById(userEntity.getId())).thenReturn(true);
+        when(userRepository.save(userEntity)).thenReturn(userEntity);
+        when(userConverter.entityToResponse(userEntity)).thenReturn(userResponse);
+
+        // Act
+        UserResponse returnsUserResponse = userService.updateUser(userRequest);
+
+        // Assert
+        assertNotNull(returnsUserResponse);
+        assertEquals(userEntity.getId(), returnsUserResponse.getId());
+        assertEquals(userRequest.getName(), returnsUserResponse.getName());
+        assertEquals(userRequest.getEmail(), returnsUserResponse.getEmail());
+        assertEquals(userRequest.getPhone(), returnsUserResponse.getPhone());
+        verify(userConverter, times(1)).requestToEntity(userRequest);
+        verify(userRepository, times(1)).existsById(userEntity.getId());
+        verify(userRepository, times(1)).save(userEntity);
+        verify(userConverter, times(1)).entityToResponse(userEntity);
+    }
+
+    @Test
+    void updateUser_handlesUserNotFoundException() {
+        // Arrange
+        UserRequest userRequest = new UserRequest(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+
+        when(userConverter.requestToEntity(userRequest)).thenReturn(userEntity);
+        when(userRepository.existsById(userEntity.getId())).thenReturn(false);
+
+        // Act and Assert
+        assertThrows(UserNotFoundException.class, () -> userService.updateUser(userRequest));
+        verify(userConverter, times(1)).requestToEntity(userRequest);
+        verify(userRepository, times(1)).existsById(userEntity.getId());
+    }
+
+    @Test
+    void updateUser_handlesUserUpdateException() {
+        // Arrange
+        UserRequest userRequest = new UserRequest(1L,"João Silva", "joao@email.com", "11912345678", "senha123");
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+
+        when(userConverter.requestToEntity(userRequest)).thenReturn(userEntity);
+        when(userRepository.existsById(userEntity.getId())).thenReturn(true);
+        when(userRepository.save(userEntity)).thenThrow(RuntimeException.class);
+
+        // Act and Assert
+        assertThrows(UserUpdateException.class, () -> userService.updateUser(userRequest));
+        verify(userConverter, times(1)).requestToEntity(userRequest);
+        verify(userRepository, times(1)).existsById(userEntity.getId());
+        verify(userRepository, times(1)).save(userEntity);
+    }
+
+    @Test
+    void deleteUser_deletesUserSuccessfully() {
+        // Arrange
+        Long userId = 1L;
+        when(userRepository.existsById(userId)).thenReturn(true);
+
+        // Act
+        userService.deleteUser(userId);
+
+        // Assert
+        verify(userRepository, times(1)).deleteById(userId);
+    }
+
+
+    @Test
+    void deleteUser_handlesUserNotFoundException() {
+        // Arrange
+        Long userId = 1L;
+        when(userRepository.existsById(userId)).thenReturn(false);
+
+        // Act and Assert
+        assertThrows(UserNotFoundException.class, () -> userService.deleteUser(userId));
+        verify(userRepository, times(1)).existsById(userId);
+    }
+
+    @Test
+    void deleteUser_handlesUserDeleteException() {
+        // Arrange
+        Long userId = 1L;
+        when(userRepository.existsById(userId)).thenReturn(true);
+        doThrow(RuntimeException.class).when(userRepository).deleteById(userId);
+
+        // Act and Assert
+        assertThrows(UserDeleteException.class, () -> userService.deleteUser(userId));
+        verify(userRepository, times(1)).existsById(userId);
+        verify(userRepository, times(1)).deleteById(userId);
+    }
+
+    @Test
+    void findUserByName_returnsListUsersResponse_OnSuccessfulSearch() {
+        // Arrange
+        String userName = "João Silva";
+        List<UserEntity> userEntities = List.of(
+                new UserEntity(userName, "joao@email.com", "11912345678", "senha123")
+        );
+
+        when(userRepository.findByName(userName)).thenReturn(userEntities);
+        when(userConverter.entityToResponse(any())).thenAnswer(invocation -> {
+            UserEntity entity = invocation.getArgument(0);
+            return new UserResponse(entity.getId(), entity.getName(), entity.getEmail(), entity.getPhone());
+        });
+
+        // Act
+        List<UserResponse> userResponses = userService.findUserByName(userName);
+
+        // Assert
+        assertNotNull(userResponses);
+        assertFalse(userResponses.isEmpty());
+        assertEquals(userEntities.size(), userResponses.size());
+        assertEquals(userName, userResponses.get(0).getName());
+        verify(userRepository, times(1)).findByName(userName);
+        verify(userConverter, times(1)).entityToResponse(any());
+    }
+
+    @Test
+    void findUserByName_handlesUserNotFoundException() {
+        // Arrange
+        String userName = "Inexistente";
+        when(userRepository.findByName(userName)).thenReturn(Collections.emptyList());
+
+        // Act and Assert
+        assertThrows(UserNotFoundException.class, () -> userService.findUserByName(userName));
+        verify(userRepository, times(1)).findByName(userName);
+    }
+
+    @Test
+    void findUserByName_handlesUserQueryException() {
+        // Arrange
+        String userName = "Erro";
+        when(userRepository.findByName(userName)).thenReturn(List.of(new UserEntity(userName, "email", "phone", "password")));
+        when(userConverter.entityToResponse(any())).thenThrow(RuntimeException.class);
+
+        // Act and Assert
+        assertThrows(UserQueryException.class, () -> userService.findUserByName(userName));
+        verify(userRepository, times(1)).findByName(userName);
+        verify(userConverter, times(1)).entityToResponse(any());
+    }
+
+    @Test
+    void validateUser_validateUserSuccessfully() {
+        // Arrange
+        UserEntity validUser = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
+
+        // Act
+        assertDoesNotThrow(() -> userService.validateUser(validUser));
+
+        // Assert
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        Set<ConstraintViolation<UserEntity>> violations = validator.validate(validUser);
+        assertTrue(violations.isEmpty(), "No constraint violations expected for a valid user");
+    }
+
+    @Test
+    void validateUser_handlesConstraintViolationException() {
+        // Arrange
+        UserEntity invalidUser = new UserEntity("", "invalid_email", "invalid_phone", "");
+
+        // Act and Assert
+        assertThrows(ConstraintViolationException.class, () -> userService.validateUser(invalidUser));
     }
 }
