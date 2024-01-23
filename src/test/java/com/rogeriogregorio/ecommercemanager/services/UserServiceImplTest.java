@@ -42,79 +42,79 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void findAllUsers_returnsListUsersResponse_OnSuccessfulSearch() {
+    void findAllUsers_SuccessfulSearch_ReturnsListResponse() {
         // Arrange
         UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
-        List<UserEntity> userEntityList = new ArrayList<>();
-        userEntityList.add(userEntity);
+        List<UserEntity> userEntityList = Collections.singletonList(userEntity);
 
         UserResponse userResponse = new UserResponse(null, "João Silva", "joao@email.com", "11912345678");
-        List<UserResponse> userResponseList = new ArrayList<>();
-        userResponseList.add(userResponse);
+        List<UserResponse> expectedResponses = Collections.singletonList(userResponse);
 
         when(userConverter.entityToResponse(userEntity)).thenReturn(userResponse);
         when(userRepository.findAll()).thenReturn(userEntityList);
 
         // Act
-        List<UserResponse> returnsListUserResponse = userService.findAllUsers();
+        List<UserResponse> actualResponses = userService.findAllUsers();
 
         // Assert
-        assertEquals(userResponseList.size(), returnsListUserResponse.size());
-        assertIterableEquals(userResponseList, returnsListUserResponse);
+        assertEquals(expectedResponses.size(), actualResponses.size());
+        assertIterableEquals(expectedResponses, actualResponses);
+
         verify(userConverter, times(1)).entityToResponse(any());
         verify(userRepository, times(1)).findAll();
     }
 
     @Test
-    void findAllUsers_returnsEmptyList_OnSuccessfulSearch() {
-        // Arrange
-        List<UserEntity> userEntityListEmpty = new ArrayList<>();
+    void findAllUsers_SuccessfulSearch_ReturnsEmptyList() {
+        /// Arrange
+        List<UserEntity> emptyUserEntityList = Collections.emptyList();
 
-        when(userRepository.findAll()).thenReturn(userEntityListEmpty);
+        when(userRepository.findAll()).thenReturn(emptyUserEntityList);
 
         // Act
-        List<UserResponse> returnsListUserResponse = userService.findAllUsers();
+        List<UserResponse> actualResponses = userService.findAllUsers();
 
         // Assert
-        assertEquals(userEntityListEmpty.size(), returnsListUserResponse.size());
-        assertIterableEquals(userEntityListEmpty, returnsListUserResponse);
+        assertEquals(0, actualResponses.size(), "Expected an empty list of responses");
+        assertIterableEquals(emptyUserEntityList, actualResponses, "Expected an empty list of responses");
+
         verify(userRepository, times(1)).findAll();
     }
 
-
     @Test
-    void findAllUsers_handlesUserQueryException() {
+    void findAllUsers_UserQueryExceptionHandling() {
         // Arrange
-        when(userRepository.findAll()).thenThrow(new RuntimeException("Simulando uma exceção do repositório"));
+        when(userRepository.findAll()).thenThrow(new RuntimeException("Simulating a repository exception"));
 
         // Act and Assert
-        assertThrows(UserQueryException.class, () -> userService.findAllUsers());
+        assertThrows(UserQueryException.class, () -> userService.findAllUsers(), "Expected UserQueryException to be thrown");
     }
 
     @Test
-    void createUser_returnsUserResponse_OnSuccessfulCreated() {
+    void createUser_SuccessfulCreation_ReturnsUserResponse() {
         // Arrange
         UserRequest userRequest = new UserRequest("João Silva", "joao@email.com", "11912345678", "senha123");
         UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
-        UserResponse userResponse = new UserResponse(null, "João Silva", "joao@email.com", "11912345678");
+        UserResponse expectedResponse = new UserResponse(null, "João Silva", "joao@email.com", "11912345678");
 
         when(userConverter.requestToEntity(userRequest)).thenReturn(userEntity);
-        when(userConverter.entityToResponse(userEntity)).thenReturn(userResponse);
+        when(userConverter.entityToResponse(userEntity)).thenReturn(expectedResponse);
         when(userRepository.save(any())).thenReturn(userEntity);
 
         // Act
-        UserResponse returnsUserResponse = userService.createUser(userRequest);
+        UserResponse actualResponse = userService.createUser(userRequest);
 
         // Assert
-        assertNotNull(returnsUserResponse);
-        assertEquals(userResponse, returnsUserResponse);
+        assertNotNull(actualResponse, "UserResponse should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+
         verify(userRepository, times(1)).save(any());
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userConverter, times(1)).entityToResponse(userEntity);
     }
 
     @Test
-    void createUser_handlesUserCreateException_EmailAlreadyRegistered() {
+    void createUser_UserCreateException_EmailAlreadyRegistered() {
         // Arrange
         UserRequest userRequest = new UserRequest("João Silva", "joao@email.com", "11912345678", "senha123");
         UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
@@ -123,13 +123,14 @@ public class UserServiceImplTest {
         when(userRepository.save(userEntity)).thenThrow(DataIntegrityViolationException.class);
 
         // Act and Assert
-        assertThrows(UserCreateException.class, () -> userService.createUser(userRequest));
+        assertThrows(UserCreateException.class, () -> userService.createUser(userRequest), "Expected UserCreateException due to duplicate email");
+
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userRepository, times(1)).save(any());
     }
 
     @Test
-    void createUser_handlesUserCreateException_Generic() {
+    void createUser_UserCreateException_Generic() {
         // Arrange
         UserRequest userRequest = new UserRequest("João Silva", "joao@email.com", "11912345678", "senha123");
         UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
@@ -138,61 +139,64 @@ public class UserServiceImplTest {
         when(userRepository.save(userEntity)).thenThrow(RuntimeException.class);
 
         // Act and Assert
-        assertThrows(UserCreateException.class, () -> userService.createUser(userRequest));
+        assertThrows(UserCreateException.class, () -> userService.createUser(userRequest), "Expected UserCreateException due to a generic runtime exception");
+
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userRepository, times(1)).save(any());
     }
 
     @Test
-    void findUserById_returnsUserResponse_OnSuccessfulSearchById() {
+    void findUserById_SuccessfulSearch_ReturnsUserResponse() {
         // Arrange
         UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
-        UserResponse userResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
+        UserResponse expectedResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
 
-        when(userConverter.entityToResponse(userEntity)).thenReturn(userResponse);
+        when(userConverter.entityToResponse(userEntity)).thenReturn(expectedResponse);
         when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
 
         // Act
-        UserResponse returnsUserResponse = userService.findUserById(1L);
+        UserResponse actualResponse = userService.findUserById(1L);
 
         // Assert
-        assertNotNull(returnsUserResponse);
-        assertEquals(userResponse, returnsUserResponse);
+        assertNotNull(actualResponse, "UserResponse should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(userConverter, times(1)).entityToResponse(userEntity);
         verify(userRepository, times(1)).findById(1L);
     }
 
     @Test
-    void findUserById_handlesUserNotFoundException() {
+    void findUserById_UserNotFoundExceptionHandling() {
         // Arrange
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(UserNotFoundException.class, () -> userService.findUserById(1L));
+        assertThrows(UserNotFoundException.class, () -> userService.findUserById(1L), "Expected UserNotFoundException for non-existent user");
+
         verify(userRepository, times(1)).findById(1L);
     }
 
     @Test
-    void updateUser_returnsUserResponse_OnSuccessfulUpdate() {
+    void updateUser_SuccessfulUpdate_ReturnsUserResponse() {
         // Arrange
         UserRequest userRequest = new UserRequest(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        UserResponse userResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
+        UserResponse expectedResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
 
         when(userConverter.requestToEntity(userRequest)).thenReturn(userEntity);
         when(userRepository.existsById(userEntity.getId())).thenReturn(true);
         when(userRepository.save(userEntity)).thenReturn(userEntity);
-        when(userConverter.entityToResponse(userEntity)).thenReturn(userResponse);
+        when(userConverter.entityToResponse(userEntity)).thenReturn(expectedResponse);
 
         // Act
-        UserResponse returnsUserResponse = userService.updateUser(userRequest);
+        UserResponse actualResponse = userService.updateUser(userRequest);
 
         // Assert
-        assertNotNull(returnsUserResponse);
-        assertEquals(userEntity.getId(), returnsUserResponse.getId());
-        assertEquals(userRequest.getName(), returnsUserResponse.getName());
-        assertEquals(userRequest.getEmail(), returnsUserResponse.getEmail());
-        assertEquals(userRequest.getPhone(), returnsUserResponse.getPhone());
+        assertNotNull(actualResponse, "UserResponse should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        assertEquals(userRequest.getName(), actualResponse.getName(), "Names should match");
+        assertEquals(userRequest.getEmail(), actualResponse.getEmail(), "Emails should match");
+        assertEquals(userRequest.getPhone(), actualResponse.getPhone(), "Phones should match");
+
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userRepository, times(1)).existsById(userEntity.getId());
         verify(userRepository, times(1)).save(userEntity);
@@ -200,7 +204,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void updateUser_handlesUserNotFoundException() {
+    void updateUser_UserNotFoundExceptionHandling() {
         // Arrange
         UserRequest userRequest = new UserRequest(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
@@ -209,13 +213,14 @@ public class UserServiceImplTest {
         when(userRepository.existsById(userEntity.getId())).thenReturn(false);
 
         // Act and Assert
-        assertThrows(UserNotFoundException.class, () -> userService.updateUser(userRequest));
+        assertThrows(UserNotFoundException.class, () -> userService.updateUser(userRequest), "Expected UserNotFoundException for non-existent user");
+
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userRepository, times(1)).existsById(userEntity.getId());
     }
 
     @Test
-    void updateUser_handlesUserUpdateException() {
+    void updateUser_UserUpdateExceptionHandling() {
         // Arrange
         UserRequest userRequest = new UserRequest(1L,"João Silva", "joao@email.com", "11912345678", "senha123");
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
@@ -225,14 +230,15 @@ public class UserServiceImplTest {
         when(userRepository.save(userEntity)).thenThrow(RuntimeException.class);
 
         // Act and Assert
-        assertThrows(UserUpdateException.class, () -> userService.updateUser(userRequest));
+        assertThrows(UserUpdateException.class, () -> userService.updateUser(userRequest), "Expected UserUpdateException for update failure");
+
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userRepository, times(1)).existsById(userEntity.getId());
         verify(userRepository, times(1)).save(userEntity);
     }
 
     @Test
-    void deleteUser_deletesUserSuccessfully() {
+    void deleteUser_DeletesUserSuccessfully() {
         // Arrange
         Long userId = 1L;
         when(userRepository.existsById(userId)).thenReturn(true);
@@ -246,31 +252,31 @@ public class UserServiceImplTest {
 
 
     @Test
-    void deleteUser_handlesUserNotFoundException() {
+    void deleteUser_UserNotFoundExceptionHandling() {
         // Arrange
         Long userId = 1L;
         when(userRepository.existsById(userId)).thenReturn(false);
 
         // Act and Assert
-        assertThrows(UserNotFoundException.class, () -> userService.deleteUser(userId));
+        assertThrows(UserNotFoundException.class, () -> userService.deleteUser(userId), "Expected UserNotFoundException for non-existent user");
         verify(userRepository, times(1)).existsById(userId);
     }
 
     @Test
-    void deleteUser_handlesUserDeleteException() {
+    void deleteUser_UserDeleteExceptionHandling() {
         // Arrange
         Long userId = 1L;
         when(userRepository.existsById(userId)).thenReturn(true);
         doThrow(RuntimeException.class).when(userRepository).deleteById(userId);
 
         // Act and Assert
-        assertThrows(UserDeleteException.class, () -> userService.deleteUser(userId));
+        assertThrows(UserDeleteException.class, () -> userService.deleteUser(userId), "Expected UserDeleteException for delete failure");
         verify(userRepository, times(1)).existsById(userId);
         verify(userRepository, times(1)).deleteById(userId);
     }
 
     @Test
-    void findUserByName_returnsListUsersResponse_OnSuccessfulSearch() {
+    void findUserByName_SuccessfulSearch_ReturnsListUsersResponse() {
         // Arrange
         String userName = "João Silva";
         List<UserEntity> userEntities = List.of(
@@ -287,59 +293,66 @@ public class UserServiceImplTest {
         List<UserResponse> userResponses = userService.findUserByName(userName);
 
         // Assert
-        assertNotNull(userResponses);
-        assertFalse(userResponses.isEmpty());
-        assertEquals(userEntities.size(), userResponses.size());
-        assertEquals(userName, userResponses.get(0).getName());
+        assertNotNull(userResponses, "UserResponses should not be null");
+        assertFalse(userResponses.isEmpty(), "UserResponses should not be empty");
+        assertEquals(userEntities.size(), userResponses.size(), "Size of UserResponses should match size of UserEntities");
+        assertEquals(userName, userResponses.get(0).getName(), "Names should match");
+
         verify(userRepository, times(1)).findByName(userName);
         verify(userConverter, times(1)).entityToResponse(any());
     }
 
     @Test
-    void findUserByName_handlesUserNotFoundException() {
+    void findUserByName_UserNotFoundExceptionHandling() {
         // Arrange
         String userName = "Inexistente";
         when(userRepository.findByName(userName)).thenReturn(Collections.emptyList());
 
         // Act and Assert
-        assertThrows(UserNotFoundException.class, () -> userService.findUserByName(userName));
+        assertThrows(UserNotFoundException.class, () -> userService.findUserByName(userName), "Expected UserNotFoundException for non-existent user");
+
         verify(userRepository, times(1)).findByName(userName);
     }
 
     @Test
-    void findUserByName_handlesUserQueryException() {
+    void findUserByName_UserQueryExceptionHandling() {
         // Arrange
         String userName = "Erro";
         when(userRepository.findByName(userName)).thenReturn(List.of(new UserEntity(userName, "email", "phone", "password")));
         when(userConverter.entityToResponse(any())).thenThrow(RuntimeException.class);
 
         // Act and Assert
-        assertThrows(UserQueryException.class, () -> userService.findUserByName(userName));
+        assertThrows(UserQueryException.class, () -> userService.findUserByName(userName), "Expected UserQueryException for conversion failure");
+
         verify(userRepository, times(1)).findByName(userName);
         verify(userConverter, times(1)).entityToResponse(any());
     }
 
     @Test
-    void validateUser_validateUserSuccessfully() {
+    void validateUser_SuccessfulValidation() {
         // Arrange
         UserEntity validUser = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
 
-        // Act
-        assertDoesNotThrow(() -> userService.validateUser(validUser));
+        // Act and Assert
+        assertDoesNotThrow(() -> userService.validateUser(validUser), "Validation should not throw an exception");
 
-        // Assert
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
         Set<ConstraintViolation<UserEntity>> violations = validator.validate(validUser);
+
         assertTrue(violations.isEmpty(), "No constraint violations expected for a valid user");
     }
 
     @Test
-    void validateUser_handlesConstraintViolationException() {
+    void validateUser_ConstraintViolationExceptionHandling() {
         // Arrange
         UserEntity invalidUser = new UserEntity("", "invalid_email", "invalid_phone", "");
 
         // Act and Assert
-        assertThrows(ConstraintViolationException.class, () -> userService.validateUser(invalidUser));
+        assertThrows(
+                ConstraintViolationException.class,
+                () -> userService.validateUser(invalidUser),
+                "Expected ConstraintViolationException for invalid user"
+        );
     }
 }
