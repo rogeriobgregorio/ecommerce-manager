@@ -6,6 +6,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -38,6 +40,9 @@ public class UserEntity implements Serializable {
     @NotBlank(message = "A senha não deve estar em branco")
     @Size(min = 6, message = "A senha não deve ter menos de 6 caracteres.")
     private String password;
+
+    @OneToMany(mappedBy = "client")
+    private List<OrderEntity> orders = new ArrayList<>();
 
     public UserEntity() {
     }
@@ -94,6 +99,8 @@ public class UserEntity implements Serializable {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public List<OrderEntity> getOrders() { return orders; }
 
     @Override
     public boolean equals(Object o) {
