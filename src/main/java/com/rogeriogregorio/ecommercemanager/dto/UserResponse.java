@@ -1,5 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.dto;
 
+import java.util.Objects;
+
 public class UserResponse {
 
     private Long id;

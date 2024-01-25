@@ -30,27 +30,13 @@ public class UserRequest {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public void setId(Long id) { this.id = id; }
 
-    public String getName() {
+    public String getName() { return name; }
 
-        return name;
-    }
+    public String getEmail() { return email; }
 
-    public String getEmail() {
+    public String getPhone() { return phone; }
 
-        return email;
-    }
-
-    public String getPhone() {
-
-        return phone;
-    }
-
-    public String getPassword() {
-
-        return password;
-    }
+    public String getPassword() { return password; }
 }
