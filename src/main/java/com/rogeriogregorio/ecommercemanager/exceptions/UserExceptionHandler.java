@@ -49,32 +49,6 @@ public class UserExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<StandardError> handleValidationException(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-
-        StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de validação", errors.toString());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-    }
-
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<StandardError> handleConstraintViolationException(ConstraintViolationException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getConstraintViolations().forEach(violation -> {
-            String fieldName = violation.getPropertyPath().toString();
-            String errorMessage = violation.getMessage();
-            errors.put(fieldName, errorMessage);
-        });
-
-        StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de validação", errors.toString());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-    }
-
     @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
     public ResponseEntity<StandardError> handleNoResourceFoundException(
             org.springframework.web.servlet.resource.NoResourceFoundException ex) {
@@ -111,6 +85,32 @@ public class UserExceptionHandler {
     public ResponseEntity<StandardError> handleMissingPathVariableException(MissingPathVariableException ex) {
         String message = "O valor do id enviado é nulo.";
         StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de argumento inválido", message);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<StandardError> handleValidationException(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+
+        StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de validação", errors.toString());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<StandardError> handleConstraintViolationException(ConstraintViolationException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getConstraintViolations().forEach(violation -> {
+            String fieldName = violation.getPropertyPath().toString();
+            String errorMessage = violation.getMessage();
+            errors.put(fieldName, errorMessage);
+        });
+
+        StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de validação", errors.toString());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 

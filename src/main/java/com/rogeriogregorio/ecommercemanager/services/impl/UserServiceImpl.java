@@ -6,7 +6,7 @@ import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.*;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
-import com.rogeriogregorio.ecommercemanager.util.UserConverter;
+import com.rogeriogregorio.ecommercemanager.util.Converter;
 import jakarta.validation.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,6 +15,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,14 +24,15 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final UserConverter userConverter;
+    private final Converter<UserRequest, UserEntity, UserResponse> userConverter;
     private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, UserConverter userConverter) {
+    public UserServiceImpl(UserRepository userRepository, Converter<UserRequest, UserEntity, UserResponse> userConverter) {
         this.userRepository = userRepository;
         this.userConverter = userConverter;
     }
+
 
     @Transactional(readOnly = true)
     public List<UserResponse> findAllUsers() {
@@ -130,8 +132,14 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public List<UserResponse> findUserByName(String name) {
 
+        List<UserEntity> users;
 
-        List<UserEntity> users = userRepository.findByName(name);
+        try {
+            users = userRepository.findByName(name);
+        } catch (Exception exception) {
+            logger.error("Erro ao buscar usuários: {}", exception.getMessage(), exception);
+            throw new UserQueryException("Erro ao buscar usuários: " + exception.getMessage() + ".");
+        }
 
         if (users.isEmpty()) {
             logger.warn("Nenhum usuário encontrado com o nome: {}", name);
