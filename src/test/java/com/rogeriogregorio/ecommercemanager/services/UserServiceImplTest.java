@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -129,7 +130,7 @@ public class UserServiceImplTest {
         when(userRepository.findAll()).thenThrow(RuntimeException.class);
 
         // Act and Assert
-        assertThrows(UserQueryException.class, () -> userService.findAllUsers(), "Expected UserQueryException to be thrown");
+        assertThrows(UserRepositoryException.class, () -> userService.findAllUsers(), "Expected UserQueryException to be thrown");
     }
 
     @Test
@@ -167,7 +168,7 @@ public class UserServiceImplTest {
         when(userRepository.save(userEntity)).thenThrow(DataIntegrityViolationException.class);
 
         // Act and Assert
-        assertThrows(UserCreateException.class, () -> userService.createUser(userRequest), "Expected UserCreateException due to duplicate email");
+        assertThrows(UserDataException.class, () -> userService.createUser(userRequest), "Expected UserCreateException due to duplicate email");
 
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userRepository, times(1)).save(any());
@@ -184,7 +185,7 @@ public class UserServiceImplTest {
         when(userRepository.save(userEntity)).thenThrow(RuntimeException.class);
 
         // Act and Assert
-        assertThrows(UserQueryException.class, () -> userService.createUser(userRequest), "Expected UserCreateException due to a generic runtime exception");
+        assertThrows(UserRepositoryException.class, () -> userService.createUser(userRequest), "Expected UserCreateException due to a generic runtime exception");
 
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userRepository, times(1)).save(any());
@@ -231,7 +232,7 @@ public class UserServiceImplTest {
         UserResponse expectedResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
 
         when(userConverter.requestToEntity(userRequest)).thenReturn(userEntity);
-        when(userRepository.existsById(userEntity.getId())).thenReturn(true);
+        when(userRepository.findById(userEntity.getId())).thenReturn(Optional.of(userEntity));
         when(userRepository.save(userEntity)).thenReturn(userEntity);
         when(userConverter.entityToResponse(userEntity)).thenReturn(expectedResponse);
 
@@ -246,7 +247,7 @@ public class UserServiceImplTest {
         assertEquals(userRequest.getPhone(), actualResponse.getPhone(), "Phones should match");
 
         verify(userConverter, times(1)).requestToEntity(userRequest);
-        verify(userRepository, times(1)).existsById(userEntity.getId());
+        verify(userRepository, times(1)).findById(userEntity.getId());
         verify(userRepository, times(1)).save(userEntity);
         verify(userConverter, times(1)).entityToResponse(userEntity);
     }
@@ -259,13 +260,13 @@ public class UserServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         when(userConverter.requestToEntity(userRequest)).thenReturn(userEntity);
-        when(userRepository.existsById(userEntity.getId())).thenReturn(false);
+        when(userRepository.findById(userEntity.getId())).thenReturn(Optional.empty());
 
         // Act and Assert
         assertThrows(UserNotFoundException.class, () -> userService.updateUser(userRequest), "Expected UserNotFoundException for non-existent user");
 
         verify(userConverter, times(1)).requestToEntity(userRequest);
-        verify(userRepository, times(1)).existsById(userEntity.getId());
+        verify(userRepository, times(1)).findById(userEntity.getId());
     }
 
     @Test
@@ -276,14 +277,14 @@ public class UserServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         when(userConverter.requestToEntity(userRequest)).thenReturn(userEntity);
-        when(userRepository.existsById(userEntity.getId())).thenReturn(true);
+        when(userRepository.findById(userEntity.getId())).thenReturn(Optional.of(userEntity));
         when(userRepository.save(userEntity)).thenThrow(RuntimeException.class);
 
         // Act and Assert
-        assertThrows(UserUpdateException.class, () -> userService.updateUser(userRequest), "Expected UserUpdateException for update failure");
+        assertThrows(UserRepositoryException.class, () -> userService.updateUser(userRequest), "Expected UserUpdateException for update failure");
 
         verify(userConverter, times(1)).requestToEntity(userRequest);
-        verify(userRepository, times(1)).existsById(userEntity.getId());
+        verify(userRepository, times(1)).findById(userEntity.getId());
         verify(userRepository, times(1)).save(userEntity);
     }
 
@@ -291,42 +292,43 @@ public class UserServiceImplTest {
     @DisplayName("deleteUser - Exclusão bem-sucedida do usuário")
     void deleteUser_DeletesUserSuccessfully() {
         // Arrange
-        Long userId = 1L;
-        when(userRepository.existsById(userId)).thenReturn(true);
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+
+        when(userRepository.findById(userEntity.getId())).thenReturn(Optional.of(userEntity));
 
         // Act
-        userService.deleteUser(userId);
+        userService.deleteUser(userEntity.getId());
 
         // Assert
-        verify(userRepository, times(1)).deleteById(userId);
+        verify(userRepository, times(1)).deleteById(userEntity.getId());
     }
-
 
     @Test
     @DisplayName("deleteUser - Exceção ao tentar excluir usuário inexistente")
     void deleteUser_UserNotFoundExceptionHandling() {
         // Arrange
         Long userId = 1L;
-        when(userRepository.existsById(userId)).thenReturn(false);
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // Act and Assert
         assertThrows(UserNotFoundException.class, () -> userService.deleteUser(userId), "Expected UserNotFoundException for non-existent user");
-        verify(userRepository, times(1)).existsById(userId);
+        verify(userRepository, times(1)).findById(userId);
     }
 
     @Test
     @DisplayName("deleteUser - Exceção ao tentar excluir usuário")
     void deleteUser_UserDeleteExceptionHandling() {
         // Arrange
-        Long userId = 1L;
-        when(userRepository.existsById(userId)).thenReturn(true);
-        doThrow(RuntimeException.class).when(userRepository).deleteById(userId);
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+
+        when(userRepository.findById(userEntity.getId())).thenReturn(Optional.of(userEntity));
+        doThrow(RuntimeException.class).when(userRepository).deleteById(userEntity.getId());
 
         // Act and Assert
-        assertThrows(UserDeleteException.class, () -> userService.deleteUser(userId), "Expected UserDeleteException for delete failure");
+        assertThrows(UserRepositoryException.class, () -> userService.deleteUser(userEntity.getId()), "Expected UserDeleteException for delete failure");
 
-        verify(userRepository, times(1)).existsById(userId);
-        verify(userRepository, times(1)).deleteById(userId);
+        verify(userRepository, times(1)).findById(userEntity.getId());
+        verify(userRepository, times(1)).deleteById(userEntity.getId());
     }
 
     @Test
@@ -378,7 +380,7 @@ public class UserServiceImplTest {
         when(userRepository.findByName(userName)).thenThrow(RuntimeException.class);
 
         // Act and Assert
-        assertThrows(UserQueryException.class, () -> userService.findUserByName(userName), "Expected UserQueryException for repository error");
+        assertThrows(UserRepositoryException.class, () -> userService.findUserByName(userName), "Expected UserQueryException for repository error");
 
         verify(userRepository, times(1)).findByName(userName);
         verify(userConverter, never()).entityToResponse(any());

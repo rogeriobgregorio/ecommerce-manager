@@ -1,6 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.exceptions;
 
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +20,9 @@ import java.util.Map;
 @ControllerAdvice
 public class UserExceptionHandler {
 
-    @ExceptionHandler(UserQueryException.class)
-    public ResponseEntity<StandardError> handleUserQueryException(UserQueryException ex) {
-        StandardError error = createStandardError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao buscar usuários", ex.getMessage());
+    @ExceptionHandler(UserRepositoryException.class)
+    public ResponseEntity<StandardError> HandleUserRepositoryException(UserRepositoryException ex) {
+        StandardError error = createStandardError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao tentar acessar o repositório", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
@@ -31,21 +32,22 @@ public class UserExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    @ExceptionHandler(UserCreateException.class)
-    public ResponseEntity<StandardError> handleUserCreationException(UserCreateException ex) {
-        StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro ao criar usuário", ex.getMessage());
+    @ExceptionHandler(UserDataException.class)
+    public ResponseEntity<StandardError> handleUserDataException(UserDataException ex) {
+        StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de integridade de dados", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    @ExceptionHandler(UserUpdateException.class)
-    public ResponseEntity<StandardError> handleUserUpdateException(UserUpdateException ex) {
-        StandardError error = createStandardError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao atualizar usuário", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<StandardError> handleUserUpdateException(DataIntegrityViolationException ex) {
+        String message = "Erro ao tentar atualizar usuário: E-mail já cadastrado.";
+        StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de integridade de dados", message);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     @ExceptionHandler(UserDeleteException.class)
     public ResponseEntity<StandardError> handleUserDeletionException(UserDeleteException ex) {
-        StandardError error = createStandardError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao excluir usuário", ex.getMessage());
+        StandardError error = createStandardError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao tentar excluir usuário", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 

@@ -43,8 +43,8 @@ public class UserServiceImpl implements UserService {
                     .collect(Collectors.toList());
 
         } catch (Exception exception) {
-            logger.error("Erro ao buscar usuários: {}", exception.getMessage(), exception);
-            throw new UserQueryException("Erro ao buscar usuários: " + exception.getMessage() + ".");
+            logger.error("Erro ao tentar buscar usuários: {}", exception.getMessage(), exception);
+            throw new UserRepositoryException("Erro ao tentar buscar usuários: " + exception.getMessage() + ".");
         }
     }
 
@@ -62,12 +62,12 @@ public class UserServiceImpl implements UserService {
             logger.info("Usuário criado: {}", userEntity);
 
         } catch (DataIntegrityViolationException exception) {
-            logger.error("Erro ao criar o usuário: E-mail já cadastrado.", exception);
-            throw new UserCreateException("Erro ao criar o usuário: E-mail já cadastrado.");
+            logger.error("Erro ao tentar criar o usuário: E-mail já cadastrado.", exception);
+            throw new UserDataException("Erro ao tentar criar o usuário: E-mail já cadastrado.");
 
         } catch (Exception exception) {
-            logger.error("Erro ao criar o usuário: {}", exception.getMessage(), exception);
-            throw new UserQueryException("Erro ao criar o usuário: " + exception.getMessage() + ".");
+            logger.error("Erro ao tentar criar o usuário: {}", exception.getMessage(), exception);
+            throw new UserRepositoryException("Erro ao tentar criar o usuário: " + exception.getMessage() + ".");
         }
 
         return userConverter.entityToResponse(userEntity);
@@ -92,18 +92,22 @@ public class UserServiceImpl implements UserService {
 
         validateUser(userEntity);
 
-        if (!userRepository.existsById(userEntity.getId())) {
+        userRepository.findById(userEntity.getId()).orElseThrow(() -> {
             logger.warn("Usuário não encontrado com o ID: {}", userEntity.getId());
-            throw new UserNotFoundException("Usuário não encontrado com o ID: " + userEntity.getId() + ".");
-        }
+            return new UserNotFoundException("Usuário não encontrado com o ID: " + userEntity.getId() + ".");
+        });
 
         try {
             userRepository.save(userEntity);
-            logger.warn("Usuário atualizado: {}", userEntity);
+            logger.info("Usuário atualizado: {}", userEntity);
+
+        } catch (DataIntegrityViolationException exception) {
+            logger.error("Erro ao tentar atualizar usuário: E-mail já cadastrado.", exception);
+            throw new UserUpdateException("Erro ao tentar atualizar o usuário: E-mail já cadastrado.");
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar atualizar o usuário: {}", exception.getMessage(), exception);
-            throw new UserUpdateException("Erro ao tentar atualizar o usuário: " + exception.getMessage() + ".");
+            throw new UserRepositoryException("Erro ao tentar atualizar o usuário.", exception);
         }
 
         return userConverter.entityToResponse(userEntity);
@@ -112,10 +116,10 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = false)
     public void deleteUser(Long id) {
 
-        if (!userRepository.existsById(id)) {
+        userRepository.findById(id).orElseThrow(() -> {
             logger.warn("Usuário não encontrado com o ID: {}", id);
-            throw new UserNotFoundException("Usuário não encontrado com o ID: " + id + ".");
-        }
+            return new UserNotFoundException("Usuário não encontrado com o ID: " + id + ".");
+        });
 
         try {
             userRepository.deleteById(id);
@@ -123,7 +127,7 @@ public class UserServiceImpl implements UserService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar excluir o usuário: {}", exception.getMessage(), exception);
-            throw new UserDeleteException("Erro ao tentar excluir o usuário: " + exception.getMessage() + ".");
+            throw new UserRepositoryException("Erro ao tentar excluir o usuário: " + exception.getMessage() + ".");
         }
     }
 
@@ -136,8 +140,8 @@ public class UserServiceImpl implements UserService {
             users = userRepository.findByName(name);
 
         } catch (Exception exception) {
-            logger.error("Erro ao buscar usuários: {}", exception.getMessage(), exception);
-            throw new UserQueryException("Erro ao buscar usuários: " + exception.getMessage() + ".");
+            logger.error("Erro ao tentar buscar usuários: {}", exception.getMessage(), exception);
+            throw new UserRepositoryException("Erro ao tentar buscar usuários: " + exception.getMessage() + ".");
         }
 
         if (users.isEmpty()) {
