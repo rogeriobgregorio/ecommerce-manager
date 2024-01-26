@@ -184,7 +184,7 @@ public class UserServiceImplTest {
         when(userRepository.save(userEntity)).thenThrow(RuntimeException.class);
 
         // Act and Assert
-        assertThrows(UserCreateException.class, () -> userService.createUser(userRequest), "Expected UserCreateException due to a generic runtime exception");
+        assertThrows(UserQueryException.class, () -> userService.createUser(userRequest), "Expected UserCreateException due to a generic runtime exception");
 
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userRepository, times(1)).save(any());

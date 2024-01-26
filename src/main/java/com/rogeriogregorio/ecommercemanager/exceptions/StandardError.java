@@ -10,8 +10,7 @@ public class StandardError  implements Serializable {
     private String error;
     private String message;
 
-    public StandardError() {
-    }
+    public StandardError() { }
 
     public Instant getTimeStamp() {
         return timeStamp;

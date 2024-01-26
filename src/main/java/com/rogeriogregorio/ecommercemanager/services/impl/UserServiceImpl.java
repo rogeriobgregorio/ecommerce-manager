@@ -32,7 +32,6 @@ public class UserServiceImpl implements UserService {
         this.userConverter = userConverter;
     }
 
-
     @Transactional(readOnly = true)
     public List<UserResponse> findAllUsers() {
 
@@ -68,7 +67,7 @@ public class UserServiceImpl implements UserService {
 
         } catch (Exception exception) {
             logger.error("Erro ao criar o usuário: {}", exception.getMessage(), exception);
-            throw new UserCreateException("Erro ao criar o usuário: " + exception.getMessage() + ".");
+            throw new UserQueryException("Erro ao criar o usuário: " + exception.getMessage() + ".");
         }
 
         return userConverter.entityToResponse(userEntity);

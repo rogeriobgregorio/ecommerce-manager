@@ -39,14 +39,14 @@ public class UserExceptionHandler {
 
     @ExceptionHandler(UserUpdateException.class)
     public ResponseEntity<StandardError> handleUserUpdateException(UserUpdateException ex) {
-        StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro ao atualizar usuário", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        StandardError error = createStandardError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao atualizar usuário", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
     @ExceptionHandler(UserDeleteException.class)
     public ResponseEntity<StandardError> handleUserDeletionException(UserDeleteException ex) {
-        StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro ao excluir usuário", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        StandardError error = createStandardError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao excluir usuário", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
     @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
