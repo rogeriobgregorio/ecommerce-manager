@@ -48,6 +48,18 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public UserResponse findUserById(Long id) {
+
+        return userRepository
+                .findById(id)
+                .map(userConverter::entityToResponse)
+                .orElseThrow(() -> {
+                    logger.warn("Usuário não encontrado com o ID: {}", id);
+                    return new UserNotFoundException("Usuário não encontrado com o ID: " + id + ".");
+                });
+    }
+
     @Transactional(readOnly = false)
     public UserResponse createUser(UserRequest userRequest) {
 
@@ -71,18 +83,6 @@ public class UserServiceImpl implements UserService {
         }
 
         return userConverter.entityToResponse(userEntity);
-    }
-
-    @Transactional(readOnly = true)
-    public UserResponse findUserById(Long id) {
-
-        return userRepository
-                .findById(id)
-                .map(userConverter::entityToResponse)
-                .orElseThrow(() -> {
-                    logger.warn("Usuário não encontrado com o ID: {}", id);
-                    return new UserNotFoundException("Usuário não encontrado com o ID: " + id + ".");
-                });
     }
 
     @Transactional(readOnly = false)

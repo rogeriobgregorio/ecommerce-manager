@@ -125,7 +125,7 @@ public class UserServiceImplTest {
 
     @Test
     @DisplayName("findAllUsers - Exceção ao tentar buscar lista de usuários")
-    void findAllUsers_UserQueryExceptionHandling() {
+    void findAllUsers_UserRepositoryExceptionHandling() {
         // Arrange
         when(userRepository.findAll()).thenThrow(RuntimeException.class);
 
@@ -159,7 +159,7 @@ public class UserServiceImplTest {
 
     @Test
     @DisplayName("createUser - Exceção ao tentar criar usuário com e-mail já registrado")
-    void createUser_UserCreateException_EmailAlreadyRegistered() {
+    void createUser_UserDataException_EmailAlreadyRegistered() {
         // Arrange
         UserRequest userRequest = new UserRequest("João Silva", "joao@email.com", "11912345678", "senha123");
         UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
@@ -175,8 +175,8 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("createUser - Exceção ao tentar criar usuário")
-    void createUser_UserCreateExceptionHandling() {
+    @DisplayName("createUser - Exceção no repositório ao tentar criar usuário")
+    void createUser_UserRepositoryExceptionHandling() {
         // Arrange
         UserRequest userRequest = new UserRequest("João Silva", "joao@email.com", "11912345678", "senha123");
         UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
@@ -270,8 +270,8 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("updateUser - Exceção ao tentar atualizar usuário")
-    void updateUser_UserUpdateExceptionHandling() {
+    @DisplayName("updateUser - Exceção no repositório ao tentar atualizar usuário")
+    void updateUser_UserRepositoryExceptionHandling() {
         // Arrange
         UserRequest userRequest = new UserRequest(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
@@ -286,6 +286,25 @@ public class UserServiceImplTest {
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userRepository, times(1)).findById(userEntity.getId());
         verify(userRepository, times(1)).save(userEntity);
+    }
+
+    @Test
+    @DisplayName("updateUser - Exceção ao tentar criar usuário com e-mail já registrado")
+    void update_UserUpdateException_EmailAlreadyRegistered() {
+        // Arrange
+        UserRequest userRequest = new UserRequest(1L,"João Silva", "joao@email.com", "11912345678", "senha123");
+        UserEntity userEntity = new UserEntity(1L,"João Silva", "joao@email.com", "11912345678", "senha123");
+
+        when(userConverter.requestToEntity(userRequest)).thenReturn(userEntity);
+        when(userRepository.findById(userEntity.getId())).thenReturn(Optional.of(userEntity));
+        when(userRepository.save(userEntity)).thenThrow(DataIntegrityViolationException.class);
+
+        // Act and Assert
+        assertThrows(UserUpdateException.class, () -> userService.updateUser(userRequest), "Expected UserUpdateException due to duplicate email");
+
+        verify(userConverter, times(1)).requestToEntity(userRequest);
+        verify(userRepository, times(1)).findById(userEntity.getId());
+        verify(userRepository, times(1)).save(any());
     }
 
     @Test
@@ -316,8 +335,8 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("deleteUser - Exceção ao tentar excluir usuário")
-    void deleteUser_UserDeleteExceptionHandling() {
+    @DisplayName("deleteUser - Exceção no repositório ao tentar excluir usuário")
+    void deleteUser_UserRepositoryExceptionHandling() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
@@ -373,8 +392,8 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("findUserByName - Exceção ao tentar buscar usuário pelo nome")
-    void findUserByName_UserQueryExceptionHandling_RepositoryError() {
+    @DisplayName("findUserByName - Exceção no repositório ao tentar buscar usuário pelo nome")
+    void findUserByName_UserRepositoryExceptionHandling() {
         // Arrange
         String userName = "Erro";
         when(userRepository.findByName(userName)).thenThrow(RuntimeException.class);
