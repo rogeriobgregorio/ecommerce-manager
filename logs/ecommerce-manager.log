@@ -22109,3 +22109,48 @@ update tb_users set email=?,name=?,password=?,phone=? where id=? [23505-224]
 2024-01-26T20:36:20,736 WARN  org.springframework.beans.factory.support.DisposableBeanAdapter - Invocation of destroy method failed on bean with name 'inMemoryDatabaseShutdownExecutor': org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database is already closed (to disable automatic closing at VM shutdown, add ";DB_CLOSE_ON_EXIT=FALSE" to the db URL) [90121-224]
 2024-01-26T20:36:20,737 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
 2024-01-26T20:36:20,738 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2024-01-26T21:48:45,066 INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2024-01-26T21:48:45,094 INFO  com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - Starting ECommerceManagerApplication using Java 17.0.9 with PID 28867 (/home/rogerio/projetos/ecommerce-manager/target/classes started by rogerio in /home/rogerio/projetos/ecommerce-manager)
+2024-01-26T21:48:45,096 DEBUG com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - Running with Spring Boot v3.2.1, Spring v6.1.2
+2024-01-26T21:48:45,097 INFO  com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - The following 1 profile is active: "test"
+2024-01-26T21:48:45,133 INFO  org.springframework.boot.devtools.env.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-01-26T21:48:45,133 INFO  org.springframework.boot.devtools.env.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-01-26T21:48:45,682 INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-01-26T21:48:45,734 INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 44 ms. Found 2 JPA repository interfaces.
+2024-01-26T21:48:46,192 INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2024-01-26T21:48:46,201 INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2024-01-26T21:48:46,202 INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2024-01-26T21:48:46,203 INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.17]
+2024-01-26T21:48:46,239 INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2024-01-26T21:48:46,241 INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1105 ms
+2024-01-26T21:48:46,278 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2024-01-26T21:48:46,421 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
+2024-01-26T21:48:46,423 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2024-01-26T21:48:46,434 INFO  org.springframework.boot.autoconfigure.h2.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:testdb'
+2024-01-26T21:48:46,539 INFO  org.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-01-26T21:48:46,577 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.1.Final
+2024-01-26T21:48:46,601 INFO  org.hibernate.cache.internal.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2024-01-26T21:48:46,758 INFO  org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-01-26T21:48:46,792 WARN  org.hibernate.orm.deprecation - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-01-26T21:48:47,442 INFO  org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-01-26T21:48:47,482 INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-01-26T21:48:47,679 INFO  org.springframework.data.jpa.repository.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2024-01-26T21:48:48,468 INFO  org.springframework.boot.devtools.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2024-01-26T21:48:48,479 INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2024-01-26T21:48:48,490 INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2024-01-26T21:48:48,498 INFO  com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - Started ECommerceManagerApplication in 3.733 seconds (process running for 4.294)
+2024-01-26T21:48:49,980 INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-01-26T21:48:49,980 INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2024-01-26T21:48:49,982 INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2024-01-26T21:49:02,290 INFO  com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl - Usuário criado: com.rogeriogregorio.ecommercemanager.entities.UserEntity@2a
+2024-01-26T21:49:12,574 INFO  com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl - Usuário atualizado: com.rogeriogregorio.ecommercemanager.entities.UserEntity@2a
+2024-01-26T21:49:12,589 WARN  org.hibernate.engine.jdbc.spi.SqlExceptionHelper - SQL Error: 23505, SQLState: 23505
+2024-01-26T21:49:12,589 ERROR org.hibernate.engine.jdbc.spi.SqlExceptionHelper - Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_6 ON PUBLIC.TB_USERS(EMAIL NULLS FIRST) VALUES ( /* 1 */ 'joao.silva@email.com' )"; SQL statement:
+update tb_users set email=?,name=?,password=?,phone=? where id=? [23505-224]
+2024-01-26T21:49:12,599 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [org.springframework.dao.DataIntegrityViolationException: could not execute statement [Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_6 ON PUBLIC.TB_USERS(EMAIL NULLS FIRST) VALUES ( /* 1 */ 'joao.silva@email.com' )"; SQL statement:<EOL>update tb_users set email=?,name=?,password=?,phone=? where id=? [23505-224]] [update tb_users set email=?,name=?,password=?,phone=? where id=?]; SQL [update tb_users set email=?,name=?,password=?,phone=? where id=?]; constraint ["PUBLIC.CONSTRAINT_INDEX_6 ON PUBLIC.TB_USERS(EMAIL NULLS FIRST) VALUES ( /* 1 */ 'joao.silva@email.com' )"; SQL statement:<EOL>update tb_users set email=?,name=?,password=?,phone=? where id=? [23505-224]]]
+2024-01-26T21:49:28,405 INFO  com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl - Usuário atualizado: com.rogeriogregorio.ecommercemanager.entities.UserEntity@2a
+2024-01-26T21:49:33,651 WARN  com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl - Usuário removido: 11
+2024-01-26T21:49:39,348 INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-01-26T21:49:39,355 WARN  org.springframework.beans.factory.support.DisposableBeanAdapter - Invocation of destroy method failed on bean with name 'inMemoryDatabaseShutdownExecutor': org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database is already closed (to disable automatic closing at VM shutdown, add ";DB_CLOSE_ON_EXIT=FALSE" to the db URL) [90121-224]
+2024-01-26T21:49:39,355 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2024-01-26T21:49:39,357 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

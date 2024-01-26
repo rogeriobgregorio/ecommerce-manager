@@ -45,12 +45,6 @@ public class UserExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    @ExceptionHandler(UserDeleteException.class)
-    public ResponseEntity<StandardError> handleUserDeletionException(UserDeleteException ex) {
-        StandardError error = createStandardError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao tentar excluir usuário", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-    }
-
     @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
     public ResponseEntity<StandardError> handleNoResourceFoundException(
             org.springframework.web.servlet.resource.NoResourceFoundException ex) {
