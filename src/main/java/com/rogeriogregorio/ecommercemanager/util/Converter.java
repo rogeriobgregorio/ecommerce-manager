@@ -10,8 +10,4 @@ public interface Converter<Request, Entity, Response> {
     public Entity requestToEntity(Request request);
 
     public Response entityToResponse(Entity entity);
-
-    List<Entity> listRequestToEntity(List<Request> requestList);
-
-    List<Response> listEntityToResponse(List<Entity> entityList);
 }

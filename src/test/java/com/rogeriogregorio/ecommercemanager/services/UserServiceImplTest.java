@@ -6,7 +6,7 @@ import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.*;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl;
-import com.rogeriogregorio.ecommercemanager.util.Impl.UserConverterImpl;
+import com.rogeriogregorio.ecommercemanager.util.Converter;
 import jakarta.validation.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,7 +31,7 @@ public class UserServiceImplTest {
     private UserRepository userRepository;
 
     @Mock
-    private UserConverterImpl userConverter;
+    private Converter<UserRequest, UserEntity, UserResponse> userConverter;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -44,8 +43,8 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("findAllUsers - Busca bem-sucedida retorna lista de usuários")
-    void findAllUsers_SuccessfulSearch_ReturnsListResponse() {
+    @DisplayName("findAllUsers - Busca bem-sucedida retorna lista contendo um usuário")
+    void findAllUsers_SuccessfulSearch_ReturnsListResponse_OneUser() {
         // Arrange
         UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
         List<UserEntity> userEntityList = Collections.singletonList(userEntity);
@@ -68,6 +67,44 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("findAllUsers - Busca bem-sucedida retorna lista contendo múltiplos usuários")
+    void findAllUsers_SuccessfulSearch_ReturnsListResponse_MultipleUsers() {
+        // Arrange
+        List<UserEntity> userEntityList = new ArrayList<>();
+        for (int i = 1; i <= 10; i++) {
+            userEntityList.add(new UserEntity("User" + i, "user" + i + "@email.com",
+                    "111111111" + i, "password" + i));
+        }
+
+        List<UserResponse> expectedResponses = new ArrayList<>();
+        for (UserEntity userEntity : userEntityList) {
+            expectedResponses.add(new UserResponse(null, userEntity.getName(), userEntity.getEmail(), userEntity.getPhone()));
+        }
+
+        when(userConverter.entityToResponse(any(UserEntity.class)))
+                .thenAnswer(invocation -> {
+                    UserEntity userEntity = invocation.getArgument(0);
+                    return new UserResponse(null, userEntity.getName(), userEntity.getEmail(), userEntity.getPhone());
+                });
+
+        when(userRepository.findAll()).thenReturn(userEntityList);
+
+        // Act
+        List<UserResponse> actualResponses = userService.findAllUsers();
+
+        // Assert
+        assertEquals(expectedResponses.size(), actualResponses.size());
+        for (int i = 0; i < expectedResponses.size(); i++) {
+            assertEquals(expectedResponses.get(i).getName(), actualResponses.get(i).getName());
+            assertEquals(expectedResponses.get(i).getEmail(), actualResponses.get(i).getEmail());
+            assertEquals(expectedResponses.get(i).getPhone(), actualResponses.get(i).getPhone());
+        }
+
+        verify(userConverter, times(userEntityList.size())).entityToResponse(any(UserEntity.class));
+        verify(userRepository, times(1)).findAll();
+    }
+
+    @Test
     @DisplayName("findAllUsers - Busca bem-sucedida retorna lista de usuários vazia")
     void findAllUsers_SuccessfulSearch_ReturnsEmptyList() {
         /// Arrange
@@ -86,7 +123,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("findAllUsers - Exceção ao consultar lista de usuários")
+    @DisplayName("findAllUsers - Exceção ao tentar buscar lista de usuários")
     void findAllUsers_UserQueryExceptionHandling() {
         // Arrange
         when(userRepository.findAll()).thenThrow(RuntimeException.class);
@@ -120,7 +157,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("createUser - Exceção ao criar usuário com e-mail já registrado")
+    @DisplayName("createUser - Exceção ao tentar criar usuário com e-mail já registrado")
     void createUser_UserCreateException_EmailAlreadyRegistered() {
         // Arrange
         UserRequest userRequest = new UserRequest("João Silva", "joao@email.com", "11912345678", "senha123");
@@ -137,8 +174,8 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("createUser - Exceção genérica ao criar usuário")
-    void createUser_UserCreateException_Generic() {
+    @DisplayName("createUser - Exceção ao tentar criar usuário")
+    void createUser_UserCreateExceptionHandling() {
         // Arrange
         UserRequest userRequest = new UserRequest("João Silva", "joao@email.com", "11912345678", "senha123");
         UserEntity userEntity = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
@@ -174,7 +211,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("findUserById - Exceção ao buscar usuário inexistente")
+    @DisplayName("findUserById - Exceção ao tentar buscar usuário inexistente")
     void findUserById_UserNotFoundExceptionHandling() {
         // Arrange
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
@@ -215,7 +252,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("updateUser - Exceção ao atualizar usuário inexistente")
+    @DisplayName("updateUser - Exceção ao tentar atualizar usuário inexistente")
     void updateUser_UserNotFoundExceptionHandling() {
         // Arrange
         UserRequest userRequest = new UserRequest(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
@@ -232,10 +269,10 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("updateUser - Exceção ao atualizar usuário")
+    @DisplayName("updateUser - Exceção ao tentar atualizar usuário")
     void updateUser_UserUpdateExceptionHandling() {
         // Arrange
-        UserRequest userRequest = new UserRequest(1L,"João Silva", "joao@email.com", "11912345678", "senha123");
+        UserRequest userRequest = new UserRequest(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         when(userConverter.requestToEntity(userRequest)).thenReturn(userEntity);
@@ -266,7 +303,7 @@ public class UserServiceImplTest {
 
 
     @Test
-    @DisplayName("deleteUser - Exceção ao excluir usuário inexistente")
+    @DisplayName("deleteUser - Exceção ao tentar excluir usuário inexistente")
     void deleteUser_UserNotFoundExceptionHandling() {
         // Arrange
         Long userId = 1L;
@@ -278,7 +315,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("deleteUser - Exceção ao excluir usuário")
+    @DisplayName("deleteUser - Exceção ao tentar excluir usuário")
     void deleteUser_UserDeleteExceptionHandling() {
         // Arrange
         Long userId = 1L;
@@ -321,7 +358,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("findUserByName - Exceção ao buscar usuário inexistente pelo nome")
+    @DisplayName("findUserByName - Exceção ao tentar buscar usuário inexistente pelo nome")
     void findUserByName_UserNotFoundExceptionHandling() {
         // Arrange
         String userName = "Inexistente";
@@ -334,22 +371,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("findUserByName - Exceção ao buscar usuário pelo nome")
-    void findUserByName_UserQueryExceptionHandling() {
-        // Arrange
-        String userName = "Erro";
-        when(userRepository.findByName(userName)).thenReturn(List.of(new UserEntity(userName, "email", "phone", "password")));
-        when(userConverter.entityToResponse(any())).thenThrow(RuntimeException.class);
-
-        // Act and Assert
-        assertThrows(UserQueryException.class, () -> userService.findUserByName(userName), "Expected UserQueryException for conversion failure");
-
-        verify(userRepository, times(1)).findByName(userName);
-        verify(userConverter, times(1)).entityToResponse(any());
-    }
-
-    @Test
-    @DisplayName("findUserByName - Exceção ao buscar usuário pelo nome (Erro no Repositório)")
+    @DisplayName("findUserByName - Exceção ao tentar buscar usuário pelo nome")
     void findUserByName_UserQueryExceptionHandling_RepositoryError() {
         // Arrange
         String userName = "Erro";

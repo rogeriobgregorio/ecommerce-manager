@@ -15,7 +15,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -136,6 +135,7 @@ public class UserServiceImpl implements UserService {
 
         try {
             users = userRepository.findByName(name);
+
         } catch (Exception exception) {
             logger.error("Erro ao buscar usuários: {}", exception.getMessage(), exception);
             throw new UserQueryException("Erro ao buscar usuários: " + exception.getMessage() + ".");
@@ -146,15 +146,9 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException("Nenhum usuário com nome " + name + " encontrado.");
         }
 
-        try {
-            return users.stream()
-                    .map(userConverter::entityToResponse)
-                    .collect(Collectors.toList());
-
-        } catch (Exception exception) {
-            logger.error("Erro ao buscar usuários pelo nome: {}", exception.getMessage(), exception);
-            throw new UserQueryException("Erro ao buscar usuários pelo nome: " + exception.getMessage() + ".");
-        }
+        return users.stream()
+                .map(userConverter::entityToResponse)
+                .collect(Collectors.toList());
     }
 
     public void validateUser(UserEntity userEntity) {
