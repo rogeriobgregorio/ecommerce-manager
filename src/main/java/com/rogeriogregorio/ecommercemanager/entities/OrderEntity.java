@@ -21,8 +21,7 @@ public class OrderEntity implements Serializable {
     @JoinColumn(name = "client_id")
     private UserEntity client;
 
-    public OrderEntity() {
-    }
+    public OrderEntity() { }
 
     public OrderEntity(Long id, Instant moment, UserEntity client) {
         this.id = id;

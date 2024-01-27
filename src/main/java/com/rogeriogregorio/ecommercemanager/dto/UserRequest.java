@@ -8,8 +8,7 @@ public class UserRequest {
     private String phone;
     private String password;
 
-    public UserRequest() {
-    }
+    public UserRequest() { }
 
     public UserRequest(String name, String email, String phone, String password) {
         this.name = name;

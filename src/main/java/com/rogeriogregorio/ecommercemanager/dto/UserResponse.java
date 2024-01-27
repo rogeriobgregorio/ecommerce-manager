@@ -1,7 +1,5 @@
 package com.rogeriogregorio.ecommercemanager.dto;
 
-import java.util.Objects;
-
 public class UserResponse {
 
     private Long id;
@@ -10,8 +8,7 @@ public class UserResponse {
     private String phone;
 
 
-    public UserResponse() {
-    }
+    public UserResponse() { }
 
     public UserResponse(Long id, String name, String email, String phone) {
         this.id = id;
