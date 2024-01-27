@@ -2,8 +2,6 @@ package com.rogeriogregorio.ecommercemanager.util;
 
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public interface Converter<Request, Entity, Response> {
 
