@@ -129,7 +129,7 @@ public class UserServiceImplTest {
         when(userRepository.findAll()).thenThrow(RuntimeException.class);
 
         // Act and Assert
-        assertThrows(UserRepositoryException.class, () -> userService.findAllUsers(), "Expected UserQueryException to be thrown");
+        assertThrows(UserRepositoryException.class, () -> userService.findAllUsers(), "Expected UserRepositoryException to be thrown");
     }
 
     @Test
@@ -167,7 +167,7 @@ public class UserServiceImplTest {
         when(userRepository.save(userEntity)).thenThrow(DataIntegrityViolationException.class);
 
         // Act and Assert
-        assertThrows(UserDataException.class, () -> userService.createUser(userRequest), "Expected UserCreateException due to duplicate email");
+        assertThrows(UserDataException.class, () -> userService.createUser(userRequest), "Expected UserDataException due to duplicate email");
 
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userRepository, times(1)).save(any());
@@ -184,7 +184,7 @@ public class UserServiceImplTest {
         when(userRepository.save(userEntity)).thenThrow(RuntimeException.class);
 
         // Act and Assert
-        assertThrows(UserRepositoryException.class, () -> userService.createUser(userRequest), "Expected UserCreateException due to a generic runtime exception");
+        assertThrows(UserRepositoryException.class, () -> userService.createUser(userRequest), "Expected UserRepositoryException due to a generic runtime exception");
 
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userRepository, times(1)).save(any());
@@ -280,7 +280,7 @@ public class UserServiceImplTest {
         when(userRepository.save(userEntity)).thenThrow(RuntimeException.class);
 
         // Act and Assert
-        assertThrows(UserRepositoryException.class, () -> userService.updateUser(userRequest), "Expected UserUpdateException for update failure");
+        assertThrows(UserRepositoryException.class, () -> userService.updateUser(userRequest), "Expected UserRepositoryException for update failure");
 
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userRepository, times(1)).findById(userEntity.getId());
@@ -343,7 +343,7 @@ public class UserServiceImplTest {
         doThrow(RuntimeException.class).when(userRepository).deleteById(userEntity.getId());
 
         // Act and Assert
-        assertThrows(UserRepositoryException.class, () -> userService.deleteUser(userEntity.getId()), "Expected UserDeleteException for delete failure");
+        assertThrows(UserRepositoryException.class, () -> userService.deleteUser(userEntity.getId()), "Expected UserRepositoryException for delete failure");
 
         verify(userRepository, times(1)).findById(userEntity.getId());
         verify(userRepository, times(1)).deleteById(userEntity.getId());
@@ -398,7 +398,7 @@ public class UserServiceImplTest {
         when(userRepository.findByName(userName)).thenThrow(RuntimeException.class);
 
         // Act and Assert
-        assertThrows(UserRepositoryException.class, () -> userService.findUserByName(userName), "Expected UserQueryException for repository error");
+        assertThrows(UserRepositoryException.class, () -> userService.findUserByName(userName), "Expected UserRepositoryException for repository error");
 
         verify(userRepository, times(1)).findByName(userName);
         verify(userConverter, never()).entityToResponse(any());
