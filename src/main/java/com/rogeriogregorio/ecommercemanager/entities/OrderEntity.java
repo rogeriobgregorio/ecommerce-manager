@@ -1,6 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -15,10 +16,12 @@ public class OrderEntity implements Serializable {
     private Long id;
 
     @Column(name = "moment")
+    @NotNull(message = "O momento do pedido não pode ser nulo")
     private Instant moment;
 
     @ManyToOne
     @JoinColumn(name = "client_id")
+    @NotNull(message = "O cliente não pode ser nulo")
     private UserEntity client;
 
     public OrderEntity() { }
