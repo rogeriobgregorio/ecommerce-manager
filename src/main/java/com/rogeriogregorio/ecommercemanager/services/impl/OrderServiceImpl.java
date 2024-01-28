@@ -83,7 +83,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional(readOnly = false)
-    public OrderResponse updateUser(OrderRequest orderRequest) {
+    public OrderResponse updateOrder(OrderRequest orderRequest) {
 
         OrderEntity orderEntity = orderConverter.requestToEntity(orderRequest);
 
