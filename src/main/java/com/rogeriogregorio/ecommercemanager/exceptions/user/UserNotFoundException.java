@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.exceptions;
+package com.rogeriogregorio.ecommercemanager.exceptions.user;
 
 public class UserNotFoundException extends RuntimeException {
 

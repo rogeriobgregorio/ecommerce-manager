@@ -1,5 +1,6 @@
-package com.rogeriogregorio.ecommercemanager.exceptions;
+package com.rogeriogregorio.ecommercemanager.exceptions.user;
 
+import com.rogeriogregorio.ecommercemanager.exceptions.StandardError;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -81,19 +82,6 @@ public class UserExceptionHandler {
     public ResponseEntity<StandardError> handleMissingPathVariableException(MissingPathVariableException ex) {
         String message = "O valor do id enviado é nulo.";
         StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de argumento inválido", message);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<StandardError> handleValidationException(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-
-        StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de validação", errors.toString());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
