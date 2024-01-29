@@ -58,6 +58,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<StandardError> handleIllegalArgumentException(IllegalArgumentException ex) {
+        String message = "O código de status do pedido é inválido.";
+        StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de argumento inválido", message);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<StandardError> handleValidationException(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();

@@ -1,6 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -21,16 +22,22 @@ public class OrderEntity implements Serializable {
     @NotNull(message = "O momento do pedido não pode ser nulo")
     private Instant moment;
 
+    @Column(name = "orderStatus")
+    @NotNull(message = "O status do pedido não pode ser nulo")
+    private Integer orderStatus;
+
     @ManyToOne
     @JoinColumn(name = "client_id")
     @NotNull(message = "O cliente não pode ser nulo")
     private UserEntity client;
 
-    public OrderEntity() { }
+    public OrderEntity() {
+    }
 
-    public OrderEntity(Long id, Instant moment, UserEntity client) {
+    public OrderEntity(Long id, Instant moment, OrderStatus orderStatus, UserEntity client) {
         this.id = id;
         this.moment = moment;
+        setOrderStatus(orderStatus);
         this.client = client;
     }
 
@@ -48,6 +55,19 @@ public class OrderEntity implements Serializable {
 
     public void setMoment(Instant moment) {
         this.moment = moment;
+    }
+
+    public OrderStatus getOrderStatus() {
+        return OrderStatus.valueOf(orderStatus);
+    }
+
+    public void setOrderStatus(OrderStatus orderStatus) {
+
+        if (orderStatus == null) {
+            throw new IllegalArgumentException("O status do pedido não pode ser nulo");
+        }
+
+        this.orderStatus = orderStatus.getCode();
     }
 
     public UserEntity getClient() {
