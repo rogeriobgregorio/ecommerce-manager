@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
 
         try {
             userRepository.save(userEntity);
-            logger.info("Usuário criado: {}", userEntity);
+            logger.info("Usuário criado: {}", userEntity.toString());
 
         } catch (DataIntegrityViolationException exception) {
             logger.error("Erro ao tentar criar o usuário: E-mail já cadastrado.", exception);
@@ -102,7 +102,7 @@ public class UserServiceImpl implements UserService {
 
         try {
             userRepository.save(userEntity);
-            logger.info("Usuário atualizado: {}", userEntity);
+            logger.info("Usuário atualizado: {}", userEntity.toString());
 
         } catch (DataIntegrityViolationException exception) {
             logger.error("Erro ao tentar atualizar usuário: E-mail já cadastrado.", exception);

@@ -1,5 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -41,6 +42,7 @@ public class UserEntity implements Serializable {
     @Size(min = 6, message = "A senha não deve ter menos de 6 caracteres.")
     private String password;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "client")
     private List<OrderEntity> orders = new ArrayList<>();
 
