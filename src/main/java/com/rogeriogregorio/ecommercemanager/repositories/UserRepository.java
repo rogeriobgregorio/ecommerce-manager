@@ -13,4 +13,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     @Query("SELECT u FROM UserEntity u WHERE lower(u.name) LIKE lower(concat('%', :name, '%'))")
     List<UserEntity> findByName(@Param("name") String name);
+
+    @Query("SELECT u FROM UserEntity u LEFT JOIN FETCH u.orders WHERE u.id = :id")
+    UserEntity findUserWithOrders(@Param("id") Integer id);
 }
