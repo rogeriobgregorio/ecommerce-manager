@@ -72,4 +72,12 @@ public class UserController {
                 .status(HttpStatus.OK)
                 .body(userService.findUserByName(name));
     }
+
+    @GetMapping(value = "users/{id}/orders")
+    public ResponseEntity<UserResponse> getUserByIdWithOrders(@PathVariable Long id) {
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(userService.findUserWithOrders(id));
+    }
 }

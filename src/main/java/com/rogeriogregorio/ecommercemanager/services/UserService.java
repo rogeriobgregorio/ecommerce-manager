@@ -20,4 +20,6 @@ public interface UserService {
     public void deleteUser(Long id);
 
    public List<UserResponse> findUserByName(String name);
+
+   public UserResponse findUserWithOrders(Long id);
 }

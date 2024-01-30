@@ -157,6 +157,24 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public UserResponse findUserWithOrders(Long id) {
+
+        userRepository.findById(id).orElseThrow(() -> {
+            logger.warn("Usuário não encontrado com o ID: {}", id);
+            return new UserNotFoundException("Usuário não encontrado com o ID: " + id + ".");
+        });
+
+        try {
+            UserEntity userEntity = userRepository.findUserByIdWithOrders(id);
+            return userConverter.entityToResponse(userEntity);
+
+        } catch (Exception exception) {
+            logger.error("Erro ao tentar buscar usuário com pedidos: {}", exception.getMessage(), exception);
+            throw new UserRepositoryException("Erro ao tentar buscar usuário com pedidos: " + exception.getMessage() + ".");
+        }
+    }
+
     public void validateUser(UserEntity userEntity) {
 
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {

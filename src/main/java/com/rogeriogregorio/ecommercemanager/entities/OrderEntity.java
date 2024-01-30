@@ -22,7 +22,7 @@ public class OrderEntity implements Serializable {
     @NotNull(message = "O momento do pedido não pode ser nulo")
     private Instant moment;
 
-    @Column(name = "orderStatus")
+    @Column(name = "order_status")
     @NotNull(message = "O status do pedido não pode ser nulo")
     private Integer orderStatus;
 
