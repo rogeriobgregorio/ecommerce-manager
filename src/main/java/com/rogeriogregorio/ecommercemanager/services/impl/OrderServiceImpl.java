@@ -60,7 +60,7 @@ public class OrderServiceImpl implements OrderService {
 
         try {
             orderRepository.save(orderEntity);
-            logger.info("Pedido criado: {}", orderEntity);
+            logger.info("Pedido criado: {}", orderEntity.toString());
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar criar o pedido: {}", exception.getMessage(), exception);
@@ -96,7 +96,7 @@ public class OrderServiceImpl implements OrderService {
 
         try {
             orderRepository.save(orderEntity);
-            logger.info("Pedido atualizado: {}", orderEntity);
+            logger.info("Pedido atualizado: {}", orderEntity.toString());
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar atualizar o pedido: {}", exception.getMessage(), exception);
