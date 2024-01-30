@@ -2,6 +2,7 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.UserResponse;
+import com.rogeriogregorio.ecommercemanager.dto.UserWithOrdersResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,5 +22,5 @@ public interface UserService {
 
    public List<UserResponse> findUserByName(String name);
 
-   public UserResponse findUserWithOrders(Long id);
+   public UserWithOrdersResponse findUserWithOrders(Long id);
 }
