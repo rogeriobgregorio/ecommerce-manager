@@ -1,5 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.exceptions;
 
+import org.springframework.http.HttpStatus;
+
 import java.io.Serializable;
 import java.time.Instant;
 
@@ -11,6 +13,13 @@ public class StandardError implements Serializable {
     private String message;
 
     public StandardError() {
+    }
+
+    public StandardError(HttpStatus status, String error, String message) {
+        this.timeStamp = Instant.now();
+        this.status = status.value();
+        this.error = error;
+        this.message = message;
     }
 
     public Instant getTimeStamp() {

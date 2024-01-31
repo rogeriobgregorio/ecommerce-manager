@@ -14,24 +14,14 @@ public class OrderExceptionHandler {
     @ExceptionHandler(OrderRepositoryException.class)
     public ResponseEntity<StandardError> HandleOrderRepositoryException(OrderRepositoryException ex) {
 
-        StandardError error = createStandardError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao tentar acessar o repositório", ex.getMessage());
+        StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao tentar acessar o repositório", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
     @ExceptionHandler(OrderNotFoundException.class)
     public ResponseEntity<StandardError> handleOrderNotFoundException(OrderNotFoundException ex) {
 
-        StandardError error = createStandardError(HttpStatus.NOT_FOUND, "Pedido não encontrado", ex.getMessage());
+        StandardError error = new StandardError(HttpStatus.NOT_FOUND, "Pedido não encontrado", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-    }
-
-    private StandardError createStandardError(HttpStatus status, String error, String message) {
-
-        StandardError standardError = new StandardError();
-        standardError.setTimeStamp(Instant.now());
-        standardError.setStatus(status.value());
-        standardError.setError(error);
-        standardError.setMessage(message);
-        return standardError;
     }
 }
