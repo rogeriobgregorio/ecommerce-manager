@@ -18,4 +18,6 @@ public interface OrderService {
     public OrderResponse updateOrder(OrderRequest orderRequest);
 
     public void deleteOrder(Long id);
+
+    public List<OrderResponse> findOrderByClientId(Long id);
 }

@@ -64,4 +64,12 @@ public class OrderController {
                 .status(HttpStatus.NO_CONTENT)
                 .build();
     }
+
+    @GetMapping(value = "/clients/{id}/orders")
+    public ResponseEntity<List<OrderResponse>> getOrdersByClientId(@PathVariable Long id) {
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(orderService.findOrderByClientId(id));
+    }
 }

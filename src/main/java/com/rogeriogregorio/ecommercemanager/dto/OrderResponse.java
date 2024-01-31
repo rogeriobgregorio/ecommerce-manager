@@ -12,19 +12,14 @@ public class OrderResponse {
     private Integer orderStatus;
     private UserEntity client;
 
-    public OrderResponse() { }
+    public OrderResponse() {
+    }
 
     public OrderResponse(Long id, Instant moment, OrderStatus orderStatus, UserEntity client) {
         this.id = id;
         this.moment = moment;
         setOrderStatus(orderStatus);
         this.client = client;
-    }
-
-    public OrderResponse(Long id, Instant moment, OrderStatus orderStatus) {
-        this.id = id;
-        this.moment = moment;
-        setOrderStatus(orderStatus);
     }
 
     public Long getId() {
@@ -36,17 +31,14 @@ public class OrderResponse {
     }
 
     public Instant getMoment() {
-
         return moment;
     }
 
     public void setMoment(Instant moment) {
-
         this.moment = moment;
     }
 
     public OrderStatus getOrderStatus() {
-
         return OrderStatus.valueOf(orderStatus);
     }
 
@@ -60,12 +52,10 @@ public class OrderResponse {
     }
 
     public UserEntity getClient() {
-
         return client;
     }
 
     public void setClient(UserEntity client) {
-
         this.client = client;
     }
 }

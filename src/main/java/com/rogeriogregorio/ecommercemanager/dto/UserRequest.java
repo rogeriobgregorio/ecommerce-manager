@@ -8,7 +8,8 @@ public class UserRequest {
     private String phone;
     private String password;
 
-    public UserRequest() { }
+    public UserRequest() {
+    }
 
     public UserRequest(String name, String email, String phone, String password) {
         this.name = name;
@@ -29,13 +30,23 @@ public class UserRequest {
         return id;
     }
 
-    public void setId(Long id) { this.id = id; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
 
-    public String getEmail() { return email; }
+    public String getEmail() {
+        return email;
+    }
 
-    public String getPhone() { return phone; }
+    public String getPhone() {
+        return phone;
+    }
 
-    public String getPassword() { return password; }
+    public String getPassword() {
+        return password;
+    }
 }

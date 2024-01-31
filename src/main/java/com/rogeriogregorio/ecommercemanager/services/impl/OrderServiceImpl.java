@@ -124,6 +124,21 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    public List<OrderResponse> findOrderByClientId(Long id) {
+
+        try {
+            return orderRepository
+                    .findByClient_Id(id)
+                    .stream()
+                    .map(orderConverter::entityToResponse)
+                    .collect(Collectors.toList());
+
+        } catch (Exception exception) {
+            logger.error("Erro ao tentar buscar pedidos pelo id do cliente: {}", exception.getMessage(), exception);
+            throw new OrderRepositoryException("Erro ao tentar buscar pedidos pelo id do cliente: " + exception.getMessage() + ".");
+        }
+    }
+
     public void validateOrder(OrderEntity orderEntity) {
 
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {

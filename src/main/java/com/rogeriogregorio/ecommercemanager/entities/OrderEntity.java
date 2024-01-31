@@ -34,6 +34,12 @@ public class OrderEntity implements Serializable {
     public OrderEntity() {
     }
 
+    public OrderEntity(Instant moment, OrderStatus orderStatus, UserEntity client) {
+        this.moment = moment;
+        setOrderStatus(orderStatus);
+        this.client = client;
+    }
+
     public OrderEntity(Long id, Instant moment, OrderStatus orderStatus, UserEntity client) {
         this.id = id;
         this.moment = moment;
@@ -92,5 +98,7 @@ public class OrderEntity implements Serializable {
     }
 
     @Override
-    public String toString() { return "[id= " + id +", moment= " + moment + ", orderStatus= " + orderStatus + ", client= " + client +"]"; }
+    public String toString() {
+        return "[id= " + id + ", moment= " + moment + ", orderStatus= " + orderStatus + ", client= " + client + "]";
+    }
 }

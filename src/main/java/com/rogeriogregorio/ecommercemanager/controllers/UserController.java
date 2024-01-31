@@ -2,7 +2,6 @@ package com.rogeriogregorio.ecommercemanager.controllers;
 
 import com.rogeriogregorio.ecommercemanager.dto.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.UserResponse;
-import com.rogeriogregorio.ecommercemanager.dto.UserWithOrdersResponse;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,13 +71,5 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(userService.findUserByName(name));
-    }
-
-    @GetMapping(value = "users/{id}/orders")
-    public ResponseEntity<UserWithOrdersResponse> getUserByIdWithOrders(@PathVariable Long id) {
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(userService.findUserWithOrders(id));
     }
 }

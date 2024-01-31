@@ -2,7 +2,6 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.UserResponse;
-import com.rogeriogregorio.ecommercemanager.dto.UserWithOrdersResponse;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.user.UserDataException;
 import com.rogeriogregorio.ecommercemanager.exceptions.user.UserNotFoundException;
@@ -156,24 +155,6 @@ public class UserServiceImpl implements UserService {
         return users.stream()
                 .map(userConverter::entityToResponse)
                 .collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    public UserWithOrdersResponse findUserWithOrders(Long id) {
-
-        userRepository.findById(id).orElseThrow(() -> {
-            logger.warn("Usuário não encontrado com o ID: {}", id);
-            return new UserNotFoundException("Usuário não encontrado com o ID: " + id + ".");
-        });
-
-        try {
-            UserEntity userEntity = userRepository.findUserByIdWithOrders(id);
-            return new UserWithOrdersResponse(userEntity);
-
-        } catch (Exception exception) {
-            logger.error("Erro ao tentar buscar usuário com pedidos: {}", exception.getMessage(), exception);
-            throw new UserRepositoryException("Erro ao tentar buscar usuário com pedidos: " + exception.getMessage() + ".");
-        }
     }
 
     public void validateUser(UserEntity userEntity) {

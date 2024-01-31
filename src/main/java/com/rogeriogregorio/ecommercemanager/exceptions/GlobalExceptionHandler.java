@@ -22,6 +22,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
     public ResponseEntity<StandardError> handleNoResourceFoundException(
             org.springframework.web.servlet.resource.NoResourceFoundException ex) {
+
         String message = "Recurso não encontrado: " + ex.getMessage();
         StandardError error = createStandardError(HttpStatus.NOT_FOUND, "Nenhum recurso estático", message);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
@@ -30,6 +31,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<StandardError> handleMethodArgumentTypeMismatchException(
             MethodArgumentTypeMismatchException ex) {
+
         String message = "Erro de tipo de argumento: " + ex.getName() +
                 " deve ser um número inteiro.";
         StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de argumento inválido", message);
@@ -39,6 +41,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidDataAccessApiUsageException.class)
     public ResponseEntity<StandardError> handleInvalidDataAccessApiUsageException(
             InvalidDataAccessApiUsageException ex) {
+
         String message = "O ID fornecido não pode ser nulo: " + ex.getMessage();
         StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de argumento inválido", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -46,6 +49,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<StandardError> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+
         String message = "JSON inválido, verifique os dados enviados.";
         StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de argumento inválido", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -53,6 +57,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MissingPathVariableException.class)
     public ResponseEntity<StandardError> handleMissingPathVariableException(MissingPathVariableException ex) {
+
         String message = "O valor do id enviado é nulo.";
         StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de argumento inválido", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -60,6 +65,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<StandardError> handleIllegalArgumentException(IllegalArgumentException ex) {
+
         String message = "O código de status do pedido é inválido.";
         StandardError error = createStandardError(HttpStatus.BAD_REQUEST, "Erro de argumento inválido", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -67,6 +73,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<StandardError> handleValidationException(MethodArgumentNotValidException ex) {
+
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
@@ -80,6 +87,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<StandardError> handleConstraintViolationException(ConstraintViolationException ex) {
+
         Map<String, String> errors = new HashMap<>();
         ex.getConstraintViolations().forEach(violation -> {
             String fieldName = violation.getPropertyPath().toString();
@@ -92,6 +100,7 @@ public class GlobalExceptionHandler {
     }
 
     private StandardError createStandardError(HttpStatus status, String error, String message) {
+
         StandardError standardError = new StandardError();
         standardError.setTimeStamp(Instant.now());
         standardError.setStatus(status.value());
