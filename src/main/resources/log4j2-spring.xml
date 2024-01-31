@@ -7,9 +7,7 @@
         </Console>
 
         <File name="LogToFile" fileName="logs/ecommerce-manager.log">
-            <PatternLayout>
-                <Pattern>%d{ISO8601}{GMT+0} %-5level %logger{36} - %msg%n</Pattern>
-            </PatternLayout>
+            <PatternLayout pattern="%d{ISO8601}{GMT+0} %-5level %logger{36} - %msg%n"/>
         </File>
 
     </Appenders>
