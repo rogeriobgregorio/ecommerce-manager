@@ -9,32 +9,24 @@ INSERT INTO tb_users (name, email, phone, password) VALUES ('Patricia Costa', 'p
 INSERT INTO tb_users (name, email, phone, password) VALUES ('Gustavo Silva', 'gustavo.silva@email.com', '111222333', 'senhaPQR');
 INSERT INTO tb_users (name, email, phone, password) VALUES ('Juliana Santos', 'juliana.santos@email.com', '888999000', 'senhaSTU');
 
--- Pedido 1 para o usuário 1 com status "WAITING_PAYMENT"
 INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 1, 1);
-
--- Pedido 1 para o usuário 2 com status "PAID"
 INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 2, 2);
-
--- Pedido 1 para o usuário 3 com status "CANCELED"
 INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 5, 3);
-
--- Pedido 1 para o usuário 4 com status "SHIPPED"
 INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 3, 4);
-
--- Pedido 1 para o usuário 5 com status "DELIVERED"
 INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 4, 5);
-
--- Pedido 1 para o usuário 6 com status "WAITING_PAYMENT"
 INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 1, 6);
-
--- Pedido 1 para o usuário 7 com status "SHIPPED"
 INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 3, 7);
-
--- Pedido 1 para o usuário 8 com status "CANCELED"
 INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 5, 8);
-
--- Pedido 1 para o usuário 9 com status "SHIPPED"
 INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 3, 9);
-
--- Pedido 1 para o usuário 10 com status "DELIVERED"
 INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 4, 10);
+
+INSERT INTO tb_categories (name) VALUES ('Smartphone');
+INSERT INTO tb_categories (name) VALUES ('Notebook');
+INSERT INTO tb_categories (name) VALUES ('Tablet');
+INSERT INTO tb_categories (name) VALUES ('Smartwatch');
+INSERT INTO tb_categories (name) VALUES ('Fone bluetooth');
+INSERT INTO tb_categories (name) VALUES ('Câmera digital');
+INSERT INTO tb_categories (name) VALUES ('TV Smart');
+INSERT INTO tb_categories (name) VALUES ('Console de videogame');
+INSERT INTO tb_categories (name) VALUES ('Impressora multifuncional');
+INSERT INTO tb_categories (name) VALUES ('Roteador Wi-Fi');
