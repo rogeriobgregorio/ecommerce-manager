@@ -3,6 +3,7 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 import com.rogeriogregorio.ecommercemanager.dto.CategoryRequest;
 import com.rogeriogregorio.ecommercemanager.dto.CategoryResponse;
 import com.rogeriogregorio.ecommercemanager.entities.CategoryEntity;
+import com.rogeriogregorio.ecommercemanager.exceptions.category.CategoryNotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.CategoryRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
