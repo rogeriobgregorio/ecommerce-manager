@@ -49,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false)
     public OrderResponse createOrder(OrderRequest orderRequest) {
 
         orderRequest.setId(null);
@@ -106,7 +106,7 @@ public class OrderServiceImpl implements OrderService {
         return orderConverter.entityToResponse(orderEntity);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional(readOnly = true)
     public void deleteOrder(Long id) {
 
         orderRepository.findById(id).orElseThrow(() -> {
@@ -124,6 +124,7 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<OrderResponse> findOrderByClientId(Long id) {
 
         try {
