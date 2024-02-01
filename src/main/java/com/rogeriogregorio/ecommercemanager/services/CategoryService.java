@@ -2,11 +2,11 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.CategoryRequest;
 import com.rogeriogregorio.ecommercemanager.dto.CategoryResponse;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Service
+@Component
 public interface CategoryService {
 
     public List<CategoryResponse> findAllCategories();
