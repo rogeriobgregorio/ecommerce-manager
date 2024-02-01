@@ -4,6 +4,7 @@ import com.rogeriogregorio.ecommercemanager.dto.CategoryRequest;
 import com.rogeriogregorio.ecommercemanager.dto.CategoryResponse;
 import com.rogeriogregorio.ecommercemanager.entities.CategoryEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.category.CategoryNotFoundException;
+import com.rogeriogregorio.ecommercemanager.exceptions.category.CategoryRepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.CategoryRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -40,7 +41,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar buscar categorias: {}", exception.getMessage(), exception);
-            throw new categoryRepositoryException("Erro ao tentar buscar categorias: " + exception.getMessage() + ".");
+            throw new CategoryRepositoryException("Erro ao tentar buscar categorias: " + exception.getMessage() + ".");
         }
     }
 
@@ -58,7 +59,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar criar o categoria: {}", exception.getMessage(), exception);
-            throw new categoryRepositoryException("Erro ao tentar criar o categoria: " + exception.getMessage() + ".");
+            throw new CategoryRepositoryException("Erro ao tentar criar o categoria: " + exception.getMessage() + ".");
         }
 
         return categoryConverter.entityToResponse(categoryEntity);
