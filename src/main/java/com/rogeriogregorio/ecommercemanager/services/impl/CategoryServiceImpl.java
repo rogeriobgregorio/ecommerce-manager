@@ -24,7 +24,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final Converter<CategoryRequest, CategoryEntity, CategoryResponse> categoryConverter;
-    private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(CategoryServiceImpl.class);
 
     @Autowired
     public CategoryServiceImpl(CategoryRepository categoryRepository, Converter<CategoryRequest, CategoryEntity, CategoryResponse> categoryConverter) {
