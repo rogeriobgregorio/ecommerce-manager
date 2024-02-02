@@ -6,7 +6,9 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "tb_categories")
@@ -22,7 +24,13 @@ public class CategoryEntity implements Serializable {
     @Size(max = 250, message = "O nome deve ter no máximo 250 caracteres.")
     private String name;
 
+    private Set<ProductEntity> products = new HashSet<>();
+
     public CategoryEntity() {
+    }
+
+    public CategoryEntity(String name) {
+        this.name = name;
     }
 
     public CategoryEntity(Long id, String name) {
@@ -44,6 +52,10 @@ public class CategoryEntity implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Set<ProductEntity> getProducts() {
+        return products;
     }
 
     @Override
