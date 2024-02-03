@@ -38,6 +38,10 @@ public class ProductEntity implements Serializable {
     @URL(message = "A URL da imagem deve ser válida")
     private String imgUrl;
 
+    @ManyToMany
+    @JoinTable(name = "tb_product_category",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id"))
     private Set<CategoryEntity> categories = new HashSet<>();
 
     public ProductEntity() {

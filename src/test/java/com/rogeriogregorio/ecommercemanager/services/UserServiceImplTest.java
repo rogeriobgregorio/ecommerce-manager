@@ -6,11 +6,9 @@ import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.user.UserDataException;
 import com.rogeriogregorio.ecommercemanager.exceptions.user.UserNotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.user.UserRepositoryException;
-import com.rogeriogregorio.ecommercemanager.exceptions.user.UserUpdateException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
-import jakarta.validation.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -302,7 +300,7 @@ public class UserServiceImplTest {
         when(userRepository.save(userEntity)).thenThrow(DataIntegrityViolationException.class);
 
         // Act and Assert
-        assertThrows(UserUpdateException.class, () -> userService.updateUser(userRequest), "Expected UserUpdateException due to duplicate email");
+        assertThrows(UserDataException.class, () -> userService.updateUser(userRequest), "Expected UserUpdateException due to duplicate email");
 
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userRepository, times(1)).findById(userEntity.getId());
@@ -405,36 +403,5 @@ public class UserServiceImplTest {
 
         verify(userRepository, times(1)).findByName(userName);
         verify(userConverter, never()).entityToResponse(any());
-    }
-
-
-    @Test
-    @DisplayName("validateUser - Validação bem-sucedida do usuário")
-    void validateUser_SuccessfulValidation() {
-        // Arrange
-        UserEntity validUser = new UserEntity("João Silva", "joao@email.com", "11912345678", "senha123");
-
-        // Act and Assert
-        assertDoesNotThrow(() -> userService.validateUser(validUser), "Validation should not throw an exception");
-
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        Set<ConstraintViolation<UserEntity>> violations = validator.validate(validUser);
-
-        assertTrue(violations.isEmpty(), "No constraint violations expected for a valid user");
-    }
-
-    @Test
-    @DisplayName("validateUser - Exceção ao validar usuário com violação de restrição")
-    void validateUser_ConstraintViolationExceptionHandling() {
-        // Arrange
-        UserEntity invalidUser = new UserEntity("", "invalid_email", "invalid_phone", "");
-
-        // Act and Assert
-        assertThrows(
-                ConstraintViolationException.class,
-                () -> userService.validateUser(invalidUser),
-                "Expected ConstraintViolationException for invalid user"
-        );
     }
 }

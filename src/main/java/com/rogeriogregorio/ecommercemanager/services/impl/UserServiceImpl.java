@@ -6,11 +6,9 @@ import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.user.UserDataException;
 import com.rogeriogregorio.ecommercemanager.exceptions.user.UserNotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.user.UserRepositoryException;
-import com.rogeriogregorio.ecommercemanager.exceptions.user.UserUpdateException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
-import jakarta.validation.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,7 +44,7 @@ public class UserServiceImpl implements UserService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar buscar usuários: {}", exception.getMessage(), exception);
-            throw new UserRepositoryException("Erro ao tentar buscar usuários: " + exception.getMessage() + ".");
+            throw new UserRepositoryException("Erro ao tentar buscar usuários.", exception);
         }
     }
 
@@ -70,8 +67,6 @@ public class UserServiceImpl implements UserService {
 
         UserEntity userEntity = userConverter.requestToEntity(userRequest);
 
-        validateUser(userEntity);
-
         try {
             userRepository.save(userEntity);
             logger.info("Usuário criado: {}", userEntity.toString());
@@ -82,7 +77,7 @@ public class UserServiceImpl implements UserService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar criar o usuário: {}", exception.getMessage(), exception);
-            throw new UserRepositoryException("Erro ao tentar criar o usuário: " + exception.getMessage() + ".");
+            throw new UserRepositoryException("Erro ao tentar criar o usuário.", exception);
         }
 
         return userConverter.entityToResponse(userEntity);
@@ -92,8 +87,6 @@ public class UserServiceImpl implements UserService {
     public UserResponse updateUser(UserRequest userRequest) {
 
         UserEntity userEntity = userConverter.requestToEntity(userRequest);
-
-        validateUser(userEntity);
 
         userRepository.findById(userEntity.getId()).orElseThrow(() -> {
             logger.warn("Usuário não encontrado com o ID: {}", userEntity.getId());
@@ -106,7 +99,7 @@ public class UserServiceImpl implements UserService {
 
         } catch (DataIntegrityViolationException exception) {
             logger.error("Erro ao tentar atualizar usuário: E-mail já cadastrado.", exception);
-            throw new UserUpdateException("Erro ao tentar atualizar o usuário: E-mail já cadastrado.");
+            throw new UserDataException("Erro ao tentar atualizar o usuário: E-mail já cadastrado.");
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar atualizar o usuário: {}", exception.getMessage(), exception);
@@ -130,7 +123,7 @@ public class UserServiceImpl implements UserService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar excluir o usuário: {}", exception.getMessage(), exception);
-            throw new UserRepositoryException("Erro ao tentar excluir o usuário: " + exception.getMessage() + ".");
+            throw new UserRepositoryException("Erro ao tentar excluir o usuário: ", exception);
         }
     }
 
@@ -144,7 +137,7 @@ public class UserServiceImpl implements UserService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar buscar usuários: {}", exception.getMessage(), exception);
-            throw new UserRepositoryException("Erro ao tentar buscar usuários: " + exception.getMessage() + ".");
+            throw new UserRepositoryException("Erro ao tentar buscar usuários.", exception);
         }
 
         if (users.isEmpty()) {
@@ -155,18 +148,5 @@ public class UserServiceImpl implements UserService {
         return users.stream()
                 .map(userConverter::entityToResponse)
                 .collect(Collectors.toList());
-    }
-
-    public void validateUser(UserEntity userEntity) {
-
-        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-            Validator validator = factory.getValidator();
-
-            Set<ConstraintViolation<UserEntity>> violations = validator.validate(userEntity);
-
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException("Falha na validação", violations);
-            }
-        }
     }
 }

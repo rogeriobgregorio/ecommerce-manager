@@ -1,7 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.exceptions.user;
 
 import com.rogeriogregorio.ecommercemanager.exceptions.StandardError;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -28,14 +27,6 @@ public class UserExceptionHandler {
     public ResponseEntity<StandardError> handleUserDataException(UserDataException ex) {
 
         StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "Erro de integridade de dados", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-    }
-
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<StandardError> handleUserUpdateException(DataIntegrityViolationException ex) {
-
-        String message = "Erro ao tentar atualizar usuário: E-mail já cadastrado.";
-        StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "Erro de integridade de dados", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }

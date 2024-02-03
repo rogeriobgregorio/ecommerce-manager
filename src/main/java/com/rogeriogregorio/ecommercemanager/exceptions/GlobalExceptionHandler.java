@@ -1,6 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.exceptions;
 
 import jakarta.validation.ConstraintViolationException;
+import org.hibernate.internal.build.AllowSysOut;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +32,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<StandardError> handleMethodArgumentTypeMismatchException(
             MethodArgumentTypeMismatchException ex) {
 
-        String message = "Erro de tipo de argumento: " + ex.getName() +
-                " deve ser um número inteiro.";
+        String message = "Erro de tipo de argumento: " + ex.getName() + " deve ser um número inteiro.";
         StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "Erro de argumento inválido", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
@@ -92,8 +92,8 @@ public class GlobalExceptionHandler {
             String fieldName = violation.getPropertyPath().toString();
             String errorMessage = violation.getMessage();
             errors.put(fieldName, errorMessage);
-        });
 
+        });
         StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "Erro de validação", errors.toString());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }

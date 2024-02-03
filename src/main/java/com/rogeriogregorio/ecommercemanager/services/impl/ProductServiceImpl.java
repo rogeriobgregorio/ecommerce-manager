@@ -9,7 +9,6 @@ import com.rogeriogregorio.ecommercemanager.exceptions.user.UserNotFoundExceptio
 import com.rogeriogregorio.ecommercemanager.repositories.ProductRepository;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
-import jakarta.validation.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar buscar produtos: {}", exception.getMessage(), exception);
-            throw new ProductRepositoryException("Erro ao tentar buscar produtos: " + exception.getMessage() + ".");
+            throw new ProductRepositoryException("Erro ao tentar buscar produtos.", exception);
         }
     }
 
@@ -56,15 +54,13 @@ public class ProductServiceImpl implements ProductService {
 
         ProductEntity productEntity = productConverter.requestToEntity(productRequest);
 
-        validateProduct(productEntity);
-
         try {
             productRepository.save(productEntity);
             logger.info("Produto criado: {}", productEntity.toString());
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar criar o produto: {}", exception.getMessage(), exception);
-            throw new ProductRepositoryException("Erro ao tentar criar o produto: " + exception.getMessage() + ".");
+            throw new ProductRepositoryException("Erro ao tentar criar o produto.", exception);
         }
 
         return productConverter.entityToResponse(productEntity);
@@ -86,8 +82,6 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse updateProduct(ProductRequest productRequest) {
 
         ProductEntity productEntity = productConverter.requestToEntity(productRequest);
-
-        validateProduct(productEntity);
 
         productRepository.findById(productEntity.getId()).orElseThrow(() -> {
             logger.warn("Produto não encontrado com o ID: {}", productEntity.getId());
@@ -120,7 +114,7 @@ public class ProductServiceImpl implements ProductService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar excluir o produto: {}", exception.getMessage(), exception);
-            throw new ProductRepositoryException("Erro ao tentar excluir o produto: " + exception.getMessage() + ".");
+            throw new ProductRepositoryException("Erro ao tentar excluir o produto.", exception);
         }
     }
 
@@ -134,7 +128,7 @@ public class ProductServiceImpl implements ProductService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar buscar produtos: {}", exception.getMessage(), exception);
-            throw new ProductRepositoryException("Erro ao tentar buscar produtos: " + exception.getMessage() + ".");
+            throw new ProductRepositoryException("Erro ao tentar buscar produtos.", exception);
         }
 
         if (products.isEmpty()) {
@@ -145,18 +139,5 @@ public class ProductServiceImpl implements ProductService {
         return products.stream()
                 .map(productConverter::entityToResponse)
                 .collect(Collectors.toList());
-    }
-
-    public void validateProduct(ProductEntity productEntity) {
-
-        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-            Validator validator = factory.getValidator();
-
-            Set<ConstraintViolation<ProductEntity>> violations = validator.validate(productEntity);
-
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException("Falha na validação", violations);
-            }
-        }
     }
 }

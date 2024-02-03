@@ -9,7 +9,6 @@ import com.rogeriogregorio.ecommercemanager.exceptions.user.UserNotFoundExceptio
 import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
-import jakarta.validation.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,7 +43,7 @@ public class OrderServiceImpl implements OrderService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar buscar pedidos: {}", exception.getMessage(), exception);
-            throw new OrderRepositoryException("Erro ao tentar buscar pedidos: " + exception.getMessage() + ".");
+            throw new OrderRepositoryException("Erro ao tentar buscar pedidos.", exception);
         }
     }
 
@@ -56,15 +54,13 @@ public class OrderServiceImpl implements OrderService {
 
         OrderEntity orderEntity = orderConverter.requestToEntity(orderRequest);
 
-        validateOrder(orderEntity);
-
         try {
             orderRepository.save(orderEntity);
             logger.info("Pedido criado: {}", orderEntity.toString());
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar criar o pedido: {}", exception.getMessage(), exception);
-            throw new OrderRepositoryException("Erro ao tentar criar o pedido: " + exception.getMessage() + ".");
+            throw new OrderRepositoryException("Erro ao tentar criar o pedido.", exception);
         }
 
         return orderConverter.entityToResponse(orderEntity);
@@ -86,8 +82,6 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse updateOrder(OrderRequest orderRequest) {
 
         OrderEntity orderEntity = orderConverter.requestToEntity(orderRequest);
-
-        validateOrder(orderEntity);
 
         orderRepository.findById(orderEntity.getId()).orElseThrow(() -> {
             logger.warn("Pedido não encontrado com o ID: {}", orderEntity.getId());
@@ -120,7 +114,7 @@ public class OrderServiceImpl implements OrderService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar excluir o pedido: {}", exception.getMessage(), exception);
-            throw new OrderRepositoryException("Erro ao tentar excluir o pedido: " + exception.getMessage() + ".");
+            throw new OrderRepositoryException("Erro ao tentar excluir o pedido.", exception);
         }
     }
 
@@ -136,20 +130,7 @@ public class OrderServiceImpl implements OrderService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar buscar pedidos pelo id do cliente: {}", exception.getMessage(), exception);
-            throw new OrderRepositoryException("Erro ao tentar buscar pedidos pelo id do cliente: " + exception.getMessage() + ".");
-        }
-    }
-
-    public void validateOrder(OrderEntity orderEntity) {
-
-        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-            Validator validator = factory.getValidator();
-
-            Set<ConstraintViolation<OrderEntity>> violations = validator.validate(orderEntity);
-
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException("Falha na validação", violations);
-            }
+            throw new OrderRepositoryException("Erro ao tentar buscar pedidos pelo id do cliente.", exception);
         }
     }
 }

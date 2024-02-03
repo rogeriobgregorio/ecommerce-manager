@@ -8,7 +8,6 @@ import com.rogeriogregorio.ecommercemanager.exceptions.category.CategoryReposito
 import com.rogeriogregorio.ecommercemanager.repositories.CategoryRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
-import jakarta.validation.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,7 +41,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar buscar categorias: {}", exception.getMessage(), exception);
-            throw new CategoryRepositoryException("Erro ao tentar buscar categorias: " + exception.getMessage() + ".");
+            throw new CategoryRepositoryException("Erro ao tentar buscar categorias.", exception);
         }
     }
 
@@ -53,15 +51,13 @@ public class CategoryServiceImpl implements CategoryService {
 
         CategoryEntity categoryEntity = categoryConverter.requestToEntity(categoryRequest);
 
-        validateUser(categoryEntity);
-
         try {
             categoryRepository.save(categoryEntity);
             logger.info("Usuário criado: {}", categoryEntity.toString());
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar criar o categoria: {}", exception.getMessage(), exception);
-            throw new CategoryRepositoryException("Erro ao tentar criar o categoria: " + exception.getMessage() + ".");
+            throw new CategoryRepositoryException("Erro ao tentar criar o categoria.", exception);
         }
 
         return categoryConverter.entityToResponse(categoryEntity);
@@ -83,8 +79,6 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse updateCategory(CategoryRequest categoryRequest) {
 
         CategoryEntity categoryEntity = categoryConverter.requestToEntity(categoryRequest);
-
-        validateUser(categoryEntity);
 
         categoryRepository.findById(categoryEntity.getId()).orElseThrow(() -> {
             logger.warn("Usuário não encontrado com o ID: {}", categoryEntity.getId());
@@ -117,20 +111,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar excluir a categoria: {}", exception.getMessage(), exception);
-            throw new CategoryRepositoryException("Erro ao tentar excluir a categoria: " + exception.getMessage() + ".");
-        }
-    }
-
-    public void validateUser(CategoryEntity categoryEntity) {
-
-        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-            Validator validator = factory.getValidator();
-
-            Set<ConstraintViolation<CategoryEntity>> violations = validator.validate(categoryEntity);
-
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException("Falha na validação", violations);
-            }
+            throw new CategoryRepositoryException("Erro ao tentar excluir a categoria.", exception);
         }
     }
 }
