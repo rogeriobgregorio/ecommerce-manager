@@ -1,5 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
@@ -14,7 +15,7 @@ import java.util.Objects;
 public class OrderItemEntity implements Serializable {
 
     @EmbeddedId
-    private OrderItemPK id;
+    private OrderItemPK id = new OrderItemPK();
 
     @Column(name = "quantity")
     private Integer quantity;
@@ -33,6 +34,7 @@ public class OrderItemEntity implements Serializable {
         this.price = price;
     }
 
+    @JsonIgnore
     public OrderEntity getOrderEntity() {
         return id.getOrderEntity();
     }

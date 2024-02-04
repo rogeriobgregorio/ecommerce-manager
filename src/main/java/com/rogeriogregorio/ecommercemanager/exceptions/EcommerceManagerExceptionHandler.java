@@ -1,7 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.exceptions;
 
 import jakarta.validation.ConstraintViolationException;
-import org.hibernate.internal.build.AllowSysOut;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
-public class GlobalExceptionHandler {
+public class EcommerceManagerExceptionHandler {
 
     @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
     public ResponseEntity<StandardError> handleNoResourceFoundException(
@@ -69,6 +68,29 @@ public class GlobalExceptionHandler {
         StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "Erro de argumento inválido", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+
+
+    @ExceptionHandler(RepositoryException.class)
+    public ResponseEntity<StandardError> HandleRepositoryException(RepositoryException ex) {
+
+        StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao tentar acessar o repositório", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<StandardError> handleNotFoundException(NotFoundException ex) {
+
+        StandardError error = new StandardError(HttpStatus.NOT_FOUND, "Usuário não encontrado", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(DataIntegrityException.class)
+    public ResponseEntity<StandardError> handleDataIntegrityException(DataIntegrityException ex) {
+
+        StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "Erro de integridade de dados", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<StandardError> handleValidationException(MethodArgumentNotValidException ex) {

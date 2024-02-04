@@ -3,8 +3,8 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 import com.rogeriogregorio.ecommercemanager.dto.CategoryRequest;
 import com.rogeriogregorio.ecommercemanager.dto.CategoryResponse;
 import com.rogeriogregorio.ecommercemanager.entities.CategoryEntity;
-import com.rogeriogregorio.ecommercemanager.exceptions.category.CategoryNotFoundException;
-import com.rogeriogregorio.ecommercemanager.exceptions.category.CategoryRepositoryException;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
+import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.CategoryRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -41,7 +41,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar buscar categorias: {}", exception.getMessage(), exception);
-            throw new CategoryRepositoryException("Erro ao tentar buscar categorias.", exception);
+            throw new RepositoryException("Erro ao tentar buscar categorias.", exception);
         }
     }
 
@@ -57,7 +57,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar criar o categoria: {}", exception.getMessage(), exception);
-            throw new CategoryRepositoryException("Erro ao tentar criar o categoria.", exception);
+            throw new RepositoryException("Erro ao tentar criar o categoria.", exception);
         }
 
         return categoryConverter.entityToResponse(categoryEntity);
@@ -71,7 +71,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .map(categoryConverter::entityToResponse)
                 .orElseThrow(() -> {
                     logger.warn("Categoria não encontrado com o ID: {}", id);
-                    return new CategoryNotFoundException("Categoria não encontrado com o ID: " + id + ".");
+                    return new NotFoundException("Categoria não encontrado com o ID: " + id + ".");
                 });
     }
 
@@ -82,7 +82,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryRepository.findById(categoryEntity.getId()).orElseThrow(() -> {
             logger.warn("Usuário não encontrado com o ID: {}", categoryEntity.getId());
-            return new CategoryNotFoundException("Usuário não encontrado com o ID: " + categoryEntity.getId() + ".");
+            return new NotFoundException("Usuário não encontrado com o ID: " + categoryEntity.getId() + ".");
         });
 
         try {
@@ -91,7 +91,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar atualizar a categoria: {}", exception.getMessage(), exception);
-            throw new CategoryRepositoryException("Erro ao tentar atualizar a categoria.", exception);
+            throw new RepositoryException("Erro ao tentar atualizar a categoria.", exception);
         }
 
         return categoryConverter.entityToResponse(categoryEntity);
@@ -102,7 +102,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryRepository.findById(id).orElseThrow(() -> {
             logger.warn("Categoria não encontrada com o ID: {}", id);
-            return new CategoryNotFoundException("Categoria não encontrada com o ID: " + id + ".");
+            return new NotFoundException("Categoria não encontrada com o ID: " + id + ".");
         });
 
         try {
@@ -111,7 +111,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar excluir a categoria: {}", exception.getMessage(), exception);
-            throw new CategoryRepositoryException("Erro ao tentar excluir a categoria.", exception);
+            throw new RepositoryException("Erro ao tentar excluir a categoria.", exception);
         }
     }
 }

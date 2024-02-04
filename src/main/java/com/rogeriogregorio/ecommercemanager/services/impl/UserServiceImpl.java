@@ -3,9 +3,9 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 import com.rogeriogregorio.ecommercemanager.dto.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
-import com.rogeriogregorio.ecommercemanager.exceptions.user.UserDataException;
-import com.rogeriogregorio.ecommercemanager.exceptions.user.UserNotFoundException;
-import com.rogeriogregorio.ecommercemanager.exceptions.user.UserRepositoryException;
+import com.rogeriogregorio.ecommercemanager.exceptions.DataIntegrityException;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
+import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar buscar usuários: {}", exception.getMessage(), exception);
-            throw new UserRepositoryException("Erro ao tentar buscar usuários.", exception);
+            throw new RepositoryException("Erro ao tentar buscar usuários.", exception);
         }
     }
 
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
                 .map(userConverter::entityToResponse)
                 .orElseThrow(() -> {
                     logger.warn("Usuário não encontrado com o ID: {}", id);
-                    return new UserNotFoundException("Usuário não encontrado com o ID: " + id + ".");
+                    return new NotFoundException("Usuário não encontrado com o ID: " + id + ".");
                 });
     }
 
@@ -73,11 +73,11 @@ public class UserServiceImpl implements UserService {
 
         } catch (DataIntegrityViolationException exception) {
             logger.error("Erro ao tentar criar o usuário: E-mail já cadastrado.", exception);
-            throw new UserDataException("Erro ao tentar criar o usuário: E-mail já cadastrado.");
+            throw new DataIntegrityException("Erro ao tentar criar o usuário: E-mail já cadastrado.");
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar criar o usuário: {}", exception.getMessage(), exception);
-            throw new UserRepositoryException("Erro ao tentar criar o usuário.", exception);
+            throw new RepositoryException("Erro ao tentar criar o usuário.", exception);
         }
 
         return userConverter.entityToResponse(userEntity);
@@ -90,7 +90,7 @@ public class UserServiceImpl implements UserService {
 
         userRepository.findById(userEntity.getId()).orElseThrow(() -> {
             logger.warn("Usuário não encontrado com o ID: {}", userEntity.getId());
-            return new UserNotFoundException("Usuário não encontrado com o ID: " + userEntity.getId() + ".");
+            return new NotFoundException("Usuário não encontrado com o ID: " + userEntity.getId() + ".");
         });
 
         try {
@@ -99,11 +99,11 @@ public class UserServiceImpl implements UserService {
 
         } catch (DataIntegrityViolationException exception) {
             logger.error("Erro ao tentar atualizar usuário: E-mail já cadastrado.", exception);
-            throw new UserDataException("Erro ao tentar atualizar o usuário: E-mail já cadastrado.");
+            throw new DataIntegrityException("Erro ao tentar atualizar o usuário: E-mail já cadastrado.");
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar atualizar o usuário: {}", exception.getMessage(), exception);
-            throw new UserRepositoryException("Erro ao tentar atualizar o usuário.", exception);
+            throw new RepositoryException("Erro ao tentar atualizar o usuário.", exception);
         }
 
         return userConverter.entityToResponse(userEntity);
@@ -114,7 +114,7 @@ public class UserServiceImpl implements UserService {
 
         userRepository.findById(id).orElseThrow(() -> {
             logger.warn("Usuário não encontrado com o ID: {}", id);
-            return new UserNotFoundException("Usuário não encontrado com o ID: " + id + ".");
+            return new NotFoundException("Usuário não encontrado com o ID: " + id + ".");
         });
 
         try {
@@ -123,7 +123,7 @@ public class UserServiceImpl implements UserService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar excluir o usuário: {}", exception.getMessage(), exception);
-            throw new UserRepositoryException("Erro ao tentar excluir o usuário: ", exception);
+            throw new RepositoryException("Erro ao tentar excluir o usuário: ", exception);
         }
     }
 
@@ -137,12 +137,12 @@ public class UserServiceImpl implements UserService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar buscar usuários: {}", exception.getMessage(), exception);
-            throw new UserRepositoryException("Erro ao tentar buscar usuários.", exception);
+            throw new RepositoryException("Erro ao tentar buscar usuários.", exception);
         }
 
         if (users.isEmpty()) {
             logger.warn("Nenhum usuário encontrado com o nome: {}", name);
-            throw new UserNotFoundException("Nenhum usuário com nome " + name + " encontrado.");
+            throw new NotFoundException("Nenhum usuário com nome " + name + " encontrado.");
         }
 
         return users.stream()

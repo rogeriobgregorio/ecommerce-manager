@@ -3,9 +3,8 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 import com.rogeriogregorio.ecommercemanager.dto.ProductRequest;
 import com.rogeriogregorio.ecommercemanager.dto.ProductResponse;
 import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
-import com.rogeriogregorio.ecommercemanager.exceptions.product.ProductNotFoundException;
-import com.rogeriogregorio.ecommercemanager.exceptions.product.ProductRepositoryException;
-import com.rogeriogregorio.ecommercemanager.exceptions.user.UserNotFoundException;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
+import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductRepository;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -43,7 +42,7 @@ public class ProductServiceImpl implements ProductService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar buscar produtos: {}", exception.getMessage(), exception);
-            throw new ProductRepositoryException("Erro ao tentar buscar produtos.", exception);
+            throw new RepositoryException("Erro ao tentar buscar produtos.", exception);
         }
     }
 
@@ -60,7 +59,7 @@ public class ProductServiceImpl implements ProductService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar criar o produto: {}", exception.getMessage(), exception);
-            throw new ProductRepositoryException("Erro ao tentar criar o produto.", exception);
+            throw new RepositoryException("Erro ao tentar criar o produto.", exception);
         }
 
         return productConverter.entityToResponse(productEntity);
@@ -74,7 +73,7 @@ public class ProductServiceImpl implements ProductService {
                 .map(productConverter::entityToResponse)
                 .orElseThrow(() -> {
                     logger.warn("Produto não encontrado com o ID: {}", id);
-                    return new UserNotFoundException("Produto não encontrado com o ID: " + id + ".");
+                    return new NotFoundException("Produto não encontrado com o ID: " + id + ".");
                 });
     }
 
@@ -85,7 +84,7 @@ public class ProductServiceImpl implements ProductService {
 
         productRepository.findById(productEntity.getId()).orElseThrow(() -> {
             logger.warn("Produto não encontrado com o ID: {}", productEntity.getId());
-            return new ProductNotFoundException("Produto não encontrado com o ID: " + productEntity.getId() + ".");
+            return new NotFoundException("Produto não encontrado com o ID: " + productEntity.getId() + ".");
         });
 
         try {
@@ -94,7 +93,7 @@ public class ProductServiceImpl implements ProductService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar atualizar o produto: {}", exception.getMessage(), exception);
-            throw new ProductRepositoryException("Erro ao tentar atualizar o produto.", exception);
+            throw new RepositoryException("Erro ao tentar atualizar o produto.", exception);
         }
 
         return productConverter.entityToResponse(productEntity);
@@ -105,7 +104,7 @@ public class ProductServiceImpl implements ProductService {
 
         productRepository.findById(id).orElseThrow(() -> {
             logger.warn("Produto não encontrado com o ID: {}", id);
-            return new ProductNotFoundException("Produto não encontrado com o ID: " + id + ".");
+            return new NotFoundException("Produto não encontrado com o ID: " + id + ".");
         });
 
         try {
@@ -114,7 +113,7 @@ public class ProductServiceImpl implements ProductService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar excluir o produto: {}", exception.getMessage(), exception);
-            throw new ProductRepositoryException("Erro ao tentar excluir o produto.", exception);
+            throw new RepositoryException("Erro ao tentar excluir o produto.", exception);
         }
     }
 
@@ -128,12 +127,12 @@ public class ProductServiceImpl implements ProductService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar buscar produtos: {}", exception.getMessage(), exception);
-            throw new ProductRepositoryException("Erro ao tentar buscar produtos.", exception);
+            throw new RepositoryException("Erro ao tentar buscar produtos.", exception);
         }
 
         if (products.isEmpty()) {
             logger.warn("Nenhum produto encontrado com o nome: {}", name);
-            throw new ProductNotFoundException("Nenhum produto com nome " + name + " encontrado.");
+            throw new NotFoundException("Nenhum produto com nome " + name + " encontrado.");
         }
 
         return products.stream()

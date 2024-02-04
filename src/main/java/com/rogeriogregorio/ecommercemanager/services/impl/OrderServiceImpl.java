@@ -3,9 +3,8 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 import com.rogeriogregorio.ecommercemanager.dto.OrderRequest;
 import com.rogeriogregorio.ecommercemanager.dto.OrderResponse;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
-import com.rogeriogregorio.ecommercemanager.exceptions.order.OrderNotFoundException;
-import com.rogeriogregorio.ecommercemanager.exceptions.order.OrderRepositoryException;
-import com.rogeriogregorio.ecommercemanager.exceptions.user.UserNotFoundException;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
+import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -43,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar buscar pedidos: {}", exception.getMessage(), exception);
-            throw new OrderRepositoryException("Erro ao tentar buscar pedidos.", exception);
+            throw new RepositoryException("Erro ao tentar buscar pedidos.", exception);
         }
     }
 
@@ -60,7 +59,7 @@ public class OrderServiceImpl implements OrderService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar criar o pedido: {}", exception.getMessage(), exception);
-            throw new OrderRepositoryException("Erro ao tentar criar o pedido.", exception);
+            throw new RepositoryException("Erro ao tentar criar o pedido.", exception);
         }
 
         return orderConverter.entityToResponse(orderEntity);
@@ -74,7 +73,7 @@ public class OrderServiceImpl implements OrderService {
                 .map(orderConverter::entityToResponse)
                 .orElseThrow(() -> {
                     logger.warn("Pedido não encontrado com o ID: {}", id);
-                    return new OrderNotFoundException("Pedido não encontrado com o ID: " + id + ".");
+                    return new NotFoundException("Pedido não encontrado com o ID: " + id + ".");
                 });
     }
 
@@ -85,7 +84,7 @@ public class OrderServiceImpl implements OrderService {
 
         orderRepository.findById(orderEntity.getId()).orElseThrow(() -> {
             logger.warn("Pedido não encontrado com o ID: {}", orderEntity.getId());
-            return new OrderNotFoundException("Pedido não encontrado com o ID: " + orderEntity.getId() + ".");
+            return new NotFoundException("Pedido não encontrado com o ID: " + orderEntity.getId() + ".");
         });
 
         try {
@@ -94,7 +93,7 @@ public class OrderServiceImpl implements OrderService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar atualizar o pedido: {}", exception.getMessage(), exception);
-            throw new OrderRepositoryException("Erro ao tentar atualizar o pedido.", exception);
+            throw new RepositoryException("Erro ao tentar atualizar o pedido.", exception);
         }
 
         return orderConverter.entityToResponse(orderEntity);
@@ -105,7 +104,7 @@ public class OrderServiceImpl implements OrderService {
 
         orderRepository.findById(id).orElseThrow(() -> {
             logger.warn("Usuário não encontrado com o ID: {}", id);
-            return new UserNotFoundException("Usuário não encontrado com o ID: " + id + ".");
+            return new NotFoundException("Usuário não encontrado com o ID: " + id + ".");
         });
 
         try {
@@ -114,7 +113,7 @@ public class OrderServiceImpl implements OrderService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar excluir o pedido: {}", exception.getMessage(), exception);
-            throw new OrderRepositoryException("Erro ao tentar excluir o pedido.", exception);
+            throw new RepositoryException("Erro ao tentar excluir o pedido.", exception);
         }
     }
 
@@ -130,7 +129,7 @@ public class OrderServiceImpl implements OrderService {
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar buscar pedidos pelo id do cliente: {}", exception.getMessage(), exception);
-            throw new OrderRepositoryException("Erro ao tentar buscar pedidos pelo id do cliente.", exception);
+            throw new RepositoryException("Erro ao tentar buscar pedidos pelo id do cliente.", exception);
         }
     }
 }

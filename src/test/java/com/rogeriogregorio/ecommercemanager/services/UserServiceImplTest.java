@@ -3,9 +3,9 @@ package com.rogeriogregorio.ecommercemanager.services;
 import com.rogeriogregorio.ecommercemanager.dto.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
-import com.rogeriogregorio.ecommercemanager.exceptions.user.UserDataException;
-import com.rogeriogregorio.ecommercemanager.exceptions.user.UserNotFoundException;
-import com.rogeriogregorio.ecommercemanager.exceptions.user.UserRepositoryException;
+import com.rogeriogregorio.ecommercemanager.exceptions.DataIntegrityException;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
+import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -130,7 +130,7 @@ public class UserServiceImplTest {
         when(userRepository.findAll()).thenThrow(RuntimeException.class);
 
         // Act and Assert
-        assertThrows(UserRepositoryException.class, () -> userService.findAllUsers(), "Expected UserRepositoryException to be thrown");
+        assertThrows(RepositoryException.class, () -> userService.findAllUsers(), "Expected RepositoryException to be thrown");
     }
 
     @Test
@@ -168,7 +168,7 @@ public class UserServiceImplTest {
         when(userRepository.save(userEntity)).thenThrow(DataIntegrityViolationException.class);
 
         // Act and Assert
-        assertThrows(UserDataException.class, () -> userService.createUser(userRequest), "Expected UserDataException due to duplicate email");
+        assertThrows(DataIntegrityException.class, () -> userService.createUser(userRequest), "Expected DataIntegrityException due to duplicate email");
 
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userRepository, times(1)).save(any());
@@ -185,7 +185,7 @@ public class UserServiceImplTest {
         when(userRepository.save(userEntity)).thenThrow(RuntimeException.class);
 
         // Act and Assert
-        assertThrows(UserRepositoryException.class, () -> userService.createUser(userRequest), "Expected UserRepositoryException due to a generic runtime exception");
+        assertThrows(RepositoryException.class, () -> userService.createUser(userRequest), "Expected RepositoryException due to a generic runtime exception");
 
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userRepository, times(1)).save(any());
@@ -218,7 +218,7 @@ public class UserServiceImplTest {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(UserNotFoundException.class, () -> userService.findUserById(1L), "Expected UserNotFoundException for non-existent user");
+        assertThrows(NotFoundException.class, () -> userService.findUserById(1L), "Expected NotFoundException for non-existent user");
 
         verify(userRepository, times(1)).findById(1L);
     }
@@ -263,7 +263,7 @@ public class UserServiceImplTest {
         when(userRepository.findById(userEntity.getId())).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(UserNotFoundException.class, () -> userService.updateUser(userRequest), "Expected UserNotFoundException for non-existent user");
+        assertThrows(NotFoundException.class, () -> userService.updateUser(userRequest), "Expected NotFoundException for non-existent user");
 
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userRepository, times(1)).findById(userEntity.getId());
@@ -281,7 +281,7 @@ public class UserServiceImplTest {
         when(userRepository.save(userEntity)).thenThrow(RuntimeException.class);
 
         // Act and Assert
-        assertThrows(UserRepositoryException.class, () -> userService.updateUser(userRequest), "Expected UserRepositoryException for update failure");
+        assertThrows(RepositoryException.class, () -> userService.updateUser(userRequest), "Expected RepositoryException for update failure");
 
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userRepository, times(1)).findById(userEntity.getId());
@@ -300,7 +300,7 @@ public class UserServiceImplTest {
         when(userRepository.save(userEntity)).thenThrow(DataIntegrityViolationException.class);
 
         // Act and Assert
-        assertThrows(UserDataException.class, () -> userService.updateUser(userRequest), "Expected UserUpdateException due to duplicate email");
+        assertThrows(DataIntegrityException.class, () -> userService.updateUser(userRequest), "Expected UserUpdateException due to duplicate email");
 
         verify(userConverter, times(1)).requestToEntity(userRequest);
         verify(userRepository, times(1)).findById(userEntity.getId());
@@ -330,7 +330,7 @@ public class UserServiceImplTest {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(UserNotFoundException.class, () -> userService.deleteUser(userId), "Expected UserNotFoundException for non-existent user");
+        assertThrows(NotFoundException.class, () -> userService.deleteUser(userId), "Expected NotFoundException for non-existent user");
         verify(userRepository, times(1)).findById(userId);
     }
 
@@ -344,7 +344,7 @@ public class UserServiceImplTest {
         doThrow(RuntimeException.class).when(userRepository).deleteById(userEntity.getId());
 
         // Act and Assert
-        assertThrows(UserRepositoryException.class, () -> userService.deleteUser(userEntity.getId()), "Expected UserRepositoryException for delete failure");
+        assertThrows(RepositoryException.class, () -> userService.deleteUser(userEntity.getId()), "Expected RepositoryException for delete failure");
 
         verify(userRepository, times(1)).findById(userEntity.getId());
         verify(userRepository, times(1)).deleteById(userEntity.getId());
@@ -386,7 +386,7 @@ public class UserServiceImplTest {
         when(userRepository.findByName(userName)).thenReturn(Collections.emptyList());
 
         // Act and Assert
-        assertThrows(UserNotFoundException.class, () -> userService.findUserByName(userName), "Expected UserNotFoundException for non-existent user");
+        assertThrows(NotFoundException.class, () -> userService.findUserByName(userName), "Expected NotFoundException for non-existent user");
 
         verify(userRepository, times(1)).findByName(userName);
     }
@@ -399,7 +399,7 @@ public class UserServiceImplTest {
         when(userRepository.findByName(userName)).thenThrow(RuntimeException.class);
 
         // Act and Assert
-        assertThrows(UserRepositoryException.class, () -> userService.findUserByName(userName), "Expected UserRepositoryException for repository error");
+        assertThrows(RepositoryException.class, () -> userService.findUserByName(userName), "Expected RepositoryException for repository error");
 
         verify(userRepository, times(1)).findByName(userName);
         verify(userConverter, never()).entityToResponse(any());
