@@ -41,3 +41,14 @@ INSERT INTO tb_products (name, description, price, img_url) VALUES ('TV Smart LG
 INSERT INTO tb_products (name, description, price, img_url) VALUES ('Console de videogame PlayStation 5', 'O console de próxima geração da Sony.', 499.99, 'https://example.com/console-playstation-5.jpg');
 INSERT INTO tb_products (name, description, price, img_url) VALUES ('Impressora multifuncional Epson EcoTank L3150', 'Impressora sem fio com tanque de tinta da Epson.', 299.99, 'https://example.com/impressora-multifuncional-epson-ecotank-l3150.jpg');
 INSERT INTO tb_products (name, description, price, img_url) VALUES ('Roteador Wi-Fi TP-Link Archer C4000', 'Roteador Wi-Fi tri-band de alta velocidade da TP-Link.', 199.99, 'https://example.com/roteador-wifi-tp-link-archer-c4000.jpg');
+
+INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (1, 1, 1, 1999.99);
+INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (2, 2, 1, 1899.99);
+INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (3, 3, 1, 1099.99);
+INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (4, 4, 1, 399.99);
+INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (5, 5, 1, 349.99);
+INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (6, 6, 1, 3899.99);
+INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (7, 7, 1, 2499.99);
+INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (8, 8, 1, 499.99);
+INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (9, 9, 1, 299.99);
+INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (10, 10, 1, 199.99);

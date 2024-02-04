@@ -7,7 +7,9 @@ import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "tb_orders")
@@ -30,6 +32,9 @@ public class OrderEntity implements Serializable {
     @JoinColumn(name = "client_id")
     @NotNull(message = "O cliente não pode ser nulo")
     private UserEntity client;
+
+    @OneToMany(mappedBy = "id.orderEntity")
+    private Set<OrderItemEntity> items = new HashSet<>();
 
     public OrderEntity() {
     }
@@ -82,6 +87,10 @@ public class OrderEntity implements Serializable {
 
     public void setClient(UserEntity client) {
         this.client = client;
+    }
+
+    public Set<OrderItemEntity> getItems() {
+        return items;
     }
 
     @Override
