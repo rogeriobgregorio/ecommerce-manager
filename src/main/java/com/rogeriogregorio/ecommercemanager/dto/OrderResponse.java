@@ -1,9 +1,12 @@
 package com.rogeriogregorio.ecommercemanager.dto;
 
+import com.rogeriogregorio.ecommercemanager.entities.OrderItemEntity;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 public class OrderResponse {
 
@@ -11,6 +14,7 @@ public class OrderResponse {
     private Instant moment;
     private Integer orderStatus;
     private UserEntity client;
+    private Set<OrderItemEntity> items = new HashSet<>();
 
     public OrderResponse() {
     }
@@ -57,5 +61,13 @@ public class OrderResponse {
 
     public void setClient(UserEntity client) {
         this.client = client;
+    }
+
+    public Set<OrderItemEntity> getItems() {
+        return items;
+    }
+
+    public void setItems(Set<OrderItemEntity> items) {
+        this.items = items;
     }
 }

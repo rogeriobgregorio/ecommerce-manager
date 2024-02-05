@@ -1,54 +1,37 @@
-INSERT INTO tb_users (name, email, phone, password) VALUES ('João Silva', 'joao.silva@email.com', '123456789', 'senha123');
-INSERT INTO tb_users (name, email, phone, password) VALUES ('Maria Oliveira', 'maria.oliveira@email.com', '987654321', 'senha456');
-INSERT INTO tb_users (name, email, phone, password) VALUES ('Carlos Santos', 'carlos.santos@email.com', '111223344', 'senha789');
-INSERT INTO tb_users (name, email, phone, password) VALUES ('Ana Pereira', 'ana.pereira@email.com', '555666777', 'senhaABC');
-INSERT INTO tb_users (name, email, phone, password) VALUES ('Lucas Souza', 'lucas.souza@email.com', '999000111', 'senhaDEF');
-INSERT INTO tb_users (name, email, phone, password) VALUES ('Mariana Lima', 'mariana.lima@email.com', '222333444', 'senhaGHI');
-INSERT INTO tb_users (name, email, phone, password) VALUES ('Felipe Rocha', 'felipe.rocha@email.com', '777888999', 'senhaJKL');
-INSERT INTO tb_users (name, email, phone, password) VALUES ('Patricia Costa', 'patricia.costa@email.com', '444555666', 'senhaMNO');
-INSERT INTO tb_users (name, email, phone, password) VALUES ('Gustavo Silva', 'gustavo.silva@email.com', '111222333', 'senhaPQR');
-INSERT INTO tb_users (name, email, phone, password) VALUES ('Juliana Santos', 'juliana.santos@email.com', '888999000', 'senhaSTU');
-
-INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 1, 1);
-INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 2, 2);
-INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 5, 3);
-INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 3, 4);
-INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 4, 5);
-INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 1, 6);
-INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 3, 7);
-INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 5, 8);
-INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 3, 9);
-INSERT INTO tb_orders (moment, order_status, client_id) VALUES (CURRENT_TIMESTAMP, 4, 10);
-
-INSERT INTO tb_categories (name) VALUES ('Smartphone');
-INSERT INTO tb_categories (name) VALUES ('Notebook');
-INSERT INTO tb_categories (name) VALUES ('Tablet');
-INSERT INTO tb_categories (name) VALUES ('Smartwatch');
-INSERT INTO tb_categories (name) VALUES ('Fone bluetooth');
-INSERT INTO tb_categories (name) VALUES ('Câmera digital');
-INSERT INTO tb_categories (name) VALUES ('TV Smart');
-INSERT INTO tb_categories (name) VALUES ('Console de videogame');
-INSERT INTO tb_categories (name) VALUES ('Impressora multifuncional');
-INSERT INTO tb_categories (name) VALUES ('Roteador Wi-Fi');
-
-INSERT INTO tb_products (name, description, price, img_url) VALUES ('Smartphone Galaxy S22', 'O novo Smartphone Galaxy S22 da Samsung.', 1999.99, 'https://example.com/smartphone-galaxy-s22.jpg');
-INSERT INTO tb_products (name, description, price, img_url) VALUES ('Notebook ThinkPad X1 Carbon', 'Notebook ultraleve e potente da Lenovo.', 1899.99, 'https://example.com/notebook-thinkpad-x1-carbon.jpg');
-INSERT INTO tb_products (name, description, price, img_url) VALUES ('Tablet iPad Pro', 'iPad Pro com tela Liquid Retina XDR de 12,9 polegadas.', 1099.99, 'https://example.com/tablet-ipad-pro.jpg');
-INSERT INTO tb_products (name, description, price, img_url) VALUES ('Smartwatch Apple Watch Series 7', 'O relógio inteligente mais avançado da Apple.', 399.99, 'https://example.com/smartwatch-apple-watch-series-7.jpg');
-INSERT INTO tb_products (name, description, price, img_url) VALUES ('Fone bluetooth Sony WH-1000XM4', 'Fone de ouvido com cancelamento de ruído da Sony.', 349.99, 'https://example.com/fone-bluetooth-sony-wh-1000xm4.jpg');
-INSERT INTO tb_products (name, description, price, img_url) VALUES ('Câmera digital Canon EOS R5', 'Câmera mirror-less full-frame de alta resolução da Canon.', 3899.99, 'https://example.com/camera-digital-canon-eos-r5.jpg');
-INSERT INTO tb_products (name, description, price, img_url) VALUES ('TV Smart LG OLED C1', 'TV OLED 4K com inteligência artificial da LG.', 2499.99, 'https://example.com/tv-smart-lg-oled-c1.jpg');
-INSERT INTO tb_products (name, description, price, img_url) VALUES ('Console de videogame PlayStation 5', 'O console de próxima geração da Sony.', 499.99, 'https://example.com/console-playstation-5.jpg');
-INSERT INTO tb_products (name, description, price, img_url) VALUES ('Impressora multifuncional Epson EcoTank L3150', 'Impressora sem fio com tanque de tinta da Epson.', 299.99, 'https://example.com/impressora-multifuncional-epson-ecotank-l3150.jpg');
-INSERT INTO tb_products (name, description, price, img_url) VALUES ('Roteador Wi-Fi TP-Link Archer C4000', 'Roteador Wi-Fi tri-band de alta velocidade da TP-Link.', 199.99, 'https://example.com/roteador-wifi-tp-link-archer-c4000.jpg');
-
-INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (1, 1, 1, 1999.99);
-INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (2, 2, 1, 1899.99);
-INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (3, 3, 1, 1099.99);
-INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (4, 4, 1, 399.99);
-INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (5, 5, 1, 349.99);
-INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (6, 6, 1, 3899.99);
-INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (7, 7, 1, 2499.99);
-INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (8, 8, 1, 499.99);
-INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (9, 9, 1, 299.99);
-INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (10, 10, 1, 199.99);
+---- Inserir categorias
+--INSERT INTO tb_categories (id, name) VALUES (1, 'Electronics');
+--INSERT INTO tb_categories (id, name) VALUES (2, 'Books');
+--INSERT INTO tb_categories (id, name) VALUES (3, 'Computers');
+--
+---- Inserir produtos
+--INSERT INTO tb_products (id, name, description, price, img_url) VALUES (1, 'The Lord of the Rings', 'Lorem ipsum dolor sit amet, consectetur.', 90.5, '');
+--INSERT INTO tb_products (id, name, description, price, img_url) VALUES (2, 'Smart TV', 'Nulla eu imperdiet purus. Maecenas ante.', 2190.0, '');
+--INSERT INTO tb_products (id, name, description, price, img_url) VALUES (3, 'Macbook Pro', 'Nam eleifend maximus tortor, at mollis.', 1250.0, '');
+--INSERT INTO tb_products (id, name, description, price, img_url) VALUES (4, 'PC Gamer', 'Donec aliquet odio ac rhoncus cursus.', 1200.0, '');
+--INSERT INTO tb_products (id, name, description, price, img_url) VALUES (5, 'Rails for Dummies', 'Cras fringilla convallis sem vel faucibus.', 100.99, '');
+--
+---- Relacionar produtos com categorias
+--INSERT INTO tb_product_category (product_id, category_id) VALUES (1, 2);
+--INSERT INTO tb_product_category (product_id, category_id) VALUES (2, 1);
+--INSERT INTO tb_product_category (product_id, category_id) VALUES (2, 3);
+--INSERT INTO tb_product_category (product_id, category_id) VALUES (3, 3);
+--INSERT INTO tb_product_category (product_id, category_id) VALUES (4, 3);
+--INSERT INTO tb_product_category (product_id, category_id) VALUES (5, 2);
+--
+---- Inserir usuários
+--INSERT INTO tb_users (id, name, email, phone, password) VALUES (1, 'Maria Brown', 'maria@gmail.com', '988888888', '123456');
+--INSERT INTO tb_users (id, name, email, phone, password) VALUES (2, 'Alex Green', 'alex@gmail.com', '977777777', '123456');
+--
+---- Inserir pedidos
+--INSERT INTO tb_orders (id, moment, order_status, client_id) VALUES (1, '2019-06-20 19:53:07', 2, 1);
+--INSERT INTO tb_orders (id, moment, order_status, client_id) VALUES (2, '2019-07-21 03:42:10', 1, 2);
+--INSERT INTO tb_orders (id, moment, order_status, client_id) VALUES (3, '2019-07-22 15:21:22', 1, 1);
+--
+---- Inserir itens de pedido
+--INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (1, 1, 2, 90.5);
+--INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (1, 3, 1, 1250.0);
+--INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (2, 3, 2, 1250.0);
+--INSERT INTO tb_order_item (order_id, product_id, quantity, price) VALUES (3, 5, 2, 100.99);
+--
+---- Inserir pagamentos
+--INSERT INTO tb_payments (id, moment, order_id) VALUES (1, '2019-06-20 21:53:07', 1);

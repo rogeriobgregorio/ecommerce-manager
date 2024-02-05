@@ -1,5 +1,10 @@
 package com.rogeriogregorio.ecommercemanager.dto;
 
+import com.rogeriogregorio.ecommercemanager.entities.CategoryEntity;
+
+import java.util.HashSet;
+import java.util.Set;
+
 public class ProductResponse {
 
     private Long id;
@@ -7,6 +12,7 @@ public class ProductResponse {
     private String description;
     private Double price;
     private String imgUrl;
+    private Set<CategoryEntity> categories = new HashSet<>();
 
     public ProductResponse() {
     }
@@ -57,5 +63,13 @@ public class ProductResponse {
 
     public void setImgUrl(String imgUrl) {
         this.imgUrl = imgUrl;
+    }
+
+    public Set<CategoryEntity> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Set<CategoryEntity> categories) {
+        this.categories = categories;
     }
 }
