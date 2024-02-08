@@ -39,8 +39,8 @@ public class OrderItemServiceImpl implements OrderItemService {
                     .collect(Collectors.toList());
 
         } catch (Exception exception) {
-            logger.error("Erro ao tentar buscar categorias: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar categorias.", exception);
+            logger.error("Erro ao tentar buscar itens do pedido: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar buscar itens do pedido.", exception);
         }
     }
 
@@ -53,11 +53,11 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         try {
             orderItemRepository.save(orderItemEntity);
-            logger.info("Usuário criado: {}", orderItemEntity.toString());
+            logger.info("Itens do pedido criado: {}", orderItemEntity.toString());
 
         } catch (Exception exception) {
-            logger.error("Erro ao tentar criar o categoria: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar o categoria.", exception);
+            logger.error("Erro ao tentar criar itens do pedido: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar criar itens do pedido.", exception);
         }
 
         return orderItemConverter.entityToResponse(orderItemEntity);
@@ -70,8 +70,8 @@ public class OrderItemServiceImpl implements OrderItemService {
                 .findById(id)
                 .map(orderItemConverter::entityToResponse)
                 .orElseThrow(() -> {
-                    logger.warn("Categoria não encontrado com o ID: {}", id);
-                    return new NotFoundException("Categoria não encontrado com o ID: " + id + ".");
+                    logger.warn("Itens do pedido não encontrados com o ID: {}", id);
+                    return new NotFoundException("Itens do pedido não encontrados com o ID: " + id + ".");
                 });
     }
 
@@ -81,17 +81,17 @@ public class OrderItemServiceImpl implements OrderItemService {
         OrderItemEntity orderItemEntity = orderItemConverter.requestToEntity(orderItemRequest);
 
         orderItemRepository.findById(orderItemEntity.getOrderEntity().getId()).orElseThrow(() -> {
-            logger.warn("Usuário não encontrado com o ID: {}", orderItemEntity.getOrderEntity().getId());
-            return new NotFoundException("Usuário não encontrado com o ID: " + orderItemEntity.getOrderEntity().getId() + ".");
+            logger.warn("Itens do pedido não encontrados com o ID: {}", orderItemEntity.getOrderEntity().getId());
+            return new NotFoundException("Itens do pedido não encontrados com o ID: " + orderItemEntity.getOrderEntity().getId() + ".");
         });
 
         try {
             orderItemRepository.save(orderItemEntity);
-            logger.info("Categoria atualizada: {}", orderItemEntity.toString());
+            logger.info("Itens do pedido atualizados: {}", orderItemEntity.toString());
 
         } catch (Exception exception) {
-            logger.error("Erro ao tentar atualizar a categoria: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar atualizar a categoria.", exception);
+            logger.error("Erro ao tentar atualizar os itens do pedido: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar atualizar os itens do pedido.", exception);
         }
 
         return orderItemConverter.entityToResponse(orderItemEntity);
@@ -101,17 +101,17 @@ public class OrderItemServiceImpl implements OrderItemService {
     public void deleteOrderItem(Long id) {
 
         orderItemRepository.findById(id).orElseThrow(() -> {
-            logger.warn("Categoria não encontrada com o ID: {}", id);
-            return new NotFoundException("Categoria não encontrada com o ID: " + id + ".");
+            logger.warn("Itens do pedido não encontrados com o ID: {}", id);
+            return new NotFoundException("Itens do pedido não encontrados com o ID: " + id + ".");
         });
 
         try {
             orderItemRepository.deleteById(id);
-            logger.warn("Categoria removida: {}", id);
+            logger.warn("Itens do pedido removidos: {}", id);
 
         } catch (Exception exception) {
-            logger.error("Erro ao tentar excluir a categoria: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar excluir a categoria.", exception);
+            logger.error("Erro ao tentar excluir os itens do pedido: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar excluir os itens do pedido.", exception);
         }
     }
 }

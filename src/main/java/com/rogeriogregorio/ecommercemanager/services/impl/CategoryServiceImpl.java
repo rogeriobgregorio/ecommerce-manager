@@ -55,11 +55,11 @@ public class CategoryServiceImpl implements CategoryService {
 
         try {
             categoryRepository.save(categoryEntity);
-            logger.info("Usuário criado: {}", categoryEntity.toString());
+            logger.info("Categoria criada: {}", categoryEntity.toString());
 
         } catch (Exception exception) {
-            logger.error("Erro ao tentar criar o categoria: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar o categoria.", exception);
+            logger.error("Erro ao tentar criar a categoria: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar criar a categoria.", exception);
         }
 
         return categoryConverter.entityToResponse(categoryEntity);
@@ -83,8 +83,8 @@ public class CategoryServiceImpl implements CategoryService {
         CategoryEntity categoryEntity = categoryConverter.requestToEntity(categoryRequest);
 
         categoryRepository.findById(categoryEntity.getId()).orElseThrow(() -> {
-            logger.warn("Usuário não encontrado com o ID: {}", categoryEntity.getId());
-            return new NotFoundException("Usuário não encontrado com o ID: " + categoryEntity.getId() + ".");
+            logger.warn("Categoria não encontrada com o ID: {}", categoryEntity.getId());
+            return new NotFoundException("Categoria não encontrada com o ID: " + categoryEntity.getId() + ".");
         });
 
         try {
