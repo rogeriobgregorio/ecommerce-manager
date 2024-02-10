@@ -3,16 +3,12 @@ package com.rogeriogregorio.ecommercemanager.config;
 import java.time.Instant;
 import java.util.Arrays;
 
+import com.rogeriogregorio.ecommercemanager.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import com.rogeriogregorio.ecommercemanager.entities.CategoryEntity;
-import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
-import com.rogeriogregorio.ecommercemanager.entities.OrderItemEntity;
-import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
-import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.repositories.CategoryRepository;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderItemRepository;
@@ -82,6 +78,8 @@ public class TestConfig implements CommandLineRunner {
 
         orderItemRepository.saveAll(Arrays.asList(oi1, oi2, oi3, oi4));
 
+        PaymentEntity pay1 = new PaymentEntity(null, Instant.parse("2019-06-20T21:53:07Z"), o1);
+        o1.setPaymentEntity(pay1);
 
         orderRepository.save(o1);
     }
