@@ -1,5 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -43,6 +44,9 @@ public class ProductEntity implements Serializable {
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id"))
     private Set<CategoryEntity> categories = new HashSet<>();
+
+    @OneToMany(mappedBy = "id.productEntity")
+    private Set<OrderItemEntity> items = new HashSet<>();
 
     public ProductEntity() {
     }
@@ -104,6 +108,16 @@ public class ProductEntity implements Serializable {
 
     public Set<CategoryEntity> getCategories() {
         return categories;
+    }
+
+    @JsonIgnore
+    public Set<OrderEntity> getOrders() {
+
+        Set<OrderEntity> orders = new HashSet<>();
+        for (OrderItemEntity orderItem : items) {
+            orders.add(orderItem.getOrderEntity());
+        }
+        return orders;
     }
 
     @Override

@@ -2,12 +2,14 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.OrderItemRequest;
 import com.rogeriogregorio.ecommercemanager.dto.OrderItemResponse;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public interface OrderItemService {
 
-    public List<OrderItemResponse> findAllOrderItem();
+    public List<OrderItemResponse> findAllOrderItems();
 
     public OrderItemResponse createOrderItem(OrderItemRequest orderItemRequest);
 

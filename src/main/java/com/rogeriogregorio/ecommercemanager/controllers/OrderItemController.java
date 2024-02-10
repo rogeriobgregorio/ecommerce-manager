@@ -1,10 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.controllers;
 
-import com.rogeriogregorio.ecommercemanager.dto.CategoryRequest;
-import com.rogeriogregorio.ecommercemanager.dto.CategoryResponse;
 import com.rogeriogregorio.ecommercemanager.dto.OrderItemRequest;
 import com.rogeriogregorio.ecommercemanager.dto.OrderItemResponse;
-import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import com.rogeriogregorio.ecommercemanager.services.OrderItemService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,15 +23,15 @@ public class OrderItemController {
         this.orderItemService = orderItemService;
     }
 
-    @GetMapping(value = "/order-itens")
-    public ResponseEntity<List<OrderItemResponse>> getAllOrderItens() {
+    @GetMapping(value = "/order-items")
+    public ResponseEntity<List<OrderItemResponse>> getAllOrderItems() {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(orderItemService.findAllOrderItem());
+                .body(orderItemService.findAllOrderItems());
     }
 
-    @PostMapping(value = "/order-itens")
+    @PostMapping(value = "/order-items")
     public ResponseEntity<OrderItemResponse> createOrderItem(@Valid @RequestBody OrderItemRequest orderItemRequest) {
 
         return ResponseEntity
@@ -42,7 +39,7 @@ public class OrderItemController {
                 .body(orderItemService.createOrderItem(orderItemRequest));
     }
 
-    @GetMapping(value = "/order-itens/{id}")
+    @GetMapping(value = "/order-items/{id}")
     public ResponseEntity<OrderItemResponse> getOrderItemById(@PathVariable Long id) {
 
         return ResponseEntity
@@ -50,7 +47,7 @@ public class OrderItemController {
                 .body(orderItemService.findOrderItemById(id));
     }
 
-    @PutMapping(value = "/order-itens")
+    @PutMapping(value = "/order-items")
     public ResponseEntity<OrderItemResponse> updateOrderItem(@Valid @RequestBody OrderItemRequest orderItemRequest) {
 
         return ResponseEntity
@@ -58,7 +55,7 @@ public class OrderItemController {
                 .body(orderItemService.updateOrderItem(orderItemRequest));
     }
 
-    @DeleteMapping(value = "/order-itens/{id}")
+    @DeleteMapping(value = "/order-items/{id}")
     public ResponseEntity<Void> deleteOrderItem(@PathVariable Long id) {
 
         orderItemService.deleteOrderItem(id);
