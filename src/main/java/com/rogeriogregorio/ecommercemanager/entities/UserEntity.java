@@ -98,6 +98,7 @@ public class UserEntity implements Serializable {
         this.phone = phone;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }

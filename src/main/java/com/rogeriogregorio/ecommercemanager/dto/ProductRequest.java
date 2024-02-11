@@ -1,6 +1,12 @@
 package com.rogeriogregorio.ecommercemanager.dto;
 
-public class ProductRequest {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class ProductRequest implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private Long id;
     private String name;

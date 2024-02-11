@@ -3,10 +3,15 @@ package com.rogeriogregorio.ecommercemanager.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class CategoryResponse {
+public class CategoryResponse implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private Long id;
     private String name;

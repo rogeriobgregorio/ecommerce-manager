@@ -3,9 +3,14 @@ package com.rogeriogregorio.ecommercemanager.dto;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
 
-public class OrderRequest {
+public class OrderRequest implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private Long id;
     private Instant moment;

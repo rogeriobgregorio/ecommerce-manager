@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
-public class EcommerceManagerExceptionHandler {
+public class ECommerceManagerExceptionHandler {
 
     @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
     public ResponseEntity<StandardError> handleNoResourceFoundException(
@@ -80,7 +80,7 @@ public class EcommerceManagerExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<StandardError> handleNotFoundException(NotFoundException ex) {
 
-        StandardError error = new StandardError(HttpStatus.NOT_FOUND, "Usuário não encontrado", ex.getMessage());
+        StandardError error = new StandardError(HttpStatus.NOT_FOUND, "Recurso não encontrado", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 

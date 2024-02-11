@@ -5,7 +5,13 @@ import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
 import com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK;
 
-public class OrderItemResponse {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class OrderItemResponse implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private OrderItemPK id = new OrderItemPK();
     private Integer quantity;
