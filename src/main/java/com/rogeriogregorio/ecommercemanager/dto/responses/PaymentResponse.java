@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.dto;
+package com.rogeriogregorio.ecommercemanager.dto.responses;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
@@ -7,7 +7,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 
-public class PaymentRequest implements Serializable {
+public class PaymentResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -18,15 +18,10 @@ public class PaymentRequest implements Serializable {
     @JsonIgnore
     private OrderEntity orderEntity;
 
-    public PaymentRequest() {
+    public PaymentResponse() {
     }
 
-    public PaymentRequest(Instant moment, OrderEntity orderEntity) {
-        this.moment = moment;
-        this.orderEntity = orderEntity;
-    }
-
-    public PaymentRequest(Long id, Instant moment, OrderEntity orderEntity) {
+    public PaymentResponse(Long id, Instant moment, OrderEntity orderEntity) {
         this.id = id;
         this.moment = moment;
         this.orderEntity = orderEntity;

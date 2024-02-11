@@ -1,7 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.controllers;
 
-import com.rogeriogregorio.ecommercemanager.dto.OrderRequest;
-import com.rogeriogregorio.ecommercemanager.dto.OrderResponse;
+import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
+import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

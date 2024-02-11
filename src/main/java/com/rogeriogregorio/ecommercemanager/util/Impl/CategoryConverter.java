@@ -1,7 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.util.Impl;
 
-import com.rogeriogregorio.ecommercemanager.dto.CategoryRequest;
-import com.rogeriogregorio.ecommercemanager.dto.CategoryResponse;
+import com.rogeriogregorio.ecommercemanager.dto.requests.CategoryRequest;
+import com.rogeriogregorio.ecommercemanager.dto.responses.CategoryResponse;
 import com.rogeriogregorio.ecommercemanager.entities.CategoryEntity;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.modelmapper.ModelMapper;

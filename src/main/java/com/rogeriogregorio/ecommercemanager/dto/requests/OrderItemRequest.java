@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.dto;
+package com.rogeriogregorio.ecommercemanager.dto.requests;
 
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;

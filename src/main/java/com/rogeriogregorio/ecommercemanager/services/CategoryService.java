@@ -1,7 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.services;
 
-import com.rogeriogregorio.ecommercemanager.dto.CategoryRequest;
-import com.rogeriogregorio.ecommercemanager.dto.CategoryResponse;
+import com.rogeriogregorio.ecommercemanager.dto.requests.CategoryRequest;
+import com.rogeriogregorio.ecommercemanager.dto.responses.CategoryResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

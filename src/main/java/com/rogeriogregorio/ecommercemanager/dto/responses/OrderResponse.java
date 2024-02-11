@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.dto;
+package com.rogeriogregorio.ecommercemanager.dto.responses;
 
 import com.rogeriogregorio.ecommercemanager.entities.OrderItemEntity;
 import com.rogeriogregorio.ecommercemanager.entities.PaymentEntity;

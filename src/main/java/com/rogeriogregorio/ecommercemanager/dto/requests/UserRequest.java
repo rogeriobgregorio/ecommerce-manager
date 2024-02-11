@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.dto;
+package com.rogeriogregorio.ecommercemanager.dto.requests;
 
 import java.io.Serial;
 import java.io.Serializable;

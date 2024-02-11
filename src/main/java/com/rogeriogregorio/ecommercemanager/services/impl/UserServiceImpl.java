@@ -1,7 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.services.impl;
 
-import com.rogeriogregorio.ecommercemanager.dto.UserRequest;
-import com.rogeriogregorio.ecommercemanager.dto.UserResponse;
+import com.rogeriogregorio.ecommercemanager.dto.requests.UserRequest;
+import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.DataIntegrityException;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
