@@ -1,11 +1,20 @@
 package com.rogeriogregorio.ecommercemanager.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class UserResponse {
 
     private Long id;
     private String name;
     private String email;
     private String phone;
+
+    @JsonIgnore
+    private List<OrderEntity> orders = new ArrayList<>();
 
     public UserResponse() {
     }
@@ -21,9 +30,7 @@ public class UserResponse {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public void setId(Long id) { this.id = id; }
 
     public String getName() {
         return name;
@@ -47,5 +54,11 @@ public class UserResponse {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public List<OrderEntity> getOrders() { return orders; }
+
+    public void setOrders(List<OrderEntity> orders) {
+        this.orders = orders;
     }
 }

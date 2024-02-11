@@ -1,9 +1,11 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
@@ -11,6 +13,9 @@ import java.util.Objects;
 @Entity
 @Table(name = "tb_payments")
 public class PaymentEntity implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,6 +26,7 @@ public class PaymentEntity implements Serializable {
     @NotNull(message = "O momento do pagamento não pode ser nulo")
     private Instant moment;
 
+    @JsonIgnore
     @OneToOne
     @MapsId
     private OrderEntity orderEntity;

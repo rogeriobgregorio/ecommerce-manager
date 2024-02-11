@@ -1,6 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.dto;
 
 import com.rogeriogregorio.ecommercemanager.entities.OrderItemEntity;
+import com.rogeriogregorio.ecommercemanager.entities.PaymentEntity;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 
@@ -15,6 +16,7 @@ public class OrderResponse {
     private Integer orderStatus;
     private UserEntity client;
     private Set<OrderItemEntity> items = new HashSet<>();
+    private PaymentEntity paymentEntity;
 
     public OrderResponse() {
     }
@@ -63,11 +65,27 @@ public class OrderResponse {
         this.client = client;
     }
 
+    public PaymentEntity getPaymentEntity() {
+        return paymentEntity;
+    }
+
+    public void setPaymentEntity(PaymentEntity paymentEntity) {
+        this.paymentEntity = paymentEntity;
+    }
+
     public Set<OrderItemEntity> getItems() {
         return items;
     }
 
     public void setItems(Set<OrderItemEntity> items) {
         this.items = items;
+    }
+
+    public Double getTotal() {
+        double total = 0.0;
+        for (OrderItemEntity orderItem : items) {
+            total += orderItem.getSubTotal();
+        }
+        return total;
     }
 }

@@ -1,5 +1,8 @@
 package com.rogeriogregorio.ecommercemanager.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
+import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
 import com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK;
 
 public class OrderItemResponse {
@@ -11,18 +14,29 @@ public class OrderItemResponse {
     public OrderItemResponse() {
     }
 
-    public OrderItemResponse(OrderItemPK id, Integer quantity, Double price) {
-        this.id = id;
+    public OrderItemResponse(OrderEntity orderEntity, ProductEntity productEntity, Integer quantity, Double price) {
+
+        id.setOrderEntity(orderEntity);
+        id.setProductEntity(productEntity);
         this.quantity = quantity;
         this.price = price;
     }
 
-    public OrderItemPK getId() {
-        return id;
+    @JsonIgnore
+    public OrderEntity getOrderEntity() {
+        return id.getOrderEntity();
     }
 
-    public void setId(OrderItemPK id) {
-        this.id = id;
+    public void setOrderEntity(OrderEntity orderEntity) {
+        id.setOrderEntity(orderEntity);
+    }
+
+    public ProductEntity getProductEntity() {
+        return id.getProductEntity();
+    }
+
+    public void setProductEntity(ProductEntity productEntity) {
+        id.setProductEntity(productEntity);
     }
 
     public Integer getQuantity() {
@@ -39,5 +53,9 @@ public class OrderItemResponse {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public Double getSubTotal() {
+        return price * quantity;
     }
 }

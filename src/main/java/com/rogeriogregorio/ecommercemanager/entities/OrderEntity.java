@@ -5,6 +5,7 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
@@ -14,6 +15,9 @@ import java.util.Set;
 @Entity
 @Table(name = "tb_orders")
 public class OrderEntity implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -103,6 +107,14 @@ public class OrderEntity implements Serializable {
 
     public Set<OrderItemEntity> getItems() {
         return items;
+    }
+
+    public Double getTotal() {
+        double total = 0.0;
+        for (OrderItemEntity orderItem : items) {
+            total += orderItem.getSubTotal();
+        }
+        return total;
     }
 
     @Override

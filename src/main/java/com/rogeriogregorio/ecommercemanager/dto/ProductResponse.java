@@ -1,5 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rogeriogregorio.ecommercemanager.entities.CategoryEntity;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import com.rogeriogregorio.ecommercemanager.entities.OrderItemEntity;
@@ -76,10 +77,7 @@ public class ProductResponse {
         this.categories = categories;
     }
 
-    public void setItems(Set<OrderItemEntity> items) {
-        this.items = items;
-    }
-
+    @JsonIgnore
     public Set<OrderEntity> getOrders() {
 
         Set<OrderEntity> orders = new HashSet<>();
@@ -87,5 +85,9 @@ public class ProductResponse {
             orders.add(orderItem.getOrderEntity());
         }
         return orders;
+    }
+
+    public void setItems(Set<OrderItemEntity> items) {
+        this.items = items;
     }
 }

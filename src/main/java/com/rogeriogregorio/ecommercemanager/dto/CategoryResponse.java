@@ -1,9 +1,18 @@
 package com.rogeriogregorio.ecommercemanager.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
+
+import java.util.HashSet;
+import java.util.Set;
+
 public class CategoryResponse {
 
     private Long id;
     private String name;
+
+    @JsonIgnore
+    private Set<ProductEntity> products = new HashSet<>();
 
     public CategoryResponse() {
     }
@@ -27,5 +36,13 @@ public class CategoryResponse {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Set<ProductEntity> getProducts() {
+        return products;
+    }
+
+    public void setProducts(Set<ProductEntity> products) {
+        this.products = products;
     }
 }
