@@ -22,7 +22,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     private final OrderItemRepository orderItemRepository;
     private final Converter<OrderItemRequest, OrderItemEntity, OrderItemResponse> orderItemConverter;
-    private static final Logger logger = LogManager.getLogger(CategoryServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(OrderItemServiceImpl.class);
 
     @Autowired
     public OrderItemServiceImpl(OrderItemRepository orderItemRepository, Converter<OrderItemRequest, OrderItemEntity, OrderItemResponse> orderItemConverter) {
@@ -55,11 +55,11 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         try {
             orderItemRepository.save(orderItemEntity);
-            logger.info("Itens do pedido criado: {}", orderItemEntity.toString());
+            logger.info("Item do pedido criado: {}", orderItemEntity.toString());
 
         } catch (Exception exception) {
-            logger.error("Erro ao tentar criar itens do pedido: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar itens do pedido.", exception);
+            logger.error("Erro ao tentar criar item do pedido: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar criar item do pedido.", exception);
         }
 
         return orderItemConverter.entityToResponse(orderItemEntity);
@@ -89,11 +89,11 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         try {
             orderItemRepository.save(orderItemEntity);
-            logger.info("Itens do pedido atualizados: {}", orderItemEntity.toString());
+            logger.info("Item do pedido atualizado: {}", orderItemEntity.toString());
 
         } catch (Exception exception) {
-            logger.error("Erro ao tentar atualizar os itens do pedido: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar atualizar os itens do pedido.", exception);
+            logger.error("Erro ao tentar atualizar os item do pedido: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar atualizar os item do pedido.", exception);
         }
 
         return orderItemConverter.entityToResponse(orderItemEntity);

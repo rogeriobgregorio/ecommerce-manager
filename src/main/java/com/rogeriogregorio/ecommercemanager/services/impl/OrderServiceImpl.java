@@ -103,8 +103,8 @@ public class OrderServiceImpl implements OrderService {
     public void deleteOrder(Long id) {
 
         orderRepository.findById(id).orElseThrow(() -> {
-            logger.warn("Usuário não encontrado com o ID: {}", id);
-            return new NotFoundException("Usuário não encontrado com o ID: " + id + ".");
+            logger.warn("Pedido não encontrado com o ID: {}", id);
+            return new NotFoundException("Pedido não encontrado com o ID: " + id + ".");
         });
 
         try {
