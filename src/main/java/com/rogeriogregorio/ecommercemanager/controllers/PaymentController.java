@@ -19,7 +19,6 @@ public class PaymentController {
 
     @Autowired
     public PaymentController(PaymentService paymentService) {
-
         this.paymentService = paymentService;
     }
 

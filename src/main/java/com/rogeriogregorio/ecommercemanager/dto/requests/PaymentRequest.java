@@ -1,6 +1,5 @@
 package com.rogeriogregorio.ecommercemanager.dto.requests;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 
 import java.io.Serial;
@@ -14,8 +13,6 @@ public class PaymentRequest implements Serializable {
 
     private Long id;
     private Instant moment;
-
-    @JsonIgnore
     private OrderEntity orderEntity;
 
     public PaymentRequest() {
