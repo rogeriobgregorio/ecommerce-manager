@@ -121,7 +121,7 @@ public class UserServiceImplTest {
 
     @Test
     @DisplayName("findAllUsers - Exceção ao tentar buscar lista de usuários")
-    void findAllUsers_UserRepositoryExceptionHandling() {
+    void findAllUsers_RepositoryExceptionHandling() {
         // Arrange
         when(userRepository.findAll()).thenThrow(RuntimeException.class);
 
@@ -205,6 +205,7 @@ public class UserServiceImplTest {
         // Assert
         assertNotNull(actualResponse, "UserResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+
         verify(userConverter, times(1)).entityToResponse(userEntity);
         verify(userRepository, times(1)).findById(1L);
     }

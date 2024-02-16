@@ -124,7 +124,7 @@ public class OrderServiceImplTest {
 
     @Test
     @DisplayName("findAllOrders - Exceção ao tentar buscar lista de pedidos")
-    void findAllOrders_OrderRepositoryExceptionHandling() {
+    void findAllOrders_RepositoryExceptionHandling() {
         // Arrange
         when(orderRepository.findAll()).thenThrow(RuntimeException.class);
 
@@ -155,7 +155,7 @@ public class OrderServiceImplTest {
         assertNotNull(actualResponse, "OrderResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(orderRepository, times(1)).save(any());
+        verify(orderRepository, times(1)).save(orderEntity);
         verify(orderConverter, times(1)).requestToEntity(orderRequest);
         verify(orderConverter, times(1)).entityToResponse(orderEntity);
     }
@@ -197,6 +197,7 @@ public class OrderServiceImplTest {
         // Assert
         assertNotNull(actualResponse, "OrderResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+
         verify(orderConverter, times(1)).entityToResponse(orderEntity);
         verify(orderRepository, times(1)).findById(1L);
     }
