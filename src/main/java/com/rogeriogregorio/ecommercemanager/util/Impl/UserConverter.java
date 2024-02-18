@@ -27,4 +27,9 @@ public class UserConverter implements Converter<UserRequest, UserEntity, UserRes
     public UserResponse entityToResponse(UserEntity userEntity) {
         return modelMapper.map(userEntity, UserResponse.class);
     }
+
+    @Override
+    public UserEntity responseToEntity(UserResponse userResponse) {
+        return modelMapper.map(userResponse, UserEntity.class);
+    }
 }

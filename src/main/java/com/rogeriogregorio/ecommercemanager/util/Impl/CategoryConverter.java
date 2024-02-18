@@ -25,4 +25,8 @@ public class CategoryConverter implements Converter<CategoryRequest, CategoryEnt
     public CategoryResponse entityToResponse(CategoryEntity categoryEntity) {
         return modelMapper.map(categoryEntity, CategoryResponse.class);
     }
+
+    public CategoryEntity responseToEntity(CategoryResponse categoryResponse) {
+        return modelMapper.map(categoryResponse, CategoryEntity.class);
+    }
 }

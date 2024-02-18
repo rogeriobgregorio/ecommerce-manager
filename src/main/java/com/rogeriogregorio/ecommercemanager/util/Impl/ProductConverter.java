@@ -27,4 +27,9 @@ public class ProductConverter implements Converter<ProductRequest, ProductEntity
     public ProductResponse entityToResponse(ProductEntity productEntity) {
         return modelMapper.map(productEntity, ProductResponse.class);
     }
+
+    @Override
+    public ProductEntity responseToEntity(ProductResponse productResponse) {
+        return modelMapper.map(productResponse, ProductEntity.class);
+    }
 }

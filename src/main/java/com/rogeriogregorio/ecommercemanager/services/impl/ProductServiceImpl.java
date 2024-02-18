@@ -1,11 +1,15 @@
 package com.rogeriogregorio.ecommercemanager.services.impl;
 
+import com.rogeriogregorio.ecommercemanager.dto.requests.CategoryRequest;
 import com.rogeriogregorio.ecommercemanager.dto.requests.ProductRequest;
+import com.rogeriogregorio.ecommercemanager.dto.responses.CategoryResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductResponse;
+import com.rogeriogregorio.ecommercemanager.entities.CategoryEntity;
 import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductRepository;
+import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
@@ -21,13 +25,17 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryService categoryService;
     private final Converter<ProductRequest, ProductEntity, ProductResponse> productConverter;
+    private final Converter<CategoryRequest, CategoryEntity, CategoryResponse> categoryConverter;
     private static final Logger logger = LogManager.getLogger(ProductServiceImpl.class);
 
     @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, Converter<ProductRequest, ProductEntity, ProductResponse> productConverter) {
+    public ProductServiceImpl(ProductRepository productRepository, CategoryService categoryService, Converter<ProductRequest, ProductEntity, ProductResponse> productConverter, Converter<CategoryRequest, CategoryEntity, CategoryResponse> categoryConverter) {
         this.productRepository = productRepository;
+        this.categoryService = categoryService;
         this.productConverter = productConverter;
+        this.categoryConverter = categoryConverter;
     }
 
     @Transactional(readOnly = true)
@@ -50,16 +58,53 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse createProduct(ProductRequest productRequest) {
 
         productRequest.setId(null);
-
         ProductEntity productEntity = productConverter.requestToEntity(productRequest);
 
         try {
+            CategoryResponse categoryResponse = categoryService.findCategoryById(productRequest.getCategoryId());
+            CategoryEntity categoryEntity = categoryConverter.responseToEntity(categoryResponse);
+
+            productEntity.getCategories().add(categoryEntity);
+
             productRepository.save(productEntity);
             logger.info("Produto criado: {}", productEntity.toString());
+
+        } catch (NotFoundException exception) {
+            throw new NotFoundException("Categoria não encontrado com o ID: " + productRequest.getCategoryId() + ".");
 
         } catch (Exception exception) {
             logger.error("Erro ao tentar criar o produto: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar criar o produto.", exception);
+        }
+
+        return productConverter.entityToResponse(productEntity);
+    }
+
+    @Transactional(readOnly = false)
+    public ProductResponse updateProduct(ProductRequest productRequest) {
+
+        ProductEntity productEntity = productConverter.requestToEntity(productRequest);
+
+        productRepository.findById(productEntity.getId()).orElseThrow(() -> {
+            logger.warn("Produto não encontrado com o ID: {}", productEntity.getId());
+            return new NotFoundException("Produto não encontrado com o ID: " + productEntity.getId() + ".");
+        });
+
+        try {
+            CategoryResponse categoryResponse = categoryService.findCategoryById(productRequest.getCategoryId());
+            CategoryEntity categoryEntity = categoryConverter.responseToEntity(categoryResponse);
+
+            productEntity.getCategories().add(categoryEntity);
+
+            productRepository.save(productEntity);
+            logger.info("produto atualizado: {}", productEntity.toString());
+
+        } catch (NotFoundException exception) {
+            throw new NotFoundException("Categoria não encontrado com o ID: " + productRequest.getCategoryId() + ".");
+            
+        } catch (Exception exception) {
+            logger.error("Erro ao tentar atualizar o produto: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar atualizar o produto.", exception);
         }
 
         return productConverter.entityToResponse(productEntity);
@@ -75,28 +120,6 @@ public class ProductServiceImpl implements ProductService {
                     logger.warn("Produto não encontrado com o ID: {}", id);
                     return new NotFoundException("Produto não encontrado com o ID: " + id + ".");
                 });
-    }
-
-    @Transactional(readOnly = false)
-    public ProductResponse updateProduct(ProductRequest productRequest) {
-
-        ProductEntity productEntity = productConverter.requestToEntity(productRequest);
-
-        productRepository.findById(productEntity.getId()).orElseThrow(() -> {
-            logger.warn("Produto não encontrado com o ID: {}", productEntity.getId());
-            return new NotFoundException("Produto não encontrado com o ID: " + productEntity.getId() + ".");
-        });
-
-        try {
-            productRepository.save(productEntity);
-            logger.info("produto atualizado: {}", productEntity.toString());
-
-        } catch (Exception exception) {
-            logger.error("Erro ao tentar atualizar o produto: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar atualizar o produto.", exception);
-        }
-
-        return productConverter.entityToResponse(productEntity);
     }
 
     @Transactional(readOnly = false)

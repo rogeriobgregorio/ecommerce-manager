@@ -27,4 +27,9 @@ public class PaymentConverter implements Converter<PaymentRequest, PaymentEntity
     public PaymentResponse entityToResponse(PaymentEntity paymentEntity) {
         return modelMapper.map(paymentEntity, PaymentResponse.class);
     }
+
+    @Override
+    public PaymentEntity responseToEntity(PaymentResponse paymentResponse) {
+        return modelMapper.map(paymentResponse, PaymentEntity.class);
+    }
 }

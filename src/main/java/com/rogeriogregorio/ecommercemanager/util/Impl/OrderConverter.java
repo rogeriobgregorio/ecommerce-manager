@@ -25,4 +25,9 @@ public class OrderConverter implements Converter<OrderRequest, OrderEntity, Orde
     public OrderResponse entityToResponse(OrderEntity orderEntity) {
         return modelMapper.map(orderEntity, OrderResponse.class);
     }
+
+    @Override
+    public OrderEntity responseToEntity(OrderResponse orderResponse) {
+        return modelMapper.map(orderResponse, OrderEntity.class);
+    }
 }
