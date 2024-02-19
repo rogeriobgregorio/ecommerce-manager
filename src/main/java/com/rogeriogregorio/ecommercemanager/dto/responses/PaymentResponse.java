@@ -14,7 +14,6 @@ public class PaymentResponse implements Serializable {
 
     private Long id;
     private Instant moment;
-
     @JsonIgnore
     private OrderEntity orderEntity;
 

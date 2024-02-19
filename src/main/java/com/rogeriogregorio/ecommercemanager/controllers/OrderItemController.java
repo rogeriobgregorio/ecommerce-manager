@@ -19,7 +19,6 @@ public class OrderItemController {
 
     @Autowired
     public OrderItemController(OrderItemService orderItemService) {
-
         this.orderItemService = orderItemService;
     }
 

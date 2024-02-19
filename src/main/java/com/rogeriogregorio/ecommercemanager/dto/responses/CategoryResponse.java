@@ -15,7 +15,6 @@ public class CategoryResponse implements Serializable {
 
     private Long id;
     private String name;
-
     @JsonIgnore
     private Set<ProductEntity> products = new HashSet<>();
 

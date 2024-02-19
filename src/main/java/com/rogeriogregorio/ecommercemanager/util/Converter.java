@@ -3,11 +3,9 @@ package com.rogeriogregorio.ecommercemanager.util;
 import org.springframework.stereotype.Component;
 
 @Component
-public interface Converter<Request, Entity, Response> {
+public interface Converter {
 
-    public Entity requestToEntity(Request request);
+    <Entity, Response> Entity toEntity(Response object, Class<Entity> targetType);
 
-    public Response entityToResponse(Entity entity);
-
-    public Entity responseToEntity(Response response);
+    <Entity, Response> Response toResponse(Entity object, Class<Response> targetType);
 }

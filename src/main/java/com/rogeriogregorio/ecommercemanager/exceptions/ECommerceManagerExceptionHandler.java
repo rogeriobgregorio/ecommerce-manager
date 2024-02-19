@@ -11,6 +11,7 @@ import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,9 +19,8 @@ import java.util.Map;
 @ControllerAdvice
 public class ECommerceManagerExceptionHandler {
 
-    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
-    public ResponseEntity<StandardError> handleNoResourceFoundException(
-            org.springframework.web.servlet.resource.NoResourceFoundException ex) {
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<StandardError> handleNoResourceFoundException(NoResourceFoundException ex) {
 
         String message = "Recurso não encontrado: " + ex.getMessage();
         StandardError error = new StandardError(HttpStatus.NOT_FOUND, "Nenhum recurso estático", message);

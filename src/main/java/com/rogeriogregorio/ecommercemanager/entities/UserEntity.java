@@ -72,7 +72,9 @@ public class UserEntity implements Serializable {
         return id;
     }
 
-    public void setId(Long id) { this.id = id; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -107,7 +109,9 @@ public class UserEntity implements Serializable {
         this.password = password;
     }
 
-    public List<OrderEntity> getOrders() { return orders; }
+    public List<OrderEntity> getOrders() {
+        return orders;
+    }
 
     @Override
     public boolean equals(Object o) {

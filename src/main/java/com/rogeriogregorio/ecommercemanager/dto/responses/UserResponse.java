@@ -17,7 +17,6 @@ public class UserResponse implements Serializable {
     private String name;
     private String email;
     private String phone;
-
     @JsonIgnore
     private List<OrderEntity> orders = new ArrayList<>();
 
@@ -35,7 +34,9 @@ public class UserResponse implements Serializable {
         return id;
     }
 
-    public void setId(Long id) { this.id = id; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -61,7 +62,9 @@ public class UserResponse implements Serializable {
         this.phone = phone;
     }
 
-    public List<OrderEntity> getOrders() { return orders; }
+    public List<OrderEntity> getOrders() {
+        return orders;
+    }
 
     public void setOrders(List<OrderEntity> orders) {
         this.orders = orders;

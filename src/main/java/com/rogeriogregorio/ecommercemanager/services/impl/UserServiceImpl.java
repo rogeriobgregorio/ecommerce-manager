@@ -23,23 +23,24 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final Converter<UserRequest, UserEntity, UserResponse> userConverter;
+    private final Converter converter;
     private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, Converter<UserRequest, UserEntity, UserResponse> userConverter) {
+    public UserServiceImpl(UserRepository userRepository, Converter converter) {
         this.userRepository = userRepository;
-        this.userConverter = userConverter;
+        this.converter = converter;
     }
 
     @Transactional(readOnly = true)
     public List<UserResponse> findAllUsers() {
 
         try {
+
             return userRepository
                     .findAll()
                     .stream()
-                    .map(userConverter::entityToResponse)
+                    .map(userEntity -> converter.toResponse(userEntity, UserResponse.class))
                     .collect(Collectors.toList());
 
         } catch (Exception exception) {
@@ -53,7 +54,7 @@ public class UserServiceImpl implements UserService {
 
         return userRepository
                 .findById(id)
-                .map(userConverter::entityToResponse)
+                .map(userEntity -> converter.toResponse(userEntity, UserResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Usuário não encontrado com o ID: {}", id);
                     return new NotFoundException("Usuário não encontrado com o ID: " + id + ".");
@@ -65,7 +66,7 @@ public class UserServiceImpl implements UserService {
 
         userRequest.setId(null);
 
-        UserEntity userEntity = userConverter.requestToEntity(userRequest);
+        UserEntity userEntity = converter.toEntity(userRequest, UserEntity.class);
 
         try {
             userRepository.save(userEntity);
@@ -80,13 +81,13 @@ public class UserServiceImpl implements UserService {
             throw new RepositoryException("Erro ao tentar criar o usuário.", exception);
         }
 
-        return userConverter.entityToResponse(userEntity);
+        return converter.toResponse(userEntity, UserResponse.class);
     }
 
     @Transactional(readOnly = false)
     public UserResponse updateUser(UserRequest userRequest) {
 
-        UserEntity userEntity = userConverter.requestToEntity(userRequest);
+        UserEntity userEntity = converter.toEntity(userRequest, UserEntity.class);
 
         userRepository.findById(userEntity.getId()).orElseThrow(() -> {
             logger.warn("Usuário não encontrado com o ID: {}", userEntity.getId());
@@ -106,7 +107,7 @@ public class UserServiceImpl implements UserService {
             throw new RepositoryException("Erro ao tentar atualizar o usuário.", exception);
         }
 
-        return userConverter.entityToResponse(userEntity);
+        return converter.toResponse(userEntity, UserResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -146,7 +147,7 @@ public class UserServiceImpl implements UserService {
         }
 
         return users.stream()
-                .map(userConverter::entityToResponse)
+                .map(userEntity -> converter.toResponse(userEntity, UserResponse.class))
                 .collect(Collectors.toList());
     }
 }

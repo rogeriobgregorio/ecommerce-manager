@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
 public class OrderItemServiceImpl implements OrderItemService {
 
     private final OrderItemRepository orderItemRepository;
-    private final Converter<OrderItemRequest, OrderItemEntity, OrderItemResponse> orderItemConverter;
+    private final Converter converter;
     private static final Logger logger = LogManager.getLogger(OrderItemServiceImpl.class);
 
     @Autowired
-    public OrderItemServiceImpl(OrderItemRepository orderItemRepository, Converter<OrderItemRequest, OrderItemEntity, OrderItemResponse> orderItemConverter) {
+    public OrderItemServiceImpl(OrderItemRepository orderItemRepository, Converter converter) {
         this.orderItemRepository = orderItemRepository;
-        this.orderItemConverter = orderItemConverter;
+        this.converter = converter;
     }
 
     @Transactional(readOnly = true)
@@ -37,7 +37,7 @@ public class OrderItemServiceImpl implements OrderItemService {
             return orderItemRepository
                     .findAll()
                     .stream()
-                    .map(orderItemConverter::entityToResponse)
+                    .map(orderItemEntity -> converter.toResponse(orderItemEntity, OrderItemResponse.class))
                     .collect(Collectors.toList());
 
         } catch (Exception exception) {
@@ -51,7 +51,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         orderItemRequest.setId(null);
 
-        OrderItemEntity orderItemEntity = orderItemConverter.requestToEntity(orderItemRequest);
+        OrderItemEntity orderItemEntity = converter.toEntity(orderItemRequest, OrderItemEntity.class);
 
         try {
             orderItemRepository.save(orderItemEntity);
@@ -62,7 +62,7 @@ public class OrderItemServiceImpl implements OrderItemService {
             throw new RepositoryException("Erro ao tentar criar item do pedido.", exception);
         }
 
-        return orderItemConverter.entityToResponse(orderItemEntity);
+        return converter.toResponse(orderItemEntity, OrderItemResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -70,7 +70,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         return orderItemRepository
                 .findById(id)
-                .map(orderItemConverter::entityToResponse)
+                .map(orderItemEntity -> converter.toResponse(orderItemEntity, OrderItemResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Itens do pedido não encontrados com o ID: {}", id);
                     return new NotFoundException("Itens do pedido não encontrados com o ID: " + id + ".");
@@ -80,7 +80,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = false)
     public OrderItemResponse updateOrderItem(OrderItemRequest orderItemRequest) {
 
-        OrderItemEntity orderItemEntity = orderItemConverter.requestToEntity(orderItemRequest);
+        OrderItemEntity orderItemEntity = converter.toEntity(orderItemRequest, OrderItemEntity.class);
 
         orderItemRepository.findById(orderItemEntity.getOrderEntity().getId()).orElseThrow(() -> {
             logger.warn("Itens do pedido não encontrados com o ID: {}", orderItemEntity.getOrderEntity().getId());
@@ -96,7 +96,7 @@ public class OrderItemServiceImpl implements OrderItemService {
             throw new RepositoryException("Erro ao tentar atualizar os item do pedido.", exception);
         }
 
-        return orderItemConverter.entityToResponse(orderItemEntity);
+        return converter.toResponse(orderItemEntity, OrderItemResponse.class);
     }
 
     @Transactional(readOnly = false)

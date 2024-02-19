@@ -20,13 +20,13 @@ import java.util.stream.Collectors;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final Converter<PaymentRequest, PaymentEntity, PaymentResponse> paymentConverter;
+    private final Converter converter;
     private static final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
 
     @Autowired
-    public PaymentServiceImpl(PaymentRepository paymentRepository, Converter<PaymentRequest, PaymentEntity, PaymentResponse> paymentConverter) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, Converter converter) {
         this.paymentRepository = paymentRepository;
-        this.paymentConverter = paymentConverter;
+        this.converter = converter;
     }
 
     public List<PaymentResponse> findAllPayments() {
@@ -35,7 +35,7 @@ public class PaymentServiceImpl implements PaymentService {
             return paymentRepository
                     .findAll()
                     .stream()
-                    .map(paymentConverter::entityToResponse)
+                    .map(paymentEntity -> converter.toResponse(paymentEntity, PaymentResponse.class))
                     .collect(Collectors.toList());
 
         } catch (Exception exception) {
@@ -48,7 +48,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         paymentRequest.setId(null);
 
-        PaymentEntity paymentEntity = paymentConverter.requestToEntity(paymentRequest);
+        PaymentEntity paymentEntity = converter.toEntity(paymentRequest, PaymentEntity.class);
 
         try {
             paymentRepository.save(paymentEntity);
@@ -59,14 +59,14 @@ public class PaymentServiceImpl implements PaymentService {
             throw new RepositoryException("Erro ao tentar criar o pagamento.", exception);
         }
 
-        return paymentConverter.entityToResponse(paymentEntity);
+        return converter.toResponse(paymentEntity, PaymentResponse.class);
     }
 
     public PaymentResponse findPaymentById(Long id) {
 
         return paymentRepository
                 .findById(id)
-                .map(paymentConverter::entityToResponse)
+                .map(paymentEntity -> converter.toResponse(paymentEntity, PaymentResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Pagamento não encontrado com o ID: {}", id);
                     return new NotFoundException("Pagamento não encontrado com o ID: " + id + ".");
@@ -75,7 +75,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     public PaymentResponse updatePayment(PaymentRequest paymentRequest) {
 
-        PaymentEntity paymentEntity = paymentConverter.requestToEntity(paymentRequest);
+        PaymentEntity paymentEntity = converter.toEntity(paymentRequest, PaymentEntity.class);
 
         paymentRepository.findById(paymentEntity.getId()).orElseThrow(() -> {
             logger.warn("Pagamento não encontrado com o ID: {}", paymentEntity.getId());
@@ -91,7 +91,7 @@ public class PaymentServiceImpl implements PaymentService {
             throw new RepositoryException("Erro ao tentar atualizar o pagamento.", exception);
         }
 
-        return paymentConverter.entityToResponse(paymentEntity);
+        return converter.toResponse(paymentEntity, PaymentResponse.class);
     }
 
     public void deletePayment(Long id) {

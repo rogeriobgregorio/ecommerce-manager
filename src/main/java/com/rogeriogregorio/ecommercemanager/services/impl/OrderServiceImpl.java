@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
-    private final Converter<OrderRequest, OrderEntity, OrderResponse> orderConverter;
+    private final Converter converter;
     private static final Logger logger = LogManager.getLogger(OrderServiceImpl.class);
 
     @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository, Converter<OrderRequest, OrderEntity, OrderResponse> orderConverter) {
+    public OrderServiceImpl(OrderRepository orderRepository, Converter converter) {
         this.orderRepository = orderRepository;
-        this.orderConverter = orderConverter;
+        this.converter = converter;
     }
 
     @Transactional(readOnly = true)
@@ -37,7 +37,7 @@ public class OrderServiceImpl implements OrderService {
             return orderRepository
                     .findAll()
                     .stream()
-                    .map(orderConverter::entityToResponse)
+                    .map(orderEntity -> converter.toResponse(orderEntity, OrderResponse.class))
                     .collect(Collectors.toList());
 
         } catch (Exception exception) {
@@ -51,7 +51,7 @@ public class OrderServiceImpl implements OrderService {
 
         orderRequest.setId(null);
 
-        OrderEntity orderEntity = orderConverter.requestToEntity(orderRequest);
+        OrderEntity orderEntity = converter.toEntity(orderRequest, OrderEntity.class);
 
         try {
             orderRepository.save(orderEntity);
@@ -62,7 +62,7 @@ public class OrderServiceImpl implements OrderService {
             throw new RepositoryException("Erro ao tentar criar o pedido.", exception);
         }
 
-        return orderConverter.entityToResponse(orderEntity);
+        return converter.toResponse(orderEntity, OrderResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -70,7 +70,7 @@ public class OrderServiceImpl implements OrderService {
 
         return orderRepository
                 .findById(id)
-                .map(orderConverter::entityToResponse)
+                .map(orderEntity -> converter.toResponse(orderEntity, OrderResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Pedido não encontrado com o ID: {}", id);
                     return new NotFoundException("Pedido não encontrado com o ID: " + id + ".");
@@ -80,7 +80,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public OrderResponse updateOrder(OrderRequest orderRequest) {
 
-        OrderEntity orderEntity = orderConverter.requestToEntity(orderRequest);
+        OrderEntity orderEntity = converter.toEntity(orderRequest, OrderEntity.class);
 
         orderRepository.findById(orderEntity.getId()).orElseThrow(() -> {
             logger.warn("Pedido não encontrado com o ID: {}", orderEntity.getId());
@@ -96,7 +96,7 @@ public class OrderServiceImpl implements OrderService {
             throw new RepositoryException("Erro ao tentar atualizar o pedido.", exception);
         }
 
-        return orderConverter.entityToResponse(orderEntity);
+        return converter.toResponse(orderEntity, OrderResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -124,7 +124,7 @@ public class OrderServiceImpl implements OrderService {
             return orderRepository
                     .findByClient_Id(id)
                     .stream()
-                    .map(orderConverter::entityToResponse)
+                    .map(orderEntity -> converter.toResponse(orderEntity, OrderResponse.class))
                     .collect(Collectors.toList());
 
         } catch (Exception exception) {

@@ -1,6 +1,5 @@
 package com.rogeriogregorio.ecommercemanager.services.impl;
 
-import com.rogeriogregorio.ecommercemanager.dto.requests.CategoryRequest;
 import com.rogeriogregorio.ecommercemanager.dto.requests.ProductRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.CategoryResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductResponse;
@@ -26,16 +25,14 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
-    private final Converter<ProductRequest, ProductEntity, ProductResponse> productConverter;
-    private final Converter<CategoryRequest, CategoryEntity, CategoryResponse> categoryConverter;
+    private final Converter converter;
     private static final Logger logger = LogManager.getLogger(ProductServiceImpl.class);
 
     @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, CategoryService categoryService, Converter<ProductRequest, ProductEntity, ProductResponse> productConverter, Converter<CategoryRequest, CategoryEntity, CategoryResponse> categoryConverter) {
+    public ProductServiceImpl(ProductRepository productRepository, CategoryService categoryService, Converter converter) {
         this.productRepository = productRepository;
         this.categoryService = categoryService;
-        this.productConverter = productConverter;
-        this.categoryConverter = categoryConverter;
+        this.converter = converter;
     }
 
     @Transactional(readOnly = true)
@@ -45,7 +42,7 @@ public class ProductServiceImpl implements ProductService {
             return productRepository
                     .findAll()
                     .stream()
-                    .map(productConverter::entityToResponse)
+                    .map(productEntity -> converter.toResponse(productEntity, ProductResponse.class))
                     .collect(Collectors.toList());
 
         } catch (Exception exception) {
@@ -58,11 +55,11 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse createProduct(ProductRequest productRequest) {
 
         productRequest.setId(null);
-        ProductEntity productEntity = productConverter.requestToEntity(productRequest);
+        ProductEntity productEntity = converter.toEntity(productRequest, ProductEntity.class);
 
         try {
             CategoryResponse categoryResponse = categoryService.findCategoryById(productRequest.getCategoryId());
-            CategoryEntity categoryEntity = categoryConverter.responseToEntity(categoryResponse);
+            CategoryEntity categoryEntity = converter.toEntity(categoryResponse, CategoryEntity.class);
 
             productEntity.getCategories().add(categoryEntity);
 
@@ -77,13 +74,13 @@ public class ProductServiceImpl implements ProductService {
             throw new RepositoryException("Erro ao tentar criar o produto.", exception);
         }
 
-        return productConverter.entityToResponse(productEntity);
+        return converter.toResponse(productEntity, ProductResponse.class);
     }
 
     @Transactional(readOnly = false)
     public ProductResponse updateProduct(ProductRequest productRequest) {
 
-        ProductEntity productEntity = productConverter.requestToEntity(productRequest);
+        ProductEntity productEntity = converter.toEntity(productRequest, ProductEntity.class);
 
         productRepository.findById(productEntity.getId()).orElseThrow(() -> {
             logger.warn("Produto não encontrado com o ID: {}", productEntity.getId());
@@ -92,7 +89,7 @@ public class ProductServiceImpl implements ProductService {
 
         try {
             CategoryResponse categoryResponse = categoryService.findCategoryById(productRequest.getCategoryId());
-            CategoryEntity categoryEntity = categoryConverter.responseToEntity(categoryResponse);
+            CategoryEntity categoryEntity = converter.toEntity(categoryResponse, CategoryEntity.class);
 
             productEntity.getCategories().add(categoryEntity);
 
@@ -101,13 +98,13 @@ public class ProductServiceImpl implements ProductService {
 
         } catch (NotFoundException exception) {
             throw new NotFoundException("Categoria não encontrado com o ID: " + productRequest.getCategoryId() + ".");
-            
+
         } catch (Exception exception) {
             logger.error("Erro ao tentar atualizar o produto: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar atualizar o produto.", exception);
         }
 
-        return productConverter.entityToResponse(productEntity);
+        return converter.toResponse(productEntity, ProductResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -115,7 +112,7 @@ public class ProductServiceImpl implements ProductService {
 
         return productRepository
                 .findById(id)
-                .map(productConverter::entityToResponse)
+                .map(productEntity -> converter.toResponse(productEntity, ProductResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Produto não encontrado com o ID: {}", id);
                     return new NotFoundException("Produto não encontrado com o ID: " + id + ".");
@@ -159,7 +156,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return products.stream()
-                .map(productConverter::entityToResponse)
+                .map(productEntity -> converter.toResponse(productEntity, ProductResponse.class))
                 .collect(Collectors.toList());
     }
 }

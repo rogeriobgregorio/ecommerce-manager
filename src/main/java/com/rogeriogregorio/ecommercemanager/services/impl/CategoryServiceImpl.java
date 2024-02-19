@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
-    private final Converter<CategoryRequest, CategoryEntity, CategoryResponse> categoryConverter;
+    private final Converter converter;
     private static final Logger logger = LogManager.getLogger(CategoryServiceImpl.class);
 
     @Autowired
-    public CategoryServiceImpl(CategoryRepository categoryRepository, Converter<CategoryRequest, CategoryEntity, CategoryResponse> categoryConverter) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, Converter converter) {
         this.categoryRepository = categoryRepository;
-        this.categoryConverter = categoryConverter;
+        this.converter = converter;
     }
 
     @Transactional(readOnly = true)
@@ -37,7 +37,7 @@ public class CategoryServiceImpl implements CategoryService {
             return categoryRepository
                     .findAll()
                     .stream()
-                    .map(categoryConverter::entityToResponse)
+                    .map(CategoryEntity -> converter.toResponse(CategoryEntity, CategoryResponse.class))
                     .collect(Collectors.toList());
 
         } catch (Exception exception) {
@@ -51,7 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryRequest.setId(null);
 
-        CategoryEntity categoryEntity = categoryConverter.requestToEntity(categoryRequest);
+        CategoryEntity categoryEntity = converter.toEntity(categoryRequest, CategoryEntity.class);
 
         try {
             categoryRepository.save(categoryEntity);
@@ -62,7 +62,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new RepositoryException("Erro ao tentar criar a categoria.", exception);
         }
 
-        return categoryConverter.entityToResponse(categoryEntity);
+        return converter.toResponse(categoryEntity, CategoryResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -70,7 +70,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         return categoryRepository
                 .findById(id)
-                .map(categoryConverter::entityToResponse)
+                .map(CategoryEntity -> converter.toResponse(CategoryEntity, CategoryResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Categoria não encontrado com o ID: {}", id);
                     return new NotFoundException("Categoria não encontrado com o ID: " + id + ".");
@@ -80,7 +80,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = false)
     public CategoryResponse updateCategory(CategoryRequest categoryRequest) {
 
-        CategoryEntity categoryEntity = categoryConverter.requestToEntity(categoryRequest);
+        CategoryEntity categoryEntity = converter.toEntity(categoryRequest, CategoryEntity.class);
 
         categoryRepository.findById(categoryEntity.getId()).orElseThrow(() -> {
             logger.warn("Categoria não encontrada com o ID: {}", categoryEntity.getId());
@@ -96,7 +96,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new RepositoryException("Erro ao tentar atualizar a categoria.", exception);
         }
 
-        return categoryConverter.entityToResponse(categoryEntity);
+        return converter.toResponse(categoryEntity, CategoryResponse.class);
     }
 
     @Transactional(readOnly = false)
