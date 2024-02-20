@@ -11,6 +11,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.ProductRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
+import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +46,9 @@ public class ProductServiceImpl implements ProductService {
                     .map(productEntity -> converter.toResponse(productEntity, ProductResponse.class))
                     .collect(Collectors.toList());
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar produtos: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar produtos.", exception);
+            throw new RepositoryException("Erro ao tentar buscar produtos: " + exception);
         }
     }
 
@@ -55,23 +56,20 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse createProduct(ProductRequest productRequest) {
 
         productRequest.setId(null);
+
         ProductEntity productEntity = converter.toEntity(productRequest, ProductEntity.class);
 
         try {
-            CategoryResponse categoryResponse = categoryService.findCategoryById(productRequest.getCategoryId());
-            CategoryEntity categoryEntity = converter.toEntity(categoryResponse, CategoryEntity.class);
+            List<CategoryEntity> categoryList = categoryService.findAllCategoryById(productRequest.getCategoryIdList());
 
-            productEntity.getCategories().add(categoryEntity);
+            productEntity.getCategories().addAll(categoryList);
 
             productRepository.save(productEntity);
             logger.info("Produto criado: {}", productEntity.toString());
 
-        } catch (NotFoundException exception) {
-            throw new NotFoundException("Categoria não encontrado com o ID: " + productRequest.getCategoryId() + ".");
-
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar criar o produto: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar o produto.", exception);
+            throw new RepositoryException("Erro ao tentar criar o produto: " + exception);
         }
 
         return converter.toResponse(productEntity, ProductResponse.class);
@@ -88,20 +86,16 @@ public class ProductServiceImpl implements ProductService {
         });
 
         try {
-            CategoryResponse categoryResponse = categoryService.findCategoryById(productRequest.getCategoryId());
-            CategoryEntity categoryEntity = converter.toEntity(categoryResponse, CategoryEntity.class);
+            List<CategoryEntity> categoryList = categoryService.findAllCategoryById(productRequest.getCategoryIdList());
 
-            productEntity.getCategories().add(categoryEntity);
+            productEntity.getCategories().addAll(categoryList);
 
             productRepository.save(productEntity);
             logger.info("produto atualizado: {}", productEntity.toString());
 
-        } catch (NotFoundException exception) {
-            throw new NotFoundException("Categoria não encontrado com o ID: " + productRequest.getCategoryId() + ".");
-
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar atualizar o produto: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar atualizar o produto.", exception);
+            throw new RepositoryException("Erro ao tentar atualizar o produto: " + exception);
         }
 
         return converter.toResponse(productEntity, ProductResponse.class);
@@ -131,9 +125,9 @@ public class ProductServiceImpl implements ProductService {
             productRepository.deleteById(id);
             logger.warn("Produto removido: {}", id);
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir o produto: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar excluir o produto.", exception);
+            throw new RepositoryException("Erro ao tentar excluir o produto: " + exception);
         }
     }
 
@@ -145,9 +139,9 @@ public class ProductServiceImpl implements ProductService {
         try {
             products = productRepository.findByName(name);
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar produtos: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar produtos.", exception);
+            throw new RepositoryException("Erro ao tentar buscar produtos: " + exception);
         }
 
         if (products.isEmpty()) {

@@ -2,6 +2,7 @@ package com.rogeriogregorio.ecommercemanager.dto.requests;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 public class ProductRequest implements Serializable {
 
@@ -13,26 +14,26 @@ public class ProductRequest implements Serializable {
     private String description;
     private Double price;
     private String imgUrl;
-    private Long categoryId;
+    private List<Long> categoryIdList;
 
     public ProductRequest() {
     }
 
-    public ProductRequest(String name, String description, Double price, String imgUrl, Long categoryId) {
+    public ProductRequest(String name, String description, Double price, String imgUrl, List<Long> categoryIdList) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.imgUrl = imgUrl;
-        this.categoryId = categoryId;
+        this.categoryIdList = categoryIdList;
     }
 
-    public ProductRequest(Long id, String name, String description, Double price, String imgUrl, Long categoryId) {
+    public ProductRequest(Long id, String name, String description, Double price, String imgUrl, List<Long> categoryIdList) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.imgUrl = imgUrl;
-        this.categoryId = categoryId;
+        this.categoryIdList = categoryIdList;
     }
 
     public Long getId() {
@@ -75,11 +76,11 @@ public class ProductRequest implements Serializable {
         this.imgUrl = imgUrl;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
+    public List<Long> getCategoryIdList() {
+        return categoryIdList;
     }
 
-    public void setCategories(Long categoryId) {
-        this.categoryId = categoryId;
+    public void setCategoryIdList(List<Long> categoryId) {
+        this.categoryIdList = categoryId;
     }
 }

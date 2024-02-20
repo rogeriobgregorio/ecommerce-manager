@@ -8,6 +8,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.CategoryRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
+import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +41,9 @@ public class CategoryServiceImpl implements CategoryService {
                     .map(CategoryEntity -> converter.toResponse(CategoryEntity, CategoryResponse.class))
                     .collect(Collectors.toList());
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar categorias: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar categorias.", exception);
+            throw new RepositoryException("Erro ao tentar buscar categorias: " + exception);
         }
     }
 
@@ -57,9 +58,9 @@ public class CategoryServiceImpl implements CategoryService {
             categoryRepository.save(categoryEntity);
             logger.info("Categoria criada: {}", categoryEntity.toString());
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar criar a categoria: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar a categoria.", exception);
+            throw new RepositoryException("Erro ao tentar criar a categoria: " + exception);
         }
 
         return converter.toResponse(categoryEntity, CategoryResponse.class);
@@ -77,6 +78,19 @@ public class CategoryServiceImpl implements CategoryService {
                 });
     }
 
+    @Transactional(readOnly = true)
+    public List<CategoryEntity> findAllCategoryById(List<Long> id) {
+
+        try {
+            return categoryRepository.findAllById(id);
+
+        } catch (PersistenceException exception) {
+            logger.error("Erro ao tentar buscar categorias: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar buscar categorias: " + exception);
+        }
+
+    }
+
     @Transactional(readOnly = false)
     public CategoryResponse updateCategory(CategoryRequest categoryRequest) {
 
@@ -91,9 +105,9 @@ public class CategoryServiceImpl implements CategoryService {
             categoryRepository.save(categoryEntity);
             logger.info("Categoria atualizada: {}", categoryEntity.toString());
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar atualizar a categoria: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar atualizar a categoria.", exception);
+            throw new RepositoryException("Erro ao tentar atualizar a categoria: " + exception);
         }
 
         return converter.toResponse(categoryEntity, CategoryResponse.class);
@@ -111,9 +125,9 @@ public class CategoryServiceImpl implements CategoryService {
             categoryRepository.deleteById(id);
             logger.warn("Categoria removida: {}", id);
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir a categoria: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar excluir a categoria.", exception);
+            throw new RepositoryException("Erro ao tentar excluir a categoria: " + exception);
         }
     }
 }

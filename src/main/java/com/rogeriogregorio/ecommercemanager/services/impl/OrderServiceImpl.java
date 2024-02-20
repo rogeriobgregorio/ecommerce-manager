@@ -8,6 +8,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
+import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +41,9 @@ public class OrderServiceImpl implements OrderService {
                     .map(orderEntity -> converter.toResponse(orderEntity, OrderResponse.class))
                     .collect(Collectors.toList());
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar pedidos: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar pedidos.", exception);
+            throw new RepositoryException("Erro ao tentar buscar pedidos: " + exception);
         }
     }
 
@@ -57,9 +58,9 @@ public class OrderServiceImpl implements OrderService {
             orderRepository.save(orderEntity);
             logger.info("Pedido criado: {}", orderEntity.toString());
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar criar o pedido: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar o pedido.", exception);
+            throw new RepositoryException("Erro ao tentar criar o pedido: " + exception);
         }
 
         return converter.toResponse(orderEntity, OrderResponse.class);
@@ -91,9 +92,9 @@ public class OrderServiceImpl implements OrderService {
             orderRepository.save(orderEntity);
             logger.info("Pedido atualizado: {}", orderEntity.toString());
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar atualizar o pedido: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar atualizar o pedido.", exception);
+            throw new RepositoryException("Erro ao tentar atualizar o pedido: " + exception);
         }
 
         return converter.toResponse(orderEntity, OrderResponse.class);
@@ -111,9 +112,9 @@ public class OrderServiceImpl implements OrderService {
             orderRepository.deleteById(id);
             logger.warn("Pedido removido: {}", id);
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir o pedido: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar excluir o pedido.", exception);
+            throw new RepositoryException("Erro ao tentar excluir o pedido: " + exception);
         }
     }
 
@@ -127,9 +128,9 @@ public class OrderServiceImpl implements OrderService {
                     .map(orderEntity -> converter.toResponse(orderEntity, OrderResponse.class))
                     .collect(Collectors.toList());
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar pedidos pelo id do cliente: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar pedidos pelo id do cliente.", exception);
+            throw new RepositoryException("Erro ao tentar buscar pedidos pelo id do cliente: " + exception);
         }
     }
 }

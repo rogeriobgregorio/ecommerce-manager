@@ -8,6 +8,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.PaymentService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
+import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +39,9 @@ public class PaymentServiceImpl implements PaymentService {
                     .map(paymentEntity -> converter.toResponse(paymentEntity, PaymentResponse.class))
                     .collect(Collectors.toList());
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar pagamentos: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar pagamentos.", exception);
+            throw new RepositoryException("Erro ao tentar buscar pagamentos: " + exception);
         }
     }
 
@@ -54,9 +55,9 @@ public class PaymentServiceImpl implements PaymentService {
             paymentRepository.save(paymentEntity);
             logger.info("Pagamento criado: {}", paymentEntity.toString());
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar criar o pagamento: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar o pagamento.", exception);
+            throw new RepositoryException("Erro ao tentar criar o pagamento: " + exception);
         }
 
         return converter.toResponse(paymentEntity, PaymentResponse.class);
@@ -86,9 +87,9 @@ public class PaymentServiceImpl implements PaymentService {
             paymentRepository.save(paymentEntity);
             logger.info("Pagamento atualizado: {}", paymentEntity.toString());
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar atualizar o pagamento: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar atualizar o pagamento.", exception);
+            throw new RepositoryException("Erro ao tentar atualizar o pagamento: " + exception);
         }
 
         return converter.toResponse(paymentEntity, PaymentResponse.class);
@@ -105,9 +106,9 @@ public class PaymentServiceImpl implements PaymentService {
             paymentRepository.deleteById(id);
             logger.warn("Pagamento removido: {}", id);
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir o pagamento: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar excluir o pagamento.", exception);
+            throw new RepositoryException("Erro ao tentar excluir o pagamento: " + exception);
         }
 
     }

@@ -9,6 +9,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
+import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +44,9 @@ public class UserServiceImpl implements UserService {
                     .map(userEntity -> converter.toResponse(userEntity, UserResponse.class))
                     .collect(Collectors.toList());
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar usuários: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar usuários.", exception);
+            throw new RepositoryException("Erro ao tentar buscar usuários: " + exception);
         }
     }
 
@@ -76,9 +77,9 @@ public class UserServiceImpl implements UserService {
             logger.error("Erro ao tentar criar o usuário: E-mail já cadastrado.", exception);
             throw new DataIntegrityException("Erro ao tentar criar o usuário: E-mail já cadastrado.");
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar criar o usuário: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar o usuário.", exception);
+            throw new RepositoryException("Erro ao tentar criar o usuário: " + exception);
         }
 
         return converter.toResponse(userEntity, UserResponse.class);
@@ -102,9 +103,9 @@ public class UserServiceImpl implements UserService {
             logger.error("Erro ao tentar atualizar usuário: E-mail já cadastrado.", exception);
             throw new DataIntegrityException("Erro ao tentar atualizar o usuário: E-mail já cadastrado.");
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar atualizar o usuário: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar atualizar o usuário.", exception);
+            throw new RepositoryException("Erro ao tentar atualizar o usuário: " + exception);
         }
 
         return converter.toResponse(userEntity, UserResponse.class);
@@ -122,9 +123,9 @@ public class UserServiceImpl implements UserService {
             userRepository.deleteById(id);
             logger.warn("Usuário removido: {}", id);
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir o usuário: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar excluir o usuário: ", exception);
+            throw new RepositoryException("Erro ao tentar excluir o usuário: " + exception);
         }
     }
 
@@ -136,9 +137,9 @@ public class UserServiceImpl implements UserService {
         try {
             users = userRepository.findByName(name);
 
-        } catch (Exception exception) {
+        } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar usuários: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar usuários.", exception);
+            throw new RepositoryException("Erro ao tentar buscar usuários: " + exception);
         }
 
         if (users.isEmpty()) {
