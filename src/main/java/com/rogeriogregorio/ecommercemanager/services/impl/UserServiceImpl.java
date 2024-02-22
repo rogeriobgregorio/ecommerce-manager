@@ -37,7 +37,6 @@ public class UserServiceImpl implements UserService {
     public List<UserResponse> findAllUsers() {
 
         try {
-
             return userRepository
                     .findAll()
                     .stream()

@@ -2,11 +2,15 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderItemRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderItemResponse;
+import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import com.rogeriogregorio.ecommercemanager.entities.OrderItemEntity;
+import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderItemRepository;
 import com.rogeriogregorio.ecommercemanager.services.OrderItemService;
+import com.rogeriogregorio.ecommercemanager.services.OrderService;
+import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
@@ -22,12 +26,16 @@ import java.util.stream.Collectors;
 public class OrderItemServiceImpl implements OrderItemService {
 
     private final OrderItemRepository orderItemRepository;
+    private final OrderService orderService;
+    private final ProductService productService;
     private final Converter converter;
     private static final Logger logger = LogManager.getLogger(OrderItemServiceImpl.class);
 
     @Autowired
-    public OrderItemServiceImpl(OrderItemRepository orderItemRepository, Converter converter) {
+    public OrderItemServiceImpl(OrderItemRepository orderItemRepository, OrderService orderService, ProductService productService, Converter converter) {
         this.orderItemRepository = orderItemRepository;
+        this.orderService = orderService;
+        this.productService = productService;
         this.converter = converter;
     }
 
@@ -49,21 +57,22 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Transactional(readOnly = false)
     public OrderItemResponse createOrderItem(OrderItemRequest orderItemRequest) {
-
-        orderItemRequest.setId(null);
-
-        OrderItemEntity orderItemEntity = converter.toEntity(orderItemRequest, OrderItemEntity.class);
-
+        
         try {
+            OrderEntity orderEntity = converter.toEntity(orderService.findOrderById(orderItemRequest.getOrderId()), OrderEntity.class);
+            ProductEntity productEntity = converter.toEntity(productService.findProductById(orderItemRequest.getProductId()), ProductEntity.class);
+
+            OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
+
             orderItemRepository.save(orderItemEntity);
             logger.info("Item do pedido criado: {}", orderItemEntity.toString());
+
+            return converter.toResponse(orderItemEntity, OrderItemResponse.class);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar criar item do pedido: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar criar item do pedido: " + exception);
         }
-
-        return converter.toResponse(orderItemEntity, OrderItemResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -81,23 +90,26 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = false)
     public OrderItemResponse updateOrderItem(OrderItemRequest orderItemRequest) {
 
-        OrderItemEntity orderItemEntity = converter.toEntity(orderItemRequest, OrderItemEntity.class);
-
-        orderItemRepository.findById(orderItemEntity.getOrderEntity().getId()).orElseThrow(() -> {
-            logger.warn("Itens do pedido não encontrados com o ID: {}", orderItemEntity.getOrderEntity().getId());
-            return new NotFoundException("Itens do pedido não encontrados com o ID: " + orderItemEntity.getOrderEntity().getId() + ".");
+        orderItemRepository.findById(orderItemRequest.getOrderId()).orElseThrow(() -> {
+            logger.warn("Itens do pedido não encontrados com o ID: {}", orderItemRequest.getOrderId());
+            return new NotFoundException("Itens do pedido não encontrados com o ID: " + orderItemRequest.getOrderId() + ".");
         });
 
         try {
+            OrderEntity orderEntity = converter.toEntity(orderService.findOrderById(orderItemRequest.getOrderId()), OrderEntity.class);
+            ProductEntity productEntity = converter.toEntity(productService.findProductById(orderItemRequest.getProductId()), ProductEntity.class);
+
+            OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
+
             orderItemRepository.save(orderItemEntity);
             logger.info("Item do pedido atualizado: {}", orderItemEntity.toString());
+
+            return converter.toResponse(orderItemEntity, OrderItemResponse.class);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar atualizar os item do pedido: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar atualizar os item do pedido: " + exception);
         }
-
-        return converter.toResponse(orderItemEntity, OrderItemResponse.class);
     }
 
     @Transactional(readOnly = false)

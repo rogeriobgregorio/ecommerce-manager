@@ -1,7 +1,5 @@
 package com.rogeriogregorio.ecommercemanager.dto.requests;
 
-import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
@@ -13,20 +11,20 @@ public class PaymentRequest implements Serializable {
 
     private Long id;
     private Instant moment;
-    private OrderEntity orderEntity;
+    private Long orderId;
 
     public PaymentRequest() {
     }
 
-    public PaymentRequest(Instant moment, OrderEntity orderEntity) {
+    public PaymentRequest(Instant moment, Long orderId) {
         this.moment = moment;
-        this.orderEntity = orderEntity;
+        this.orderId = orderId;
     }
 
-    public PaymentRequest(Long id, Instant moment, OrderEntity orderEntity) {
+    public PaymentRequest(Long id, Instant moment, Long orderId) {
         this.id = id;
         this.moment = moment;
-        this.orderEntity = orderEntity;
+        this.orderId = orderId;
     }
 
     public Long getId() {
@@ -45,11 +43,11 @@ public class PaymentRequest implements Serializable {
         this.moment = moment;
     }
 
-    public OrderEntity getOrderEntity() {
-        return orderEntity;
+    public Long getOrderId() {
+        return orderId;
     }
 
-    public void setOrderEntity(OrderEntity orderEntity) {
-        this.orderEntity = orderEntity;
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
     }
 }

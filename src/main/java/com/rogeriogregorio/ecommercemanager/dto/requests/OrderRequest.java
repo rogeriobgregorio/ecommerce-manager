@@ -1,6 +1,5 @@
 package com.rogeriogregorio.ecommercemanager.dto.requests;
 
-import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 
 import java.io.Serial;
@@ -15,22 +14,22 @@ public class OrderRequest implements Serializable {
     private Long id;
     private Instant moment;
     private Integer orderStatus;
-    private UserEntity client;
+    private Long clientId;
 
     public OrderRequest() {
     }
 
-    public OrderRequest(Long id, Instant moment, OrderStatus orderStatus, UserEntity client) {
+    public OrderRequest(Long id, Instant moment, OrderStatus orderStatus, Long clientId) {
         this.id = id;
         this.moment = moment;
         setOrderStatus(orderStatus);
-        this.client = client;
+        this.clientId = clientId;
     }
 
-    public OrderRequest(Instant moment, OrderStatus orderStatus, UserEntity client) {
+    public OrderRequest(Instant moment, OrderStatus orderStatus, Long clientId) {
         this.moment = moment;
         setOrderStatus(orderStatus);
-        this.client = client;
+        this.clientId = clientId;
     }
 
     public Long getId() {
@@ -62,11 +61,11 @@ public class OrderRequest implements Serializable {
         this.orderStatus = orderStatus.getCode();
     }
 
-    public UserEntity getClient() {
-        return client;
+    public Long getClientId() {
+        return clientId;
     }
 
-    public void setClient(UserEntity client) {
-        this.client = client;
+    public void setClientId(Long clientId) {
+        this.clientId = clientId;
     }
 }

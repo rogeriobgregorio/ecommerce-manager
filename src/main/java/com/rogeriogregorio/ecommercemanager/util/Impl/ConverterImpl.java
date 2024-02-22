@@ -1,6 +1,11 @@
 package com.rogeriogregorio.ecommercemanager.util.Impl;
 
+import com.rogeriogregorio.ecommercemanager.exceptions.ConverterException;
+import com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.modelmapper.MappingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -9,6 +14,7 @@ import org.springframework.stereotype.Component;
 public class ConverterImpl implements Converter {
 
     private final ModelMapper modelMapper;
+    private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
     @Autowired
     public ConverterImpl(ModelMapper modelMapper) {
@@ -17,11 +23,25 @@ public class ConverterImpl implements Converter {
 
     @Override
     public <Entity, Response> Entity toEntity(Response object, Class<Entity> targetType) {
-        return modelMapper.map(object, targetType);
+
+        try {
+            return modelMapper.map(object, targetType);
+
+        } catch (MappingException exception) {
+            logger.error("Erro ao tentar converter objeto: {}", exception.getMessage(), exception);
+            throw new ConverterException("Erro ao tentar converter objeto: " + exception);
+        }
     }
 
     @Override
     public <Entity, Response> Response toResponse(Entity object, Class<Response> targetType) {
-        return modelMapper.map(object, targetType);
+
+        try {
+            return modelMapper.map(object, targetType);
+
+        } catch (MappingException exception) {
+            logger.error("Erro ao tentar converter objeto: {}", exception.getMessage(), exception);
+            throw new ConverterException("Erro ao tentar converter objeto: " + exception);
+        }
     }
 }

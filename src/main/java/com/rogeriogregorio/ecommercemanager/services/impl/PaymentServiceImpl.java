@@ -2,10 +2,13 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
+import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import com.rogeriogregorio.ecommercemanager.entities.PaymentEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
+import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
+import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.services.PaymentService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import jakarta.persistence.PersistenceException;
@@ -21,12 +24,14 @@ import java.util.stream.Collectors;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
+    private final OrderRepository orderRepository;
     private final Converter converter;
     private static final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
 
     @Autowired
-    public PaymentServiceImpl(PaymentRepository paymentRepository, Converter converter) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, OrderRepository orderRepository, Converter converter) {
         this.paymentRepository = paymentRepository;
+        this.orderRepository = orderRepository;
         this.converter = converter;
     }
 
@@ -52,6 +57,13 @@ public class PaymentServiceImpl implements PaymentService {
         PaymentEntity paymentEntity = converter.toEntity(paymentRequest, PaymentEntity.class);
 
         try {
+            OrderEntity orderEntity = converter.toEntity(orderRepository.findById(paymentRequest.getOrderId()), OrderEntity.class);
+
+            paymentEntity.setOrderEntity(orderEntity);
+
+            orderEntity.setPaymentEntity(paymentEntity);
+            orderRepository.save(orderEntity);
+
             paymentRepository.save(paymentEntity);
             logger.info("Pagamento criado: {}", paymentEntity.toString());
 
@@ -84,6 +96,13 @@ public class PaymentServiceImpl implements PaymentService {
         });
 
         try {
+            OrderEntity orderEntity = converter.toEntity(orderRepository.findById(paymentRequest.getOrderId()), OrderEntity.class);
+
+            paymentEntity.setOrderEntity(orderEntity);
+
+            orderEntity.setPaymentEntity(paymentEntity);
+            orderRepository.save(orderEntity);
+
             paymentRepository.save(paymentEntity);
             logger.info("Pagamento atualizado: {}", paymentEntity.toString());
 

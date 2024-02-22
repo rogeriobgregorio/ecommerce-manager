@@ -1,6 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.exceptions;
 
 import jakarta.validation.ConstraintViolationException;
+import org.modelmapper.MappingException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,7 +70,6 @@ public class ECommerceManagerExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-
     @ExceptionHandler(RepositoryException.class)
     public ResponseEntity<StandardError> HandleRepositoryException(RepositoryException ex) {
 
@@ -91,6 +91,12 @@ public class ECommerceManagerExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    @ExceptionHandler(ConverterException.class)
+    public ResponseEntity<StandardError> handleConverterException(ConverterException ex) {
+
+        StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro de conversão de dados", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<StandardError> handleValidationException(MethodArgumentNotValidException ex) {

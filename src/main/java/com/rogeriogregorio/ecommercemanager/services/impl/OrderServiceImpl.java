@@ -3,10 +3,12 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
+import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
+import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
@@ -22,12 +24,14 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
+    private final UserService userService;
     private final Converter converter;
     private static final Logger logger = LogManager.getLogger(OrderServiceImpl.class);
 
     @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository, Converter converter) {
+    public OrderServiceImpl(OrderRepository orderRepository, UserService userService, Converter converter) {
         this.orderRepository = orderRepository;
+        this.userService = userService;
         this.converter = converter;
     }
 
@@ -55,6 +59,10 @@ public class OrderServiceImpl implements OrderService {
         OrderEntity orderEntity = converter.toEntity(orderRequest, OrderEntity.class);
 
         try {
+            UserEntity userEntity = converter.toEntity(userService.findUserById(orderRequest.getClientId()), UserEntity.class);
+
+            orderEntity.setClient(userEntity);
+
             orderRepository.save(orderEntity);
             logger.info("Pedido criado: {}", orderEntity.toString());
 
@@ -89,6 +97,10 @@ public class OrderServiceImpl implements OrderService {
         });
 
         try {
+            UserEntity userEntity = converter.toEntity(userService.findUserById(orderRequest.getClientId()), UserEntity.class);
+
+            orderEntity.setClient(userEntity);
+
             orderRepository.save(orderEntity);
             logger.info("Pedido atualizado: {}", orderEntity.toString());
 
