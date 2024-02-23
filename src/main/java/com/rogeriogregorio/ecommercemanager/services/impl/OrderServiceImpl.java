@@ -112,7 +112,7 @@ public class OrderServiceImpl implements OrderService {
         return converter.toResponse(orderEntity, OrderResponse.class);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false)
     public void deleteOrder(Long id) {
 
         orderRepository.findById(id).orElseThrow(() -> {

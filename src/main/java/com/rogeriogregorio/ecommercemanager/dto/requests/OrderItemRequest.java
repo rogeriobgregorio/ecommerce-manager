@@ -15,8 +15,12 @@ public class OrderItemRequest implements Serializable {
     public OrderItemRequest() {
     }
 
-    public OrderItemRequest(Long orderId, Long productId, Integer quantity) {
+    public OrderItemRequest(Long orderId, Long productId) {
+        this.orderId = orderId;
+        this.productId = productId;
+    }
 
+    public OrderItemRequest(Long orderId, Long productId, Integer quantity) {
         this.orderId = orderId;
         this.productId = productId;
         this.quantity = quantity;

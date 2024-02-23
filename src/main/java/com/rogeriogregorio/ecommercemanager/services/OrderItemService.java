@@ -13,7 +13,7 @@ public interface OrderItemService {
 
     public OrderItemResponse createOrderItem(OrderItemRequest orderItemRequest);
 
-    public OrderItemResponse findOrderItemById(Long id);
+    public OrderItemResponse findOrderItemById(OrderItemRequest orderItemRequest);
 
     public OrderItemResponse updateOrderItem(OrderItemRequest orderItemRequest);
 

@@ -38,12 +38,12 @@ public class OrderItemController {
                 .body(orderItemService.createOrderItem(orderItemRequest));
     }
 
-    @GetMapping(value = "/order-items/{id}")
-    public ResponseEntity<OrderItemResponse> getOrderItemById(@PathVariable Long id) {
+    @GetMapping(value = "/order-items")
+    public ResponseEntity<OrderItemResponse> getOrderItemById(@Valid @RequestBody OrderItemRequest orderItemRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(orderItemService.findOrderItemById(id));
+                .body(orderItemService.findOrderItemById(orderItemRequest));
     }
 
     @PutMapping(value = "/order-items")

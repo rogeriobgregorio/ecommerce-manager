@@ -8,7 +8,6 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
-import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.services.PaymentService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import jakarta.persistence.PersistenceException;
@@ -16,6 +15,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,6 +36,7 @@ public class PaymentServiceImpl implements PaymentService {
         this.converter = converter;
     }
 
+    @Transactional(readOnly = true)
     public List<PaymentResponse> findAllPayments() {
 
         try {
@@ -50,6 +52,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
+    @Transactional(readOnly = false)
     public PaymentResponse createPayment(PaymentRequest paymentRequest) {
 
         paymentRequest.setId(null);
@@ -70,11 +73,16 @@ public class PaymentServiceImpl implements PaymentService {
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar criar o pagamento: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar criar o pagamento: " + exception);
+
+        } catch (NullPointerException exception) {
+            logger.error("Erro ao tentar criar o pagamento: {}", exception.getMessage(), exception);
+            throw new NotFoundException("Erro ao tentar criar o pagamento: " + exception);
         }
 
         return converter.toResponse(paymentEntity, PaymentResponse.class);
     }
 
+    @Transactional(readOnly = true)
     public PaymentResponse findPaymentById(Long id) {
 
         return paymentRepository
@@ -86,6 +94,7 @@ public class PaymentServiceImpl implements PaymentService {
                 });
     }
 
+    @Transactional(readOnly = false)
     public PaymentResponse updatePayment(PaymentRequest paymentRequest) {
 
         PaymentEntity paymentEntity = converter.toEntity(paymentRequest, PaymentEntity.class);
@@ -114,6 +123,7 @@ public class PaymentServiceImpl implements PaymentService {
         return converter.toResponse(paymentEntity, PaymentResponse.class);
     }
 
+    @Transactional(readOnly = false)
     public void deletePayment(Long id) {
 
         paymentRepository.findById(id).orElseThrow(() -> {
@@ -129,6 +139,5 @@ public class PaymentServiceImpl implements PaymentService {
             logger.error("Erro ao tentar excluir o pagamento: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar excluir o pagamento: " + exception);
         }
-
     }
 }

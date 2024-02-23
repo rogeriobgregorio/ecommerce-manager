@@ -41,7 +41,7 @@ public class OrderEntity implements Serializable {
     @OneToMany(mappedBy = "id.orderEntity")
     private Set<OrderItemEntity> items = new HashSet<>();
 
-    @OneToOne(mappedBy = "orderEntity", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "orderEntity", cascade = CascadeType.REMOVE)
     private PaymentEntity paymentEntity;
 
     public OrderEntity() {

@@ -5,6 +5,7 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.OrderItemResponse;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import com.rogeriogregorio.ecommercemanager.entities.OrderItemEntity;
 import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
+import com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderItemRepository;
@@ -57,7 +58,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Transactional(readOnly = false)
     public OrderItemResponse createOrderItem(OrderItemRequest orderItemRequest) {
-        
+
         try {
             OrderEntity orderEntity = converter.toEntity(orderService.findOrderById(orderItemRequest.getOrderId()), OrderEntity.class);
             ProductEntity productEntity = converter.toEntity(productService.findProductById(orderItemRequest.getProductId()), ProductEntity.class);
@@ -76,15 +77,19 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Transactional(readOnly = true)
-    public OrderItemResponse findOrderItemById(Long id) {
+    public OrderItemResponse findOrderItemById(OrderItemRequest orderItemRequest) {
 
-        return orderItemRepository
-                .findById(id)
-                .map(orderItemEntity -> converter.toResponse(orderItemEntity, OrderItemResponse.class))
-                .orElseThrow(() -> {
-                    logger.warn("Itens do pedido não encontrados com o ID: {}", id);
-                    return new NotFoundException("Itens do pedido não encontrados com o ID: " + id + ".");
-                });
+        OrderEntity orderEntity = converter.toEntity(orderService.findOrderById(orderItemRequest.getOrderId()), OrderEntity.class);
+        ProductEntity productEntity = converter.toEntity(productService.findProductById(orderItemRequest.getProductId()), ProductEntity.class);
+
+        OrderItemEntity orderItemEntity = orderItemRepository.findById_OrderEntityAndId_ProductEntity(orderEntity, productEntity);
+
+        if (orderItemEntity == null) {
+            logger.warn("Itens do pedido não encontrados.");
+            throw new NotFoundException("Itens do pedido não encontrados.");
+        }
+
+        return converter.toResponse(orderItemEntity, OrderItemResponse.class);
     }
 
     @Transactional(readOnly = false)
