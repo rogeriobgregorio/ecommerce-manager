@@ -60,10 +60,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     public OrderItemResponse createOrderItem(OrderItemRequest orderItemRequest) {
 
         try {
-            OrderEntity orderEntity = converter.toEntity(orderService.findOrderById(orderItemRequest.getOrderId()), OrderEntity.class);
-            ProductEntity productEntity = converter.toEntity(productService.findProductById(orderItemRequest.getProductId()), ProductEntity.class);
-
-            OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
+            OrderItemEntity orderItemEntity = this.getOrderItemEntity(orderItemRequest);
 
             orderItemRepository.save(orderItemEntity);
             logger.info("Item do pedido criado: {}", orderItemEntity.toString());
@@ -79,32 +76,29 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = true)
     public OrderItemResponse findOrderItemById(OrderItemRequest orderItemRequest) {
 
-        OrderEntity orderEntity = converter.toEntity(orderService.findOrderById(orderItemRequest.getOrderId()), OrderEntity.class);
-        ProductEntity productEntity = converter.toEntity(productService.findProductById(orderItemRequest.getProductId()), ProductEntity.class);
+        OrderItemPK id = this.getOrderItemPK(orderItemRequest);
 
-        OrderItemEntity orderItemEntity = orderItemRepository.findById_OrderEntityAndId_ProductEntity(orderEntity, productEntity);
-
-        if (orderItemEntity == null) {
-            logger.warn("Itens do pedido não encontrados.");
-            throw new NotFoundException("Itens do pedido não encontrados.");
-        }
-
-        return converter.toResponse(orderItemEntity, OrderItemResponse.class);
+        return orderItemRepository
+                .findById(id)
+                .map(orderItemEntity -> converter.toResponse(orderItemEntity, OrderItemResponse.class))
+                .orElseThrow(() -> {
+                    logger.warn("Itens não encontrado com o ID: {}", id);
+                    return new NotFoundException("Itens não encontrado com o ID: " + id + ".");
+                });
     }
 
     @Transactional(readOnly = false)
     public OrderItemResponse updateOrderItem(OrderItemRequest orderItemRequest) {
 
-        orderItemRepository.findById(orderItemRequest.getOrderId()).orElseThrow(() -> {
-            logger.warn("Itens do pedido não encontrados com o ID: {}", orderItemRequest.getOrderId());
-            return new NotFoundException("Itens do pedido não encontrados com o ID: " + orderItemRequest.getOrderId() + ".");
+        OrderItemPK id = this.getOrderItemPK(orderItemRequest);
+
+        orderItemRepository.findById(id).orElseThrow(() -> {
+            logger.warn("Itens do pedido não encontrados com o ID: {}", id);
+            return new NotFoundException("Itens do pedido não encontrados com o ID: " + id + ".");
         });
 
         try {
-            OrderEntity orderEntity = converter.toEntity(orderService.findOrderById(orderItemRequest.getOrderId()), OrderEntity.class);
-            ProductEntity productEntity = converter.toEntity(productService.findProductById(orderItemRequest.getProductId()), ProductEntity.class);
-
-            OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
+            OrderItemEntity orderItemEntity = this.getOrderItemEntity(orderItemRequest);
 
             orderItemRepository.save(orderItemEntity);
             logger.info("Item do pedido atualizado: {}", orderItemEntity.toString());
@@ -118,7 +112,9 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Transactional(readOnly = false)
-    public void deleteOrderItem(Long id) {
+    public void deleteOrderItem(OrderItemRequest orderItemRequest) {
+
+        OrderItemPK id = this.getOrderItemPK(orderItemRequest);
 
         orderItemRepository.findById(id).orElseThrow(() -> {
             logger.warn("Itens do pedido não encontrados com o ID: {}", id);
@@ -133,5 +129,25 @@ public class OrderItemServiceImpl implements OrderItemService {
             logger.error("Erro ao tentar excluir os itens do pedido: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar excluir os itens do pedido: " + exception);
         }
+    }
+
+    public OrderItemPK getOrderItemPK(OrderItemRequest orderItemRequest) {
+
+        OrderEntity orderEntity = converter.toEntity(orderService.findOrderById(orderItemRequest.getOrderId()), OrderEntity.class);
+        ProductEntity productEntity = converter.toEntity(productService.findProductById(orderItemRequest.getProductId()), ProductEntity.class);
+
+        OrderItemPK id = new OrderItemPK();
+        id.setOrderEntity(orderEntity);
+        id.setProductEntity(productEntity);
+
+        return id;
+    }
+
+    public OrderItemEntity getOrderItemEntity(OrderItemRequest orderItemRequest) {
+
+        OrderEntity orderEntity = converter.toEntity(orderService.findOrderById(orderItemRequest.getOrderId()), OrderEntity.class);
+        ProductEntity productEntity = converter.toEntity(productService.findProductById(orderItemRequest.getProductId()), ProductEntity.class);
+
+        return new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
     }
 }

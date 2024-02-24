@@ -17,5 +17,5 @@ public interface OrderItemService {
 
     public OrderItemResponse updateOrderItem(OrderItemRequest orderItemRequest);
 
-    public void deleteOrderItem(Long id);
+    public void deleteOrderItem(OrderItemRequest orderItemRequest);
 }

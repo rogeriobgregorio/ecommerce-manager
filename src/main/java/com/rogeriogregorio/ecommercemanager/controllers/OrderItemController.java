@@ -38,7 +38,7 @@ public class OrderItemController {
                 .body(orderItemService.createOrderItem(orderItemRequest));
     }
 
-    @GetMapping(value = "/order-items")
+    @GetMapping(value = "/order-items/id")
     public ResponseEntity<OrderItemResponse> getOrderItemById(@Valid @RequestBody OrderItemRequest orderItemRequest) {
 
         return ResponseEntity
@@ -54,10 +54,10 @@ public class OrderItemController {
                 .body(orderItemService.updateOrderItem(orderItemRequest));
     }
 
-    @DeleteMapping(value = "/order-items/{id}")
-    public ResponseEntity<Void> deleteOrderItem(@PathVariable Long id) {
+    @DeleteMapping(value = "/order-items")
+    public ResponseEntity<Void> deleteOrderItem(@Valid @RequestBody OrderItemRequest orderItemRequest) {
 
-        orderItemService.deleteOrderItem(id);
+        orderItemService.deleteOrderItem(orderItemRequest);
 
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
