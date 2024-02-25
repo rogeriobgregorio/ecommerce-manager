@@ -8,6 +8,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.CategoryRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.CategoryServiceImpl;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
+import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -63,7 +64,7 @@ public class CategoryServiceImplTest {
         assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with one category");
         assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with one categories");
 
-        verify(converter, times(1)).toResponse(any(CategoryEntity.class), CategoryResponse.class);
+        verify(converter, times(1)).toResponse(categoryEntity, CategoryResponse.class);
         verify(categoryRepository, times(1)).findAll();
     }
 
@@ -92,7 +93,7 @@ public class CategoryServiceImplTest {
         assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with multiple categories");
         assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with multiple orders");
 
-        verify(converter, times(10)).toResponse(any(CategoryEntity.class), CategoryResponse.class);
+        verify(converter, times(10)).toResponse(any(CategoryEntity.class), eq(CategoryResponse.class));
         verify(categoryRepository, times(1)).findAll();
     }
 
@@ -118,7 +119,7 @@ public class CategoryServiceImplTest {
     @DisplayName("findAllCategories - Exceção ao tentar buscar lista de categorias")
     void findAllCategories_RepositoryExceptionHandling() {
         // Arrange
-        when(categoryRepository.findAll()).thenThrow(RuntimeException.class);
+        when(categoryRepository.findAll()).thenThrow(PersistenceException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> categoryService.findAllCategories(), "Expected RepositoryException to be thrown");
@@ -158,7 +159,7 @@ public class CategoryServiceImplTest {
         CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
 
         when(converter.toEntity(categoryRequest, CategoryEntity.class)).thenReturn(categoryEntity);
-        when(categoryRepository.save(categoryEntity)).thenThrow(RuntimeException.class);
+        when(categoryRepository.save(categoryEntity)).thenThrow(PersistenceException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> categoryService.createCategory(categoryRequest), "Expected RepositoryException due to a generic runtime exception");
@@ -278,7 +279,7 @@ public class CategoryServiceImplTest {
         CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
 
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
-        doThrow(RuntimeException.class).when(categoryRepository).deleteById(1L);
+        doThrow(PersistenceException.class).when(categoryRepository).deleteById(1L);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> categoryService.deleteCategory(1L), "Expected RepositoryException for delete failure");

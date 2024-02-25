@@ -310,7 +310,7 @@ public class UserServiceImplTest {
 
     @Test
     @DisplayName("deleteUser - Exclusão bem-sucedida do usuário")
-    void deleteUser_DeletesUserSuccessfully() {
+    void deleteUser_DeletesSuccessfully() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
