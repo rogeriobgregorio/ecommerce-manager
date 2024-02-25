@@ -32,7 +32,7 @@ public class CategoryServiceImplTest {
     private CategoryRepository categoryRepository;
 
     @Mock
-    private Converter<CategoryRequest, CategoryEntity, CategoryResponse> categoryConverter;
+    private Converter converter;
 
     @InjectMocks
     private CategoryServiceImpl categoryService;
@@ -40,7 +40,7 @@ public class CategoryServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        categoryService = new CategoryServiceImpl(categoryRepository, categoryConverter);
+        categoryService = new CategoryServiceImpl(categoryRepository, converter);
     }
 
     @Test
@@ -53,7 +53,7 @@ public class CategoryServiceImplTest {
         CategoryResponse categoryResponse = new CategoryResponse(1L, "Computers");
         List<CategoryResponse> expectedResponses = Collections.singletonList(categoryResponse);
 
-        when(categoryConverter.entityToResponse(categoryEntity)).thenReturn(categoryResponse);
+        when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(categoryResponse);
         when(categoryRepository.findAll()).thenReturn(categoryEntityList);
 
         // Act
@@ -63,7 +63,7 @@ public class CategoryServiceImplTest {
         assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with one category");
         assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with one categories");
 
-        verify(categoryConverter, times(1)).entityToResponse(any(CategoryEntity.class));
+        verify(converter, times(1)).toResponse(any(CategoryEntity.class), CategoryResponse.class);
         verify(categoryRepository, times(1)).findAll();
     }
 
@@ -80,7 +80,7 @@ public class CategoryServiceImplTest {
             CategoryResponse categoryResponse = new CategoryResponse((long) i, "category example");
             expectedResponses.add(categoryResponse);
 
-            when(categoryConverter.entityToResponse(categoryEntity)).thenReturn(categoryResponse);
+            when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(categoryResponse);
         }
 
         when(categoryRepository.findAll()).thenReturn(categoryEntityList);
@@ -92,7 +92,7 @@ public class CategoryServiceImplTest {
         assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with multiple categories");
         assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with multiple orders");
 
-        verify(categoryConverter, times(10)).entityToResponse(any(CategoryEntity.class));
+        verify(converter, times(10)).toResponse(any(CategoryEntity.class), CategoryResponse.class);
         verify(categoryRepository, times(1)).findAll();
     }
 
@@ -134,8 +134,8 @@ public class CategoryServiceImplTest {
         CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
         CategoryResponse expectedResponse = new CategoryResponse(1L, "Computers");
 
-        when(categoryConverter.requestToEntity(categoryRequest)).thenReturn(categoryEntity);
-        when(categoryConverter.entityToResponse(categoryEntity)).thenReturn(expectedResponse);
+        when(converter.toEntity(categoryRequest, CategoryEntity.class)).thenReturn(categoryEntity);
+        when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(expectedResponse);
         when(categoryRepository.save(categoryEntity)).thenReturn(categoryEntity);
 
         // Act
@@ -145,8 +145,8 @@ public class CategoryServiceImplTest {
         assertNotNull(actualResponse, "CategoryResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(categoryConverter, times(1)).requestToEntity(categoryRequest);
-        verify(categoryConverter, times(1)).entityToResponse(categoryEntity);
+        verify(converter, times(1)).toEntity(categoryRequest, CategoryEntity.class);
+        verify(converter, times(1)).toResponse(categoryEntity, CategoryResponse.class);
         verify(categoryRepository, times(1)).save(categoryEntity);
     }
 
@@ -157,13 +157,13 @@ public class CategoryServiceImplTest {
         CategoryRequest categoryRequest = new CategoryRequest(1L, "Computers");
         CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
 
-        when(categoryConverter.requestToEntity(categoryRequest)).thenReturn(categoryEntity);
+        when(converter.toEntity(categoryRequest, CategoryEntity.class)).thenReturn(categoryEntity);
         when(categoryRepository.save(categoryEntity)).thenThrow(RuntimeException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> categoryService.createCategory(categoryRequest), "Expected RepositoryException due to a generic runtime exception");
 
-        verify(categoryConverter, times(1)).requestToEntity(categoryRequest);
+        verify(converter, times(1)).toEntity(categoryRequest, CategoryEntity.class);
         verify(categoryRepository, times(1)).save(categoryEntity);
     }
 
@@ -174,7 +174,7 @@ public class CategoryServiceImplTest {
         CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
         CategoryResponse expectedResponse = new CategoryResponse(1L, "Computers");
 
-        when(categoryConverter.entityToResponse(categoryEntity)).thenReturn(expectedResponse);
+        when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(expectedResponse);
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
 
         // Act
@@ -184,7 +184,7 @@ public class CategoryServiceImplTest {
         assertNotNull(actualResponse, "categoryResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(categoryConverter, times(1)).entityToResponse(categoryEntity);
+        verify(converter, times(1)).toResponse(categoryEntity, CategoryResponse.class);
         verify(categoryRepository, times(1)).findById(1L);
     }
 
@@ -208,9 +208,9 @@ public class CategoryServiceImplTest {
         CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
         CategoryResponse expectedResponse = new CategoryResponse(1L, "Computers");
 
-        when(categoryConverter.requestToEntity(categoryRequest)).thenReturn(categoryEntity);
+        when(converter.toEntity(categoryRequest, CategoryEntity.class)).thenReturn(categoryEntity);
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
-        when(categoryConverter.entityToResponse(categoryEntity)).thenReturn(expectedResponse);
+        when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(expectedResponse);
         when(categoryRepository.save(categoryEntity)).thenReturn(categoryEntity);
 
         // Act
@@ -221,10 +221,10 @@ public class CategoryServiceImplTest {
         assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
         assertEquals(expectedResponse.getName(), actualResponse.getName(), "Names should match");
 
-        verify(categoryConverter, times(1)).requestToEntity(categoryRequest);
+        verify(converter, times(1)).toEntity(categoryRequest, CategoryEntity.class);
         verify(categoryRepository, times(1)).findById(categoryEntity.getId());
         verify(categoryRepository, times(1)).save(categoryEntity);
-        verify(categoryConverter, times(1)).entityToResponse(categoryEntity);
+        verify(converter, times(1)).toResponse(categoryEntity, CategoryResponse.class);
     }
 
     @Test
@@ -234,13 +234,13 @@ public class CategoryServiceImplTest {
         CategoryRequest categoryRequest = new CategoryRequest("Computers");
         CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
 
-        when(categoryConverter.requestToEntity(categoryRequest)).thenReturn(categoryEntity);
+        when(converter.toEntity(categoryRequest, CategoryEntity.class)).thenReturn(categoryEntity);
         when(categoryRepository.findById(categoryEntity.getId())).thenReturn(Optional.empty());
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> categoryService.updateCategory(categoryRequest));
 
-        verify(categoryConverter, times(1)).requestToEntity(categoryRequest);
+        verify(converter, times(1)).toEntity(categoryRequest, CategoryEntity.class);
         verify(categoryRepository, times(1)).findById(categoryEntity.getId());
     }
 

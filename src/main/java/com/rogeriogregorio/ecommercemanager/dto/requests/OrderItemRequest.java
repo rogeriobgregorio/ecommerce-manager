@@ -1,9 +1,5 @@
 package com.rogeriogregorio.ecommercemanager.dto.requests;
 
-import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
-import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
-import com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK;
-
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -17,11 +13,6 @@ public class OrderItemRequest implements Serializable {
     private Integer quantity;
 
     public OrderItemRequest() {
-    }
-
-    public OrderItemRequest(Long orderId, Long productId) {
-        this.orderId = orderId;
-        this.productId = productId;
     }
 
     public OrderItemRequest(Long orderId, Long productId, Integer quantity) {

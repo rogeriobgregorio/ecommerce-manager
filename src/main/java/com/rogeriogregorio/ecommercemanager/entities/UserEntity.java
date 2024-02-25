@@ -27,8 +27,8 @@ public class UserEntity implements Serializable {
 
     @Column(name = "name")
     @NotBlank(message = "O nome não deve estar em branco")
-    @Pattern(regexp = "^[\\p{L}\\s.]{3,250}$", message = "O nome deve ter no mínimo 3 letras e só letras e espaços.")
-    @Size(max = 250, message = "O nome deve ter no máximo 250 caracteres.")
+    @Pattern(regexp = "^[\\p{L}\\s.]+$", message = "O nome deve ter apenas letras e espaços.")
+    @Size(min = 5, max = 250, message = "O nome deve ter entre 5 e 250 caracteres.")
     private String name;
 
     @Column(name = "email", unique = true)
@@ -38,7 +38,7 @@ public class UserEntity implements Serializable {
 
     @Column(name = "phone")
     @NotBlank(message = "O telefone não deve estar em branco")
-    @Pattern(regexp = "^[0-9]{8,11}$", message = "O telefone deve conter entre 8 e 11 números.")
+    @Pattern(regexp = "^[0-9]{8,11}$", message = "O telefone deve ter entre 8 e 11 números.")
     private String phone;
 
     @Column(name = "password")

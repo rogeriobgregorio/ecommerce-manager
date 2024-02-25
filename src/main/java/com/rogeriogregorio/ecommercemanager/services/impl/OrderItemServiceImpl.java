@@ -60,7 +60,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     public OrderItemResponse createOrderItem(OrderItemRequest orderItemRequest) {
 
         try {
-            OrderItemEntity orderItemEntity = this.getOrderItemEntity(orderItemRequest);
+            OrderItemEntity orderItemEntity = this.buildOrderItemFromRequest(orderItemRequest);
 
             orderItemRepository.save(orderItemEntity);
             logger.info("Item do pedido criado: {}", orderItemEntity.toString());
@@ -74,9 +74,9 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Transactional(readOnly = true)
-    public OrderItemResponse findOrderItemById(OrderItemRequest orderItemRequest) {
+    public OrderItemResponse findOrderItemById(Long orderId, Long itemId) {
 
-        OrderItemPK id = this.getOrderItemPK(orderItemRequest);
+        OrderItemPK id = this.buildOrderItemPK(orderId, itemId);
 
         return orderItemRepository
                 .findById(id)
@@ -90,7 +90,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = false)
     public OrderItemResponse updateOrderItem(OrderItemRequest orderItemRequest) {
 
-        OrderItemPK id = this.getOrderItemPK(orderItemRequest);
+        OrderItemPK id = this.buildOrderItemPK(orderItemRequest.getOrderId(), orderItemRequest.getProductId());
 
         orderItemRepository.findById(id).orElseThrow(() -> {
             logger.warn("Itens do pedido não encontrados com o ID: {}", id);
@@ -98,7 +98,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         });
 
         try {
-            OrderItemEntity orderItemEntity = this.getOrderItemEntity(orderItemRequest);
+            OrderItemEntity orderItemEntity = this.buildOrderItemFromRequest(orderItemRequest);
 
             orderItemRepository.save(orderItemEntity);
             logger.info("Item do pedido atualizado: {}", orderItemEntity.toString());
@@ -112,9 +112,9 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     @Transactional(readOnly = false)
-    public void deleteOrderItem(OrderItemRequest orderItemRequest) {
+    public void deleteOrderItem(Long orderId, Long itemId) {
 
-        OrderItemPK id = this.getOrderItemPK(orderItemRequest);
+        OrderItemPK id = this.buildOrderItemPK(orderId, itemId);
 
         orderItemRepository.findById(id).orElseThrow(() -> {
             logger.warn("Itens do pedido não encontrados com o ID: {}", id);
@@ -131,10 +131,10 @@ public class OrderItemServiceImpl implements OrderItemService {
         }
     }
 
-    public OrderItemPK getOrderItemPK(OrderItemRequest orderItemRequest) {
+    public OrderItemPK buildOrderItemPK(Long orderId, Long itemId) {
 
-        OrderEntity orderEntity = converter.toEntity(orderService.findOrderById(orderItemRequest.getOrderId()), OrderEntity.class);
-        ProductEntity productEntity = converter.toEntity(productService.findProductById(orderItemRequest.getProductId()), ProductEntity.class);
+        OrderEntity orderEntity = converter.toEntity(orderService.findOrderById(orderId), OrderEntity.class);
+        ProductEntity productEntity = converter.toEntity(productService.findProductById(itemId), ProductEntity.class);
 
         OrderItemPK id = new OrderItemPK();
         id.setOrderEntity(orderEntity);
@@ -143,7 +143,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         return id;
     }
 
-    public OrderItemEntity getOrderItemEntity(OrderItemRequest orderItemRequest) {
+    public OrderItemEntity buildOrderItemFromRequest(OrderItemRequest orderItemRequest) {
 
         OrderEntity orderEntity = converter.toEntity(orderService.findOrderById(orderItemRequest.getOrderId()), OrderEntity.class);
         ProductEntity productEntity = converter.toEntity(productService.findProductById(orderItemRequest.getProductId()), ProductEntity.class);

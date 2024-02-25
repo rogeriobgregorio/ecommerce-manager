@@ -25,8 +25,8 @@ public class CategoryEntity implements Serializable {
 
     @Column(name = "name")
     @NotBlank(message = "O nome não deve estar em branco")
-    @Pattern(regexp = "^[\\p{L}\\s.]{3,250}$", message = "O nome deve ter 3 ou mais letras, e apenas letras e espaços.")
-    @Size(max = 250, message = "O nome deve ter no máximo 250 caracteres.")
+    @Pattern(regexp = "^[\\p{L}\\s.]+$", message = "O nome deve ter apenas letras e espaços.")
+    @Size(min = 5, max = 250, message = "O nome deve ter entre 5 e 250 caracteres.")
     private String name;
 
     @JsonIgnore

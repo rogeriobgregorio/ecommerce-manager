@@ -13,9 +13,9 @@ public interface OrderItemService {
 
     public OrderItemResponse createOrderItem(OrderItemRequest orderItemRequest);
 
-    public OrderItemResponse findOrderItemById(OrderItemRequest orderItemRequest);
+    public OrderItemResponse findOrderItemById(Long orderId, Long productId);
 
     public OrderItemResponse updateOrderItem(OrderItemRequest orderItemRequest);
 
-    public void deleteOrderItem(OrderItemRequest orderItemRequest);
+    public void deleteOrderItem(Long orderId, Long productId);
 }

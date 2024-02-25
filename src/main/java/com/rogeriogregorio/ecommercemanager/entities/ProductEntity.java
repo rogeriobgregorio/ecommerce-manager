@@ -31,7 +31,7 @@ public class ProductEntity implements Serializable {
     private String name;
 
     @Column(name = "description", columnDefinition = "TEXT")
-    @NotBlank(message = "O nome não deve estar em branco")
+    @NotBlank(message = "A descrição não deve estar em branco")
     private String description;
 
     @Column(name = "price")
