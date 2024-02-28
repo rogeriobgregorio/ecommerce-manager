@@ -320,6 +320,7 @@ public class UserServiceImplTest {
         userService.deleteUser(1L);
 
         // Assert
+        verify(userRepository, times(1)).findById(1L);
         verify(userRepository, times(1)).deleteById(1L);
     }
 
@@ -352,7 +353,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    @DisplayName("findUserByName - Busca bem-sucedida pelo nome retorna lista contendo um usuários")
+    @DisplayName("findUserByName - Busca bem-sucedida pelo nome retorna lista contendo um usuário")
     void findUserByName_SuccessfulSearch_ReturnsListResponse_OneUser() {
         // Arrange
         String userName = "João Silva";
@@ -406,8 +407,7 @@ public class UserServiceImplTest {
 
         // Assert
         assertNotNull(actualResponses, "UserResponses should not be null");
-        assertEquals(expectedResponses.size(), actualResponses.size(), "Size of UserResponses should match size of UserEntities");
-        assertEquals(userName, actualResponses.get(0).getName(), "Names should match");
+        assertEquals(expectedResponses, actualResponses, "Size of UserResponses should match size of UserEntities");
 
         verify(userRepository, times(1)).findByName(eq(userName));
         verify(converter, times(10)).toResponse(any(UserEntity.class), eq(UserResponse.class));
@@ -432,6 +432,7 @@ public class UserServiceImplTest {
     void findUserByName_RepositoryExceptionHandling() {
         // Arrange
         String userName = "Erro";
+
         when(userRepository.findByName(userName)).thenThrow(PersistenceException.class);
 
         // Act and Assert
