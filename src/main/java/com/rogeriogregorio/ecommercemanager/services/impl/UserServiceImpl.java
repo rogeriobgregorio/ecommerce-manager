@@ -131,23 +131,15 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public List<UserResponse> findUserByName(String name) {
 
-        List<UserEntity> users;
-
         try {
-            users = userRepository.findByName(name);
+            return userRepository.findByName(name)
+                    .stream()
+                    .map(userEntity -> converter.toResponse(userEntity, UserResponse.class))
+                    .collect(Collectors.toList());
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar usuários: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar buscar usuários: " + exception);
         }
-
-        if (users.isEmpty()) {
-            logger.warn("Nenhum usuário encontrado com o nome: {}", name);
-            throw new NotFoundException("Nenhum usuário com nome " + name + " encontrado.");
-        }
-
-        return users.stream()
-                .map(userEntity -> converter.toResponse(userEntity, UserResponse.class))
-                .collect(Collectors.toList());
     }
 }

@@ -78,27 +78,28 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = false)
     public ProductResponse updateProduct(ProductRequest productRequest) {
 
-        ProductEntity productEntity = converter.toEntity(productRequest, ProductEntity.class);
-
-        productRepository.findById(productEntity.getId()).orElseThrow(() -> {
-            logger.warn("Produto não encontrado com o ID: {}", productEntity.getId());
-            return new NotFoundException("Produto não encontrado com o ID: " + productEntity.getId() + ".");
+        productRepository.findById(productRequest.getId()).orElseThrow(() -> {
+            logger.warn("Produto não encontrado com o ID: {}", productRequest.getId());
+            return new NotFoundException("Produto não encontrado com o ID: " + productRequest.getId() + ".");
         });
 
+        List<CategoryEntity> categoryList = categoryService.findAllCategoryById(productRequest.getCategoryIdList());
+
+        ProductEntity productEntity = converter.toEntity(productRequest, ProductEntity.class);
+        productEntity.getCategories().addAll(categoryList);
+
         try {
-            List<CategoryEntity> categoryList = categoryService.findAllCategoryById(productRequest.getCategoryIdList());
-
-            productEntity.getCategories().addAll(categoryList);
-
             productRepository.save(productEntity);
             logger.info("produto atualizado: {}", productEntity.toString());
+
+            return converter.toResponse(productEntity, ProductResponse.class);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar atualizar o produto: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar atualizar o produto: " + exception);
         }
 
-        return converter.toResponse(productEntity, ProductResponse.class);
+
     }
 
     @Transactional(readOnly = true)
@@ -134,23 +135,16 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public List<ProductResponse> findProductByName(String name) {
 
-        List<ProductEntity> products;
-
         try {
-            products = productRepository.findByName(name);
+            return productRepository
+                    .findByName(name)
+                    .stream()
+                    .map(productEntity -> converter.toResponse(productEntity, ProductResponse.class))
+                    .collect(Collectors.toList());
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar produtos: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar buscar produtos: " + exception);
         }
-
-        if (products.isEmpty()) {
-            logger.warn("Nenhum produto encontrado com o nome: {}", name);
-            throw new NotFoundException("Nenhum produto com nome " + name + " encontrado.");
-        }
-
-        return products.stream()
-                .map(productEntity -> converter.toResponse(productEntity, ProductResponse.class))
-                .collect(Collectors.toList());
     }
 }

@@ -2,6 +2,8 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderItemRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderItemResponse;
+import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
+import com.rogeriogregorio.ecommercemanager.dto.responses.ProductResponse;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import com.rogeriogregorio.ecommercemanager.entities.OrderItemEntity;
 import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
@@ -59,9 +61,9 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = false)
     public OrderItemResponse createOrderItem(OrderItemRequest orderItemRequest) {
 
-        try {
-            OrderItemEntity orderItemEntity = this.buildOrderItemFromRequest(orderItemRequest);
+        OrderItemEntity orderItemEntity = this.buildOrderItemFromRequest(orderItemRequest);
 
+        try {
             orderItemRepository.save(orderItemEntity);
             logger.info("Item do pedido criado: {}", orderItemEntity.toString());
 
@@ -97,9 +99,9 @@ public class OrderItemServiceImpl implements OrderItemService {
             return new NotFoundException("Itens do pedido não encontrados com o ID: " + id + ".");
         });
 
-        try {
-            OrderItemEntity orderItemEntity = this.buildOrderItemFromRequest(orderItemRequest);
+        OrderItemEntity orderItemEntity = this.buildOrderItemFromRequest(orderItemRequest);
 
+        try {
             orderItemRepository.save(orderItemEntity);
             logger.info("Item do pedido atualizado: {}", orderItemEntity.toString());
 
@@ -133,8 +135,11 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     public OrderItemPK buildOrderItemPK(Long orderId, Long itemId) {
 
-        OrderEntity orderEntity = converter.toEntity(orderService.findOrderById(orderId), OrderEntity.class);
-        ProductEntity productEntity = converter.toEntity(productService.findProductById(itemId), ProductEntity.class);
+        OrderResponse orderResponse = orderService.findOrderById(orderId);
+        OrderEntity orderEntity = converter.toEntity(orderResponse, OrderEntity.class);
+
+        ProductResponse productResponse = productService.findProductById(itemId);
+        ProductEntity productEntity = converter.toEntity(productResponse, ProductEntity.class);
 
         OrderItemPK id = new OrderItemPK();
         id.setOrderEntity(orderEntity);
@@ -145,8 +150,11 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     public OrderItemEntity buildOrderItemFromRequest(OrderItemRequest orderItemRequest) {
 
-        OrderEntity orderEntity = converter.toEntity(orderService.findOrderById(orderItemRequest.getOrderId()), OrderEntity.class);
-        ProductEntity productEntity = converter.toEntity(productService.findProductById(orderItemRequest.getProductId()), ProductEntity.class);
+        OrderResponse orderResponse = orderService.findOrderById(orderItemRequest.getOrderId());
+        OrderEntity orderEntity = converter.toEntity(orderResponse, OrderEntity.class);
+
+        ProductResponse productResponse = productService.findProductById(orderItemRequest.getProductId());
+        ProductEntity productEntity = converter.toEntity(productResponse, ProductEntity.class);
 
         return new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
     }

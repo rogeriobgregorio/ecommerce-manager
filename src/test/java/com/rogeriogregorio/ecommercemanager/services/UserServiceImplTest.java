@@ -413,20 +413,6 @@ public class UserServiceImplTest {
         verify(converter, times(10)).toResponse(any(UserEntity.class), eq(UserResponse.class));
     }
 
-
-    @Test
-    @DisplayName("findUserByName - Exceção ao tentar buscar usuário inexistente pelo nome")
-    void findUserByName_NotFoundExceptionHandling() {
-        // Arrange
-        String userName = "Inexistente";
-        when(userRepository.findByName(userName)).thenReturn(Collections.emptyList());
-
-        // Act and Assert
-        assertThrows(NotFoundException.class, () -> userService.findUserByName(userName), "Expected NotFoundException for non-existent user");
-
-        verify(userRepository, times(1)).findByName(userName);
-    }
-
     @Test
     @DisplayName("findUserByName - Exceção no repositório ao tentar buscar usuário pelo nome")
     void findUserByName_RepositoryExceptionHandling() {

@@ -2,8 +2,10 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
+import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
+import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,23 +58,24 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse createOrder(OrderRequest orderRequest) {
 
         orderRequest.setId(null);
+        orderRequest.setMoment(Instant.now());
+
+        UserResponse userResponse = userService.findUserById(orderRequest.getClientId());
+        UserEntity userEntity = converter.toEntity(userResponse, UserEntity.class);
 
         OrderEntity orderEntity = converter.toEntity(orderRequest, OrderEntity.class);
+        orderEntity.setClient(userEntity);
 
         try {
-            UserEntity userEntity = converter.toEntity(userService.findUserById(orderRequest.getClientId()), UserEntity.class);
-
-            orderEntity.setClient(userEntity);
-
             orderRepository.save(orderEntity);
             logger.info("Pedido criado: {}", orderEntity.toString());
+
+            return converter.toResponse(orderEntity, OrderResponse.class);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar criar o pedido: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar criar o pedido: " + exception);
         }
-
-        return converter.toResponse(orderEntity, OrderResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -89,27 +93,23 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public OrderResponse updateOrder(OrderRequest orderRequest) {
 
-        OrderEntity orderEntity = converter.toEntity(orderRequest, OrderEntity.class);
-
-        orderRepository.findById(orderEntity.getId()).orElseThrow(() -> {
-            logger.warn("Pedido não encontrado com o ID: {}", orderEntity.getId());
-            return new NotFoundException("Pedido não encontrado com o ID: " + orderEntity.getId() + ".");
+        orderRepository.findById(orderRequest.getId()).orElseThrow(() -> {
+            logger.warn("Pedido não encontrado com o ID: {}", orderRequest.getId());
+            return new NotFoundException("Pedido não encontrado com o ID: " + orderRequest.getId() + ".");
         });
 
+        OrderEntity orderEntity = converter.toEntity(orderRequest, OrderEntity.class);
+
         try {
-            UserEntity userEntity = converter.toEntity(userService.findUserById(orderRequest.getClientId()), UserEntity.class);
-
-            orderEntity.setClient(userEntity);
-
             orderRepository.save(orderEntity);
             logger.info("Pedido atualizado: {}", orderEntity.toString());
+
+            return converter.toResponse(orderEntity, OrderResponse.class);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar atualizar o pedido: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar atualizar o pedido: " + exception);
         }
-
-        return converter.toResponse(orderEntity, OrderResponse.class);
     }
 
     @Transactional(readOnly = false)

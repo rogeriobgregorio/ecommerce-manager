@@ -58,12 +58,12 @@ public class CategoryServiceImpl implements CategoryService {
             categoryRepository.save(categoryEntity);
             logger.info("Categoria criada: {}", categoryEntity.toString());
 
+            return converter.toResponse(categoryEntity, CategoryResponse.class);
+
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar criar a categoria: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar criar a categoria: " + exception);
         }
-
-        return converter.toResponse(categoryEntity, CategoryResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -94,23 +94,23 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = false)
     public CategoryResponse updateCategory(CategoryRequest categoryRequest) {
 
-        CategoryEntity categoryEntity = converter.toEntity(categoryRequest, CategoryEntity.class);
-
-        categoryRepository.findById(categoryEntity.getId()).orElseThrow(() -> {
-            logger.warn("Categoria não encontrada com o ID: {}", categoryEntity.getId());
-            return new NotFoundException("Categoria não encontrada com o ID: " + categoryEntity.getId() + ".");
+        categoryRepository.findById(categoryRequest.getId()).orElseThrow(() -> {
+            logger.warn("Categoria não encontrada com o ID: {}", categoryRequest.getId());
+            return new NotFoundException("Categoria não encontrada com o ID: " + categoryRequest.getId() + ".");
         });
+
+        CategoryEntity categoryEntity = converter.toEntity(categoryRequest, CategoryEntity.class);
 
         try {
             categoryRepository.save(categoryEntity);
             logger.info("Categoria atualizada: {}", categoryEntity.toString());
 
+            return converter.toResponse(categoryEntity, CategoryResponse.class);
+
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar atualizar a categoria: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar atualizar a categoria: " + exception);
         }
-
-        return converter.toResponse(categoryEntity, CategoryResponse.class);
     }
 
     @Transactional(readOnly = false)

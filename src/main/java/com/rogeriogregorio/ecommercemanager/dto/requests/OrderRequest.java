@@ -19,11 +19,9 @@ public class OrderRequest implements Serializable {
     public OrderRequest() {
     }
 
-    public OrderRequest(Long id, Instant moment, OrderStatus orderStatus, Long clientId) {
+    public OrderRequest(Long id, OrderStatus orderStatus) {
         this.id = id;
-        this.moment = moment;
         setOrderStatus(orderStatus);
-        this.clientId = clientId;
     }
 
     public OrderRequest(Instant moment, OrderStatus orderStatus, Long clientId) {

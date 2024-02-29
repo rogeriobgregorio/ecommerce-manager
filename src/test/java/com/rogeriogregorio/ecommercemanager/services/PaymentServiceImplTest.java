@@ -145,6 +145,6 @@ public class PaymentServiceImplTest {
     @Test
     @DisplayName("createPayment - Criação bem-sucedida retorna pagamento criado")
     void createPayment_SuccessfulCreation_ReturnsPaymentResponse() {
-        
+
     }
 }

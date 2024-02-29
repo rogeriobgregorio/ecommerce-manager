@@ -281,14 +281,12 @@ public class ProductServiceImplTest {
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
         productEntity.getCategories().addAll(categoryEntityList);
 
-        when(converter.toEntity(productRequest, ProductEntity.class)).thenReturn(productEntity);
-        when(productRepository.findById(productEntity.getId())).thenReturn(Optional.empty());
+        when(productRepository.findById(productRequest.getId())).thenReturn(Optional.empty());
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> productService.updateProduct(productRequest));
 
-        verify(converter, times(1)).toEntity(productRequest, ProductEntity.class);
-        verify(productRepository, times(1)).findById(productEntity.getId());
+        verify(productRepository, times(1)).findById(productRequest.getId());
     }
 
     @Test
@@ -418,20 +416,6 @@ public class ProductServiceImplTest {
 
         verify(productRepository, times(1)).findByName(eq(productName));
         verify(converter, times(10)).toResponse(any(ProductEntity.class), eq(ProductResponse.class));
-    }
-
-    @Test
-    @DisplayName("findProductByName - Exceção ao tentar buscar produto inexistente pelo nome")
-    void findProductByName_NotFoundExceptionHandling() {
-        // Arrange
-        String productName = "Inexistente";
-
-        when(productRepository.findByName(productName)).thenReturn(Collections.emptyList());
-
-        // Act and Assert
-        assertThrows(NotFoundException.class, () -> productService.findProductByName("Inexistente"), "Expected NotFoundException for non-existent product");
-
-        verify(productRepository, times(1)).findByName("Inexistente");
     }
 
     @Test
