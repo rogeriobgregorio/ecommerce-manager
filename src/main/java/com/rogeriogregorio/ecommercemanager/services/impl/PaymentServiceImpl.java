@@ -60,23 +60,22 @@ public class PaymentServiceImpl implements PaymentService {
         PaymentEntity paymentEntity = converter.toEntity(paymentRequest, PaymentEntity.class);
 
         try {
-            OrderEntity orderEntity = converter.toEntity(orderRepository.findById(paymentRequest.getOrderId()), OrderEntity.class);
+            OrderEntity orderEntity = orderRepository.findById(paymentRequest.getOrderId())
+                    .orElseThrow(() -> {
+                        logger.warn("Pagamento não encontrado com o ID: {}", paymentRequest.getOrderId());
+                        return new NotFoundException("Pagamento não encontrado com o ID: " + paymentRequest.getOrderId() + ".");
+                    });
 
             paymentEntity.setOrderEntity(orderEntity);
-
             orderEntity.setPaymentEntity(paymentEntity);
-            orderRepository.save(orderEntity);
 
+            orderRepository.save(orderEntity);
             paymentRepository.save(paymentEntity);
             logger.info("Pagamento criado: {}", paymentEntity.toString());
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar criar o pagamento: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar criar o pagamento: " + exception);
-
-        } catch (NullPointerException exception) {
-            logger.error("Erro ao tentar criar o pagamento: {}", exception.getMessage(), exception);
-            throw new NotFoundException("Erro ao tentar criar o pagamento: " + exception);
         }
 
         return converter.toResponse(paymentEntity, PaymentResponse.class);
@@ -105,19 +104,22 @@ public class PaymentServiceImpl implements PaymentService {
         });
 
         try {
-            OrderEntity orderEntity = converter.toEntity(orderRepository.findById(paymentRequest.getOrderId()), OrderEntity.class);
+            OrderEntity orderEntity = orderRepository.findById(paymentRequest.getOrderId())
+                    .orElseThrow(() -> {
+                        logger.warn("Pagamento não encontrado com o ID: {}", paymentRequest.getOrderId());
+                        return new NotFoundException("Pagamento não encontrado com o ID: " + paymentRequest.getOrderId() + ".");
+                    });
 
             paymentEntity.setOrderEntity(orderEntity);
-
             orderEntity.setPaymentEntity(paymentEntity);
-            orderRepository.save(orderEntity);
 
+            orderRepository.save(orderEntity);
             paymentRepository.save(paymentEntity);
-            logger.info("Pagamento atualizado: {}", paymentEntity.toString());
+            logger.info("Pagamento criado: {}", paymentEntity.toString());
 
         } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar atualizar o pagamento: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar atualizar o pagamento: " + exception);
+            logger.error("Erro ao tentar criar o pagamento: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar criar o pagamento: " + exception);
         }
 
         return converter.toResponse(paymentEntity, PaymentResponse.class);
