@@ -58,10 +58,10 @@ public class OrderServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
 
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
         List<OrderEntity> orderEntityList = Collections.singletonList(orderEntity);
 
-        OrderResponse orderResponse = new OrderResponse(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+        OrderResponse orderResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, userEntity);
         List<OrderResponse> expectedResponses = Collections.singletonList(orderResponse);
 
         when(converter.toResponse(orderEntity, OrderResponse.class)).thenReturn(orderResponse);
@@ -88,10 +88,10 @@ public class OrderServiceImplTest {
         List<OrderResponse> expectedResponses = new ArrayList<>();
 
         for (int i = 1; i <= 10; i++) {
-            OrderEntity orderEntity = new OrderEntity((long) i, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+            OrderEntity orderEntity = new OrderEntity((long) i, Instant.now(), OrderStatus.PAID, userEntity);
             orderEntityList.add(orderEntity);
 
-            OrderResponse orderResponse = new OrderResponse((long) i, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+            OrderResponse orderResponse = new OrderResponse((long) i, Instant.now(), OrderStatus.PAID, userEntity);
             expectedResponses.add(orderResponse);
 
             when(converter.toResponse(orderEntity, OrderResponse.class)).thenReturn(orderResponse);
@@ -147,9 +147,9 @@ public class OrderServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
         UserResponse userResponse = new UserResponse(1L, "Maria Brown", "maria@gmail.com", "988888888");
 
-        OrderRequest orderRequest = new OrderRequest(Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, 1L);
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
-        OrderResponse expectedResponse = new OrderResponse(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+        OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID);
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
+        OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, userEntity);
 
         when(userService.findUserById(orderRequest.getClientId())).thenReturn(userResponse);
         when(converter.toEntity(userResponse, UserEntity.class)).thenReturn(userEntity);
@@ -178,8 +178,8 @@ public class OrderServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
         UserResponse userResponse = new UserResponse(1L, "Maria Brown", "maria@gmail.com", "988888888");
 
-        OrderRequest orderRequest = new OrderRequest(Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, 1L);
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+        OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID);
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
 
         when(userService.findUserById(orderRequest.getClientId())).thenReturn(userResponse);
         when(converter.toEntity(userResponse, UserEntity.class)).thenReturn(userEntity);
@@ -199,8 +199,8 @@ public class OrderServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
 
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
-        OrderResponse expectedResponse = new OrderResponse(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
+        OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, userEntity);
 
         when(converter.toResponse(orderEntity, OrderResponse.class)).thenReturn(expectedResponse);
         when(orderRepository.findById(1L)).thenReturn(Optional.of(orderEntity));
@@ -235,9 +235,9 @@ public class OrderServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
         UserResponse userResponse = new UserResponse(1L, "Maria Brown", "maria@gmail.com", "988888888");
 
-        OrderRequest orderRequest = new OrderRequest(Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, 1L);
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
-        OrderResponse expectedResponse = new OrderResponse(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+        OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID);
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
+        OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, userEntity);
 
         when(converter.toEntity(orderRequest, OrderEntity.class)).thenReturn(orderEntity);
         when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
@@ -270,8 +270,8 @@ public class OrderServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
 
-        OrderRequest orderRequest = new OrderRequest(Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, 1L);
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+        OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID);
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
 
         when(converter.toEntity(orderRequest, OrderEntity.class)).thenReturn(orderEntity);
         when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.empty());
@@ -290,8 +290,8 @@ public class OrderServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
         UserResponse userResponse = new UserResponse(1L, "Maria Brown", "maria@gmail.com", "988888888");
 
-        OrderRequest orderRequest = new OrderRequest(Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, 1L);
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+        OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID);
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
 
         when(converter.toEntity(orderRequest, OrderEntity.class)).thenReturn(orderEntity);
         when(orderRepository.findById(orderEntity.getId())).thenReturn(Optional.of(orderEntity));
@@ -315,7 +315,7 @@ public class OrderServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
 
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(orderEntity));
 
@@ -344,7 +344,7 @@ public class OrderServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
 
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(orderEntity));
         doThrow(PersistenceException.class).when(orderRepository).deleteById(1L);
@@ -362,10 +362,10 @@ public class OrderServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
 
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
         List<OrderEntity> orderEntityList = Collections.singletonList(orderEntity);
 
-        OrderResponse orderResponse = new OrderResponse(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+        OrderResponse orderResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, userEntity);
         List<OrderResponse> expectedResponses = Collections.singletonList(orderResponse);
 
         when(converter.toResponse(orderEntity, OrderResponse.class)).thenReturn(orderResponse);
@@ -391,10 +391,10 @@ public class OrderServiceImplTest {
         List<OrderEntity> orderEntityList = new ArrayList<>();
         List<OrderResponse> expectedResponses = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
-            OrderEntity orderEntity = new OrderEntity((long) i, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+            OrderEntity orderEntity = new OrderEntity((long) i, Instant.now(), OrderStatus.PAID, userEntity);
             orderEntityList.add(orderEntity);
 
-            OrderResponse orderResponse = new OrderResponse((long) i, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+            OrderResponse orderResponse = new OrderResponse((long) i, Instant.now(), OrderStatus.PAID, userEntity);
             expectedResponses.add(orderResponse);
 
             when(converter.toResponse(orderEntity, OrderResponse.class)).thenReturn(orderResponse);

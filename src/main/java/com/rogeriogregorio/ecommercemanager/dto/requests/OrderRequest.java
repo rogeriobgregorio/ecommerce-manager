@@ -1,5 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.dto.requests;
 
+import com.rogeriogregorio.ecommercemanager.entities.PaymentEntity;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 
 import java.io.Serial;
@@ -15,6 +16,7 @@ public class OrderRequest implements Serializable {
     private Instant moment;
     private Integer orderStatus;
     private Long clientId;
+    private PaymentEntity paymentEntity;
 
     public OrderRequest() {
     }
@@ -23,9 +25,10 @@ public class OrderRequest implements Serializable {
         this.clientId = clientId;
     }
 
-    public OrderRequest(Long id, OrderStatus orderStatus) {
+    public OrderRequest(Long id, OrderStatus orderStatus, PaymentEntity paymentEntity) {
         this.id = id;
         setOrderStatus(orderStatus);
+        this.paymentEntity = paymentEntity;
     }
 
     public Long getId() {
@@ -63,5 +66,13 @@ public class OrderRequest implements Serializable {
 
     public void setClientId(Long clientId) {
         this.clientId = clientId;
+    }
+
+    public PaymentEntity getPaymentEntity() {
+        return paymentEntity;
+    }
+
+    public void setPaymentEntity(PaymentEntity paymentEntity) {
+        this.paymentEntity = paymentEntity;
     }
 }

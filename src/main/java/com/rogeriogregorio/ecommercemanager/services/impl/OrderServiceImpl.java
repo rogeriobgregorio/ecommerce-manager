@@ -73,12 +73,37 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    @Transactional(readOnly = false)
+    public OrderEntity saveOrderEntity(OrderEntity orderEntity) {
+
+        try {
+            orderRepository.save(orderEntity);
+            logger.info("Pedido criado: {}", orderEntity.toString());
+            return orderEntity;
+
+        } catch (PersistenceException exception) {
+            logger.error("Erro ao tentar criar o pedido: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar criar o pedido: " + exception);
+        }
+    }
+
     @Transactional(readOnly = true)
     public OrderResponse findOrderById(Long id) {
 
         return orderRepository
                 .findById(id)
                 .map(orderEntity -> converter.toResponse(orderEntity, OrderResponse.class))
+                .orElseThrow(() -> {
+                    logger.warn("Pedido não encontrado com o ID: {}", id);
+                    return new NotFoundException("Pedido não encontrado com o ID: " + id + ".");
+                });
+    }
+
+    @Transactional(readOnly = true)
+    public OrderEntity findOrderEntityById(Long id) {
+
+        return orderRepository
+                .findById(id)
                 .orElseThrow(() -> {
                     logger.warn("Pedido não encontrado com o ID: {}", id);
                     return new NotFoundException("Pedido não encontrado com o ID: " + id + ".");

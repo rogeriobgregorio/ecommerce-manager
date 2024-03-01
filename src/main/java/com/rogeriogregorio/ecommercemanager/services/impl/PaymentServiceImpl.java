@@ -63,11 +63,7 @@ public class PaymentServiceImpl implements PaymentService {
             return converter.toResponse(paymentRequest, PaymentResponse.class);
         }
 
-        OrderRequest orderRequest = new OrderRequest(paymentRequest.getOrderId(), OrderStatus.PAID);
-        OrderResponse orderResponse = orderService.updateOrder(orderRequest);
-        OrderEntity orderEntity = converter.toEntity(orderResponse, OrderEntity.class);
-
-        PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
+        PaymentEntity paymentEntity = sendPayment(paymentRequest);
 
         try {
             paymentRepository.save(paymentEntity);
@@ -111,13 +107,26 @@ public class PaymentServiceImpl implements PaymentService {
     public Boolean isOrderPaid(PaymentRequest paymentRequest) {
 
         try {
-            OrderResponse order = orderService.findOrderById(paymentRequest.getOrderId());
+            OrderEntity order = orderService.findOrderEntityById(paymentRequest.getOrderId());
             return order.getOrderStatus() == OrderStatus.PAID;
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar verificar o status do pagamento: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar verificar o status do pagamento: " + exception);
         }
+    }
+
+    @Transactional(readOnly = false)
+    public PaymentEntity sendPayment(PaymentRequest paymentRequest) {
+        OrderEntity orderEntity = orderService.findOrderEntityById(paymentRequest.getOrderId());
+
+        PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
+
+        orderEntity.setPaymentEntity(paymentEntity);
+        orderEntity.setOrderStatus(OrderStatus.PAID);
+        orderService.saveOrderEntity(orderEntity);
+
+        return paymentEntity;
     }
 }
 

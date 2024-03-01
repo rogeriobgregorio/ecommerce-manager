@@ -2,6 +2,7 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
+import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -13,7 +14,11 @@ public interface OrderService {
 
     public OrderResponse createOrder(OrderRequest orderRequest);
 
+    public OrderEntity saveOrderEntity(OrderEntity orderEntity);
+
     public OrderResponse findOrderById(Long id);
+
+    public OrderEntity findOrderEntityById(Long id);
 
     public OrderResponse updateOrder(OrderRequest orderRequest);
 

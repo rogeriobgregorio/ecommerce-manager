@@ -232,8 +232,10 @@ public class UserServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         UserResponse expectedResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
 
+        when(userService.findUserById(userRequest.getId())).thenReturn(expectedResponse);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
+        when(converter.toResponse(userEntity, UserResponse.class)).thenReturn(expectedResponse);
         when(converter.toEntity(userRequest, UserEntity.class)).thenReturn(userEntity);
-        when(userRepository.findById(userEntity.getId())).thenReturn(Optional.of(userEntity));
         when(userRepository.save(userEntity)).thenReturn(userEntity);
         when(converter.toResponse(userEntity, UserResponse.class)).thenReturn(expectedResponse);
 
@@ -242,13 +244,10 @@ public class UserServiceImplTest {
 
         // Assert
         assertNotNull(actualResponse, "UserResponse should not be null");
-        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
-        assertEquals(userRequest.getName(), actualResponse.getName(), "Names should match");
-        assertEquals(userRequest.getEmail(), actualResponse.getEmail(), "Emails should match");
-        assertEquals(userRequest.getPhone(), actualResponse.getPhone(), "Phones should match");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual should match");
 
         verify(converter, times(1)).toEntity(userRequest, UserEntity.class);
-        verify(userRepository, times(1)).findById(userEntity.getId());
+        verify(userService, times(1)).findUserById(userRequest.getId());
         verify(userRepository, times(1)).save(userEntity);
         verify(converter, times(1)).toResponse(userEntity, UserResponse.class);
     }
