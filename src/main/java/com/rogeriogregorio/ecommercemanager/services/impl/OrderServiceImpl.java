@@ -57,19 +57,14 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public OrderResponse createOrder(OrderRequest orderRequest) {
 
-        orderRequest.setId(null);
-        orderRequest.setMoment(Instant.now());
-
         UserResponse userResponse = userService.findUserById(orderRequest.getClientId());
         UserEntity userEntity = converter.toEntity(userResponse, UserEntity.class);
 
-        OrderEntity orderEntity = converter.toEntity(orderRequest, OrderEntity.class);
-        orderEntity.setClient(userEntity);
+        OrderEntity orderEntity = new OrderEntity(Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
 
         try {
             orderRepository.save(orderEntity);
             logger.info("Pedido criado: {}", orderEntity.toString());
-
             return converter.toResponse(orderEntity, OrderResponse.class);
 
         } catch (PersistenceException exception) {
@@ -93,17 +88,13 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public OrderResponse updateOrder(OrderRequest orderRequest) {
 
-        orderRepository.findById(orderRequest.getId()).orElseThrow(() -> {
-            logger.warn("Pedido não encontrado com o ID: {}", orderRequest.getId());
-            return new NotFoundException("Pedido não encontrado com o ID: " + orderRequest.getId() + ".");
-        });
+        findOrderById(orderRequest.getId());
 
         OrderEntity orderEntity = converter.toEntity(orderRequest, OrderEntity.class);
 
         try {
             orderRepository.save(orderEntity);
             logger.info("Pedido atualizado: {}", orderEntity.toString());
-
             return converter.toResponse(orderEntity, OrderResponse.class);
 
         } catch (PersistenceException exception) {
@@ -115,10 +106,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public void deleteOrder(Long id) {
 
-        orderRepository.findById(id).orElseThrow(() -> {
-            logger.warn("Pedido não encontrado com o ID: {}", id);
-            return new NotFoundException("Pedido não encontrado com o ID: " + id + ".");
-        });
+        findOrderById(id);
 
         try {
             orderRepository.deleteById(id);

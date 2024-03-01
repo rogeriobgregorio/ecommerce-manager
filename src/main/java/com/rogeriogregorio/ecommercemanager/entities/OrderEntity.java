@@ -37,7 +37,6 @@ public class OrderEntity implements Serializable {
     @NotNull(message = "O cliente não pode ser nulo")
     private UserEntity client;
 
-
     @OneToMany(mappedBy = "id.orderEntity")
     private Set<OrderItemEntity> items = new HashSet<>();
 

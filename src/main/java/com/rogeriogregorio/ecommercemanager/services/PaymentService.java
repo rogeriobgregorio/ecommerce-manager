@@ -15,7 +15,5 @@ public interface PaymentService {
 
     public PaymentResponse findPaymentById(Long id);
 
-    public PaymentResponse updatePayment(PaymentRequest paymentRequest);
-
     public void deletePayment(Long id);
 }

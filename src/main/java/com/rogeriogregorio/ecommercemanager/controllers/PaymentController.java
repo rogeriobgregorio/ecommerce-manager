@@ -46,14 +46,6 @@ public class PaymentController {
                 .body(paymentService.findPaymentById(id));
     }
 
-    @PutMapping(value = "/payments")
-    public ResponseEntity<PaymentResponse> updatePayment(@Valid @RequestBody PaymentRequest paymentRequest) {
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(paymentService.updatePayment(paymentRequest));
-    }
-
     @DeleteMapping(value = "/payments/{id}")
     public ResponseEntity<Void> deletePayment(@PathVariable Long id) {
 

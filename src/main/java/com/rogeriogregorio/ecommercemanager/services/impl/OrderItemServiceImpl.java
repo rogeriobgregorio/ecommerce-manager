@@ -61,12 +61,11 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = false)
     public OrderItemResponse createOrderItem(OrderItemRequest orderItemRequest) {
 
-        OrderItemEntity orderItemEntity = this.buildOrderItemFromRequest(orderItemRequest);
+        OrderItemEntity orderItemEntity = buildOrderItemFromRequest(orderItemRequest);
 
         try {
             orderItemRepository.save(orderItemEntity);
             logger.info("Item do pedido criado: {}", orderItemEntity.toString());
-
             return converter.toResponse(orderItemEntity, OrderItemResponse.class);
 
         } catch (PersistenceException exception) {
@@ -78,7 +77,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = true)
     public OrderItemResponse findOrderItemById(Long orderId, Long itemId) {
 
-        OrderItemPK id = this.buildOrderItemPK(orderId, itemId);
+        OrderItemPK id = buildOrderItemPK(orderId, itemId);
 
         return orderItemRepository
                 .findById(id)
@@ -92,19 +91,13 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = false)
     public OrderItemResponse updateOrderItem(OrderItemRequest orderItemRequest) {
 
-        OrderItemPK id = this.buildOrderItemPK(orderItemRequest.getOrderId(), orderItemRequest.getProductId());
+        findOrderItemById(orderItemRequest.getOrderId(), orderItemRequest.getProductId());
 
-        orderItemRepository.findById(id).orElseThrow(() -> {
-            logger.warn("Itens do pedido não encontrados com o ID: {}", id);
-            return new NotFoundException("Itens do pedido não encontrados com o ID: " + id + ".");
-        });
-
-        OrderItemEntity orderItemEntity = this.buildOrderItemFromRequest(orderItemRequest);
+        OrderItemEntity orderItemEntity = buildOrderItemFromRequest(orderItemRequest);
 
         try {
             orderItemRepository.save(orderItemEntity);
             logger.info("Item do pedido atualizado: {}", orderItemEntity.toString());
-
             return converter.toResponse(orderItemEntity, OrderItemResponse.class);
 
         } catch (PersistenceException exception) {
@@ -116,12 +109,9 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = false)
     public void deleteOrderItem(Long orderId, Long itemId) {
 
-        OrderItemPK id = this.buildOrderItemPK(orderId, itemId);
+        findOrderItemById(orderId, itemId);
 
-        orderItemRepository.findById(id).orElseThrow(() -> {
-            logger.warn("Itens do pedido não encontrados com o ID: {}", id);
-            return new NotFoundException("Itens do pedido não encontrados com o ID: " + id + ".");
-        });
+        OrderItemPK id = buildOrderItemPK(orderId, itemId);
 
         try {
             orderItemRepository.deleteById(id);

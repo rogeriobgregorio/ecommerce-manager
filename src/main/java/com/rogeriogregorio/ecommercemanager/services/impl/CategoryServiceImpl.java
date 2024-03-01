@@ -50,6 +50,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = false)
     public CategoryResponse createCategory(CategoryRequest categoryRequest) {
 
+        if (isExists(categoryRequest)) {
+            logger.info("A categoria já existe: {}", categoryRequest.toString());
+            return converter.toResponse(categoryRequest, CategoryResponse.class);
+        }
+
         categoryRequest.setId(null);
 
         CategoryEntity categoryEntity = converter.toEntity(categoryRequest, CategoryEntity.class);
@@ -57,7 +62,6 @@ public class CategoryServiceImpl implements CategoryService {
         try {
             categoryRepository.save(categoryEntity);
             logger.info("Categoria criada: {}", categoryEntity.toString());
-
             return converter.toResponse(categoryEntity, CategoryResponse.class);
 
         } catch (PersistenceException exception) {
@@ -94,17 +98,13 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = false)
     public CategoryResponse updateCategory(CategoryRequest categoryRequest) {
 
-        categoryRepository.findById(categoryRequest.getId()).orElseThrow(() -> {
-            logger.warn("Categoria não encontrada com o ID: {}", categoryRequest.getId());
-            return new NotFoundException("Categoria não encontrada com o ID: " + categoryRequest.getId() + ".");
-        });
+        findCategoryById(categoryRequest.getId());
 
         CategoryEntity categoryEntity = converter.toEntity(categoryRequest, CategoryEntity.class);
 
         try {
             categoryRepository.save(categoryEntity);
             logger.info("Categoria atualizada: {}", categoryEntity.toString());
-
             return converter.toResponse(categoryEntity, CategoryResponse.class);
 
         } catch (PersistenceException exception) {
@@ -116,10 +116,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = false)
     public void deleteCategory(Long id) {
 
-        categoryRepository.findById(id).orElseThrow(() -> {
-            logger.warn("Categoria não encontrada com o ID: {}", id);
-            return new NotFoundException("Categoria não encontrada com o ID: " + id + ".");
-        });
+        findCategoryById(id);
 
         try {
             categoryRepository.deleteById(id);
@@ -128,6 +125,34 @@ public class CategoryServiceImpl implements CategoryService {
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir a categoria: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar excluir a categoria: " + exception);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<CategoryResponse> findCategoryByName(String name) {
+
+        try {
+            return categoryRepository
+                    .findCategoryByName(name)
+                    .stream()
+                    .map(categoryEntity -> converter.toResponse(categoryEntity, CategoryResponse.class))
+                    .collect(Collectors.toList());
+
+        } catch (PersistenceException exception) {
+            logger.error("Erro ao tentar buscar categorias: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar buscar categorias: " + exception);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public Boolean isExists(CategoryRequest categoryRequest) {
+
+        try {
+            return categoryRepository.findByName(categoryRequest.getName()) != null;
+
+        } catch (PersistenceException exception) {
+            logger.error("Erro ao tentar verificar existência da categoria: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar verificar existência da categoria: " + exception);
         }
     }
 }

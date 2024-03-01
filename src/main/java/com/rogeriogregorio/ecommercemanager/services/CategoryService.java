@@ -21,4 +21,6 @@ public interface CategoryService {
     public CategoryResponse updateCategory(CategoryRequest categoryRequest);
 
     public void deleteCategory(Long id);
+
+    public List<CategoryResponse> findCategoryByName(String name);
 }

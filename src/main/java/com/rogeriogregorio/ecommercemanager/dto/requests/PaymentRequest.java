@@ -16,14 +16,7 @@ public class PaymentRequest implements Serializable {
     public PaymentRequest() {
     }
 
-    public PaymentRequest(Instant moment, Long orderId) {
-        this.moment = moment;
-        this.orderId = orderId;
-    }
-
-    public PaymentRequest(Long id, Instant moment, Long orderId) {
-        this.id = id;
-        this.moment = moment;
+    public PaymentRequest(Long orderId) {
         this.orderId = orderId;
     }
 

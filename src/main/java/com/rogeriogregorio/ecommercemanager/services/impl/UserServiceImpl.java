@@ -71,6 +71,7 @@ public class UserServiceImpl implements UserService {
         try {
             userRepository.save(userEntity);
             logger.info("Usuário criado: {}", userEntity.toString());
+            return converter.toResponse(userEntity, UserResponse.class);
 
         } catch (DataIntegrityViolationException exception) {
             logger.error("Erro ao tentar criar o usuário: E-mail já cadastrado.", exception);
@@ -80,23 +81,19 @@ public class UserServiceImpl implements UserService {
             logger.error("Erro ao tentar criar o usuário: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar criar o usuário: " + exception);
         }
-
-        return converter.toResponse(userEntity, UserResponse.class);
     }
 
     @Transactional(readOnly = false)
     public UserResponse updateUser(UserRequest userRequest) {
 
-        UserEntity userEntity = converter.toEntity(userRequest, UserEntity.class);
+        findUserById(userRequest.getId());
 
-        userRepository.findById(userEntity.getId()).orElseThrow(() -> {
-            logger.warn("Usuário não encontrado com o ID: {}", userEntity.getId());
-            return new NotFoundException("Usuário não encontrado com o ID: " + userEntity.getId() + ".");
-        });
+        UserEntity userEntity = converter.toEntity(userRequest, UserEntity.class);
 
         try {
             userRepository.save(userEntity);
             logger.info("Usuário atualizado: {}", userEntity.toString());
+            return converter.toResponse(userEntity, UserResponse.class);
 
         } catch (DataIntegrityViolationException exception) {
             logger.error("Erro ao tentar atualizar usuário: E-mail já cadastrado.", exception);
@@ -106,17 +103,12 @@ public class UserServiceImpl implements UserService {
             logger.error("Erro ao tentar atualizar o usuário: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar atualizar o usuário: " + exception);
         }
-
-        return converter.toResponse(userEntity, UserResponse.class);
     }
 
     @Transactional(readOnly = false)
     public void deleteUser(Long id) {
 
-        userRepository.findById(id).orElseThrow(() -> {
-            logger.warn("Usuário não encontrado com o ID: {}", id);
-            return new NotFoundException("Usuário não encontrado com o ID: " + id + ".");
-        });
+        findUserById(id);
 
         try {
             userRepository.deleteById(id);

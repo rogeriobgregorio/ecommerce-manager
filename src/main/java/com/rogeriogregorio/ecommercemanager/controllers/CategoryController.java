@@ -2,6 +2,7 @@ package com.rogeriogregorio.ecommercemanager.controllers;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.CategoryRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.CategoryResponse;
+import com.rogeriogregorio.ecommercemanager.dto.responses.ProductResponse;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,5 +63,13 @@ public class CategoryController {
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .build();
+    }
+
+    @GetMapping(value = "/categories/search")
+    public ResponseEntity<List<CategoryResponse>> getCategoryByName(@RequestParam("name") String name) {
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(categoryService.findCategoryByName(name));
     }
 }
