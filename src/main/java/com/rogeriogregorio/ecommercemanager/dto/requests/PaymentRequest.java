@@ -43,4 +43,9 @@ public class PaymentRequest implements Serializable {
     public void setOrderId(Long orderId) {
         this.orderId = orderId;
     }
+
+    @Override
+    public String toString() {
+        return "[Pagamento: id= " + id + ", moment= " + moment + ", orderId= " + orderId + "]";
+    }
 }

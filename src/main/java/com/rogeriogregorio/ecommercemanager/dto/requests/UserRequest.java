@@ -71,4 +71,10 @@ public class UserRequest implements Serializable {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    @Override
+    public String toString() {
+        return "[Usuário: id= " + id + ", name= " + name + ", email= " + email
+                + ", phone= " + phone + ", password= " + password + "]";
+    }
 }

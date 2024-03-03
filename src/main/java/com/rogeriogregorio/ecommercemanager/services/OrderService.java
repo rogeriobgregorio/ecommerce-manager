@@ -1,6 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
+import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ public interface OrderService {
 
     public OrderResponse createOrder(OrderRequest orderRequest);
 
-    public OrderEntity saveOrderEntity(OrderEntity orderEntity);
+    public OrderEntity savePaidOrder(OrderEntity orderEntity);
 
     public OrderResponse findOrderById(Long id);
 
@@ -25,4 +26,6 @@ public interface OrderService {
     public void deleteOrder(Long id);
 
     public List<OrderResponse> findOrderByClientId(Long id);
+
+    public Boolean isOrderPaid(PaymentRequest paymentRequest);
 }

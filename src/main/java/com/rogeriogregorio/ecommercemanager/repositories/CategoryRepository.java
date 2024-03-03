@@ -13,5 +13,6 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> 
     @Query("SELECT c FROM CategoryEntity c WHERE lower(c.name) LIKE lower(concat('%', :name, '%'))")
     List<CategoryEntity> findCategoryByName(String name);
 
-    CategoryEntity findByName(String name);
+    @Query("SELECT c FROM CategoryEntity c WHERE lower(c.name) LIKE lower(concat('%', :name, '%'))")
+    CategoryEntity existsByName(String name);
 }

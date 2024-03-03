@@ -84,6 +84,6 @@ public class PaymentEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "[id= " + id + ", moment= " + moment + ", orderEntity= " + orderEntity +"]";
+        return "[Pagamento: id= " + id + ", moment= " + moment + ", orderEntity= " + orderEntity +"]";
     }
 }

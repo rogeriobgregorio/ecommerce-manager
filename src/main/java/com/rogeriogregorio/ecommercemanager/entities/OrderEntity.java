@@ -131,6 +131,6 @@ public class OrderEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "[id= " + id + ", moment= " + moment + ", orderStatus= " + orderStatus + ", client= " + client + "]";
+        return "[Pedido: id= " + id + ", moment= " + moment + ", orderStatus= " + orderStatus + ", client= " + client + "]";
     }
 }

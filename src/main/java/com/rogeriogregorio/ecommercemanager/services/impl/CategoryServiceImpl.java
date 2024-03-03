@@ -5,6 +5,7 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.CategoryResponse;
 import com.rogeriogregorio.ecommercemanager.entities.CategoryEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
+import com.rogeriogregorio.ecommercemanager.exceptions.ResourceAlreadyExistsException;
 import com.rogeriogregorio.ecommercemanager.repositories.CategoryRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -51,8 +52,8 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse createCategory(CategoryRequest categoryRequest) {
 
         if (isExists(categoryRequest)) {
-            logger.info("A categoria já existe: {}", categoryRequest.toString());
-            return converter.toResponse(categoryRequest, CategoryResponse.class);
+            logger.info("A categoria já existente: {}", categoryRequest.toString());
+            throw new ResourceAlreadyExistsException("A categoria que você está tentando criar já existe: " + categoryRequest.toString());
         }
 
         categoryRequest.setId(null);
@@ -148,7 +149,7 @@ public class CategoryServiceImpl implements CategoryService {
     public Boolean isExists(CategoryRequest categoryRequest) {
 
         try {
-            return categoryRepository.findByName(categoryRequest.getName()) != null;
+            return categoryRepository.existsByName(categoryRequest.getName()) != null;
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar verificar existência da categoria: {}", exception.getMessage(), exception);

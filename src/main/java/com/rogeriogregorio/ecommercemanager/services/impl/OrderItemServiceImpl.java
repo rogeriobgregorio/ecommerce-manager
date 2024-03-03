@@ -125,11 +125,8 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     public OrderItemPK buildOrderItemPK(Long orderId, Long itemId) {
 
-        OrderResponse orderResponse = orderService.findOrderById(orderId);
-        OrderEntity orderEntity = converter.toEntity(orderResponse, OrderEntity.class);
-
-        ProductResponse productResponse = productService.findProductById(itemId);
-        ProductEntity productEntity = converter.toEntity(productResponse, ProductEntity.class);
+        OrderEntity orderEntity = orderService.findOrderEntityById(orderId);
+        ProductEntity productEntity = productService.findProductEntityById(itemId);
 
         OrderItemPK id = new OrderItemPK();
         id.setOrderEntity(orderEntity);
@@ -140,11 +137,8 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     public OrderItemEntity buildOrderItemFromRequest(OrderItemRequest orderItemRequest) {
 
-        OrderResponse orderResponse = orderService.findOrderById(orderItemRequest.getOrderId());
-        OrderEntity orderEntity = converter.toEntity(orderResponse, OrderEntity.class);
-
-        ProductResponse productResponse = productService.findProductById(orderItemRequest.getProductId());
-        ProductEntity productEntity = converter.toEntity(productResponse, ProductEntity.class);
+        OrderEntity orderEntity = orderService.findOrderEntityById(orderItemRequest.getOrderId());
+        ProductEntity productEntity = productService.findProductEntityById(orderItemRequest.getProductId());
 
         return new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
     }

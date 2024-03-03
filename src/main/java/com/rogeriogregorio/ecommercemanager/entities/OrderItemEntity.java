@@ -90,6 +90,6 @@ public class OrderItemEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "[id= " + id + ", quantity= " + quantity +", price= " + price +"]";
+        return "[Item do pedido: id= " + id + ", quantity= " + quantity +", price= " + price +"]";
     }
 }

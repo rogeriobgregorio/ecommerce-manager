@@ -9,6 +9,7 @@ import com.rogeriogregorio.ecommercemanager.entities.PaymentEntity;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
+import com.rogeriogregorio.ecommercemanager.exceptions.ResourceAlreadyExistsException;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.services.PaymentService;
@@ -58,12 +59,15 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional(readOnly = false)
     public PaymentResponse createPayment(PaymentRequest paymentRequest) {
 
-        if (isOrderPaid(paymentRequest)) {
-            logger.info("Pagamento já realizado: {}", paymentRequest.toString());
-            return converter.toResponse(paymentRequest, PaymentResponse.class);
+        if (orderService.isOrderPaid(paymentRequest)) {
+
+            OrderEntity orderAlreadyPaid = orderService.findOrderEntityById(paymentRequest.getOrderId());
+
+            logger.info("Pagamento já realizado: {}", orderAlreadyPaid.getPaymentEntity().toString());
+            throw new ResourceAlreadyExistsException("O pagamento do pedido já foi processado: " + orderAlreadyPaid.toString());
         }
 
-        PaymentEntity paymentEntity = sendPayment(paymentRequest);
+        PaymentEntity paymentEntity = buildPayment(paymentRequest);
 
         try {
             paymentRepository.save(paymentEntity);
@@ -103,28 +107,16 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public Boolean isOrderPaid(PaymentRequest paymentRequest) {
-
-        try {
-            OrderEntity order = orderService.findOrderEntityById(paymentRequest.getOrderId());
-            return order.getOrderStatus() == OrderStatus.PAID;
-
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar verificar o status do pagamento: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar verificar o status do pagamento: " + exception);
-        }
-    }
-
     @Transactional(readOnly = false)
-    public PaymentEntity sendPayment(PaymentRequest paymentRequest) {
-        OrderEntity orderEntity = orderService.findOrderEntityById(paymentRequest.getOrderId());
+    public PaymentEntity buildPayment(PaymentRequest paymentRequest) {
 
-        PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
+        OrderEntity orderToBePaid = orderService.findOrderEntityById(paymentRequest.getOrderId());
 
-        orderEntity.setPaymentEntity(paymentEntity);
-        orderEntity.setOrderStatus(OrderStatus.PAID);
-        orderService.saveOrderEntity(orderEntity);
+        PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderToBePaid);
+
+        orderToBePaid.setPaymentEntity(paymentEntity);
+        orderToBePaid.setOrderStatus(OrderStatus.PAID);
+        orderService.savePaidOrder(orderToBePaid);
 
         return paymentEntity;
     }

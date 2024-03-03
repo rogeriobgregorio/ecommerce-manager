@@ -6,6 +6,7 @@ import com.rogeriogregorio.ecommercemanager.entities.CategoryEntity;
 import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
+import com.rogeriogregorio.ecommercemanager.exceptions.ResourceAlreadyExistsException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
@@ -56,7 +57,7 @@ public class ProductServiceImpl implements ProductService {
 
         if (isExists(productRequest)) {
             logger.info("O produto já existe: {}", productRequest.toString());
-            return converter.toResponse(productRequest, ProductResponse.class);
+            throw new ResourceAlreadyExistsException("O produto que você está tentando criar já existe: " + productRequest.toString());
         }
 
         productRequest.setId(null);
@@ -86,6 +87,17 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> {
                     logger.warn("Produto não encontrado com o ID: {}", id);
                     return new NotFoundException("Produto não encontrado com o ID: " + id + ".");
+                });
+    }
+
+    @Transactional(readOnly = true)
+    public ProductEntity findProductEntityById(Long itemId) {
+
+        return productRepository
+                .findById(itemId)
+                .orElseThrow(() -> {
+                    logger.warn("Produto não encontrado com o ID: {}", itemId);
+                    return new NotFoundException("Produto não encontrado com o ID: " + itemId + ".");
                 });
     }
 

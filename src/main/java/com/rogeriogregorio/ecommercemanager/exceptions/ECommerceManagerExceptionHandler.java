@@ -98,6 +98,13 @@ public class ECommerceManagerExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    public ResponseEntity<StandardError> handleResourceAlreadyExistsException(ResourceAlreadyExistsException ex) {
+
+        StandardError error = new StandardError(HttpStatus.CONFLICT, "Recurso já existente", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<StandardError> handleValidationException(MethodArgumentNotValidException ex) {
 

@@ -80,6 +80,6 @@ public class CategoryEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "[id= " + id +", name= " + name + "]";
+        return "[Categoria: id= " + id +", name= " + name + "]";
     }
 }

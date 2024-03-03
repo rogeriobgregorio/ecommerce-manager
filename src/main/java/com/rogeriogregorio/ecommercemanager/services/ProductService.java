@@ -2,6 +2,7 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.ProductRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductResponse;
+import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -20,4 +21,6 @@ public interface ProductService {
     public void deleteProduct(Long id);
 
     public List<ProductResponse> findProductByName(String name);
+
+    ProductEntity findProductEntityById(Long itemId);
 }

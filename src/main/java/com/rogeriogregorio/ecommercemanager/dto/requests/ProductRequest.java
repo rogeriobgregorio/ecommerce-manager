@@ -83,4 +83,10 @@ public class ProductRequest implements Serializable {
     public void setCategoryIdList(List<Long> categoryId) {
         this.categoryIdList = categoryId;
     }
+
+    @Override
+    public String toString() {
+        return "[Produto: id= " + id + ", name= " + name + ", description= " + description
+                + ", price= " + price + ", imgUrl= " + imgUrl + ", categoryIdList= " + categoryIdList +"]";
+    }
 }

@@ -75,4 +75,10 @@ public class OrderRequest implements Serializable {
     public void setPaymentEntity(PaymentEntity paymentEntity) {
         this.paymentEntity = paymentEntity;
     }
+
+    @Override
+    public String toString() {
+        return "[Pedido: id= " + id + ", moment= " + moment + ", orderStatus= " + orderStatus
+                + ", clientId= " + clientId + ", paymentEntity= " + paymentEntity + "]";
+    }
 }

@@ -128,6 +128,6 @@ public class UserEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "[id= " + id +", name= " + name + ", email= " + email + "]";
+        return "[Usuário: id= " + id +", name= " + name + ", email= " + email + "]";
     }
 }
