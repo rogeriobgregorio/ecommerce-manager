@@ -84,7 +84,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public List<CategoryEntity> findAllCategoryById(List<Long> id) {
+    public List<CategoryEntity> findAllCategoriesById(List<Long> id) {
 
         try {
             return categoryRepository.findAllById(id);

@@ -62,7 +62,7 @@ public class ProductServiceImpl implements ProductService {
 
         productRequest.setId(null);
 
-        List<CategoryEntity> categoryList = categoryService.findAllCategoryById(productRequest.getCategoryIdList());
+        List<CategoryEntity> categoryList = categoryService.findAllCategoriesById(productRequest.getCategoryIdList());
 
         ProductEntity productEntity = converter.toEntity(productRequest, ProductEntity.class);
         productEntity.getCategories().addAll(categoryList);
@@ -91,13 +91,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional(readOnly = true)
-    public ProductEntity findProductEntityById(Long itemId) {
+    public ProductEntity findProductEntityById(Long id) {
 
         return productRepository
-                .findById(itemId)
+                .findById(id)
                 .orElseThrow(() -> {
-                    logger.warn("Produto não encontrado com o ID: {}", itemId);
-                    return new NotFoundException("Produto não encontrado com o ID: " + itemId + ".");
+                    logger.warn("Produto não encontrado com o ID: {}", id);
+                    return new NotFoundException("Produto não encontrado com o ID: " + id + ".");
                 });
     }
 
@@ -106,7 +106,7 @@ public class ProductServiceImpl implements ProductService {
 
         findProductById(productRequest.getId());
 
-        List<CategoryEntity> categoryList = categoryService.findAllCategoryById(productRequest.getCategoryIdList());
+        List<CategoryEntity> categoryList = categoryService.findAllCategoriesById(productRequest.getCategoryIdList());
 
         ProductEntity productEntity = converter.toEntity(productRequest, ProductEntity.class);
         productEntity.getCategories().addAll(categoryList);

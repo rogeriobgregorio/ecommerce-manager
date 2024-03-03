@@ -2,8 +2,6 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderItemRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderItemResponse;
-import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
-import com.rogeriogregorio.ecommercemanager.dto.responses.ProductResponse;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import com.rogeriogregorio.ecommercemanager.entities.OrderItemEntity;
 import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;

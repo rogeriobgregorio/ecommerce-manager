@@ -61,6 +61,17 @@ public class UserServiceImpl implements UserService {
                 });
     }
 
+    @Transactional(readOnly = true)
+    public UserEntity findUserEntityById(Long id) {
+
+        return userRepository
+                .findById(id)
+                .orElseThrow(() -> {
+                    logger.warn("Usuário não encontrado com o ID: {}", id);
+                    return new NotFoundException("Usuário não encontrado com o ID: " + id + ".");
+                });
+    }
+
     @Transactional(readOnly = false)
     public UserResponse createUser(UserRequest userRequest) {
 

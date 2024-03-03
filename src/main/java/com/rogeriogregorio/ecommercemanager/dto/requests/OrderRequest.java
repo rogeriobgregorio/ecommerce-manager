@@ -25,10 +25,9 @@ public class OrderRequest implements Serializable {
         this.clientId = clientId;
     }
 
-    public OrderRequest(Long id, OrderStatus orderStatus, PaymentEntity paymentEntity) {
+    public OrderRequest(Long id, OrderStatus orderStatus) {
         this.id = id;
         setOrderStatus(orderStatus);
-        this.paymentEntity = paymentEntity;
     }
 
     public Long getId() {

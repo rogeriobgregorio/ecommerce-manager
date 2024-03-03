@@ -15,7 +15,7 @@ public interface OrderService {
 
     public OrderResponse createOrder(OrderRequest orderRequest);
 
-    public OrderEntity savePaidOrder(OrderEntity orderEntity);
+    public void savePaidOrder(OrderEntity orderEntity);
 
     public OrderResponse findOrderById(Long id);
 

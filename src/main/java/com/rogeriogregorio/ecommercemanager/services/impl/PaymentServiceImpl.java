@@ -1,8 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.services.impl;
 
-import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
-import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import com.rogeriogregorio.ecommercemanager.entities.PaymentEntity;
@@ -63,7 +61,7 @@ public class PaymentServiceImpl implements PaymentService {
 
             OrderEntity orderAlreadyPaid = orderService.findOrderEntityById(paymentRequest.getOrderId());
 
-            logger.info("Pagamento já realizado: {}", orderAlreadyPaid.getPaymentEntity().toString());
+            logger.info("Pagamento já realizado: {}", orderAlreadyPaid.toString());
             throw new ResourceAlreadyExistsException("O pagamento do pedido já foi processado: " + orderAlreadyPaid.toString());
         }
 

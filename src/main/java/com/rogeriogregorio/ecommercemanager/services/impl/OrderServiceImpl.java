@@ -3,7 +3,6 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
-import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
@@ -58,8 +57,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public OrderResponse createOrder(OrderRequest orderRequest) {
 
-        UserResponse userResponse = userService.findUserById(orderRequest.getClientId());
-        UserEntity userEntity = converter.toEntity(userResponse, UserEntity.class);
+        UserEntity userEntity = userService.findUserEntityById(orderRequest.getClientId());
 
         OrderEntity orderEntity = new OrderEntity(Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
 
@@ -75,12 +73,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional(readOnly = false)
-    public OrderEntity savePaidOrder(OrderEntity orderEntity) {
+    public void savePaidOrder(OrderEntity orderEntity) {
 
         try {
             orderRepository.save(orderEntity);
             logger.info("Pedido pago salvo: {}", orderEntity.toString());
-            return orderEntity;
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar salvar o pedido pago: {}", exception.getMessage(), exception);

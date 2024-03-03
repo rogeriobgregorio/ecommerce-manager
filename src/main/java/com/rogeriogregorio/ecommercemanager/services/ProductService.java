@@ -16,11 +16,13 @@ public interface ProductService {
 
     public ProductResponse findProductById(Long id);
 
+    ProductEntity findProductEntityById(Long id);
+
     public ProductResponse updateProduct(ProductRequest productRequest);
 
     public void deleteProduct(Long id);
 
     public List<ProductResponse> findProductByName(String name);
 
-    ProductEntity findProductEntityById(Long itemId);
+
 }
