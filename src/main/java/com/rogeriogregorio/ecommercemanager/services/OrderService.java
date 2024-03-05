@@ -11,21 +11,21 @@ import java.util.List;
 @Component
 public interface OrderService {
 
-    public List<OrderResponse> findAllOrders();
+    List<OrderResponse> findAllOrders();
 
-    public OrderResponse createOrder(OrderRequest orderRequest);
+    OrderResponse createOrder(OrderRequest orderRequest);
 
-    public void savePaidOrder(OrderEntity orderEntity);
+    void savePaidOrder(OrderEntity orderEntity);
 
-    public OrderResponse findOrderById(Long id);
+    OrderResponse findOrderById(Long id);
 
-    public OrderEntity findOrderEntityById(Long id);
+    OrderEntity findOrderEntityById(Long id);
 
-    public OrderResponse updateOrder(OrderRequest orderRequest);
+    OrderResponse updateOrder(OrderRequest orderRequest);
 
-    public void deleteOrder(Long id);
+    void deleteOrder(Long id);
 
-    public List<OrderResponse> findOrderByClientId(Long id);
+    List<OrderResponse> findOrderByClientId(Long id);
 
-    public Boolean isOrderPaid(PaymentRequest paymentRequest);
+    Boolean isOrderPaid(PaymentRequest paymentRequest);
 }

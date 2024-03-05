@@ -51,8 +51,8 @@ public class OrderItemServiceImpl implements OrderItemService {
                     .collect(Collectors.toList());
 
         } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar itens do pedido: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar itens do pedido: " + exception);
+            logger.error("Erro ao tentar buscar todos os itens do pedido: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar buscar todos os itens do pedido: " + exception);
         }
     }
 
@@ -99,8 +99,8 @@ public class OrderItemServiceImpl implements OrderItemService {
             return converter.toResponse(orderItemEntity, OrderItemResponse.class);
 
         } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar atualizar os item do pedido: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar atualizar os item do pedido: " + exception);
+            logger.error("Erro ao tentar atualizar o item do pedido: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar atualizar o item do pedido: " + exception);
         }
     }
 
@@ -113,11 +113,11 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         try {
             orderItemRepository.deleteById(id);
-            logger.warn("Itens do pedido removidos: {}", id);
+            logger.warn("Item do pedido removido: {}", id);
 
         } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar excluir os itens do pedido: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar excluir os itens do pedido: " + exception);
+            logger.error("Erro ao tentar excluir item do pedido: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar excluir o item do pedido: " + exception);
         }
     }
 

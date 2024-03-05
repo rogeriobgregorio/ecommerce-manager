@@ -47,8 +47,8 @@ public class ProductServiceImpl implements ProductService {
                     .collect(Collectors.toList());
 
         } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar produtos: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar produtos: " + exception);
+            logger.error("Erro ao tentar buscar todos os produtos: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar buscar todos os produtos: " + exception);
         }
     }
 
@@ -148,8 +148,8 @@ public class ProductServiceImpl implements ProductService {
                     .collect(Collectors.toList());
 
         } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar produtos: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar produtos: " + exception);
+            logger.error("Erro ao tentar buscar produto pelo nome: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar buscar produto pelo nome: " + exception);
         }
     }
 
@@ -159,8 +159,8 @@ public class ProductServiceImpl implements ProductService {
             return productRepository.existsByName(productRequest.getName()) != null;
 
         } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar produto: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar produto: " + exception);
+            logger.error("Erro ao tentar verificar a existência do produto: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar verificar a existência do produto: " + exception);
         }
     }
 }

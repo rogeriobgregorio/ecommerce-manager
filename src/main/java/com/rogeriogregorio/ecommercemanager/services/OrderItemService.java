@@ -9,13 +9,13 @@ import java.util.List;
 @Component
 public interface OrderItemService {
 
-    public List<OrderItemResponse> findAllOrderItems();
+    List<OrderItemResponse> findAllOrderItems();
 
-    public OrderItemResponse createOrderItem(OrderItemRequest orderItemRequest);
+    OrderItemResponse createOrderItem(OrderItemRequest orderItemRequest);
 
-    public OrderItemResponse findOrderItemById(Long orderId, Long productId);
+    OrderItemResponse findOrderItemById(Long orderId, Long productId);
 
-    public OrderItemResponse updateOrderItem(OrderItemRequest orderItemRequest);
+    OrderItemResponse updateOrderItem(OrderItemRequest orderItemRequest);
 
-    public void deleteOrderItem(Long orderId, Long productId);
+    void deleteOrderItem(Long orderId, Long productId);
 }

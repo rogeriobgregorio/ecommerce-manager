@@ -61,7 +61,7 @@ public class PaymentServiceImpl implements PaymentService {
 
             OrderEntity orderAlreadyPaid = orderService.findOrderEntityById(paymentRequest.getOrderId());
 
-            logger.info("Pagamento já realizado: {}", orderAlreadyPaid.toString());
+            logger.info("Pagamento já processado: {}", orderAlreadyPaid.toString());
             throw new ResourceAlreadyExistsException("O pagamento do pedido já foi processado: " + orderAlreadyPaid.toString());
         }
 

@@ -43,8 +43,8 @@ public class CategoryServiceImpl implements CategoryService {
                     .collect(Collectors.toList());
 
         } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar categorias: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar categorias: " + exception);
+            logger.error("Erro ao tentar buscar todas as categorias: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar buscar todas as categorias: " + exception);
         }
     }
 
@@ -52,7 +52,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse createCategory(CategoryRequest categoryRequest) {
 
         if (isExists(categoryRequest)) {
-            logger.info("A categoria já existente: {}", categoryRequest.toString());
+            logger.info("A Categoria já existe: {}", categoryRequest.toString());
             throw new ResourceAlreadyExistsException("A categoria que você está tentando criar já existe: " + categoryRequest.toString());
         }
 
@@ -90,8 +90,8 @@ public class CategoryServiceImpl implements CategoryService {
             return categoryRepository.findAllById(id);
 
         } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar categorias: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar categorias: " + exception);
+            logger.error("Erro ao tentar buscar todas as categorias por id: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar buscar todas as categorias por id: " + exception);
         }
 
     }
@@ -140,8 +140,8 @@ public class CategoryServiceImpl implements CategoryService {
                     .collect(Collectors.toList());
 
         } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar categorias: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar categorias: " + exception);
+            logger.error("Erro ao tentar buscar categoria pelo nome: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar buscar categoria pelo nome: " + exception);
         }
     }
 

@@ -10,17 +10,17 @@ import java.util.List;
 @Component
 public interface CategoryService {
 
-    public List<CategoryResponse> findAllCategories();
+    List<CategoryResponse> findAllCategories();
 
-    public CategoryResponse createCategory(CategoryRequest categoryRequest);
+    CategoryResponse createCategory(CategoryRequest categoryRequest);
 
-    public CategoryResponse findCategoryById(Long id);
+    CategoryResponse findCategoryById(Long id);
 
-    public List<CategoryEntity> findAllCategoriesById(List<Long> id);
+    List<CategoryEntity> findAllCategoriesById(List<Long> id);
 
-    public CategoryResponse updateCategory(CategoryRequest categoryRequest);
+    CategoryResponse updateCategory(CategoryRequest categoryRequest);
 
-    public void deleteCategory(Long id);
+    void deleteCategory(Long id);
 
-    public List<CategoryResponse> findCategoryByName(String name);
+    List<CategoryResponse> findCategoryByName(String name);
 }

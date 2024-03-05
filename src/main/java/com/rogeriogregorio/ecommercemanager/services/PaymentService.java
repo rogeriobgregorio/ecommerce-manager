@@ -9,11 +9,11 @@ import java.util.List;
 @Component
 public interface PaymentService {
 
-    public List<PaymentResponse> findAllPayments();
+    List<PaymentResponse> findAllPayments();
 
-    public PaymentResponse createPayment(PaymentRequest paymentRequest);
+    PaymentResponse createPayment(PaymentRequest paymentRequest);
 
-    public PaymentResponse findPaymentById(Long id);
+    PaymentResponse findPaymentById(Long id);
 
-    public void deletePayment(Long id);
+    void deletePayment(Long id);
 }

@@ -1,11 +1,13 @@
 package com.rogeriogregorio.ecommercemanager.services.impl;
 
+import com.rogeriogregorio.ecommercemanager.dto.requests.ProductRequest;
 import com.rogeriogregorio.ecommercemanager.dto.requests.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.DataIntegrityException;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
+import com.rogeriogregorio.ecommercemanager.exceptions.ResourceAlreadyExistsException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -44,8 +46,8 @@ public class UserServiceImpl implements UserService {
                     .collect(Collectors.toList());
 
         } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar usuários: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar usuários: " + exception);
+            logger.error("Erro ao tentar buscar todos os usuários: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar buscar todos os usuários: " + exception);
         }
     }
 
@@ -141,8 +143,8 @@ public class UserServiceImpl implements UserService {
                     .collect(Collectors.toList());
 
         } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar usuários: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar usuários: " + exception);
+            logger.error("Erro ao tentar buscar usuário pelo nome: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar buscar usuário pelo nome: " + exception);
         }
     }
 }

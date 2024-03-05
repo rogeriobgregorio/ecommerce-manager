@@ -10,19 +10,17 @@ import java.util.List;
 @Component
 public interface ProductService {
 
-    public List<ProductResponse> findAllProducts();
+    List<ProductResponse> findAllProducts();
 
-    public ProductResponse createProduct(ProductRequest productRequest);
+    ProductResponse createProduct(ProductRequest productRequest);
 
-    public ProductResponse findProductById(Long id);
+    ProductResponse findProductById(Long id);
 
     ProductEntity findProductEntityById(Long id);
 
-    public ProductResponse updateProduct(ProductRequest productRequest);
+    ProductResponse updateProduct(ProductRequest productRequest);
 
-    public void deleteProduct(Long id);
+    void deleteProduct(Long id);
 
-    public List<ProductResponse> findProductByName(String name);
-
-
+    List<ProductResponse> findProductByName(String name);
 }

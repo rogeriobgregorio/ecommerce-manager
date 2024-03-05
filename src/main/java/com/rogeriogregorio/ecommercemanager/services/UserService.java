@@ -10,17 +10,17 @@ import java.util.List;
 @Component
 public interface UserService {
 
-    public List<UserResponse> findAllUsers();
+    List<UserResponse> findAllUsers();
 
-    public UserResponse createUser(UserRequest userRequest);
+    UserResponse createUser(UserRequest userRequest);
 
-    public UserResponse findUserById(Long id);
+    UserResponse findUserById(Long id);
 
-    public UserEntity findUserEntityById(Long id);
+    UserEntity findUserEntityById(Long id);
 
-    public UserResponse updateUser(UserRequest userRequest);
+    UserResponse updateUser(UserRequest userRequest);
 
-    public void deleteUser(Long id);
+    void deleteUser(Long id);
 
-   public List<UserResponse> findUserByName(String name);
+   List<UserResponse> findUserByName(String name);
 }

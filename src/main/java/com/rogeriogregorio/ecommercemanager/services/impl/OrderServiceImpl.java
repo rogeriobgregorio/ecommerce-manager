@@ -49,8 +49,8 @@ public class OrderServiceImpl implements OrderService {
                     .collect(Collectors.toList());
 
         } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar pedidos: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar pedidos: " + exception);
+            logger.error("Erro ao tentar buscar todos os pedidos: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar buscar todos os pedidos: " + exception);
         }
     }
 
