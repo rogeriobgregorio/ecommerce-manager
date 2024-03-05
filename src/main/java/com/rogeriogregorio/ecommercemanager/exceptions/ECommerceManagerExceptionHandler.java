@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -84,10 +85,12 @@ public class ECommerceManagerExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    @ExceptionHandler(DataIntegrityException.class)
-    public ResponseEntity<StandardError> handleDataIntegrityException(DataIntegrityException ex) {
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<StandardError> DataIntegrityViolationException(DataIntegrityViolationException ex) {
 
-        StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "DataIntegrityException: erro de integridade de dados", ex.getMessage());
+        String message = ex.getMostSpecificCause().getMessage().contains("EMAIL") ? "O email já está em uso." : "Verifique os dados enviados.";
+
+        StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "DataIntegrityViolationException: erro de violação da integridade dos dados", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 

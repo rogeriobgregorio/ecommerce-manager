@@ -1,13 +1,10 @@
 package com.rogeriogregorio.ecommercemanager.services.impl;
 
-import com.rogeriogregorio.ecommercemanager.dto.requests.ProductRequest;
 import com.rogeriogregorio.ecommercemanager.dto.requests.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
-import com.rogeriogregorio.ecommercemanager.exceptions.DataIntegrityException;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
-import com.rogeriogregorio.ecommercemanager.exceptions.ResourceAlreadyExistsException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -15,7 +12,6 @@ import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,10 +82,6 @@ public class UserServiceImpl implements UserService {
             logger.info("Usuário criado: {}", userEntity.toString());
             return converter.toResponse(userEntity, UserResponse.class);
 
-        } catch (DataIntegrityViolationException exception) {
-            logger.error("Erro ao tentar criar o usuário: E-mail já cadastrado.", exception);
-            throw new DataIntegrityException("Erro ao tentar criar o usuário: E-mail já cadastrado.");
-
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar criar o usuário: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar criar o usuário: " + exception);
@@ -107,10 +99,6 @@ public class UserServiceImpl implements UserService {
             userRepository.save(userEntity);
             logger.info("Usuário atualizado: {}", userEntity.toString());
             return converter.toResponse(userEntity, UserResponse.class);
-
-        } catch (DataIntegrityViolationException exception) {
-            logger.error("Erro ao tentar atualizar usuário: E-mail já cadastrado.", exception);
-            throw new DataIntegrityException("Erro ao tentar atualizar o usuário: E-mail já cadastrado.");
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar atualizar o usuário: {}", exception.getMessage(), exception);
