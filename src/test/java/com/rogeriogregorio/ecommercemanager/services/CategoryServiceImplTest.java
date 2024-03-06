@@ -205,12 +205,12 @@ public class CategoryServiceImplTest {
     @DisplayName("updateCategory - Atualização bem-sucedida retorna categoria atualizada")
     void updateCategory_SuccessfulUpdate_ReturnsCategoryResponse() {
         // Arrange
-        CategoryRequest categoryRequest = new CategoryRequest("Computers");
+        CategoryRequest categoryRequest = new CategoryRequest(1L,"Computers");
         CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
         CategoryResponse expectedResponse = new CategoryResponse(1L, "Computers");
 
-        when(converter.toEntity(categoryRequest, CategoryEntity.class)).thenReturn(categoryEntity);
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
+        when(converter.toEntity(categoryRequest, CategoryEntity.class)).thenReturn(categoryEntity);
         when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(expectedResponse);
         when(categoryRepository.save(categoryEntity)).thenReturn(categoryEntity);
 
@@ -223,26 +223,23 @@ public class CategoryServiceImplTest {
         assertEquals(expectedResponse.getName(), actualResponse.getName(), "Names should match");
 
         verify(converter, times(1)).toEntity(categoryRequest, CategoryEntity.class);
-        verify(categoryRepository, times(1)).findById(categoryEntity.getId());
+        verify(categoryRepository, times(1)).findById(1L);
         verify(categoryRepository, times(1)).save(categoryEntity);
-        verify(converter, times(1)).toResponse(categoryEntity, CategoryResponse.class);
+        verify(converter, times(2)).toResponse(categoryEntity, CategoryResponse.class);
     }
 
     @Test
     @DisplayName("updateCategory - Exceção ao tentar atualizar categoria inexistente")
     void updateCategory_NotFoundExceptionHandling() {
         // Arrange
-        CategoryRequest categoryRequest = new CategoryRequest("Computers");
-        CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
+        CategoryRequest categoryRequest = new CategoryRequest(1L, "Computers");
 
-        when(converter.toEntity(categoryRequest, CategoryEntity.class)).thenReturn(categoryEntity);
-        when(categoryRepository.findById(categoryEntity.getId())).thenReturn(Optional.empty());
+        when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> categoryService.updateCategory(categoryRequest));
 
-        verify(converter, times(1)).toEntity(categoryRequest, CategoryEntity.class);
-        verify(categoryRepository, times(1)).findById(categoryEntity.getId());
+        verify(categoryRepository, times(1)).findById(1L);
     }
 
     @Test
@@ -250,13 +247,16 @@ public class CategoryServiceImplTest {
     void deleteCategory_DeletesCategorySuccessfully() {
         // Arrange
         CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
+        CategoryResponse expectedResponse = new CategoryResponse(1L, "Computers");
 
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
+        when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(expectedResponse);
 
         // Act
         categoryService.deleteCategory(1L);
 
         // Assert
+        verify(categoryRepository, times(1)).findById(1L);
         verify(categoryRepository, times(1)).deleteById(1L);
     }
 
@@ -277,7 +277,9 @@ public class CategoryServiceImplTest {
     void deleteCategory_RepositoryExceptionHandling() {
         // Arrange
         CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
+        CategoryResponse expectedResponse = new CategoryResponse(1L, "Computers");
 
+        when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(expectedResponse);
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
         doThrow(PersistenceException.class).when(categoryRepository).deleteById(1L);
 
