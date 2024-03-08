@@ -158,22 +158,18 @@ public class OrderItemServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
-        OrderResponse orderResponse = new OrderResponse(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        ProductResponse productResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
         OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
 
         OrderItemResponse expectedResponse = new OrderItemResponse(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
 
-        when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(orderResponse);
-        when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(productResponse);
-        when(converter.toEntity(orderResponse, OrderEntity.class)).thenReturn(orderEntity);
-        when(converter.toEntity(productResponse, ProductEntity.class)).thenReturn(productEntity);
-        when(orderItemRepository.save(orderItemEntity)).thenReturn(orderItemEntity);
+        when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
+        when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
         when(converter.toResponse(orderItemEntity, OrderItemResponse.class)).thenReturn(expectedResponse);
+        when(orderItemRepository.save(orderItemEntity)).thenReturn(orderItemEntity);
 
         // Act
         OrderItemResponse actualResponse = orderItemService.createOrderItem(orderItemRequest);
@@ -182,10 +178,8 @@ public class OrderItemServiceImplTest {
         assertNotNull(actualResponse, "OrderItemResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(orderService, times(1)).findOrderById(orderItemRequest.getOrderId());
-        verify(productService, times(1)).findProductById(orderItemRequest.getProductId());
-        verify(converter, times(1)).toEntity(orderResponse, OrderEntity.class);
-        verify(converter, times(1)).toEntity(productResponse, ProductEntity.class);
+        verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).save(orderItemEntity);
         verify(converter, times(1)).toResponse(orderItemEntity, OrderItemResponse.class);
     }
@@ -197,27 +191,23 @@ public class OrderItemServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
-        OrderResponse orderResponse = new OrderResponse(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        ProductResponse productResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
         OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
 
-        when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(orderResponse);
-        when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(productResponse);
-        when(converter.toEntity(orderResponse, OrderEntity.class)).thenReturn(orderEntity);
-        when(converter.toEntity(productResponse, ProductEntity.class)).thenReturn(productEntity);
+        OrderItemResponse expectedResponse = new OrderItemResponse(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
+
+        when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
+        when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
         when(orderItemRepository.save(orderItemEntity)).thenThrow(PersistenceException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> orderItemService.createOrderItem(orderItemRequest));
 
-        verify(orderService, times(1)).findOrderById(orderItemRequest.getOrderId());
-        verify(productService, times(1)).findProductById(orderItemRequest.getProductId());
-        verify(converter, times(1)).toEntity(orderResponse, OrderEntity.class);
-        verify(converter, times(1)).toEntity(productResponse, ProductEntity.class);
+        verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).save(orderItemEntity);
     }
 
@@ -228,10 +218,8 @@ public class OrderItemServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
-        OrderResponse orderResponse = new OrderResponse(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        ProductResponse productResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
         OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
@@ -242,10 +230,8 @@ public class OrderItemServiceImplTest {
         id.setOrderEntity(orderEntity);
         id.setProductEntity(productEntity);
 
-        when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(orderResponse);
-        when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(productResponse);
-        when(converter.toEntity(orderResponse, OrderEntity.class)).thenReturn(orderEntity);
-        when(converter.toEntity(productResponse, ProductEntity.class)).thenReturn(productEntity);
+        when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
+        when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
         when(converter.toResponse(orderItemEntity, OrderItemResponse.class)).thenReturn(expectedResponse);
         when(orderItemRepository.findById(id)).thenReturn(Optional.of(orderItemEntity));
 
@@ -256,11 +242,10 @@ public class OrderItemServiceImplTest {
         assertNotNull(actualResponse, "OrderItemResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(orderService, times(1)).findOrderById(orderItemRequest.getOrderId());
-        verify(productService, times(1)).findProductById(orderItemRequest.getProductId());
-        verify(converter, times(1)).toEntity(orderResponse, OrderEntity.class);
-        verify(converter, times(1)).toEntity(productResponse, ProductEntity.class);
+        verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).findById(id);
+        verify(converter, times(1)).toResponse(orderItemEntity, OrderItemResponse.class);
     }
 
     @Test
@@ -270,10 +255,8 @@ public class OrderItemServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
-        OrderResponse orderResponse = new OrderResponse(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        ProductResponse productResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
 
@@ -281,19 +264,15 @@ public class OrderItemServiceImplTest {
         id.setOrderEntity(orderEntity);
         id.setProductEntity(productEntity);
 
-        when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(orderResponse);
-        when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(productResponse);
-        when(converter.toEntity(orderResponse, OrderEntity.class)).thenReturn(orderEntity);
-        when(converter.toEntity(productResponse, ProductEntity.class)).thenReturn(productEntity);
+        when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
+        when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
         when(orderItemRepository.findById(id)).thenReturn(Optional.empty());
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> orderItemService.findOrderItemById(1L, 1L), "Expected NotFoundException for non-existent order item");
 
-        verify(orderService, times(1)).findOrderById(orderItemRequest.getOrderId());
-        verify(productService, times(1)).findProductById(orderItemRequest.getProductId());
-        verify(converter, times(1)).toEntity(orderResponse, OrderEntity.class);
-        verify(converter, times(1)).toEntity(productResponse, ProductEntity.class);
+        verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).findById(id);
     }
 
@@ -304,10 +283,8 @@ public class OrderItemServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
-        OrderResponse orderResponse = new OrderResponse(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        ProductResponse productResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
         OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
@@ -318,10 +295,8 @@ public class OrderItemServiceImplTest {
         id.setOrderEntity(orderEntity);
         id.setProductEntity(productEntity);
 
-        when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(orderResponse);
-        when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(productResponse);
-        when(converter.toEntity(orderResponse, OrderEntity.class)).thenReturn(orderEntity);
-        when(converter.toEntity(productResponse, ProductEntity.class)).thenReturn(productEntity);
+        when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
+        when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
         when(orderItemRepository.findById(id)).thenReturn(Optional.of(orderItemEntity));
         when(orderItemRepository.save(orderItemEntity)).thenReturn(orderItemEntity);
         when(converter.toResponse(orderItemEntity, OrderItemResponse.class)).thenReturn(expectedResponse);
@@ -333,13 +308,11 @@ public class OrderItemServiceImplTest {
         assertNotNull(actualResponse, "OrderItemResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(orderService, times(2)).findOrderById(orderItemRequest.getOrderId());
-        verify(productService, times(2)).findProductById(orderItemRequest.getProductId());
-        verify(converter, times(2)).toEntity(orderResponse, OrderEntity.class);
-        verify(converter, times(2)).toEntity(productResponse, ProductEntity.class);
+        verify(orderService, times(2)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(productService, times(2)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).findById(id);
         verify(orderItemRepository, times(1)).save(orderItemEntity);
-        verify(converter, times(1)).toResponse(orderItemEntity, OrderItemResponse.class);
+        verify(converter, times(2)).toResponse(orderItemEntity, OrderItemResponse.class);
     }
 
     @Test
@@ -349,31 +322,24 @@ public class OrderItemServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
-        OrderResponse orderResponse = new OrderResponse(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        ProductResponse productResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
-        OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
 
         OrderItemPK id = new OrderItemPK();
         id.setOrderEntity(orderEntity);
         id.setProductEntity(productEntity);
 
-        when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(orderResponse);
-        when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(productResponse);
-        when(converter.toEntity(orderResponse, OrderEntity.class)).thenReturn(orderEntity);
-        when(converter.toEntity(productResponse, ProductEntity.class)).thenReturn(productEntity);
+        when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
+        when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
         when(orderItemRepository.findById(id)).thenReturn(Optional.empty());
 
         // Act
         assertThrows(NotFoundException.class, () -> orderItemService.updateOrderItem(orderItemRequest), "Expected NotFoundException for non-existent order item");
 
-        verify(orderService, times(1)).findOrderById(orderItemRequest.getOrderId());
-        verify(productService, times(1)).findProductById(orderItemRequest.getProductId());
-        verify(converter, times(1)).toEntity(orderResponse, OrderEntity.class);
-        verify(converter, times(1)).toEntity(productResponse, ProductEntity.class);
+        verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).findById(id);
     }
 
@@ -384,34 +350,31 @@ public class OrderItemServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
-        OrderResponse orderResponse = new OrderResponse(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        ProductResponse productResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
         OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
+        OrderItemResponse expectedResponse = new OrderItemResponse(orderEntity, productEntity, 1, 4099.0);
 
         OrderItemPK id = new OrderItemPK();
         id.setOrderEntity(orderEntity);
         id.setProductEntity(productEntity);
 
-        when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(orderResponse);
-        when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(productResponse);
-        when(converter.toEntity(orderResponse, OrderEntity.class)).thenReturn(orderEntity);
-        when(converter.toEntity(productResponse, ProductEntity.class)).thenReturn(productEntity);
+        when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
+        when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
+        when(converter.toResponse(orderItemEntity, OrderItemResponse.class)).thenReturn(expectedResponse);
         when(orderItemRepository.findById(id)).thenReturn(Optional.of(orderItemEntity));
         doThrow(PersistenceException.class).when(orderItemRepository).save(orderItemEntity);
 
         // Act
         assertThrows(RepositoryException.class, () -> orderItemService.updateOrderItem(orderItemRequest), "Expected RepositoryException for non-existent order item");
 
-        verify(orderService, times(2)).findOrderById(orderItemRequest.getOrderId());
-        verify(productService, times(2)).findProductById(orderItemRequest.getProductId());
-        verify(converter, times(2)).toEntity(orderResponse, OrderEntity.class);
-        verify(converter, times(2)).toEntity(productResponse, ProductEntity.class);
+        verify(orderService, times(2)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(productService, times(2)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).findById(id);
         verify(orderItemRepository, times(1)).save(orderItemEntity);
+        verify(converter, times(1)).toResponse(orderItemEntity, OrderItemResponse.class);
     }
 
     @Test
@@ -421,34 +384,32 @@ public class OrderItemServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
-        OrderResponse orderResponse = new OrderResponse(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        ProductResponse productResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
         OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
+
+        OrderItemResponse expectedResponse = new OrderItemResponse(orderEntity, productEntity, 1, 4099.0);
 
         OrderItemPK id = new OrderItemPK();
         id.setOrderEntity(orderEntity);
         id.setProductEntity(productEntity);
 
-        when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(orderResponse);
-        when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(productResponse);
-        when(converter.toEntity(orderResponse, OrderEntity.class)).thenReturn(orderEntity);
-        when(converter.toEntity(productResponse, ProductEntity.class)).thenReturn(productEntity);
+        when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
+        when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
         when(orderItemRepository.findById(id)).thenReturn(Optional.of(orderItemEntity));
+        when(converter.toResponse(orderItemEntity, OrderItemResponse.class)).thenReturn(expectedResponse);
 
         // Act
         orderItemService.deleteOrderItem(1L, 1L);
 
         // Assert
-        verify(orderService, times(1)).findOrderById(orderItemRequest.getOrderId());
-        verify(productService, times(1)).findProductById(orderItemRequest.getProductId());
-        verify(converter, times(1)).toEntity(orderResponse, OrderEntity.class);
-        verify(converter, times(1)).toEntity(productResponse, ProductEntity.class);
+        verify(orderService, times(2)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(productService, times(2)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).findById(id);
         verify(orderItemRepository, times(1)).deleteById(id);
+        verify(converter, times(1)).toResponse(orderItemEntity, OrderItemResponse.class);
     }
 
     @Test
@@ -458,31 +419,25 @@ public class OrderItemServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
-        OrderResponse orderResponse = new OrderResponse(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        ProductResponse productResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
-        OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
 
         OrderItemPK id = new OrderItemPK();
         id.setOrderEntity(orderEntity);
         id.setProductEntity(productEntity);
 
-        when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(orderResponse);
-        when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(productResponse);
-        when(converter.toEntity(orderResponse, OrderEntity.class)).thenReturn(orderEntity);
-        when(converter.toEntity(productResponse, ProductEntity.class)).thenReturn(productEntity);
+        when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
+        when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
         when(orderItemRepository.findById(id)).thenReturn(Optional.empty());
 
         // Act
         assertThrows(NotFoundException.class, () -> orderItemService.deleteOrderItem(1L, 1L), "Expected RepositoryException for non-existent order item");
 
-        verify(orderService, times(1)).findOrderById(orderItemRequest.getOrderId());
-        verify(productService, times(1)).findProductById(orderItemRequest.getProductId());
-        verify(converter, times(1)).toEntity(orderResponse, OrderEntity.class);
-        verify(converter, times(1)).toEntity(productResponse, ProductEntity.class);
+        // Assert
+        verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).findById(id);
     }
 
@@ -493,34 +448,32 @@ public class OrderItemServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
-        OrderResponse orderResponse = new OrderResponse(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        ProductResponse productResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
         OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
+        OrderItemResponse expectedResponse = new OrderItemResponse(orderEntity, productEntity, 1, 4099.0);
 
         OrderItemPK id = new OrderItemPK();
         id.setOrderEntity(orderEntity);
         id.setProductEntity(productEntity);
 
-        when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(orderResponse);
-        when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(productResponse);
-        when(converter.toEntity(orderResponse, OrderEntity.class)).thenReturn(orderEntity);
-        when(converter.toEntity(productResponse, ProductEntity.class)).thenReturn(productEntity);
+        when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
+        when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
         when(orderItemRepository.findById(id)).thenReturn(Optional.of(orderItemEntity));
+        when(converter.toResponse(orderItemEntity, OrderItemResponse.class)).thenReturn(expectedResponse);
         doThrow(PersistenceException.class).when(orderItemRepository).deleteById(id);
 
         // Act
         assertThrows(RepositoryException.class, () -> orderItemService.deleteOrderItem(1L, 1L), "Expected RepositoryException for non-existent order item");
 
-        verify(orderService, times(1)).findOrderById(orderItemRequest.getOrderId());
-        verify(productService, times(1)).findProductById(orderItemRequest.getProductId());
-        verify(converter, times(1)).toEntity(orderResponse, OrderEntity.class);
-        verify(converter, times(1)).toEntity(productResponse, ProductEntity.class);
+        // Assert
+        verify(orderService, times(2)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(productService, times(2)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).findById(id);
         verify(orderItemRepository, times(1)).deleteById(id);
+        verify(converter, times(1)).toResponse(orderItemEntity, OrderItemResponse.class);
     }
 
     @Test
@@ -530,10 +483,8 @@ public class OrderItemServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
-        OrderResponse orderResponse = new OrderResponse(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        ProductResponse productResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
 
@@ -541,10 +492,8 @@ public class OrderItemServiceImplTest {
         expectedPK.setOrderEntity(orderEntity);
         expectedPK.setProductEntity(productEntity);
 
-        when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(orderResponse);
-        when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(productResponse);
-        when(converter.toEntity(orderResponse, OrderEntity.class)).thenReturn(orderEntity);
-        when(converter.toEntity(productResponse, ProductEntity.class)).thenReturn(productEntity);
+        when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
+        when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
 
         // Act
         OrderItemPK actualPK = orderItemService.buildOrderItemPK(1L, 1L);
@@ -553,10 +502,8 @@ public class OrderItemServiceImplTest {
         assertNotNull(actualPK, "Actual PK should not be null");
         assertEquals(expectedPK, actualPK, "Expected PK and actual PK responses should be equal");
 
-        verify(orderService, times(1)).findOrderById(orderItemRequest.getOrderId());
-        verify(productService, times(1)).findProductById(orderItemRequest.getProductId());
-        verify(converter, times(1)).toEntity(orderResponse, OrderEntity.class);
-        verify(converter, times(1)).toEntity(productResponse, ProductEntity.class);
+        verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
     }
 
     @Test
@@ -566,18 +513,14 @@ public class OrderItemServiceImplTest {
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
-        OrderResponse orderResponse = new OrderResponse(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        ProductResponse productResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
         OrderItemEntity expectedOrderItem = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
 
-        when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(orderResponse);
-        when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(productResponse);
-        when(converter.toEntity(orderResponse, OrderEntity.class)).thenReturn(orderEntity);
-        when(converter.toEntity(productResponse, ProductEntity.class)).thenReturn(productEntity);
+        when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
+        when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
 
         // Act
         OrderItemEntity actualOrderItem = orderItemService.buildOrderItemFromRequest(orderItemRequest);
@@ -586,9 +529,7 @@ public class OrderItemServiceImplTest {
         assertNotNull(actualOrderItem, "Actual PK should not be null");
         assertEquals(expectedOrderItem, actualOrderItem, "Expected PK and actual PK responses should be equal");
 
-        verify(orderService, times(1)).findOrderById(orderItemRequest.getOrderId());
-        verify(productService, times(1)).findProductById(orderItemRequest.getProductId());
-        verify(converter, times(1)).toEntity(orderResponse, OrderEntity.class);
-        verify(converter, times(1)).toEntity(productResponse, ProductEntity.class);
+        verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
     }
 }
