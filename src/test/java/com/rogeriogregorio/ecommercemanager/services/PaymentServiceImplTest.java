@@ -240,9 +240,9 @@ public class PaymentServiceImplTest {
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
 
         PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
-        PaymentResponse expectedResponse = new PaymentResponse(1L, Instant.now(), orderEntity);
+        PaymentResponse paymentResponse = new PaymentResponse(1L, Instant.now(), orderEntity);
 
-        when(converter.toResponse(paymentEntity, PaymentResponse.class)).thenReturn(expectedResponse);
+        when(converter.toResponse(paymentEntity, PaymentResponse.class)).thenReturn(paymentResponse);
         when(paymentRepository.findById(1L)).thenReturn(Optional.of(paymentEntity));
 
         // Act
@@ -274,9 +274,9 @@ public class PaymentServiceImplTest {
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
 
         PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
-        PaymentResponse expectedResponse = new PaymentResponse(1L, Instant.now(), orderEntity);
+        PaymentResponse paymentResponse = new PaymentResponse(1L, Instant.now(), orderEntity);
 
-        when(converter.toResponse(paymentEntity, PaymentResponse.class)).thenReturn(expectedResponse);
+        when(converter.toResponse(paymentEntity, PaymentResponse.class)).thenReturn(paymentResponse);
         when(paymentRepository.findById(1L)).thenReturn(Optional.of(paymentEntity));
         doThrow(PersistenceException.class).when(paymentRepository).deleteById(1L);
 

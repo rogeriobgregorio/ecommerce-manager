@@ -65,7 +65,7 @@ public class PaymentServiceImpl implements PaymentService {
             throw new ResourceAlreadyExistsException("O pagamento do pedido já foi processado: " + orderAlreadyPaid.toString());
         }
 
-        PaymentEntity paymentEntity = buildPayment(paymentRequest);
+        PaymentEntity paymentEntity = buildPaymentFromRequest(paymentRequest);
 
         try {
             paymentRepository.save(paymentEntity);
@@ -106,7 +106,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Transactional(readOnly = false)
-    public PaymentEntity buildPayment(PaymentRequest paymentRequest) {
+    public PaymentEntity buildPaymentFromRequest(PaymentRequest paymentRequest) {
 
         OrderEntity orderToBePaid = orderService.findOrderEntityById(paymentRequest.getOrderId());
 

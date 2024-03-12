@@ -51,9 +51,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = false)
     public CategoryResponse createCategory(CategoryRequest categoryRequest) {
 
-        if (isExists(categoryRequest)) {
+        if (isCategoryExisting(categoryRequest)) {
             logger.info("A Categoria já existe: {}", categoryRequest.toString());
-            throw new ResourceAlreadyExistsException("A categoria que você está tentando criar já existe: " + categoryRequest.toString());
+            throw new ResourceAlreadyExistsException("A categoria que você está tentando criar já existe: " + categoryRequest);
         }
 
         categoryRequest.setId(null);
@@ -146,7 +146,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public Boolean isExists(CategoryRequest categoryRequest) {
+    public Boolean isCategoryExisting(CategoryRequest categoryRequest) {
 
         try {
             return categoryRepository.existsByName(categoryRequest.getName()) != null;

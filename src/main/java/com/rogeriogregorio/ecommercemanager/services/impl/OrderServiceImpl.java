@@ -111,7 +111,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public OrderResponse updateOrder(OrderRequest orderRequest) {
 
-        findOrderById(orderRequest.getId());
+        findOrderEntityById(orderRequest.getId());
 
         OrderEntity orderEntity = converter.toEntity(orderRequest, OrderEntity.class);
 
@@ -129,7 +129,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public void deleteOrder(Long id) {
 
-        findOrderById(id);
+        findOrderEntityById(id);
 
         try {
             orderRepository.deleteById(id);

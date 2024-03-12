@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = false)
     public UserResponse updateUser(UserRequest userRequest) {
 
-        findUserById(userRequest.getId());
+        findUserEntityById(userRequest.getId());
 
         UserEntity userEntity = converter.toEntity(userRequest, UserEntity.class);
 
@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = false)
     public void deleteUser(Long id) {
 
-        findUserById(id);
+        findUserEntityById(id);
 
         try {
             userRepository.deleteById(id);

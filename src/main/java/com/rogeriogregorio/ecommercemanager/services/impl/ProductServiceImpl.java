@@ -55,9 +55,9 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = false)
     public ProductResponse createProduct(ProductRequest productRequest) {
 
-        if (isExists(productRequest)) {
+        if (isProductExisting(productRequest)) {
             logger.info("O produto já existe: {}", productRequest.toString());
-            throw new ResourceAlreadyExistsException("O produto que você está tentando criar já existe: " + productRequest.toString());
+            throw new ResourceAlreadyExistsException("O produto que você está tentando criar já existe: " + productRequest);
         }
 
         productRequest.setId(null);
@@ -104,7 +104,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = false)
     public ProductResponse updateProduct(ProductRequest productRequest) {
 
-        findProductById(productRequest.getId());
+        findProductEntityById(productRequest.getId());
 
         List<CategoryEntity> categoryList = categoryService.findAllCategoriesById(productRequest.getCategoryIdList());
 
@@ -125,7 +125,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = false)
     public void deleteProduct(Long id) {
 
-        findProductById(id);
+        findProductEntityById(id);
 
         try {
             productRepository.deleteById(id);
@@ -154,7 +154,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Boolean isExists(ProductRequest productRequest) {
+    public Boolean isProductExisting(ProductRequest productRequest) {
         try {
             return productRepository.existsByName(productRequest.getName()) != null;
 

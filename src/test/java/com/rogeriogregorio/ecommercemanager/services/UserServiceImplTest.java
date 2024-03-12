@@ -232,7 +232,6 @@ public class UserServiceImplTest {
         UserResponse expectedResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
-        when(converter.toResponse(userEntity, UserResponse.class)).thenReturn(expectedResponse);
         when(converter.toEntity(userRequest, UserEntity.class)).thenReturn(userEntity);
         when(userRepository.save(userEntity)).thenReturn(userEntity);
         when(converter.toResponse(userEntity, UserResponse.class)).thenReturn(expectedResponse);
@@ -247,7 +246,7 @@ public class UserServiceImplTest {
         verify(userRepository, times(1)).findById(1L);
         verify(converter, times(1)).toEntity(userRequest, UserEntity.class);
         verify(userRepository, times(1)).save(userEntity);
-        verify(converter, times(2)).toResponse(userEntity, UserResponse.class);
+        verify(converter, times(1)).toResponse(userEntity, UserResponse.class);
     }
 
     @Test
@@ -270,10 +269,9 @@ public class UserServiceImplTest {
         // Arrange
         UserRequest userRequest = new UserRequest(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        UserResponse expectedResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
+        UserResponse userResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
-        when(converter.toResponse(userEntity, UserResponse.class)).thenReturn(expectedResponse);
         when(converter.toEntity(userRequest, UserEntity.class)).thenReturn(userEntity);
         when(userRepository.save(userEntity)).thenThrow(PersistenceException.class);
 
@@ -283,7 +281,6 @@ public class UserServiceImplTest {
         verify(userRepository, times(1)).findById(1L);
         verify(converter, times(1)).toEntity(userRequest, UserEntity.class);
         verify(userRepository, times(1)).save(userEntity);
-        verify(converter, times(1)).toResponse(userEntity, UserResponse.class);
     }
 
     @Test
@@ -292,10 +289,8 @@ public class UserServiceImplTest {
         // Arrange
         UserRequest userRequest = new UserRequest(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        UserResponse expectedResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
-        when(converter.toResponse(userEntity, UserResponse.class)).thenReturn(expectedResponse);
         when(converter.toEntity(userRequest, UserEntity.class)).thenReturn(userEntity);
         when(userRepository.save(userEntity)).thenThrow(DataIntegrityViolationException.class);
 
@@ -305,7 +300,6 @@ public class UserServiceImplTest {
         verify(userRepository, times(1)).findById(1L);
         verify(converter, times(1)).toEntity(userRequest, UserEntity.class);
         verify(userRepository, times(1)).save(userEntity);
-        verify(converter, times(1)).toResponse(userEntity, UserResponse.class);
     }
 
     @Test
@@ -313,10 +307,8 @@ public class UserServiceImplTest {
     void deleteUser_DeletesSuccessfully() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        UserResponse expectedResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
-        when(converter.toResponse(userEntity, UserResponse.class)).thenReturn(expectedResponse);
 
         // Act
         userService.deleteUser(1L);
@@ -324,7 +316,6 @@ public class UserServiceImplTest {
         // Assert
         verify(userRepository, times(1)).findById(1L);
         verify(userRepository, times(1)).deleteById(1L);
-        verify(converter, times(1)).toResponse(userEntity, UserResponse.class);
     }
 
     @Test
@@ -344,10 +335,8 @@ public class UserServiceImplTest {
     void deleteUser_RepositoryExceptionHandling() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        UserResponse expectedResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
-        when(converter.toResponse(userEntity, UserResponse.class)).thenReturn(expectedResponse);
         doThrow(PersistenceException.class).when(userRepository).deleteById(1L);
 
         // Act and Assert
@@ -355,8 +344,6 @@ public class UserServiceImplTest {
 
         verify(userRepository, times(1)).findById(1L);
         verify(userRepository, times(1)).deleteById(1L);
-        verify(converter, times(1)).toResponse(userEntity, UserResponse.class);
-
     }
 
     @Test

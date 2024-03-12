@@ -302,13 +302,11 @@ public class ProductServiceImplTest {
         ProductRequest productRequest = new ProductRequest(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com", categoryListId);
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
         productEntity.getCategories().addAll(categoryEntityList);
-        ProductResponse expectedResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
         when(converter.toEntity(productRequest, ProductEntity.class)).thenReturn(productEntity);
         when(productRepository.findById(productEntity.getId())).thenReturn(Optional.of(productEntity));
         when(categoryService.findAllCategoriesById(categoryListId)).thenReturn(categoryEntityList);
         when(productRepository.save(productEntity)).thenThrow(PersistenceException.class);
-        when(converter.toResponse(productEntity, ProductResponse.class)).thenReturn(expectedResponse);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> productService.updateProduct(productRequest));
@@ -317,7 +315,6 @@ public class ProductServiceImplTest {
         verify(productRepository, times(1)).findById(productEntity.getId());
         verify(categoryService, times(1)).findAllCategoriesById(categoryListId);
         verify(productRepository, times(1)).save(productEntity);
-        verify(converter, times(1)).toResponse(productEntity, ProductResponse.class);
     }
 
     @Test
@@ -325,9 +322,7 @@ public class ProductServiceImplTest {
     void deleteProduct_DeletesSuccessfully() {
         // Arrange
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        ProductResponse expectedResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
-        when(converter.toResponse(productEntity, ProductResponse.class)).thenReturn(expectedResponse);
         when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity));
 
         // Act
@@ -335,7 +330,6 @@ public class ProductServiceImplTest {
 
         // Assert
         verify(productRepository, times(1)).findById(1L);
-        verify(converter, times(1)).toResponse(productEntity, ProductResponse.class);
         verify(productRepository, times(1)).deleteById(1L);
     }
 
@@ -356,9 +350,7 @@ public class ProductServiceImplTest {
     void deleteProduct_RepositoryExceptionHandling() {
         // Arrange
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        ProductResponse expectedResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
-        when(converter.toResponse(productEntity, ProductResponse.class)).thenReturn(expectedResponse);
         when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity));
         doThrow(PersistenceException.class).when(productRepository).deleteById(1L);
 
@@ -366,7 +358,6 @@ public class ProductServiceImplTest {
         assertThrows(RepositoryException.class, () -> productService.deleteProduct(1L));
 
         verify(productRepository, times(1)).findById(1L);
-        verify(converter, times(1)).toResponse(productEntity, ProductResponse.class);
         verify(productRepository, times(1)).deleteById(1L);
     }
 

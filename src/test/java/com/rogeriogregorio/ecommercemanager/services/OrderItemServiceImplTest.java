@@ -197,8 +197,6 @@ public class OrderItemServiceImplTest {
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
         OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
 
-        OrderItemResponse expectedResponse = new OrderItemResponse(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
-
         when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
         when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
         when(orderItemRepository.save(orderItemEntity)).thenThrow(PersistenceException.class);

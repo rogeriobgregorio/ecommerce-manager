@@ -243,14 +243,38 @@ public class CategoryServiceImplTest {
     }
 
     @Test
+    @DisplayName("updateCategory - Exceção no repositório ao tentar atualizar a categoria")
+    void updateCategory_RepositoryExceptionHandling() {
+        // Arrange
+        CategoryRequest categoryRequest = new CategoryRequest(1L,"Computers");
+        CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
+        CategoryResponse categoryResponse = new CategoryResponse(1L, "Computers");
+
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
+        when(converter.toEntity(categoryRequest, CategoryEntity.class)).thenReturn(categoryEntity);
+        when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(categoryResponse);
+        when(categoryRepository.save(categoryEntity)).thenThrow(PersistenceException.class);
+
+        // Act
+        assertThrows(RepositoryException.class, () -> categoryService.updateCategory(categoryRequest), "Expected RepositoryException due to a generic runtime exception");
+
+        // Assert
+
+        verify(converter, times(1)).toEntity(categoryRequest, CategoryEntity.class);
+        verify(categoryRepository, times(1)).findById(1L);
+        verify(categoryRepository, times(1)).save(categoryEntity);
+        verify(converter, times(1)).toResponse(categoryEntity, CategoryResponse.class);
+    }
+
+    @Test
     @DisplayName("deleteCategory - Exclusão bem-sucedida da categoria")
     void deleteCategory_DeletesCategorySuccessfully() {
         // Arrange
         CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
-        CategoryResponse expectedResponse = new CategoryResponse(1L, "Computers");
+        CategoryResponse categoryResponse = new CategoryResponse(1L, "Computers");
 
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
-        when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(expectedResponse);
+        when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(categoryResponse);
 
         // Act
         categoryService.deleteCategory(1L);
@@ -277,9 +301,9 @@ public class CategoryServiceImplTest {
     void deleteCategory_RepositoryExceptionHandling() {
         // Arrange
         CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
-        CategoryResponse expectedResponse = new CategoryResponse(1L, "Computers");
+        CategoryResponse categoryResponse = new CategoryResponse(1L, "Computers");
 
-        when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(expectedResponse);
+        when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(categoryResponse);
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
         doThrow(PersistenceException.class).when(categoryRepository).deleteById(1L);
 
