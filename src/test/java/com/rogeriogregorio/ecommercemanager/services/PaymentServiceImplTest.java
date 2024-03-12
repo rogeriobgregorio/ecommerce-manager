@@ -1,12 +1,13 @@
 package com.rogeriogregorio.ecommercemanager.services;
 
+import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import com.rogeriogregorio.ecommercemanager.entities.PaymentEntity;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
-import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.PaymentServiceImpl;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -24,6 +25,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -142,6 +144,146 @@ public class PaymentServiceImplTest {
     @Test
     @DisplayName("createPayment - Criação bem-sucedida retorna pagamento criado")
     void createPayment_SuccessfulCreation_ReturnsPaymentResponse() {
+        // Arrange
+        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
 
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
+
+        PaymentRequest paymentRequest = new PaymentRequest(1L);
+        PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
+        PaymentResponse expectedResponse = new PaymentResponse(1L, Instant.now(), orderEntity);
+
+        when(orderService.findOrderEntityById(paymentRequest.getOrderId())).thenReturn(orderEntity);
+        doNothing().when(orderService).savePaidOrder(orderEntity);
+        when(paymentRepository.save(paymentEntity)).thenReturn(paymentEntity);
+        when(converter.toResponse(paymentEntity, PaymentResponse.class)).thenReturn(expectedResponse);
+
+        // Act
+        PaymentResponse actualResponse = paymentService.createPayment(paymentRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "paymentResponse should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+
+        verify(orderService, times(1)).findOrderEntityById(paymentRequest.getOrderId());
+        verify(orderService, times(1)).savePaidOrder(orderEntity);
+        verify(paymentRepository, times(1)).save(paymentEntity);
+        verify(converter, times(1)).toResponse(paymentEntity, PaymentResponse.class);
+    }
+
+    @Test
+    @DisplayName("createPayment - Exceção no repositório ao tentar criar pagamento")
+    void createPayment_RepositoryExceptionHandling() {
+        // Arrange
+        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
+
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
+
+        PaymentRequest paymentRequest = new PaymentRequest(1L);
+        PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
+
+        when(orderService.findOrderEntityById(paymentRequest.getOrderId())).thenReturn(orderEntity);
+        doNothing().when(orderService).savePaidOrder(orderEntity);
+        when(paymentRepository.save(paymentEntity)).thenThrow(PersistenceException.class);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> paymentService.createPayment(paymentRequest), "Expected RepositoryException due to a generic runtime exception");
+
+        verify(orderService, times(1)).findOrderEntityById(paymentRequest.getOrderId());
+        verify(orderService, times(1)).savePaidOrder(orderEntity);
+        verify(paymentRepository, times(1)).save(paymentEntity);
+    }
+
+    @Test
+    @DisplayName("findPaymentById - Busca bem-sucedida retorna pagamento")
+    void findCategoryById_SuccessfulSearch_ReturnsOrderResponse() {
+        // Arrange
+        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
+
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
+
+        PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
+        PaymentResponse expectedResponse = new PaymentResponse(1L, Instant.now(), orderEntity);
+
+        when(converter.toResponse(paymentEntity, PaymentResponse.class)).thenReturn(expectedResponse);
+        when(paymentRepository.findById(1L)).thenReturn(Optional.of(paymentEntity));
+
+        // Act
+        PaymentResponse actualResponse = paymentService.findPaymentById(1L);
+
+        // Assert
+        assertNotNull(actualResponse, "paymentResponse should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+
+        verify(converter, times(1)).toResponse(paymentEntity, PaymentResponse.class);
+        verify(paymentRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    @DisplayName("findPaymentById - Exceção ao tentar buscar pagamento inexistente")
+    void findPayment_NotFoundExceptionHandling() {
+        // Arrange
+        when(paymentRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> paymentService.findPaymentById(1L));
+
+        verify(paymentRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    @DisplayName("deletePayment - Exclusão bem-sucedida do pedido")
+    void deletePayment_DeletesPaymentSuccessfully() {
+        // Arrange
+        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
+
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
+
+        PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
+        PaymentResponse expectedResponse = new PaymentResponse(1L, Instant.now(), orderEntity);
+
+        when(converter.toResponse(paymentEntity, PaymentResponse.class)).thenReturn(expectedResponse);
+        when(paymentRepository.findById(1L)).thenReturn(Optional.of(paymentEntity));
+
+        // Act
+        paymentService.deletePayment(1L);
+
+        // Assert
+        verify(converter, times(1)).toResponse(paymentEntity, PaymentResponse.class);
+        verify(paymentRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    @DisplayName("deletePayment - Exceção ao tentar excluir pagamento inexistente")
+    void deletePayment_NotFoundExceptionHandling() {
+        // Arrange
+        when(paymentRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> paymentService.deletePayment(1L));
+
+        verify(paymentRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    @DisplayName("deletePayment - Exceção no repositório ao tentar excluir pagamento")
+    void deletePayment_RepositoryExceptionHandling() {
+        // Arrange
+        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
+
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
+
+        PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
+        PaymentResponse expectedResponse = new PaymentResponse(1L, Instant.now(), orderEntity);
+
+        when(converter.toResponse(paymentEntity, PaymentResponse.class)).thenReturn(expectedResponse);
+        when(paymentRepository.findById(1L)).thenReturn(Optional.of(paymentEntity));
+        doThrow(PersistenceException.class).when(paymentRepository).deleteById(1L);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> paymentService.deletePayment(1L), "Expected RepositoryException for delete failure");
+
+        verify(converter, times(1)).toResponse(paymentEntity, PaymentResponse.class);
+        verify(paymentRepository, times(1)).findById(1L);
     }
 }
