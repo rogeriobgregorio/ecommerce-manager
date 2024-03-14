@@ -1,5 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -36,27 +37,28 @@ public class AddressEntity implements Serializable {
     @Pattern(regexp = "^\\p{L}+$", message = "O nome deve ter apenas letras.")
     private String state;
 
-    @Column(name = "zip_code")
+    @Column(name = "cep")
     @NotBlank(message = "O CEP não deve estar em branco")
     @Pattern(regexp = "\\d{5}-\\d{3}", message = "O CEP deve estar no formato 99999-999")
-    private String zipCode;
+    private String cep;
 
     @Column(name = "country")
     @NotBlank(message = "O nome do país não deve estar em branco")
     @Size(max = 250, message = "O nome deve ter entre 5 e 250 caracteres.")
     private String country;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "address")
     private UserEntity user;
 
     public AddressEntity() {
     }
 
-    public AddressEntity(String street, String city, String state, String zipCode, String country) {
+    public AddressEntity(String street, String city, String state, String cep, String country) {
         this.street = street;
         this.city = city;
         this.state = state;
-        this.zipCode = zipCode;
+        this.cep = cep;
         this.country = country;
     }
 
@@ -92,12 +94,12 @@ public class AddressEntity implements Serializable {
         this.state = state;
     }
 
-    public String getZipCode() {
-        return zipCode;
+    public String getCep() {
+        return cep;
     }
 
-    public void setZipCode(String zipCode) {
-        this.zipCode = zipCode;
+    public void setCep(String cep) {
+        this.cep = cep;
     }
 
     public String getCountry() {
@@ -132,6 +134,6 @@ public class AddressEntity implements Serializable {
     @Override
     public String toString() {
         return "[Endereço: id= " + id + ", street= " + street + ", city= " + city + ", " +
-                "state= " + state +", zipCode= " + zipCode + ", country= " + country + "]";
+                "state= " + state +", cep= " + cep + ", country= " + country + "]";
     }
 }
