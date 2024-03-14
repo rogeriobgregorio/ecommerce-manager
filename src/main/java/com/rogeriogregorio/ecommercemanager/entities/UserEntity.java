@@ -33,7 +33,7 @@ public class UserEntity implements Serializable {
 
     @Column(name = "email", unique = true)
     @NotBlank(message = "O e-mail não deve estar em branco")
-    @Pattern(regexp = "^[A-Za-z0-9]+([._-][A-Za-z0-9]+)*@[A-Za-z0-9]+([.-][A-Za-z0-9]+)*\\.[A-Za-z]{2,}$", message = "O formato do e-mail não é válido.")
+    @Pattern(regexp = "^[A-Za-z0-9]+([._-][A-Za-z0-9]+)*@[A-Za-z0-9]+([.-][A-Za-z0-9]+)*\\.[A-Za-z]{2,}$", message = "Insira um endereço de e-mail válido. Exemplo: usuario@example.com")
     private String email;
 
     @Column(name = "phone")
@@ -49,6 +49,10 @@ public class UserEntity implements Serializable {
     @JsonIgnore
     @OneToMany(mappedBy = "client")
     private List<OrderEntity> orders = new ArrayList<>();
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id", referencedColumnName = "id")
+    private AddressEntity address;
 
     public UserEntity() {
     }
@@ -111,6 +115,14 @@ public class UserEntity implements Serializable {
 
     public List<OrderEntity> getOrders() {
         return orders;
+    }
+
+    public AddressEntity getAddress() {
+        return address;
+    }
+
+    public void setAddress(AddressEntity address) {
+        this.address = address;
     }
 
     @Override

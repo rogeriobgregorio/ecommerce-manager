@@ -23,4 +23,6 @@ public interface CategoryService {
     void deleteCategory(Long id);
 
     List<CategoryResponse> findCategoryByName(String name);
+
+    CategoryEntity buildCategoryFromRequest(CategoryRequest categoryRequest);
 }

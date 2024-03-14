@@ -132,10 +132,9 @@ public class CategoryServiceImplTest {
     void createCategory_SuccessfulCreation_ReturnsCategoryResponse() {
         // Arrange
         CategoryRequest categoryRequest = new CategoryRequest("Computers");
-        CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
+        CategoryEntity categoryEntity = new CategoryEntity("Computers");
         CategoryResponse expectedResponse = new CategoryResponse(1L, "Computers");
 
-        when(converter.toEntity(categoryRequest, CategoryEntity.class)).thenReturn(categoryEntity);
         when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(expectedResponse);
         when(categoryRepository.save(categoryEntity)).thenReturn(categoryEntity);
 
@@ -146,7 +145,6 @@ public class CategoryServiceImplTest {
         assertNotNull(actualResponse, "CategoryResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(converter, times(1)).toEntity(categoryRequest, CategoryEntity.class);
         verify(converter, times(1)).toResponse(categoryEntity, CategoryResponse.class);
         verify(categoryRepository, times(1)).save(categoryEntity);
     }
@@ -156,15 +154,13 @@ public class CategoryServiceImplTest {
     void createCategory_RepositoryExceptionHandling() {
         // Arrange
         CategoryRequest categoryRequest = new CategoryRequest(1L, "Computers");
-        CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
+        CategoryEntity categoryEntity = new CategoryEntity("Computers");
 
-        when(converter.toEntity(categoryRequest, CategoryEntity.class)).thenReturn(categoryEntity);
         when(categoryRepository.save(categoryEntity)).thenThrow(PersistenceException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> categoryService.createCategory(categoryRequest), "Expected RepositoryException due to a generic runtime exception");
 
-        verify(converter, times(1)).toEntity(categoryRequest, CategoryEntity.class);
         verify(categoryRepository, times(1)).save(categoryEntity);
     }
 
@@ -210,7 +206,6 @@ public class CategoryServiceImplTest {
         CategoryResponse expectedResponse = new CategoryResponse(1L, "Computers");
 
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
-        when(converter.toEntity(categoryRequest, CategoryEntity.class)).thenReturn(categoryEntity);
         when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(expectedResponse);
         when(categoryRepository.save(categoryEntity)).thenReturn(categoryEntity);
 
@@ -222,7 +217,6 @@ public class CategoryServiceImplTest {
         assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
         assertEquals(expectedResponse.getName(), actualResponse.getName(), "Names should match");
 
-        verify(converter, times(1)).toEntity(categoryRequest, CategoryEntity.class);
         verify(categoryRepository, times(1)).findById(1L);
         verify(categoryRepository, times(1)).save(categoryEntity);
         verify(converter, times(2)).toResponse(categoryEntity, CategoryResponse.class);
@@ -251,7 +245,6 @@ public class CategoryServiceImplTest {
         CategoryResponse categoryResponse = new CategoryResponse(1L, "Computers");
 
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
-        when(converter.toEntity(categoryRequest, CategoryEntity.class)).thenReturn(categoryEntity);
         when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(categoryResponse);
         when(categoryRepository.save(categoryEntity)).thenThrow(PersistenceException.class);
 
@@ -259,8 +252,6 @@ public class CategoryServiceImplTest {
         assertThrows(RepositoryException.class, () -> categoryService.updateCategory(categoryRequest), "Expected RepositoryException due to a generic runtime exception");
 
         // Assert
-
-        verify(converter, times(1)).toEntity(categoryRequest, CategoryEntity.class);
         verify(categoryRepository, times(1)).findById(1L);
         verify(categoryRepository, times(1)).save(categoryEntity);
         verify(converter, times(1)).toResponse(categoryEntity, CategoryResponse.class);

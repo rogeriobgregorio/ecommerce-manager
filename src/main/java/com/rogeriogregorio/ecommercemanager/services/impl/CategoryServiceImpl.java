@@ -5,7 +5,6 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.CategoryResponse;
 import com.rogeriogregorio.ecommercemanager.entities.CategoryEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
-import com.rogeriogregorio.ecommercemanager.exceptions.ResourceAlreadyExistsException;
 import com.rogeriogregorio.ecommercemanager.repositories.CategoryRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -53,7 +52,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryRequest.setId(null);
 
-        CategoryEntity categoryEntity = converter.toEntity(categoryRequest, CategoryEntity.class);
+        CategoryEntity categoryEntity = buildCategoryFromRequest(categoryRequest);
 
         try {
             categoryRepository.save(categoryEntity);
@@ -96,7 +95,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         findCategoryById(categoryRequest.getId());
 
-        CategoryEntity categoryEntity = converter.toEntity(categoryRequest, CategoryEntity.class);
+        CategoryEntity categoryEntity = buildCategoryFromRequest(categoryRequest);
 
         try {
             categoryRepository.save(categoryEntity);
@@ -140,4 +139,11 @@ public class CategoryServiceImpl implements CategoryService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public CategoryEntity buildCategoryFromRequest(CategoryRequest categoryRequest) {
+
+        return categoryRequest.getId() == null?
+                new CategoryEntity(categoryRequest.getName()) :
+                new CategoryEntity(categoryRequest.getId(), categoryRequest.getName());
+    }
 }

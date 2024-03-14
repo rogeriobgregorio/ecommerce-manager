@@ -28,7 +28,7 @@ public interface OrderService {
 
     boolean isOrderPaid(Long id);
 
-    void validateOrderStatus(OrderRequest orderRequest);
+    void validateOrderStatusChange(OrderRequest orderRequest);
 
     OrderEntity buildOrderFromRequest(OrderRequest orderRequest);
 }

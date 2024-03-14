@@ -88,7 +88,7 @@ public class ECommerceManagerExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<StandardError> DataIntegrityViolationException(DataIntegrityViolationException ex) {
 
-        String message = ex.getMostSpecificCause().getMessage().contains("EMAIL") ? "O email já está em uso." : "Verifique os dados enviados.";
+        String message = ex.getMostSpecificCause().getMessage().contains("EMAIL") ? "O email já está em uso." : "Verifique se já há um recurso criado com o mesmo nome.";
 
         StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "DataIntegrityViolationException: erro de violação da integridade dos dados", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);

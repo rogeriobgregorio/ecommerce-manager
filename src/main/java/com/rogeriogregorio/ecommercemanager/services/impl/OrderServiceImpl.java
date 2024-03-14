@@ -110,7 +110,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public OrderResponse updateOrder(OrderRequest orderRequest) {
 
-        validateOrderStatus(orderRequest);
+        validateOrderStatusChange(orderRequest);
 
         OrderEntity orderEntity = buildOrderFromRequest(orderRequest);
 
@@ -169,7 +169,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional(readOnly = true)
-    public void validateOrderStatus(OrderRequest orderRequest) {
+    public void validateOrderStatusChange(OrderRequest orderRequest) {
 
         OrderStatus requestedStatus = orderRequest.getOrderStatus();
         boolean isOrderPaid = isOrderPaid(orderRequest.getId());
