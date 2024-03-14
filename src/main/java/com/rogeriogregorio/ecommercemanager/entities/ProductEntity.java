@@ -15,7 +15,9 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "tb_products")
+@Table(name = "tb_products", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "name", name = "unique_name_constraint")
+})
 public class ProductEntity implements Serializable {
 
     @Serial
@@ -25,7 +27,7 @@ public class ProductEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
     @NotBlank(message = "O nome não deve estar em branco")
     @Size(max = 250, message = "O nome deve ter no máximo 250 caracteres.")
     private String name;

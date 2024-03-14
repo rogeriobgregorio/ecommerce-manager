@@ -13,7 +13,6 @@ public class OrderRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
-    private Instant moment;
     private Integer orderStatus;
     private Long clientId;
     private PaymentEntity paymentEntity;
@@ -25,9 +24,10 @@ public class OrderRequest implements Serializable {
         this.clientId = clientId;
     }
 
-    public OrderRequest(Long id, OrderStatus orderStatus) {
+    public OrderRequest(Long id, OrderStatus orderStatus, Long clientId) {
         this.id = id;
         setOrderStatus(orderStatus);
+        this.clientId = clientId;
     }
 
     public Long getId() {
@@ -36,14 +36,6 @@ public class OrderRequest implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Instant getMoment() {
-        return moment;
-    }
-
-    public void setMoment(Instant moment) {
-        this.moment = moment;
     }
 
     public OrderStatus getOrderStatus() {
@@ -77,7 +69,7 @@ public class OrderRequest implements Serializable {
 
     @Override
     public String toString() {
-        return "[Pedido: id= " + id + ", moment= " + moment + ", orderStatus= " + orderStatus
+        return "[Pedido: id= " + id + ", orderStatus= " + orderStatus
                 + ", clientId= " + clientId + ", paymentEntity= " + paymentEntity + "]";
     }
 }

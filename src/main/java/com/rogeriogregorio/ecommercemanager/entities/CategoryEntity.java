@@ -13,7 +13,9 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "tb_categories")
+@Table(name = "tb_categories", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "name", name = "unique_name_constraint")
+})
 public class CategoryEntity implements Serializable {
 
     @Serial
@@ -23,7 +25,7 @@ public class CategoryEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
     @NotBlank(message = "O nome não deve estar em branco")
     @Pattern(regexp = "^[\\p{L}\\s.]+$", message = "O nome deve ter apenas letras e espaços.")
     @Size(min = 5, max = 250, message = "O nome deve ter entre 5 e 250 caracteres.")

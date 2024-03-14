@@ -61,6 +61,8 @@ public class PaymentServiceImpl implements PaymentService {
             throw new IllegalStateException("Não foi possível processar o pagamento: pedido já pago.");
         }
 
+        paymentRequest.setId(null);
+
         PaymentEntity paymentEntity = buildPaymentFromRequest(paymentRequest);
 
         try {

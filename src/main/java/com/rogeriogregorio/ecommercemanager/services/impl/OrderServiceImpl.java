@@ -56,9 +56,9 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public OrderResponse createOrder(OrderRequest orderRequest) {
 
-        UserEntity userEntity = userService.findUserEntityById(orderRequest.getClientId());
+        orderRequest.setId(null);
 
-        OrderEntity orderEntity = new OrderEntity(Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
+        OrderEntity orderEntity = buildOrderFromRequest(orderRequest);
 
         try {
             orderRepository.save(orderEntity);
@@ -112,7 +112,7 @@ public class OrderServiceImpl implements OrderService {
 
         validateOrderStatus(orderRequest);
 
-        OrderEntity orderEntity = converter.toEntity(orderRequest, OrderEntity.class);
+        OrderEntity orderEntity = buildOrderFromRequest(orderRequest);
 
         try {
             orderRepository.save(orderEntity);
@@ -181,5 +181,16 @@ public class OrderServiceImpl implements OrderService {
         if (!isOrderPaid && requestedStatus != OrderStatus.CANCELED) {
             throw new IllegalStateException("Não é possível alterar o status de entrega: pedido ainda aguardando pagamento.");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public OrderEntity buildOrderFromRequest(OrderRequest orderRequest) {
+
+        UserEntity client = userService.findUserEntityById(orderRequest.getClientId());
+
+        return orderRequest.getId() == null ?
+                new OrderEntity(Instant.now(), OrderStatus.WAITING_PAYMENT, client) :
+                new OrderEntity(orderRequest.getId(), Instant.now(), orderRequest.getOrderStatus(), client);
+
     }
 }

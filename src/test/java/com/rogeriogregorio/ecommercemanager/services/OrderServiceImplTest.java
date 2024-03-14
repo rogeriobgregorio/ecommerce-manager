@@ -225,11 +225,10 @@ public class OrderServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
 
-        OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID);
+        OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID, 1L);
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
         OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, userEntity);
 
-        when(converter.toEntity(orderRequest, OrderEntity.class)).thenReturn(orderEntity);
         when(orderRepository.findById(orderRequest.getId())).thenReturn(Optional.of(orderEntity));
         when(orderRepository.save(orderEntity)).thenReturn(orderEntity);
         when(converter.toResponse(orderEntity, OrderResponse.class)).thenReturn(expectedResponse);
@@ -244,7 +243,6 @@ public class OrderServiceImplTest {
         assertEquals(expectedResponse.getOrderStatus(), actualResponse.getOrderStatus(), "OrderStatus should match");
         assertEquals(expectedResponse.getClient(), actualResponse.getClient(), "Clients should match");
 
-        verify(converter, times(1)).toEntity(orderRequest, OrderEntity.class);
         verify(orderRepository, times(1)).findById(orderRequest.getId());
         verify(orderRepository, times(1)).save(orderEntity);
         verify(converter, times(1)).toResponse(orderEntity, OrderResponse.class);
@@ -256,7 +254,7 @@ public class OrderServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
 
-        OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID);
+        OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID, 1L);
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
 
         when(orderRepository.findById(orderRequest.getId())).thenReturn(Optional.empty());
@@ -273,17 +271,15 @@ public class OrderServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
 
-        OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID);
+        OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID, 1L);
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
 
-        when(converter.toEntity(orderRequest, OrderEntity.class)).thenReturn(orderEntity);
         when(orderRepository.findById(orderRequest.getId())).thenReturn(Optional.of(orderEntity));
         when(orderRepository.save(orderEntity)).thenThrow(PersistenceException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> orderService.updateOrder(orderRequest), "Expected RepositoryException for update failure");
 
-        verify(converter, times(1)).toEntity(orderRequest, OrderEntity.class);
         verify(orderRepository, times(1)).findById(orderEntity.getId());
         verify(orderRepository, times(1)).save(orderEntity);
     }

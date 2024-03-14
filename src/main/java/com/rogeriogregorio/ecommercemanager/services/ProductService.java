@@ -24,5 +24,5 @@ public interface ProductService {
 
     List<ProductResponse> findProductByName(String name);
 
-    boolean isProductExisting(ProductRequest productRequest);
+    ProductEntity buildProductFromRequest(ProductRequest productRequest);
 }

@@ -55,17 +55,9 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = false)
     public ProductResponse createProduct(ProductRequest productRequest) {
 
-        if (isProductExisting(productRequest)) {
-            logger.info("O produto já existe: {}", productRequest.toString());
-            throw new ResourceAlreadyExistsException("O produto que você está tentando criar já existe: " + productRequest);
-        }
-
         productRequest.setId(null);
 
-        List<CategoryEntity> categoryList = categoryService.findAllCategoriesById(productRequest.getCategoryIdList());
-
-        ProductEntity productEntity = converter.toEntity(productRequest, ProductEntity.class);
-        productEntity.getCategories().addAll(categoryList);
+        ProductEntity productEntity = buildProductFromRequest(productRequest);
 
         try {
             productRepository.save(productEntity);
@@ -106,10 +98,7 @@ public class ProductServiceImpl implements ProductService {
 
         findProductEntityById(productRequest.getId());
 
-        List<CategoryEntity> categoryList = categoryService.findAllCategoriesById(productRequest.getCategoryIdList());
-
-        ProductEntity productEntity = converter.toEntity(productRequest, ProductEntity.class);
-        productEntity.getCategories().addAll(categoryList);
+        ProductEntity productEntity = buildProductFromRequest(productRequest);
 
         try {
             productRepository.save(productEntity);
@@ -154,13 +143,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isProductExisting(ProductRequest productRequest) {
-        try {
-            return productRepository.existsByName(productRequest.getName()) != null;
+    public ProductEntity buildProductFromRequest(ProductRequest productRequest) {
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar verificar a existência do produto: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar verificar a existência do produto: " + exception);
-        }
+        List<CategoryEntity> categoryList = categoryService.findAllCategoriesById(productRequest.getCategoryIdList());
+
+        ProductEntity productEntity = converter.toEntity(productRequest, ProductEntity.class);
+        productEntity.getCategories().addAll(categoryList);
+
+        return productEntity;
     }
 }

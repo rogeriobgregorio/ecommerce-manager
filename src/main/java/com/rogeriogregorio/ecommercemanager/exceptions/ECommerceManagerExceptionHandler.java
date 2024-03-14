@@ -2,6 +2,7 @@ package com.rogeriogregorio.ecommercemanager.exceptions;
 
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -112,6 +113,13 @@ public class ECommerceManagerExceptionHandler {
 
         StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "IllegalStateException: exceção de estado ilegal", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(IncorrectResultSizeDataAccessException.class)
+    public ResponseEntity<StandardError> handleIncorrectResultSizeDataAccessException(IncorrectResultSizeDataAccessException ex) {
+
+        StandardError error = new StandardError(HttpStatus.NOT_FOUND, "IncorrectResultSizeDataAccessException: exceção de tamanho de resultado incorreto", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

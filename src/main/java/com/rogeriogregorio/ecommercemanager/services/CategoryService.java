@@ -23,6 +23,4 @@ public interface CategoryService {
     void deleteCategory(Long id);
 
     List<CategoryResponse> findCategoryByName(String name);
-
-    boolean isCategoryExisting(CategoryRequest categoryRequest);
 }

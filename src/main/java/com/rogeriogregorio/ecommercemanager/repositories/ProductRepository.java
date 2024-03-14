@@ -13,7 +13,4 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 
     @Query("SELECT p FROM ProductEntity p WHERE lower(p.name) LIKE lower(concat('%', :name, '%'))")
     List<ProductEntity> findProductByName(@Param("name") String name);
-
-    @Query("SELECT p FROM ProductEntity p WHERE lower(p.name) LIKE lower(concat('%', :name, '%'))")
-    ProductEntity existsByName(String name);
 }
