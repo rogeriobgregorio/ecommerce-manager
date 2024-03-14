@@ -5,7 +5,6 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.Instant;
 
 public class OrderRequest implements Serializable {
 
