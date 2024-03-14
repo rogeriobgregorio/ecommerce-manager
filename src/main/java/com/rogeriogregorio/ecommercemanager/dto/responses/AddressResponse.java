@@ -1,9 +1,12 @@
-package com.rogeriogregorio.ecommercemanager.dto.requests;
+package com.rogeriogregorio.ecommercemanager.dto.responses;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 
 import java.io.Serial;
 import java.io.Serializable;
 
-public class AddressRequest implements Serializable {
+public class AddressResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -20,21 +23,13 @@ public class AddressRequest implements Serializable {
 
     private String country;
 
-    private Long userId;
+    @JsonIgnore
+    private UserEntity user;
 
-    public AddressRequest() {
+    public AddressResponse() {
     }
 
-    public AddressRequest(String street, String city, String state, String cep, String country, Long userId) {
-        this.street = street;
-        this.city = city;
-        this.state = state;
-        this.cep = cep;
-        this.country = country;
-        this.userId = userId;
-    }
-
-    public AddressRequest(Long id, String street, String city, String state, String cep, String country) {
+    public AddressResponse(Long id, String street, String city, String state, String cep, String country) {
         this.id = id;
         this.street = street;
         this.city = city;
@@ -91,17 +86,11 @@ public class AddressRequest implements Serializable {
         this.country = country;
     }
 
-    public Long getUserId() {
-        return userId;
+    public UserEntity getUser() {
+        return user;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    @Override
-    public String toString() {
-        return "[Endereço: id= " + id + ", street= " + street + ", city= " + city + ", " +
-                "state= " + state +", cep= " + cep + ", country= " + country + "]";
+    public void setUser(UserEntity user) {
+        this.user = user;
     }
 }
