@@ -280,7 +280,7 @@ public class OrderItemServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.WAITING_PAYMENT, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
@@ -289,13 +289,8 @@ public class OrderItemServiceImplTest {
 
         OrderItemResponse expectedResponse = new OrderItemResponse(orderEntity, productEntity, 1, 4099.0);
 
-        OrderItemPK id = new OrderItemPK();
-        id.setOrderEntity(orderEntity);
-        id.setProductEntity(productEntity);
-
         when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
         when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
-        when(orderItemRepository.findById(id)).thenReturn(Optional.of(orderItemEntity));
         when(orderItemRepository.save(orderItemEntity)).thenReturn(orderItemEntity);
         when(converter.toResponse(orderItemEntity, OrderItemResponse.class)).thenReturn(expectedResponse);
 
@@ -306,11 +301,10 @@ public class OrderItemServiceImplTest {
         assertNotNull(actualResponse, "OrderItemResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(orderService, times(2)).findOrderEntityById(orderItemRequest.getOrderId());
-        verify(productService, times(2)).findProductEntityById(orderItemRequest.getProductId());
-        verify(orderItemRepository, times(1)).findById(id);
+        verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).save(orderItemEntity);
-        verify(converter, times(2)).toResponse(orderItemEntity, OrderItemResponse.class);
+        verify(converter, times(1)).toResponse(orderItemEntity, OrderItemResponse.class);
     }
 
     @Test
@@ -319,26 +313,14 @@ public class OrderItemServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
-
-        ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
 
-        OrderItemPK id = new OrderItemPK();
-        id.setOrderEntity(orderEntity);
-        id.setProductEntity(productEntity);
+        when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenThrow(NotFoundException.class);
 
-        when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
-        when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
-        when(orderItemRepository.findById(id)).thenReturn(Optional.empty());
-
-        // Act
+        // Act and Assert
         assertThrows(NotFoundException.class, () -> orderItemService.updateOrderItem(orderItemRequest), "Expected NotFoundException for non-existent order item");
 
         verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
-        verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
-        verify(orderItemRepository, times(1)).findById(id);
     }
 
     @Test
@@ -347,7 +329,7 @@ public class OrderItemServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.WAITING_PAYMENT, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
@@ -355,24 +337,17 @@ public class OrderItemServiceImplTest {
         OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
         OrderItemResponse expectedResponse = new OrderItemResponse(orderEntity, productEntity, 1, 4099.0);
 
-        OrderItemPK id = new OrderItemPK();
-        id.setOrderEntity(orderEntity);
-        id.setProductEntity(productEntity);
 
         when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
         when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
-        when(converter.toResponse(orderItemEntity, OrderItemResponse.class)).thenReturn(expectedResponse);
-        when(orderItemRepository.findById(id)).thenReturn(Optional.of(orderItemEntity));
         doThrow(PersistenceException.class).when(orderItemRepository).save(orderItemEntity);
 
-        // Act
+        // Act and Assert
         assertThrows(RepositoryException.class, () -> orderItemService.updateOrderItem(orderItemRequest), "Expected RepositoryException for non-existent order item");
 
-        verify(orderService, times(2)).findOrderEntityById(orderItemRequest.getOrderId());
-        verify(productService, times(2)).findProductEntityById(orderItemRequest.getProductId());
-        verify(orderItemRepository, times(1)).findById(id);
+        verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).save(orderItemEntity);
-        verify(converter, times(1)).toResponse(orderItemEntity, OrderItemResponse.class);
     }
 
     @Test
@@ -381,14 +356,11 @@ public class OrderItemServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.WAITING_PAYMENT, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
-        OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
-
-        OrderItemResponse expectedResponse = new OrderItemResponse(orderEntity, productEntity, 1, 4099.0);
 
         OrderItemPK id = new OrderItemPK();
         id.setOrderEntity(orderEntity);
@@ -396,18 +368,14 @@ public class OrderItemServiceImplTest {
 
         when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
         when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
-        when(orderItemRepository.findById(id)).thenReturn(Optional.of(orderItemEntity));
-        when(converter.toResponse(orderItemEntity, OrderItemResponse.class)).thenReturn(expectedResponse);
 
         // Act
         orderItemService.deleteOrderItem(1L, 1L);
 
         // Assert
-        verify(orderService, times(2)).findOrderEntityById(orderItemRequest.getOrderId());
-        verify(productService, times(2)).findProductEntityById(orderItemRequest.getProductId());
-        verify(orderItemRepository, times(1)).findById(id);
+        verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).deleteById(id);
-        verify(converter, times(1)).toResponse(orderItemEntity, OrderItemResponse.class);
     }
 
     @Test
@@ -416,27 +384,15 @@ public class OrderItemServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
-
-        ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
 
-        OrderItemPK id = new OrderItemPK();
-        id.setOrderEntity(orderEntity);
-        id.setProductEntity(productEntity);
-
-        when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
-        when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
-        when(orderItemRepository.findById(id)).thenReturn(Optional.empty());
+        when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenThrow(NotFoundException.class);
 
         // Act
         assertThrows(NotFoundException.class, () -> orderItemService.deleteOrderItem(1L, 1L), "Expected RepositoryException for non-existent order item");
 
         // Assert
         verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
-        verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
-        verify(orderItemRepository, times(1)).findById(id);
     }
 
     @Test
@@ -445,13 +401,11 @@ public class OrderItemServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.WAITING_PAYMENT, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
-        OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
-        OrderItemResponse expectedResponse = new OrderItemResponse(orderEntity, productEntity, 1, 4099.0);
 
         OrderItemPK id = new OrderItemPK();
         id.setOrderEntity(orderEntity);
@@ -459,19 +413,15 @@ public class OrderItemServiceImplTest {
 
         when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
         when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
-        when(orderItemRepository.findById(id)).thenReturn(Optional.of(orderItemEntity));
-        when(converter.toResponse(orderItemEntity, OrderItemResponse.class)).thenReturn(expectedResponse);
         doThrow(PersistenceException.class).when(orderItemRepository).deleteById(id);
 
         // Act
         assertThrows(RepositoryException.class, () -> orderItemService.deleteOrderItem(1L, 1L), "Expected RepositoryException for non-existent order item");
 
         // Assert
-        verify(orderService, times(2)).findOrderEntityById(orderItemRequest.getOrderId());
-        verify(productService, times(2)).findProductEntityById(orderItemRequest.getProductId());
-        verify(orderItemRepository, times(1)).findById(id);
+        verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).deleteById(id);
-        verify(converter, times(1)).toResponse(orderItemEntity, OrderItemResponse.class);
     }
 
     @Test

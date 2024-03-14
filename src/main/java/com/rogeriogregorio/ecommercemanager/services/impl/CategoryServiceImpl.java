@@ -146,7 +146,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public Boolean isCategoryExisting(CategoryRequest categoryRequest) {
+    public boolean isCategoryExisting(CategoryRequest categoryRequest) {
 
         try {
             return categoryRepository.existsByName(categoryRequest.getName()) != null;

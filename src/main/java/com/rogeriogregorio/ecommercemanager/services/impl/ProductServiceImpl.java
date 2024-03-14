@@ -154,7 +154,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Boolean isProductExisting(ProductRequest productRequest) {
+    public boolean isProductExisting(ProductRequest productRequest) {
         try {
             return productRepository.existsByName(productRequest.getName()) != null;
 

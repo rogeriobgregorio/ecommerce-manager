@@ -89,7 +89,9 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = false)
     public OrderItemResponse updateOrderItem(OrderItemRequest orderItemRequest) {
 
-        findOrderItemById(orderItemRequest.getOrderId(), orderItemRequest.getProductId());
+        if (orderService.isOrderPaid(orderItemRequest.getOrderId())) {
+            throw new IllegalStateException("Não é possível editar um item de um pedido que já foi pago.");
+        }
 
         OrderItemEntity orderItemEntity = buildOrderItemFromRequest(orderItemRequest);
 
@@ -107,7 +109,9 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = false)
     public void deleteOrderItem(Long orderId, Long itemId) {
 
-        findOrderItemById(orderId, itemId);
+        if (orderService.isOrderPaid(orderId)) {
+            throw new IllegalStateException("Não é possível excluir um item de um pedido que já foi pago.");
+        }
 
         OrderItemPK id = buildOrderItemPK(orderId, itemId);
 
@@ -121,6 +125,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         }
     }
 
+    @Transactional(readOnly = true)
     public OrderItemPK buildOrderItemPK(Long orderId, Long itemId) {
 
         OrderEntity orderEntity = orderService.findOrderEntityById(orderId);
@@ -133,6 +138,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         return id;
     }
 
+    @Transactional(readOnly = true)
     public OrderItemEntity buildOrderItemFromRequest(OrderItemRequest orderItemRequest) {
 
         OrderEntity orderEntity = orderService.findOrderEntityById(orderItemRequest.getOrderId());

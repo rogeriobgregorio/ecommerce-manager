@@ -23,4 +23,6 @@ public interface ProductService {
     void deleteProduct(Long id);
 
     List<ProductResponse> findProductByName(String name);
+
+    boolean isProductExisting(ProductRequest productRequest);
 }

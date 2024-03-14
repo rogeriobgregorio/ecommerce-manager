@@ -57,12 +57,8 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional(readOnly = false)
     public PaymentResponse createPayment(PaymentRequest paymentRequest) {
 
-        if (orderService.isOrderPaid(paymentRequest)) {
-
-            OrderEntity orderAlreadyPaid = orderService.findOrderEntityById(paymentRequest.getOrderId());
-
-            logger.info("Pagamento já processado: {}", orderAlreadyPaid.toString());
-            throw new ResourceAlreadyExistsException("O pagamento do pedido já foi processado: " + orderAlreadyPaid.toString());
+        if (orderService.isOrderPaid(paymentRequest.getOrderId())) {
+            throw new IllegalStateException("Não foi possível processar o pagamento: pedido já pago.");
         }
 
         PaymentEntity paymentEntity = buildPaymentFromRequest(paymentRequest);

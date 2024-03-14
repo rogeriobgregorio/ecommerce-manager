@@ -1,7 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
-import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import org.springframework.stereotype.Component;
@@ -27,5 +26,7 @@ public interface OrderService {
 
     List<OrderResponse> findOrderByClientId(Long id);
 
-    Boolean isOrderPaid(PaymentRequest paymentRequest);
+    boolean isOrderPaid(Long id);
+
+    void validateOrderStatus(OrderRequest orderRequest);
 }

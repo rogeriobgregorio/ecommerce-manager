@@ -294,7 +294,7 @@ public class OrderServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
 
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(orderEntity));
 
@@ -323,7 +323,7 @@ public class OrderServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
 
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(orderEntity));
         doThrow(PersistenceException.class).when(orderRepository).deleteById(1L);
@@ -333,6 +333,22 @@ public class OrderServiceImplTest {
 
         verify(orderRepository, times(1)).findById(1L);
         verify(orderRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    @DisplayName("deleteOrder - Exceção ao tentar excluir pedido pago")
+    void deleteOrder_IllegalStateExceptionHandling() {
+        // Arrange
+        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
+
+        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
+
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(orderEntity));
+
+        // Act and Assert
+        assertThrows(IllegalStateException.class, () -> orderService.deleteOrder(1L), "Expected IllegalException for delete failure");
+
+        verify(orderRepository, times(1)).findById(1L);
     }
 
     @Test

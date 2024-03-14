@@ -1,7 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
-import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
@@ -111,7 +110,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public OrderResponse updateOrder(OrderRequest orderRequest) {
 
-        findOrderEntityById(orderRequest.getId());
+        validateOrderStatus(orderRequest);
 
         OrderEntity orderEntity = converter.toEntity(orderRequest, OrderEntity.class);
 
@@ -129,7 +128,9 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public void deleteOrder(Long id) {
 
-        findOrderEntityById(id);
+        if (isOrderPaid(id)) {
+            throw new IllegalStateException("Não é possível excluir um pedido que já foi pago.");
+        }
 
         try {
             orderRepository.deleteById(id);
@@ -158,9 +159,27 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional(readOnly = true)
-    public Boolean isOrderPaid(PaymentRequest paymentRequest) {
+    public boolean isOrderPaid(Long id) {
 
-        OrderEntity order = findOrderEntityById(paymentRequest.getOrderId());
-        return order.getOrderStatus() == OrderStatus.PAID;
+        OrderEntity order = findOrderEntityById(id);
+
+        return order.getOrderStatus() == OrderStatus.PAID ||
+                order.getOrderStatus() == OrderStatus.SHIPPED ||
+                order.getOrderStatus() == OrderStatus.DELIVERED;
+    }
+
+    @Transactional(readOnly = true)
+    public void validateOrderStatus(OrderRequest orderRequest) {
+
+        OrderStatus requestedStatus = orderRequest.getOrderStatus();
+        boolean isOrderPaid = isOrderPaid(orderRequest.getId());
+
+        if (isOrderPaid && requestedStatus == OrderStatus.WAITING_PAYMENT) {
+            throw new IllegalStateException("Não é possível alterar o status de pagamento: pedido já pago.");
+        }
+
+        if (!isOrderPaid && requestedStatus != OrderStatus.CANCELED) {
+            throw new IllegalStateException("Não é possível alterar o status de entrega: pedido ainda aguardando pagamento.");
+        }
     }
 }

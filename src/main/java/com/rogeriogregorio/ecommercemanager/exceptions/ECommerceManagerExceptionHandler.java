@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -106,6 +105,13 @@ public class ECommerceManagerExceptionHandler {
 
         StandardError error = new StandardError(HttpStatus.CONFLICT, "ResourceAlreadyExistsException: recurso já existente", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<StandardError> handleIllegalStateException(IllegalStateException ex) {
+
+        StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "IllegalStateException: exceção de estado ilegal", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
