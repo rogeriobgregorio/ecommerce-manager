@@ -48,8 +48,9 @@ public class AddressEntity implements Serializable {
     private String country;
 
     @JsonIgnore
-    @OneToOne(mappedBy = "address")
-    private UserEntity user;
+    @OneToOne
+    @MapsId
+    private UserEntity userEntity;
 
     public AddressEntity() {
     }
@@ -119,12 +120,12 @@ public class AddressEntity implements Serializable {
         this.country = country;
     }
 
-    public UserEntity getUser() {
-        return user;
+    public UserEntity getUserEntity() {
+        return userEntity;
     }
 
-    public void setUser(UserEntity user) {
-        this.user = user;
+    public void setUserEntity(UserEntity userEntity) {
+        this.userEntity = userEntity;
     }
 
     @Override

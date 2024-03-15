@@ -50,9 +50,9 @@ public class UserEntity implements Serializable {
     @OneToMany(mappedBy = "client")
     private List<OrderEntity> orders = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "userEntity", cascade = CascadeType.REMOVE)
     @JoinColumn(name = "address_id", referencedColumnName = "id")
-    private AddressEntity address;
+    private AddressEntity addressEntity;
 
     public UserEntity() {
     }
@@ -117,12 +117,12 @@ public class UserEntity implements Serializable {
         return orders;
     }
 
-    public AddressEntity getAddress() {
-        return address;
+    public AddressEntity getAddressEntity() {
+        return addressEntity;
     }
 
-    public void setAddress(AddressEntity address) {
-        this.address = address;
+    public void setAddressEntity(AddressEntity addressEntity) {
+        this.addressEntity = addressEntity;
     }
 
     @Override
