@@ -62,6 +62,15 @@ public class AddressEntity implements Serializable {
         this.country = country;
     }
 
+    public AddressEntity(Long id, String street, String city, String state, String cep, String country) {
+        this.id = id;
+        this.street = street;
+        this.city = city;
+        this.state = state;
+        this.cep = cep;
+        this.country = country;
+    }
+
     public Long getId() {
         return id;
     }

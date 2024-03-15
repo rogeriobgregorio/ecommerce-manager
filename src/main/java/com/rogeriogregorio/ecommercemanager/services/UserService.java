@@ -23,4 +23,6 @@ public interface UserService {
     void deleteUser(Long id);
 
    List<UserResponse> findUserByName(String name);
+
+    UserEntity buildUserFromRequest(UserRequest userRequest);
 }

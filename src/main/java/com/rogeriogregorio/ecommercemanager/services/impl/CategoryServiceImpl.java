@@ -142,7 +142,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     public CategoryEntity buildCategoryFromRequest(CategoryRequest categoryRequest) {
 
-        return categoryRequest.getId() == null?
+        return categoryRequest.getId() == null ?
                 new CategoryEntity(categoryRequest.getName()) :
                 new CategoryEntity(categoryRequest.getId(), categoryRequest.getName());
     }

@@ -2,10 +2,12 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
+import com.rogeriogregorio.ecommercemanager.entities.AddressEntity;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
+import com.rogeriogregorio.ecommercemanager.services.AddressService;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import jakarta.persistence.PersistenceException;
@@ -22,12 +24,14 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final AddressService addressService;
     private final Converter converter;
     private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, Converter converter) {
+    public UserServiceImpl(UserRepository userRepository, AddressService addressService, Converter converter) {
         this.userRepository = userRepository;
+        this.addressService = addressService;
         this.converter = converter;
     }
 
@@ -75,7 +79,7 @@ public class UserServiceImpl implements UserService {
 
         userRequest.setId(null);
 
-        UserEntity userEntity = converter.toEntity(userRequest, UserEntity.class);
+        UserEntity userEntity = buildUserFromRequest(userRequest);
 
         try {
             userRepository.save(userEntity);
@@ -93,7 +97,7 @@ public class UserServiceImpl implements UserService {
 
         findUserEntityById(userRequest.getId());
 
-        UserEntity userEntity = converter.toEntity(userRequest, UserEntity.class);
+        UserEntity userEntity = buildUserFromRequest(userRequest);
 
         try {
             userRepository.save(userEntity);
@@ -134,5 +138,16 @@ public class UserServiceImpl implements UserService {
             logger.error("Erro ao tentar buscar usuário pelo nome: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar buscar usuário pelo nome: " + exception);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public UserEntity buildUserFromRequest(UserRequest userRequest) {
+
+        AddressEntity address = addressService.findAddressEntityById(userRequest.getAddressId());
+
+        UserEntity userEntity = converter.toEntity(userRequest, UserEntity.class);
+        userEntity.setAddress(address);
+
+        return userEntity;
     }
 }

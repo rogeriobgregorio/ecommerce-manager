@@ -34,13 +34,14 @@ public class AddressRequest implements Serializable {
         this.userId = userId;
     }
 
-    public AddressRequest(Long id, String street, String city, String state, String cep, String country) {
+    public AddressRequest(Long id, String street, String city, String state, String cep, String country, Long userId) {
         this.id = id;
         this.street = street;
         this.city = city;
         this.state = state;
         this.cep = cep;
         this.country = country;
+        this.userId = userId;
     }
 
     public Long getId() {
