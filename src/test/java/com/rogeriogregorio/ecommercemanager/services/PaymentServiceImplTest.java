@@ -2,6 +2,7 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
+import com.rogeriogregorio.ecommercemanager.entities.AddressEntity;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import com.rogeriogregorio.ecommercemanager.entities.PaymentEntity;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
@@ -55,7 +56,7 @@ public class PaymentServiceImplTest {
     @DisplayName("findAllPayments - Busca bem-sucedida retorna lista contendo um pagamento")
     void findAllPayments_SuccessfulSearch_ReturnsListResponse_OnePayment() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         PaymentEntity paymentEntity = new PaymentEntity(1L, Instant.now(), orderEntity);
@@ -82,7 +83,7 @@ public class PaymentServiceImplTest {
     @DisplayName("findAllPayments - Busca bem-sucedida retorna lista contendo múltiplos pagamentos")
     void findAllPayments_SuccessfulSearch_ReturnsListResponse_MultiplePayments() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         List<PaymentEntity> paymentEntityList = new ArrayList<>();
@@ -145,8 +146,7 @@ public class PaymentServiceImplTest {
     @DisplayName("createPayment - Criação bem-sucedida retorna pagamento criado")
     void createPayment_SuccessfulCreation_ReturnsPaymentResponse() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
 
         PaymentRequest paymentRequest = new PaymentRequest(1L);
@@ -175,8 +175,7 @@ public class PaymentServiceImplTest {
     @DisplayName("createPayment - Exceção no repositório ao tentar criar pagamento")
     void createPayment_RepositoryExceptionHandling() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
 
         PaymentRequest paymentRequest = new PaymentRequest(1L);
@@ -198,8 +197,7 @@ public class PaymentServiceImplTest {
     @DisplayName("findPaymentById - Busca bem-sucedida retorna pagamento")
     void findCategoryById_SuccessfulSearch_ReturnsOrderResponse() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
 
         PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
@@ -235,8 +233,7 @@ public class PaymentServiceImplTest {
     @DisplayName("deletePayment - Exclusão bem-sucedida do pedido")
     void deletePayment_DeletesPaymentSuccessfully() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
 
         PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
@@ -269,8 +266,7 @@ public class PaymentServiceImplTest {
     @DisplayName("deletePayment - Exceção no repositório ao tentar excluir pagamento")
     void deletePayment_RepositoryExceptionHandling() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
 
         PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);

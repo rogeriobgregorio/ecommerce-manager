@@ -7,7 +7,6 @@ import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
-import com.rogeriogregorio.ecommercemanager.services.AddressService;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import jakarta.persistence.PersistenceException;
@@ -24,14 +23,12 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final AddressService addressService;
     private final Converter converter;
     private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, AddressService addressService, Converter converter) {
+    public UserServiceImpl(UserRepository userRepository, Converter converter) {
         this.userRepository = userRepository;
-        this.addressService = addressService;
         this.converter = converter;
     }
 
@@ -79,7 +76,7 @@ public class UserServiceImpl implements UserService {
 
         userRequest.setId(null);
 
-        UserEntity userEntity = buildUserFromRequest(userRequest);
+        UserEntity userEntity = converter.toEntity(userRequest, UserEntity.class);
 
         try {
             userRepository.save(userEntity);
@@ -97,7 +94,7 @@ public class UserServiceImpl implements UserService {
 
         findUserEntityById(userRequest.getId());
 
-        UserEntity userEntity = buildUserFromRequest(userRequest);
+        UserEntity userEntity = converter.toEntity(userRequest, UserEntity.class);
 
         try {
             userRepository.save(userEntity);
@@ -140,14 +137,17 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public UserEntity buildUserFromRequest(UserRequest userRequest) {
+    @Transactional(readOnly = false)
+    public void saveUserAddress(UserEntity userEntity) {
 
-        AddressEntity address = addressService.findAddressEntityById(userRequest.getAddressId());
+        try {
+            userRepository.save(userEntity);
+            logger.info("Endereço do usuário atualizado: {}", userEntity.toString());
 
-        UserEntity userEntity = converter.toEntity(userRequest, UserEntity.class);
-        userEntity.setAddress(address);
+        } catch (PersistenceException exception) {
+            logger.error("Erro ao tentar atualizar o endereço do usuário: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar atualizar o endereço do usuário: " + exception);
+        }
 
-        return userEntity;
     }
 }

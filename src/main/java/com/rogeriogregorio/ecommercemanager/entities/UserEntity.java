@@ -57,21 +57,19 @@ public class UserEntity implements Serializable {
     public UserEntity() {
     }
 
-    public UserEntity(String name, String email, String phone, String password, AddressEntity address) {
+    public UserEntity(String name, String email, String phone, String password) {
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.password = password;
-        this.address = address;
     }
 
-    public UserEntity(Long id, String name, String email, String phone, String password, AddressEntity address) {
+    public UserEntity(Long id, String name, String email, String phone, String password) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.password = password;
-        this.address = address;
     }
 
     public Long getId() {

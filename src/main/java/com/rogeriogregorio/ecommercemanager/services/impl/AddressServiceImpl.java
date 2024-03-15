@@ -133,6 +133,9 @@ public class AddressServiceImpl implements AddressService {
         AddressEntity addressEntity = converter.toEntity(addressRequest, AddressEntity.class);
         addressEntity.setUser(user);
 
+        user.setAddress(addressEntity);
+        userService.saveUserAddress(user);
+
         return addressEntity;
     }
 }

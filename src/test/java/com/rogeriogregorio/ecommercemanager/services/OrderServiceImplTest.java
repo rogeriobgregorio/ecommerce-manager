@@ -3,6 +3,7 @@ package com.rogeriogregorio.ecommercemanager.services;
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
+import com.rogeriogregorio.ecommercemanager.entities.AddressEntity;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
@@ -56,8 +57,7 @@ public class OrderServiceImplTest {
     @DisplayName("findAllOrders - Busca bem-sucedida retorna lista contendo um pedido")
     void findAllOrders_SuccessfulSearch_ReturnsListResponse_OneOrder() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
         List<OrderEntity> orderEntityList = Collections.singletonList(orderEntity);
 
@@ -82,8 +82,7 @@ public class OrderServiceImplTest {
     @DisplayName("findAllOrders - Busca bem-sucedida retorna lista contendo múltiplos pedidos")
     void findAllOrders_SuccessfulSearch_ReturnsListResponse_MultipleOrders() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         List<OrderEntity> orderEntityList = new ArrayList<>();
         List<OrderResponse> expectedResponses = new ArrayList<>();
 
@@ -144,8 +143,7 @@ public class OrderServiceImplTest {
     @DisplayName("createOrder - Criação bem-sucedida retorna pedido criado")
     void createOrder_SuccessfulCreation_ReturnsOrderResponse() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderRequest orderRequest = new OrderRequest(1L);
         OrderEntity orderEntity = new OrderEntity(Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
         OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
@@ -170,8 +168,7 @@ public class OrderServiceImplTest {
     @DisplayName("createOrder - Exceção no repositório ao tentar criar pedido")
     void createOrder_RepositoryExceptionHandling() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderRequest orderRequest = new OrderRequest(1L);
         OrderEntity orderEntity = new OrderEntity(Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
 
@@ -188,8 +185,7 @@ public class OrderServiceImplTest {
     @DisplayName("findOrderById - Busca bem-sucedida retorna pedido")
     void findOrderById_SuccessfulSearch_ReturnsOrderResponse() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
         OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, userEntity);
 
@@ -223,8 +219,7 @@ public class OrderServiceImplTest {
     @DisplayName("updateOrder - Atualização bem-sucedida retorna pedido atualizado")
     void updateOrder_SuccessfulUpdate_ReturnsOrderResponse() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID, 1L);
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
         OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, userEntity);
@@ -252,8 +247,7 @@ public class OrderServiceImplTest {
     @DisplayName("updateOrder - Exceção ao tentar atualizar pedido inexistente")
     void updateOrder_NotFoundExceptionHandling() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID, 1L);
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
 
@@ -269,8 +263,7 @@ public class OrderServiceImplTest {
     @DisplayName("updateOrder - Exceção no repositório ao tentar atualizar pedido")
     void updateOrder_RepositoryExceptionHandling() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID, 1L);
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
 
@@ -288,8 +281,7 @@ public class OrderServiceImplTest {
     @DisplayName("deleteOrder - Exclusão bem-sucedida do pedido")
     void deleteOrder_DeletesOrderSuccessfully() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(orderEntity));
@@ -317,8 +309,7 @@ public class OrderServiceImplTest {
     @DisplayName("deleteOrder - Exceção no repositório ao tentar excluir pedido")
     void deleteOrder_RepositoryExceptionHandling() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(orderEntity));
@@ -335,8 +326,7 @@ public class OrderServiceImplTest {
     @DisplayName("deleteOrder - Exceção ao tentar excluir pedido pago")
     void deleteOrder_IllegalStateExceptionHandling() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(orderEntity));
@@ -351,8 +341,7 @@ public class OrderServiceImplTest {
     @DisplayName("findOrderByClientId - Busca bem-sucedida retorna lista contendo um pedido")
     void findOrderByClientId_SuccessfulSearch_ReturnsOrderResponse_OneOrder() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
         List<OrderEntity> orderEntityList = Collections.singletonList(orderEntity);
 
@@ -377,8 +366,7 @@ public class OrderServiceImplTest {
     @DisplayName("findOrderByClientId - Busca bem-sucedida retorna lista contendo múltiplos pedidos")
     void findOrderByClientId_SuccessfulSearch_ReturnsListResponse_MultipleOrders() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "Maria Brown", "maria@gmail.com", "988888888", "123456");
-
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         List<OrderEntity> orderEntityList = new ArrayList<>();
         List<OrderResponse> expectedResponses = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {

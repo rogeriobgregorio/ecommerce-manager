@@ -22,7 +22,7 @@ public interface UserService {
 
     void deleteUser(Long id);
 
-   List<UserResponse> findUserByName(String name);
+    List<UserResponse> findUserByName(String name);
 
-    UserEntity buildUserFromRequest(UserRequest userRequest);
+    void saveUserAddress(UserEntity userEntity);
 }

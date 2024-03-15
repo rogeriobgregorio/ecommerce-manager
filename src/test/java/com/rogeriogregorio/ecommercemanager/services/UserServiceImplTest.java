@@ -2,6 +2,7 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
+import com.rogeriogregorio.ecommercemanager.entities.AddressEntity;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
@@ -269,7 +270,6 @@ public class UserServiceImplTest {
         // Arrange
         UserRequest userRequest = new UserRequest(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        UserResponse userResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
         when(converter.toEntity(userRequest, UserEntity.class)).thenReturn(userEntity);
@@ -351,8 +351,8 @@ public class UserServiceImplTest {
     void findUserByName_SuccessfulSearch_ReturnsListResponse_OneUser() {
         // Arrange
         String userName = "João Silva";
-
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+
         List<UserEntity> userEntityList = Collections.singletonList(userEntity);
 
         UserResponse userResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");

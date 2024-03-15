@@ -4,10 +4,7 @@ import com.rogeriogregorio.ecommercemanager.dto.requests.OrderItemRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderItemResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductResponse;
-import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
-import com.rogeriogregorio.ecommercemanager.entities.OrderItemEntity;
-import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
-import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
+import com.rogeriogregorio.ecommercemanager.entities.*;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
@@ -156,7 +153,6 @@ public class OrderItemServiceImplTest {
     void createOrderItem_SuccessfulCreation_ReturnsOrderItemResponse() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
@@ -189,7 +185,6 @@ public class OrderItemServiceImplTest {
     void createOrderItem_RepositoryExceptionHandling() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
@@ -214,7 +209,6 @@ public class OrderItemServiceImplTest {
     void findOrderItemById_SuccessfulSearch_ReturnsOrderItemResponse() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
@@ -251,7 +245,6 @@ public class OrderItemServiceImplTest {
     void findOrderItemById_NotFoundExceptionHandling() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
@@ -279,7 +272,6 @@ public class OrderItemServiceImplTest {
     void updateOrderItem_SuccessfulUpdate_ReturnsUserResponse() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.WAITING_PAYMENT, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
@@ -312,7 +304,6 @@ public class OrderItemServiceImplTest {
     void updateOrderItemById_NotFoundExceptionHandling() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
 
         when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenThrow(NotFoundException.class);
@@ -328,7 +319,6 @@ public class OrderItemServiceImplTest {
     void updateOrderItemById_RepositoryExceptionHandling() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.WAITING_PAYMENT, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
@@ -355,7 +345,6 @@ public class OrderItemServiceImplTest {
     void deleteOrderItem_DeletesSuccessfully() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.WAITING_PAYMENT, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
@@ -383,7 +372,6 @@ public class OrderItemServiceImplTest {
     void deleteOrderItem_NotFoundExceptionHandling() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
 
         when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenThrow(NotFoundException.class);
@@ -400,7 +388,6 @@ public class OrderItemServiceImplTest {
     void deleteOrderItem_RepositoryExceptionHandling() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.WAITING_PAYMENT, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
@@ -429,7 +416,6 @@ public class OrderItemServiceImplTest {
     void buildOrderItemPK_BuildSuccessfully() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
@@ -459,7 +445,6 @@ public class OrderItemServiceImplTest {
     void buildOrderItemFromRequest_BuildSuccessfully() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-
         OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
 
         ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
