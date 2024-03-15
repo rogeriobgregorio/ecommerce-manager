@@ -117,7 +117,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         try {
             orderItemRepository.deleteById(id);
-            logger.warn("Item do pedido removido: {}", id);
+            logger.warn("Item do pedido removido: {}", id.getProductEntity().toString());
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir item do pedido: {}", exception.getMessage(), exception);

@@ -78,6 +78,17 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Transactional(readOnly = true)
+    public CategoryEntity findCategoryEntityById(Long id) {
+
+        return categoryRepository
+                .findById(id)
+                .orElseThrow(() -> {
+                    logger.warn("Categoria não encontrado com o ID: {}", id);
+                    return new NotFoundException("Categoria não encontrado com o ID: " + id + ".");
+                });
+    }
+
+    @Transactional(readOnly = true)
     public List<CategoryEntity> findAllCategoriesById(List<Long> id) {
 
         try {
@@ -111,11 +122,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = false)
     public void deleteCategory(Long id) {
 
-        findCategoryById(id);
+        CategoryEntity categoryEntity = findCategoryEntityById(id);
 
         try {
             categoryRepository.deleteById(id);
-            logger.warn("Categoria removida: {}", id);
+            logger.warn("Categoria removida: {}", categoryEntity.toString());
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir a categoria: {}", exception.getMessage(), exception);

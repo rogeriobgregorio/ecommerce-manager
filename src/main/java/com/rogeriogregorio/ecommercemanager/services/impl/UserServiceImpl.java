@@ -2,7 +2,6 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
-import com.rogeriogregorio.ecommercemanager.entities.AddressEntity;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
@@ -110,11 +109,11 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = false)
     public void deleteUser(Long id) {
 
-        findUserEntityById(id);
+        UserEntity userEntity = findUserEntityById(id);
 
         try {
             userRepository.deleteById(id);
-            logger.warn("Usuário removido: {}", id);
+            logger.warn("Usuário removido: {}", userEntity.toString());
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir o usuário: {}", exception.getMessage(), exception);

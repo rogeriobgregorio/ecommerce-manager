@@ -60,12 +60,12 @@ public class AddressServiceImpl implements AddressService {
 
         try {
             addressRepository.save(addressEntity);
-            logger.info("Categoria criada: {}", addressEntity.toString());
+            logger.info("Endereço criado: {}", addressEntity.toString());
             return converter.toResponse(addressEntity, AddressResponse.class);
 
         } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar criar a categoria: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar a categoria: " + exception);
+            logger.error("Erro ao tentar criar o endereço: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar criar o endereço: " + exception);
         }
     }
 
@@ -113,11 +113,11 @@ public class AddressServiceImpl implements AddressService {
     @Transactional(readOnly = false)
     public void deleteAddress(Long id) {
 
-        findAddressEntityById(id);
+        AddressEntity addressEntity = findAddressEntityById(id);
 
         try {
             addressRepository.deleteById(id);
-            logger.warn("Endereço removido: {}", id);
+            logger.warn("Endereço removido: {}", addressEntity.toString());
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir o endereço: {}", exception.getMessage(), exception);

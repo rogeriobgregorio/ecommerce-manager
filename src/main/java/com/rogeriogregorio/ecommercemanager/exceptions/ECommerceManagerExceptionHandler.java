@@ -88,7 +88,7 @@ public class ECommerceManagerExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<StandardError> DataIntegrityViolationException(DataIntegrityViolationException ex) {
 
-        String message = ex.getMostSpecificCause().getMessage().contains("EMAIL") ? "O email já está em uso." : "Verifique se já há um recurso criado com o mesmo nome.";
+        String message = ex.getMostSpecificCause().getMessage().contains("EMAIL") ? "O email já está em uso." : "Verifique a existência de um recurso com o mesmo nome.";
 
         StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "DataIntegrityViolationException: erro de violação da integridade dos dados", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -99,13 +99,6 @@ public class ECommerceManagerExceptionHandler {
 
         StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR, "ConverterException: erro de conversão de dados", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-    }
-
-    @ExceptionHandler(ResourceAlreadyExistsException.class)
-    public ResponseEntity<StandardError> handleResourceAlreadyExistsException(ResourceAlreadyExistsException ex) {
-
-        StandardError error = new StandardError(HttpStatus.CONFLICT, "ResourceAlreadyExistsException: recurso já existente", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     @ExceptionHandler(IllegalStateException.class)

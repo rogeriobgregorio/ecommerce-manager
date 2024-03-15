@@ -87,14 +87,25 @@ public class PaymentServiceImpl implements PaymentService {
                 });
     }
 
+    @Transactional(readOnly = true)
+    public PaymentEntity findPaymentEntityById(Long id) {
+
+        return paymentRepository
+                .findById(id)
+                .orElseThrow(() -> {
+                    logger.warn("Pagamento não encontrado com o ID: {}", id);
+                    return new NotFoundException("Pagamento não encontrado com o ID: " + id + ".");
+                });
+    }
+
     @Transactional(readOnly = false)
     public void deletePayment(Long id) {
 
-        findPaymentById(id);
+        PaymentEntity paymentEntity = findPaymentEntityById(id);
 
         try {
             paymentRepository.deleteById(id);
-            logger.warn("Pagamento removido: {}", id);
+            logger.warn("Pagamento removido: {}", paymentEntity.toString());
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir o pagamento: {}", exception.getMessage(), exception);

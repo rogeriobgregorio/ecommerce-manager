@@ -16,6 +16,8 @@ public interface PaymentService {
 
     PaymentResponse findPaymentById(Long id);
 
+    PaymentEntity findPaymentEntityById(Long id);
+
     void deletePayment(Long id);
 
     PaymentEntity buildPaymentFromRequest(PaymentRequest paymentRequest);

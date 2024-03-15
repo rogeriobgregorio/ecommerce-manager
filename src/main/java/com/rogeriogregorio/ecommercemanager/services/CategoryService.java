@@ -16,6 +16,8 @@ public interface CategoryService {
 
     CategoryResponse findCategoryById(Long id);
 
+    CategoryEntity findCategoryEntityById(Long id);
+
     List<CategoryEntity> findAllCategoriesById(List<Long> id);
 
     CategoryResponse updateCategory(CategoryRequest categoryRequest);

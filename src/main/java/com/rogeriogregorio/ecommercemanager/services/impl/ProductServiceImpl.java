@@ -6,7 +6,6 @@ import com.rogeriogregorio.ecommercemanager.entities.CategoryEntity;
 import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
-import com.rogeriogregorio.ecommercemanager.exceptions.ResourceAlreadyExistsException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
@@ -114,11 +113,11 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = false)
     public void deleteProduct(Long id) {
 
-        findProductEntityById(id);
+        ProductEntity productEntity = findProductEntityById(id);
 
         try {
             productRepository.deleteById(id);
-            logger.warn("Produto removido: {}", id);
+            logger.warn("Produto removido: {}", productEntity.toString());
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir o produto: {}", exception.getMessage(), exception);
