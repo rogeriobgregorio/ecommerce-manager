@@ -36,7 +36,7 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Transactional(readOnly = true)
-    public List<AddressResponse> findAllAdresses() {
+    public List<AddressResponse> findAllAddresses() {
 
         try {
             return addressRepository

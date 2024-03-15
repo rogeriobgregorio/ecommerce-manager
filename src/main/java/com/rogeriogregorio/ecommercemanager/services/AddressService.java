@@ -10,7 +10,7 @@ import java.util.List;
 @Component
 public interface AddressService {
 
-    List<AddressResponse> findAllAdresses();
+    List<AddressResponse> findAllAddresses();
 
     AddressResponse createAddress(AddressRequest addressRequest);
 
