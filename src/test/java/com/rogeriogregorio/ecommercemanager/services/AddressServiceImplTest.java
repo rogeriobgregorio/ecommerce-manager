@@ -1,8 +1,10 @@
 package com.rogeriogregorio.ecommercemanager.services;
 
+import com.rogeriogregorio.ecommercemanager.dto.requests.AddressRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.entities.AddressEntity;
 import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.AddressRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.AddressServiceImpl;
@@ -20,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -116,5 +119,98 @@ public class AddressServiceImplTest {
         assertThrows(RepositoryException.class, () -> addressService.findAllAddresses(), "Expected RepositoryException to be thrown");
 
         verify(addressRepository, times(1)).findAll();
+    }
+
+    @Test
+    @DisplayName("createAddress - Criação bem-sucedida retorna endereço criado")
+    void createAddress_SuccessfulCreation_ReturnsAddressResponse() {
+        // Arrange
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+
+        AddressEntity addressEntity = new AddressEntity(1L,"Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        addressEntity.setUserEntity(userEntity);
+
+        AddressRequest addressRequest = new AddressRequest("Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
+        AddressResponse expectedResponse = new AddressResponse(1L,"Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+
+        when(userService.findUserEntityById(addressRequest.getUserId())).thenReturn(userEntity);
+        when(converter.toEntity(addressRequest, AddressEntity.class)).thenReturn(addressEntity);
+        doNothing().when(userService).saveUserAddress(userEntity);
+        when(addressRepository.save(addressEntity)).thenReturn(addressEntity);
+        when(converter.toResponse(addressEntity, AddressResponse.class)).thenReturn(expectedResponse);
+
+        // Act
+        AddressResponse actualResponse = addressService.createAddress(addressRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "AddressResponse should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+
+        verify(userService, times(1)).findUserEntityById(addressRequest.getUserId());
+        verify(converter, times(1)).toEntity(addressRequest, AddressEntity.class);
+        verify(userService, times(1)).saveUserAddress(userEntity);
+        verify(addressRepository, times(1)).save(addressEntity);
+        verify(converter, times(1)).toResponse(addressEntity, AddressResponse.class);
+    }
+
+    @Test
+    @DisplayName("createAddress - Exceção no repositório ao tentar criar endereço")
+    void createAddress_RepositoryExceptionHandling() {
+        // Arrange
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+
+        AddressEntity addressEntity = new AddressEntity(1L,"Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        addressEntity.setUserEntity(userEntity);
+
+        AddressRequest addressRequest = new AddressRequest("Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
+
+        when(userService.findUserEntityById(addressRequest.getUserId())).thenReturn(userEntity);
+        when(converter.toEntity(addressRequest, AddressEntity.class)).thenReturn(addressEntity);
+        doNothing().when(userService).saveUserAddress(userEntity);
+        when(addressRepository.save(addressEntity)).thenThrow(PersistenceException.class);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> addressService.createAddress(addressRequest), "Expected RepositoryException due to a generic runtime exception");
+
+        verify(userService, times(1)).findUserEntityById(addressRequest.getUserId());
+        verify(converter, times(1)).toEntity(addressRequest, AddressEntity.class);
+        verify(userService, times(1)).saveUserAddress(userEntity);
+        verify(addressRepository, times(1)).save(addressEntity);
+    }
+
+    @Test
+    @DisplayName("findAddressById - Busca bem-sucedida retorna endereço")
+    void findAddressById_SuccessfulSearch_ReturnsOrderResponse() {
+        // Arrange
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+
+        AddressEntity addressEntity = new AddressEntity(1L,"Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        addressEntity.setUserEntity(userEntity);
+        AddressResponse expectedResponse = new AddressResponse(1L,"Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+
+        when(addressRepository.findById(1L)).thenReturn(Optional.of(addressEntity));
+        when(converter.toResponse(addressEntity, AddressResponse.class)).thenReturn(expectedResponse);
+
+        // Act
+        AddressResponse actualResponse = addressService.findAddressById(1L);
+
+        // Assert
+        assertNotNull(actualResponse, "AddressResponse should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+
+        verify(addressRepository, times(1)).findById(1L);
+        verify(converter, times(1)).toResponse(addressEntity, AddressResponse.class);
+    }
+
+    @Test
+    @DisplayName("findAddressById - Exceção ao tentar buscar endereço inexistente")
+    void findAddressById_NotFoundExceptionHandling() {
+        // Arrange
+        when(addressRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Assert and Assert
+        assertThrows(NotFoundException.class, () -> addressService.findAddressById(1L), "Expected NotFoundException for non-existent address");
+
+        verify(addressRepository, times(1)).findById(1L);
     }
 }
