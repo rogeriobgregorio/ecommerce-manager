@@ -159,7 +159,7 @@ public class CategoryServiceImplTest {
         when(categoryRepository.save(categoryEntity)).thenThrow(PersistenceException.class);
 
         // Act and Assert
-        assertThrows(RepositoryException.class, () -> categoryService.createCategory(categoryRequest), "Expected RepositoryException due to a generic runtime exception");
+        assertThrows(RepositoryException.class, () -> categoryService.createCategory(categoryRequest), "Expected RepositoryException due to a PersistenceException");
 
         verify(categoryRepository, times(1)).save(categoryEntity);
     }
@@ -231,7 +231,7 @@ public class CategoryServiceImplTest {
         when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(NotFoundException.class, () -> categoryService.updateCategory(categoryRequest));
+        assertThrows(NotFoundException.class, () -> categoryService.updateCategory(categoryRequest), "Expected NotFoundException for update failure");
 
         verify(categoryRepository, times(1)).findById(1L);
     }
@@ -262,10 +262,8 @@ public class CategoryServiceImplTest {
     void deleteCategory_DeletesCategorySuccessfully() {
         // Arrange
         CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
-        CategoryResponse categoryResponse = new CategoryResponse(1L, "Computers");
 
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
-        when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(categoryResponse);
 
         // Act
         categoryService.deleteCategory(1L);
@@ -292,9 +290,7 @@ public class CategoryServiceImplTest {
     void deleteCategory_RepositoryExceptionHandling() {
         // Arrange
         CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
-        CategoryResponse categoryResponse = new CategoryResponse(1L, "Computers");
 
-        when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(categoryResponse);
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
         doThrow(PersistenceException.class).when(categoryRepository).deleteById(1L);
 

@@ -185,7 +185,7 @@ public class UserServiceImplTest {
         when(userRepository.save(userEntity)).thenThrow(PersistenceException.class);
 
         // Act and Assert
-        assertThrows(RepositoryException.class, () -> userService.createUser(userRequest), "Expected RepositoryException due to a generic runtime exception");
+        assertThrows(RepositoryException.class, () -> userService.createUser(userRequest), "Expected RepositoryException due to a PersistenceException");
 
         verify(converter, times(1)).toEntity(userRequest, UserEntity.class);
         verify(userRepository, times(1)).save(userEntity);
@@ -295,7 +295,7 @@ public class UserServiceImplTest {
         when(userRepository.save(userEntity)).thenThrow(DataIntegrityViolationException.class);
 
         // Act and Assert
-        assertThrows(DataIntegrityViolationException.class, () -> userService.updateUser(userRequest), "Expected RepositoryException for update failure");
+        assertThrows(DataIntegrityViolationException.class, () -> userService.updateUser(userRequest), "Expected DataIntegrityViolationException for update failure");
 
         verify(userRepository, times(1)).findById(1L);
         verify(converter, times(1)).toEntity(userRequest, UserEntity.class);
@@ -340,7 +340,7 @@ public class UserServiceImplTest {
         doThrow(PersistenceException.class).when(userRepository).deleteById(1L);
 
         // Act and Assert
-        assertThrows(RepositoryException.class, () -> userService.deleteUser(userEntity.getId()), "Expected RepositoryException for delete failure");
+        assertThrows(RepositoryException.class, () -> userService.deleteUser(1L), "Expected RepositoryException for delete failure");
 
         verify(userRepository, times(1)).findById(1L);
         verify(userRepository, times(1)).deleteById(1L);

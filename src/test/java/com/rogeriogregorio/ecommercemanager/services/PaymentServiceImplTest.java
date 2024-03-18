@@ -237,16 +237,13 @@ public class PaymentServiceImplTest {
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
 
         PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
-        PaymentResponse paymentResponse = new PaymentResponse(1L, Instant.now(), orderEntity);
 
-        when(converter.toResponse(paymentEntity, PaymentResponse.class)).thenReturn(paymentResponse);
         when(paymentRepository.findById(1L)).thenReturn(Optional.of(paymentEntity));
 
         // Act
         paymentService.deletePayment(1L);
 
         // Assert
-        verify(converter, times(1)).toResponse(paymentEntity, PaymentResponse.class);
         verify(paymentRepository, times(1)).findById(1L);
     }
 
@@ -270,16 +267,13 @@ public class PaymentServiceImplTest {
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
 
         PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
-        PaymentResponse paymentResponse = new PaymentResponse(1L, Instant.now(), orderEntity);
 
-        when(converter.toResponse(paymentEntity, PaymentResponse.class)).thenReturn(paymentResponse);
         when(paymentRepository.findById(1L)).thenReturn(Optional.of(paymentEntity));
         doThrow(PersistenceException.class).when(paymentRepository).deleteById(1L);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> paymentService.deletePayment(1L), "Expected RepositoryException for delete failure");
 
-        verify(converter, times(1)).toResponse(paymentEntity, PaymentResponse.class);
         verify(paymentRepository, times(1)).findById(1L);
     }
 }

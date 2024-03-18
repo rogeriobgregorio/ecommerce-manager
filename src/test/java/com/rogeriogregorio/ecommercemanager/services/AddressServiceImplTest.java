@@ -127,11 +127,11 @@ public class AddressServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        AddressEntity addressEntity = new AddressEntity(1L,"Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
         addressEntity.setUserEntity(userEntity);
 
         AddressRequest addressRequest = new AddressRequest("Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
-        AddressResponse expectedResponse = new AddressResponse(1L,"Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        AddressResponse expectedResponse = new AddressResponse(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
 
         when(userService.findUserEntityById(addressRequest.getUserId())).thenReturn(userEntity);
         when(converter.toEntity(addressRequest, AddressEntity.class)).thenReturn(addressEntity);
@@ -159,7 +159,7 @@ public class AddressServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        AddressEntity addressEntity = new AddressEntity(1L,"Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
         addressEntity.setUserEntity(userEntity);
 
         AddressRequest addressRequest = new AddressRequest("Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
@@ -170,7 +170,7 @@ public class AddressServiceImplTest {
         when(addressRepository.save(addressEntity)).thenThrow(PersistenceException.class);
 
         // Act and Assert
-        assertThrows(RepositoryException.class, () -> addressService.createAddress(addressRequest), "Expected RepositoryException due to a generic runtime exception");
+        assertThrows(RepositoryException.class, () -> addressService.createAddress(addressRequest), "Expected RepositoryException due to a PersistenceException");
 
         verify(userService, times(1)).findUserEntityById(addressRequest.getUserId());
         verify(converter, times(1)).toEntity(addressRequest, AddressEntity.class);
@@ -184,9 +184,9 @@ public class AddressServiceImplTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        AddressEntity addressEntity = new AddressEntity(1L,"Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
         addressEntity.setUserEntity(userEntity);
-        AddressResponse expectedResponse = new AddressResponse(1L,"Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        AddressResponse expectedResponse = new AddressResponse(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
 
         when(addressRepository.findById(1L)).thenReturn(Optional.of(addressEntity));
         when(converter.toResponse(addressEntity, AddressResponse.class)).thenReturn(expectedResponse);
@@ -212,5 +212,111 @@ public class AddressServiceImplTest {
         assertThrows(NotFoundException.class, () -> addressService.findAddressById(1L), "Expected NotFoundException for non-existent address");
 
         verify(addressRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    @DisplayName("updateAddress - Atualização bem-sucedida retorna endereço atualizado")
+    void updateAddress_SuccessfulUpdate_ReturnsAddressResponse() {
+        // Arrange
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+
+        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        addressEntity.setUserEntity(userEntity);
+
+        AddressRequest addressRequest = new AddressRequest(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
+        AddressResponse expectedResponse = new AddressResponse(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+
+        when(addressRepository.findById(addressEntity.getId())).thenReturn(Optional.of(addressEntity));
+        when(userService.findUserEntityById(addressRequest.getUserId())).thenReturn(userEntity);
+        when(converter.toEntity(addressRequest, AddressEntity.class)).thenReturn(addressEntity);
+        doNothing().when(userService).saveUserAddress(userEntity);
+        when(addressRepository.save(addressEntity)).thenReturn(addressEntity);
+        when(converter.toResponse(addressEntity, AddressResponse.class)).thenReturn(expectedResponse);
+
+        // Act
+        AddressResponse actualResponse = addressService.updateAddress(addressRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "AddressResponse should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+
+        verify(addressRepository, times(1)).findById(addressEntity.getId());
+        verify(userService, times(1)).findUserEntityById(addressRequest.getUserId());
+        verify(converter, times(1)).toEntity(addressRequest, AddressEntity.class);
+        verify(userService, times(1)).saveUserAddress(userEntity);
+        verify(addressRepository, times(1)).save(addressEntity);
+        verify(converter, times(1)).toResponse(addressEntity, AddressResponse.class);
+    }
+
+    @Test
+    @DisplayName("updateAddress - Exceção ao tentar atualizar endereço inexistente")
+    void updateAddress_NotFoundExceptionHandling() {
+        // Arrange
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+
+        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        addressEntity.setUserEntity(userEntity);
+
+        AddressRequest addressRequest = new AddressRequest(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
+
+        when(addressRepository.findById(addressEntity.getId())).thenReturn(Optional.empty());
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> addressService.updateAddress(addressRequest), "Expected NotFoundException for update failure");
+
+        verify(addressRepository, times(1)).findById(addressEntity.getId());
+    }
+
+    @Test
+    @DisplayName("deleteAddress - Exclusão bem-sucedida do endereço")
+    void deleteAddress_DeletesAddressSuccessfully() {
+        // Arrange
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+
+        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        addressEntity.setUserEntity(userEntity);
+
+        when(addressRepository.findById(1L)).thenReturn(Optional.of(addressEntity));
+
+        // Act
+        addressService.deleteAddress(1L);
+
+        // Assert
+        verify(addressRepository, times(1)).findById(1L);
+        verify(addressRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    @DisplayName("deleteAddress - Exceção ao tentar excluir endereço inexistente")
+    void deleteAddress_NotFoundExceptionHandling() {
+        // Arrange
+
+        when(addressRepository.findById(1L)).thenReturn(Optional.empty());
+
+        // Act
+        assertThrows(NotFoundException.class, () -> addressService.deleteAddress(1L), "Expected NotFoundException for non-existent address");
+
+        // Assert
+        verify(addressRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    @DisplayName("deleteAddress - Exceção no repositório ao tentar excluir endereço inexistente")
+    void deleteAddress_RepositoryExceptionHandling() {
+        // Arrange
+        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+
+        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        addressEntity.setUserEntity(userEntity);
+
+        AddressRequest addressRequest = new AddressRequest(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
+
+        when(addressRepository.findById(addressEntity.getId())).thenReturn(Optional.of(addressEntity));
+        doThrow(PersistenceException.class).when(addressRepository).deleteById(1L);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> addressService.deleteAddress(1L), "Expected RepositoryException for delete failure");
+
+        verify(addressRepository, times(1)).findById(addressEntity.getId());
     }
 }
