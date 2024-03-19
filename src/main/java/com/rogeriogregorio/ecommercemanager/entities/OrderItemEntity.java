@@ -6,6 +6,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -21,10 +24,14 @@ public class OrderItemEntity implements Serializable {
     @EmbeddedId
     private OrderItemPK id = new OrderItemPK();
 
+    @NotNull(message = "A quantidade não pode ser nula")
+    @Min(value = 1, message = "A quantidade deve ser no mínimo 1")
     @Column(name = "quantity")
     private Integer quantity;
 
     @Column(name = "price")
+    @NotNull(message = "O preço não pode ser nulo")
+    @DecimalMin(value = "0.01", message = "O preço deve ser maior que 0")
     private Double price;
 
     public OrderItemEntity() {

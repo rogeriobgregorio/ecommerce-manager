@@ -23,12 +23,12 @@ public class AddressEntity implements Serializable {
 
     @Column(name = "street")
     @NotBlank(message = "O nome da rua não deve estar em branco")
-    @Size(max = 250, message = "O nome deve ter entre 5 e 250 caracteres.")
+    @Size(max = 250, message = "O nome da rua deve ter entre 5 e 250 caracteres.")
     private String street;
 
     @Column(name = "city")
     @NotBlank(message = "O nome da cidade não deve estar em branco")
-    @Size(max = 250, message = "O nome deve ter entre 5 e 250 caracteres.")
+    @Size(max = 250, message = "O nome da cidade deve ter entre 5 e 250 caracteres.")
     private String city;
 
     @Column(name = "state")
@@ -44,7 +44,7 @@ public class AddressEntity implements Serializable {
 
     @Column(name = "country")
     @NotBlank(message = "O nome do país não deve estar em branco")
-    @Size(max = 250, message = "O nome deve ter entre 5 e 250 caracteres.")
+    @Size(max = 250, message = "O nome do país deve ter entre 5 e 250 caracteres.")
     private String country;
 
     @JsonIgnore
