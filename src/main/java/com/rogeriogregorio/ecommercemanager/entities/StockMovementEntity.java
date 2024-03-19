@@ -1,8 +1,8 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.rogeriogregorio.ecommercemanager.entities.enums.MovementType;
-import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -23,26 +23,28 @@ public class StockMovementEntity implements Serializable {
     @JoinColumn(name = "inventory_item_id")
     private InventoryItemEntity inventoryItem;
 
+    @NotNull(message = "O tipo de movimentação não pode ser nulo")
     @Column(name = "movement_type")
     private Integer movementType;
 
-    @Column(name = "quantity")
-    private Integer quantity;
+    @NotNull(message = "A quantidade de itens movimentados não pode ser nula")
+    @Column(name = "quantity_moved")
+    private Integer quantityMoved;
 
     public StockMovementEntity() {
     }
 
-    public StockMovementEntity(InventoryItemEntity inventoryItem, MovementType movementType, Integer quantity) {
+    public StockMovementEntity(InventoryItemEntity inventoryItem, MovementType movementType, Integer quantityMoved) {
         this.inventoryItem = inventoryItem;
         setMovementType(movementType);
-        this.quantity = quantity;
+        this.quantityMoved = quantityMoved;
     }
 
-    public StockMovementEntity(Long id, InventoryItemEntity inventoryItem, MovementType movementType, Integer quantity) {
+    public StockMovementEntity(Long id, InventoryItemEntity inventoryItem, MovementType movementType, Integer quantityMoved) {
         this.id = id;
         this.inventoryItem = inventoryItem;
         setMovementType(movementType);
-        this.quantity = quantity;
+        this.quantityMoved = quantityMoved;
     }
 
     public Long getId() {
@@ -74,12 +76,12 @@ public class StockMovementEntity implements Serializable {
         this.movementType = movementType.getCode();
     }
 
-    public Integer getQuantity() {
-        return quantity;
+    public Integer getQuantityMoved() {
+        return quantityMoved;
     }
 
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
+    public void setQuantityMoved(Integer quantityMoved) {
+        this.quantityMoved = quantityMoved;
     }
 
     @Override
@@ -98,6 +100,6 @@ public class StockMovementEntity implements Serializable {
     @Override
     public String toString() {
         return "[Movimentação do estoque: id= " + id + ", inventoryItem= " + inventoryItem +
-                ", movementType= " + movementType + ", quantity= " + quantity +"]";
+                ", movementType= " + movementType + ", quantityMoved= " + quantityMoved +"]";
     }
 }

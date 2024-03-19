@@ -2,7 +2,6 @@ package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.rogeriogregorio.ecommercemanager.entities.enums.StockStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 import java.io.Serial;
@@ -24,12 +23,11 @@ public class InventoryItemEntity implements Serializable {
     @JoinColumn(name = "product_id")
     private ProductEntity product;
 
-    @NotNull(message = "A quantidade não pode ser nula")
-    @Min(value = 1, message = "A quantidade deve ser no mínimo 1")
+    @NotNull(message = "A quantidade em estoque não pode ser nula")
     @Column(name = "quantity_in_stock")
     private Integer quantityInStock;
 
-    @NotNull(message = "A quantidade não pode ser nula")
+    @NotNull(message = "A quantidade vendida não pode ser nula")
     @Column(name = "quantity_sold")
     private Integer quantitySold;
 
@@ -115,8 +113,8 @@ public class InventoryItemEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "[Item do inventário: id= " + id + ", product= " + product + ", quantityInStock= " + quantityInStock +
-                ", quantitySold= " + quantitySold + ", stockStatus= " + stockStatus + "]";
+        return "[Item do inventário: id= " + id + ", product= " + product + ", quantityInStock= " +
+                quantityInStock + ", quantitySold= " + quantitySold + ", stockStatus= " + stockStatus + "]";
     }
 }
 
