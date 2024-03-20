@@ -26,7 +26,9 @@ public interface OrderService {
 
     List<OrderResponse> findOrderByClientId(Long id);
 
-    boolean isOrderPaid(Long id);
+    boolean isOrderPaid(OrderEntity orderEntity);
+
+    boolean isOrderItemsNotEmpty(OrderEntity orderEntity);
 
     void validateOrderStatusChange(OrderRequest orderRequest);
 

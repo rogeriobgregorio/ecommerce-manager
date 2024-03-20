@@ -174,7 +174,7 @@ public class OrderItemServiceImplTest {
         assertNotNull(actualResponse, "OrderItemResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(orderService, times(2)).findOrderEntityById(orderItemRequest.getOrderId());
         verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).save(orderItemEntity);
         verify(converter, times(1)).toResponse(orderItemEntity, OrderItemResponse.class);
@@ -199,7 +199,7 @@ public class OrderItemServiceImplTest {
         // Act and Assert
         assertThrows(RepositoryException.class, () -> orderItemService.createOrderItem(orderItemRequest));
 
-        verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(orderService, times(2)).findOrderEntityById(orderItemRequest.getOrderId());
         verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).save(orderItemEntity);
     }
@@ -293,7 +293,7 @@ public class OrderItemServiceImplTest {
         assertNotNull(actualResponse, "OrderItemResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(orderService, times(2)).findOrderEntityById(orderItemRequest.getOrderId());
         verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).save(orderItemEntity);
         verify(converter, times(1)).toResponse(orderItemEntity, OrderItemResponse.class);
@@ -325,8 +325,6 @@ public class OrderItemServiceImplTest {
 
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
         OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
-        OrderItemResponse expectedResponse = new OrderItemResponse(orderEntity, productEntity, 1, 4099.0);
-
 
         when(orderService.findOrderEntityById(orderItemRequest.getOrderId())).thenReturn(orderEntity);
         when(productService.findProductEntityById(orderItemRequest.getProductId())).thenReturn(productEntity);
@@ -335,7 +333,7 @@ public class OrderItemServiceImplTest {
         // Act and Assert
         assertThrows(RepositoryException.class, () -> orderItemService.updateOrderItem(orderItemRequest), "Expected RepositoryException for non-existent order item");
 
-        verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(orderService, times(2)).findOrderEntityById(orderItemRequest.getOrderId());
         verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).save(orderItemEntity);
     }
@@ -362,7 +360,7 @@ public class OrderItemServiceImplTest {
         orderItemService.deleteOrderItem(1L, 1L);
 
         // Assert
-        verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(orderService, times(2)).findOrderEntityById(orderItemRequest.getOrderId());
         verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).deleteById(id);
     }
@@ -406,7 +404,7 @@ public class OrderItemServiceImplTest {
         assertThrows(RepositoryException.class, () -> orderItemService.deleteOrderItem(1L, 1L), "Expected RepositoryException for non-existent order item");
 
         // Assert
-        verify(orderService, times(1)).findOrderEntityById(orderItemRequest.getOrderId());
+        verify(orderService, times(2)).findOrderEntityById(orderItemRequest.getOrderId());
         verify(productService, times(1)).findProductEntityById(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).deleteById(id);
     }

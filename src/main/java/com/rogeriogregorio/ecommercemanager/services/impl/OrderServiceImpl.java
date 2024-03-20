@@ -128,7 +128,9 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public void deleteOrder(Long id) {
 
-        if (isOrderPaid(id)) {
+        OrderEntity orderEntity = findOrderEntityById(id);
+
+        if (isOrderPaid(orderEntity)) {
             throw new IllegalStateException("Não é possível excluir um pedido que já foi pago.");
         }
 
@@ -159,20 +161,26 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isOrderPaid(Long id) {
+    public boolean isOrderPaid(OrderEntity orderEntity) {
 
-        OrderEntity order = findOrderEntityById(id);
+        return orderEntity.getOrderStatus() == OrderStatus.PAID ||
+                orderEntity.getOrderStatus() == OrderStatus.SHIPPED ||
+                orderEntity.getOrderStatus() == OrderStatus.DELIVERED;
+    }
 
-        return order.getOrderStatus() == OrderStatus.PAID ||
-                order.getOrderStatus() == OrderStatus.SHIPPED ||
-                order.getOrderStatus() == OrderStatus.DELIVERED;
+    @Transactional(readOnly = true)
+    public boolean isOrderItemsNotEmpty(OrderEntity orderEntity) {
+
+        return !orderEntity.getItems().isEmpty();
     }
 
     @Transactional(readOnly = true)
     public void validateOrderStatusChange(OrderRequest orderRequest) {
 
         OrderStatus requestedStatus = orderRequest.getOrderStatus();
-        boolean isOrderPaid = isOrderPaid(orderRequest.getId());
+
+        OrderEntity orderEntity = findOrderEntityById(orderRequest.getId());
+        boolean isOrderPaid = isOrderPaid(orderEntity);
 
         if (isOrderPaid && requestedStatus == OrderStatus.WAITING_PAYMENT) {
             throw new IllegalStateException("Não é possível alterar o status de pagamento: pedido já pago.");

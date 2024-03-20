@@ -10,6 +10,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.services.PaymentService;
+import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
@@ -27,13 +28,15 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final OrderService orderService;
+    private final UserService userService;
     private final Converter converter;
     private static final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
 
     @Autowired
-    public PaymentServiceImpl(PaymentRepository paymentRepository, OrderService orderService, Converter converter) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, OrderService orderService, UserService userService, Converter converter) {
         this.paymentRepository = paymentRepository;
         this.orderService = orderService;
+        this.userService = userService;
         this.converter = converter;
     }
 
@@ -55,10 +58,6 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Transactional(readOnly = false)
     public PaymentResponse createPayment(PaymentRequest paymentRequest) {
-
-        if (orderService.isOrderPaid(paymentRequest.getOrderId())) {
-            throw new IllegalStateException("Não foi possível processar o pagamento: pedido já pago.");
-        }
 
         paymentRequest.setId(null);
 
@@ -117,6 +116,18 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentEntity buildPaymentFromRequest(PaymentRequest paymentRequest) {
 
         OrderEntity orderToBePaid = orderService.findOrderEntityById(paymentRequest.getOrderId());
+
+        if (orderService.isOrderPaid(orderToBePaid)) {
+            throw new IllegalStateException("Não foi possível processar o pagamento: pedido já pago.");
+        }
+
+        if (!orderService.isOrderItemsNotEmpty(orderToBePaid)) {
+            throw new IllegalStateException("Não foi possível processar o pagamento: não há item no pedido.");
+        }
+
+        if (!userService.isAddressPresent(orderToBePaid.getClient())) {
+            throw new IllegalStateException("Não foi possível processar o pagamento: endereço de entrega não cadastrado.");
+        }
 
         PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderToBePaid);
 

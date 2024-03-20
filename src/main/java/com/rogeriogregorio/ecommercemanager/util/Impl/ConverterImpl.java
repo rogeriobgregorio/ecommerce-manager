@@ -28,8 +28,8 @@ public class ConverterImpl implements Converter {
             return modelMapper.map(object, targetType);
 
         } catch (MappingException exception) {
-            logger.error("Erro ao tentar converter objeto para entity: {}", exception.getMessage(), exception);
-            throw new ConverterException("Erro ao tentar converter objeto para entity: " + exception);
+            logger.error("Erro ao tentar converter response para entity: {}", exception.getMessage(), exception);
+            throw new ConverterException("Erro ao tentar converter response para entity: " + exception);
         }
     }
 
@@ -40,8 +40,8 @@ public class ConverterImpl implements Converter {
             return modelMapper.map(object, targetType);
 
         } catch (MappingException exception) {
-            logger.error("Erro ao tentar converter objeto para response: {}", exception.getMessage(), exception);
-            throw new ConverterException("Erro ao tentar converter objeto para response: " + exception);
+            logger.error("Erro ao tentar converter entity para response: {}", exception.getMessage(), exception);
+            throw new ConverterException("Erro ao tentar converter entity para response: " + exception);
         }
     }
 }

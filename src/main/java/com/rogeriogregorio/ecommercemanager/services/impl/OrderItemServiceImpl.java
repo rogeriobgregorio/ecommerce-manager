@@ -59,6 +59,12 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = false)
     public OrderItemResponse createOrderItem(OrderItemRequest orderItemRequest) {
 
+        OrderEntity orderEntity = orderService.findOrderEntityById(orderItemRequest.getOrderId());
+
+        if (orderService.isOrderPaid(orderEntity)) {
+            throw new IllegalStateException("Não é possível adicionar um item a um pedido que já foi pago.");
+        }
+
         OrderItemEntity orderItemEntity = buildOrderItemFromRequest(orderItemRequest);
 
         try {
@@ -89,7 +95,9 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = false)
     public OrderItemResponse updateOrderItem(OrderItemRequest orderItemRequest) {
 
-        if (orderService.isOrderPaid(orderItemRequest.getOrderId())) {
+        OrderEntity orderEntity = orderService.findOrderEntityById(orderItemRequest.getOrderId());
+
+        if (orderService.isOrderPaid(orderEntity)) {
             throw new IllegalStateException("Não é possível editar um item de um pedido que já foi pago.");
         }
 
@@ -109,7 +117,9 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = false)
     public void deleteOrderItem(Long orderId, Long itemId) {
 
-        if (orderService.isOrderPaid(orderId)) {
+        OrderEntity orderEntity = orderService.findOrderEntityById(orderId);
+
+        if (orderService.isOrderPaid(orderEntity)) {
             throw new IllegalStateException("Não é possível excluir um item de um pedido que já foi pago.");
         }
 

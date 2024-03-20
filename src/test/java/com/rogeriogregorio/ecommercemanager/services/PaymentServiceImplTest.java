@@ -1,11 +1,9 @@
 package com.rogeriogregorio.ecommercemanager.services;
 
+import com.rogeriogregorio.ecommercemanager.dto.requests.OrderItemRequest;
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
-import com.rogeriogregorio.ecommercemanager.entities.AddressEntity;
-import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
-import com.rogeriogregorio.ecommercemanager.entities.PaymentEntity;
-import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
+import com.rogeriogregorio.ecommercemanager.entities.*;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
@@ -41,6 +39,9 @@ public class PaymentServiceImplTest {
     private OrderService orderService;
 
     @Mock
+    private UserService userService;
+
+    @Mock
     private Converter converter;
 
     @InjectMocks
@@ -49,7 +50,7 @@ public class PaymentServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        paymentService = new PaymentServiceImpl(paymentRepository, orderService, converter);
+        paymentService = new PaymentServiceImpl(paymentRepository, orderService, userService, converter);
     }
 
     @Test
@@ -146,13 +147,25 @@ public class PaymentServiceImplTest {
     @DisplayName("createPayment - Criação bem-sucedida retorna pagamento criado")
     void createPayment_SuccessfulCreation_ReturnsPaymentResponse() {
         // Arrange
+        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        userEntity.setAddressEntity(addressEntity);
+
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
+        ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
+
+        OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
+        OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
+
+        orderEntity.getItems().add(orderItemEntity);
 
         PaymentRequest paymentRequest = new PaymentRequest(1L);
         PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
         PaymentResponse expectedResponse = new PaymentResponse(1L, Instant.now(), orderEntity);
 
+        when(orderService.isOrderItemsNotEmpty(orderEntity)).thenReturn(true);
+        when(userService.isAddressPresent(userEntity)).thenReturn(true);
         when(orderService.findOrderEntityById(paymentRequest.getOrderId())).thenReturn(orderEntity);
         doNothing().when(orderService).savePaidOrder(orderEntity);
         when(paymentRepository.save(paymentEntity)).thenReturn(paymentEntity);
@@ -175,12 +188,24 @@ public class PaymentServiceImplTest {
     @DisplayName("createPayment - Exceção no repositório ao tentar criar pagamento")
     void createPayment_RepositoryExceptionHandling() {
         // Arrange
+        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+
         UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        userEntity.setAddressEntity(addressEntity);
+
         OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
+        ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
+
+        OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
+        OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
+
+        orderEntity.getItems().add(orderItemEntity);
 
         PaymentRequest paymentRequest = new PaymentRequest(1L);
         PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
 
+        when(orderService.isOrderItemsNotEmpty(orderEntity)).thenReturn(true);
+        when(userService.isAddressPresent(userEntity)).thenReturn(true);
         when(orderService.findOrderEntityById(paymentRequest.getOrderId())).thenReturn(orderEntity);
         doNothing().when(orderService).savePaidOrder(orderEntity);
         when(paymentRepository.save(paymentEntity)).thenThrow(PersistenceException.class);

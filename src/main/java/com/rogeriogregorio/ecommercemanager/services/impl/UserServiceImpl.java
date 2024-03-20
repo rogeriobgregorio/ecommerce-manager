@@ -149,4 +149,10 @@ public class UserServiceImpl implements UserService {
         }
 
     }
+
+    @Transactional(readOnly = true)
+    public boolean isAddressPresent(UserEntity userEntity) {
+
+        return userEntity.getAddressEntity() != null;
+    }
 }
