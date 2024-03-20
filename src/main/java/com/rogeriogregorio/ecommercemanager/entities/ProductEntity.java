@@ -10,6 +10,7 @@ import org.hibernate.validator.constraints.URL;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -39,7 +40,7 @@ public class ProductEntity implements Serializable {
     @Column(name = "price")
     @NotNull(message = "O preço não pode ser nulo")
     @DecimalMin(value = "0.01", message = "O preço deve ser maior que 0")
-    private Double price;
+    private BigDecimal price;
 
     @Column(name = "img_url")
     @URL(message = "A URL da imagem deve ser válida")
@@ -60,7 +61,7 @@ public class ProductEntity implements Serializable {
     public ProductEntity(String name, String description, Double price, String imgUrl) {
         this.name = name;
         this.description = description;
-        this.price = price;
+        this.price = BigDecimal.valueOf(price);
         this.imgUrl = imgUrl;
     }
 
@@ -68,7 +69,7 @@ public class ProductEntity implements Serializable {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.price = price;
+        this.price = BigDecimal.valueOf(price);
         this.imgUrl = imgUrl;
     }
 
@@ -96,12 +97,12 @@ public class ProductEntity implements Serializable {
         this.description = description;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
     public void setPrice(Double price) {
-        this.price = price;
+        this.price = BigDecimal.valueOf(price);
     }
 
     public String getImgUrl() {

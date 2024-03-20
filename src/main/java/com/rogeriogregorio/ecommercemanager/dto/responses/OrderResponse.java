@@ -7,6 +7,7 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
@@ -86,10 +87,12 @@ public class OrderResponse implements Serializable {
         this.items = items;
     }
 
-    public Double getTotal() {
-        double total = 0.0;
+    public BigDecimal getTotal() {
+
+        BigDecimal total = BigDecimal.valueOf(0.0);
+
         for (OrderItemEntity orderItem : items) {
-            total += orderItem.getSubTotal();
+            total = total.add(orderItem.getSubTotal());
         }
         return total;
     }

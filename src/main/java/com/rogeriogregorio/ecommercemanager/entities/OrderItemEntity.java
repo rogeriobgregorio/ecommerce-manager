@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
@@ -32,12 +33,20 @@ public class OrderItemEntity implements Serializable {
     @Column(name = "price")
     @NotNull(message = "O preço não pode ser nulo")
     @DecimalMin(value = "0.01", message = "O preço deve ser maior que 0")
-    private Double price;
+    private BigDecimal price;
 
     public OrderItemEntity() {
     }
 
     public OrderItemEntity(OrderEntity orderEntity, ProductEntity productEntity, Integer quantity, Double price) {
+
+        id.setOrderEntity(orderEntity);
+        id.setProductEntity(productEntity);
+        this.quantity = quantity;
+        this.price = BigDecimal.valueOf(price);
+    }
+
+    public OrderItemEntity(OrderEntity orderEntity, ProductEntity productEntity, Integer quantity, BigDecimal price) {
 
         id.setOrderEntity(orderEntity);
         id.setProductEntity(productEntity);
@@ -70,16 +79,16 @@ public class OrderItemEntity implements Serializable {
         this.quantity = quantity;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
     public void setPrice(Double price) {
-        this.price = price;
+        this.price = BigDecimal.valueOf(price);
     }
 
-    public Double getSubTotal() {
-        return price * quantity;
+    public BigDecimal getSubTotal() {
+        return price.multiply(BigDecimal.valueOf(quantity));
     }
 
     @Override

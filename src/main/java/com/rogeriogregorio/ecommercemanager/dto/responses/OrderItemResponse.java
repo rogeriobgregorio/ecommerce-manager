@@ -7,6 +7,7 @@ import com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 public class OrderItemResponse implements Serializable {
 
@@ -15,12 +16,20 @@ public class OrderItemResponse implements Serializable {
 
     private OrderItemPK id = new OrderItemPK();
     private Integer quantity;
-    private Double price;
+    private BigDecimal price;
 
     public OrderItemResponse() {
     }
 
     public OrderItemResponse(OrderEntity orderEntity, ProductEntity productEntity, Integer quantity, Double price) {
+
+        id.setOrderEntity(orderEntity);
+        id.setProductEntity(productEntity);
+        this.quantity = quantity;
+        this.price = BigDecimal.valueOf(price);
+    }
+
+    public OrderItemResponse(OrderEntity orderEntity, ProductEntity productEntity, Integer quantity, BigDecimal price) {
 
         id.setOrderEntity(orderEntity);
         id.setProductEntity(productEntity);
@@ -53,15 +62,15 @@ public class OrderItemResponse implements Serializable {
         this.quantity = quantity;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
     public void setPrice(Double price) {
-        this.price = price;
+        this.price = BigDecimal.valueOf(price);
     }
 
-    public Double getSubTotal() {
-        return price * quantity;
+    public BigDecimal getSubTotal() {
+        return price.multiply(BigDecimal.valueOf(quantity));
     }
 }

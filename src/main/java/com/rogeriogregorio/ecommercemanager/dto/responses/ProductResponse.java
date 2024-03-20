@@ -7,6 +7,7 @@ import com.rogeriogregorio.ecommercemanager.entities.OrderItemEntity;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,7 +19,7 @@ public class ProductResponse implements Serializable {
     private Long id;
     private String name;
     private String description;
-    private Double price;
+    private BigDecimal price;
     private String imgUrl;
     private Set<CategoryEntity> categories = new HashSet<>();
     private Set<OrderItemEntity> items = new HashSet<>();
@@ -30,7 +31,7 @@ public class ProductResponse implements Serializable {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.price = price;
+        this.price = BigDecimal.valueOf(price);
         this.imgUrl = imgUrl;
     }
 
@@ -58,12 +59,12 @@ public class ProductResponse implements Serializable {
         this.description = description;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
     public void setPrice(Double price) {
-        this.price = price;
+        this.price = BigDecimal.valueOf(price);
     }
 
     public String getImgUrl() {

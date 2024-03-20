@@ -2,6 +2,7 @@ package com.rogeriogregorio.ecommercemanager.dto.requests;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 public class ProductRequest implements Serializable {
@@ -12,7 +13,7 @@ public class ProductRequest implements Serializable {
     private Long id;
     private String name;
     private String description;
-    private Double price;
+    private BigDecimal price;
     private String imgUrl;
     private List<Long> categoryIdList;
 
@@ -22,7 +23,7 @@ public class ProductRequest implements Serializable {
     public ProductRequest(String name, String description, Double price, String imgUrl, List<Long> categoryIdList) {
         this.name = name;
         this.description = description;
-        this.price = price;
+        this.price = BigDecimal.valueOf(price);
         this.imgUrl = imgUrl;
         this.categoryIdList = categoryIdList;
     }
@@ -31,7 +32,7 @@ public class ProductRequest implements Serializable {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.price = price;
+        this.price = BigDecimal.valueOf(price);
         this.imgUrl = imgUrl;
         this.categoryIdList = categoryIdList;
     }
@@ -60,12 +61,12 @@ public class ProductRequest implements Serializable {
         this.description = description;
     }
 
-    public Double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
     public void setPrice(Double price) {
-        this.price = price;
+        this.price = BigDecimal.valueOf(price);
     }
 
     public String getImgUrl() {
