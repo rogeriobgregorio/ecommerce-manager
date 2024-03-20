@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -30,8 +31,7 @@ public class ECommerceManagerExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<StandardError> handleMethodArgumentTypeMismatchException(
-            MethodArgumentTypeMismatchException ex) {
+    public ResponseEntity<StandardError> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
 
         String message = "Erro de tipo de argumento: " + ex.getName() + " deve ser um número inteiro.";
         StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "MethodArgumentTypeMismatchException: Incompatibilidade de tipo de argumento", message);
@@ -39,8 +39,7 @@ public class ECommerceManagerExceptionHandler {
     }
 
     @ExceptionHandler(InvalidDataAccessApiUsageException.class)
-    public ResponseEntity<StandardError> handleInvalidDataAccessApiUsageException(
-            InvalidDataAccessApiUsageException ex) {
+    public ResponseEntity<StandardError> handleInvalidDataAccessApiUsageException(InvalidDataAccessApiUsageException ex) {
 
         String message = "O ID fornecido não pode ser nulo: " + ex.getMessage();
         StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "InvalidDataAccessApiUsageException: uso inválido da API de acesso a dados", message);
@@ -111,8 +110,15 @@ public class ECommerceManagerExceptionHandler {
     @ExceptionHandler(IncorrectResultSizeDataAccessException.class)
     public ResponseEntity<StandardError> handleIncorrectResultSizeDataAccessException(IncorrectResultSizeDataAccessException ex) {
 
-        StandardError error = new StandardError(HttpStatus.NOT_FOUND, "IncorrectResultSizeDataAccessException: exceção de tamanho de resultado incorreto", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR, "IncorrectResultSizeDataAccessException: exceção de tamanho de resultado incorreto", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<StandardError> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
+
+        StandardError error = new StandardError(HttpStatus.METHOD_NOT_ALLOWED, "HttpRequestMethodNotSupportedException: método não suportado para este endpoint", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
