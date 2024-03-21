@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -43,7 +42,7 @@ public class ProductServiceImpl implements ProductService {
                     .findAll()
                     .stream()
                     .map(productEntity -> converter.toResponse(productEntity, ProductResponse.class))
-                    .collect(Collectors.toList());
+                    .toList();
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar todos os produtos: {}", exception.getMessage(), exception);
@@ -60,7 +59,7 @@ public class ProductServiceImpl implements ProductService {
 
         try {
             productRepository.save(productEntity);
-            logger.info("Produto criado: {}", productEntity.toString());
+            logger.info("Produto criado: {}", productEntity);
             return converter.toResponse(productEntity, ProductResponse.class);
 
         } catch (PersistenceException exception) {
@@ -81,17 +80,6 @@ public class ProductServiceImpl implements ProductService {
                 });
     }
 
-    @Transactional(readOnly = true)
-    public ProductEntity findProductEntityById(Long id) {
-
-        return productRepository
-                .findById(id)
-                .orElseThrow(() -> {
-                    logger.warn("Produto não encontrado com o ID: {}", id);
-                    return new NotFoundException("Produto não encontrado com o ID: " + id + ".");
-                });
-    }
-
     @Transactional(readOnly = false)
     public ProductResponse updateProduct(ProductRequest productRequest) {
 
@@ -101,7 +89,7 @@ public class ProductServiceImpl implements ProductService {
 
         try {
             productRepository.save(productEntity);
-            logger.info("produto atualizado: {}", productEntity.toString());
+            logger.info("produto atualizado: {}", productEntity);
             return converter.toResponse(productEntity, ProductResponse.class);
 
         } catch (PersistenceException exception) {
@@ -117,7 +105,7 @@ public class ProductServiceImpl implements ProductService {
 
         try {
             productRepository.deleteById(id);
-            logger.warn("Produto removido: {}", productEntity.toString());
+            logger.warn("Produto removido: {}", productEntity);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir o produto: {}", exception.getMessage(), exception);
@@ -133,7 +121,7 @@ public class ProductServiceImpl implements ProductService {
                     .findProductByName(name)
                     .stream()
                     .map(productEntity -> converter.toResponse(productEntity, ProductResponse.class))
-                    .collect(Collectors.toList());
+                    .toList();
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar produto pelo nome: {}", exception.getMessage(), exception);
@@ -141,7 +129,16 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    @Transactional(readOnly = true)
+    public ProductEntity findProductEntityById(Long id) {
+
+        return productRepository
+                .findById(id)
+                .orElseThrow(() -> {
+                    logger.warn("Produto não encontrado com o ID: {}", id);
+                    return new NotFoundException("Produto não encontrado com o ID: " + id + ".");
+                });
+    }
+
     public ProductEntity buildProductFromRequest(ProductRequest productRequest) {
 
         List<CategoryEntity> categoryList = categoryService.findAllCategoriesById(productRequest.getCategoryIdList());

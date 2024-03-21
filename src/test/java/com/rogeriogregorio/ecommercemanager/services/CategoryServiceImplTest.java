@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class CategoryServiceImplTest {
+class CategoryServiceImplTest {
 
     @Mock
     private CategoryRepository categoryRepository;
@@ -219,7 +219,7 @@ public class CategoryServiceImplTest {
 
         verify(categoryRepository, times(1)).findById(1L);
         verify(categoryRepository, times(1)).save(categoryEntity);
-        verify(converter, times(2)).toResponse(categoryEntity, CategoryResponse.class);
+        verify(converter, times(1)).toResponse(categoryEntity, CategoryResponse.class);
     }
 
     @Test
@@ -242,10 +242,8 @@ public class CategoryServiceImplTest {
         // Arrange
         CategoryRequest categoryRequest = new CategoryRequest(1L,"Computers");
         CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
-        CategoryResponse categoryResponse = new CategoryResponse(1L, "Computers");
 
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
-        when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(categoryResponse);
         when(categoryRepository.save(categoryEntity)).thenThrow(PersistenceException.class);
 
         // Act
@@ -254,7 +252,6 @@ public class CategoryServiceImplTest {
         // Assert
         verify(categoryRepository, times(1)).findById(1L);
         verify(categoryRepository, times(1)).save(categoryEntity);
-        verify(converter, times(1)).toResponse(categoryEntity, CategoryResponse.class);
     }
 
     @Test

@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -48,7 +47,7 @@ public class PaymentServiceImpl implements PaymentService {
                     .findAll()
                     .stream()
                     .map(paymentEntity -> converter.toResponse(paymentEntity, PaymentResponse.class))
-                    .collect(Collectors.toList());
+                    .toList();
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar pagamentos: {}", exception.getMessage(), exception);
@@ -65,7 +64,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         try {
             paymentRepository.save(paymentEntity);
-            logger.info("Pagamento criado: {}", paymentEntity.toString());
+            logger.info("Pagamento criado: {}", paymentEntity);
             return converter.toResponse(paymentEntity, PaymentResponse.class);
 
         } catch (PersistenceException exception) {
@@ -86,7 +85,21 @@ public class PaymentServiceImpl implements PaymentService {
                 });
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false)
+    public void deletePayment(Long id) {
+
+        PaymentEntity paymentEntity = findPaymentEntityById(id);
+
+        try {
+            paymentRepository.deleteById(id);
+            logger.warn("Pagamento removido: {}", paymentEntity);
+
+        } catch (PersistenceException exception) {
+            logger.error("Erro ao tentar excluir o pagamento: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar excluir o pagamento: " + exception);
+        }
+    }
+
     public PaymentEntity findPaymentEntityById(Long id) {
 
         return paymentRepository
@@ -97,22 +110,6 @@ public class PaymentServiceImpl implements PaymentService {
                 });
     }
 
-    @Transactional(readOnly = false)
-    public void deletePayment(Long id) {
-
-        PaymentEntity paymentEntity = findPaymentEntityById(id);
-
-        try {
-            paymentRepository.deleteById(id);
-            logger.warn("Pagamento removido: {}", paymentEntity.toString());
-
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar excluir o pagamento: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar excluir o pagamento: " + exception);
-        }
-    }
-
-    @Transactional(readOnly = false)
     public PaymentEntity buildPaymentFromRequest(PaymentRequest paymentRequest) {
 
         OrderEntity orderToBePaid = orderService.findOrderEntityById(paymentRequest.getOrderId());

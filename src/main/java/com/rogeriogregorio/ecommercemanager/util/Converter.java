@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 @Component
 public interface Converter {
 
-    <Entity, Response> Entity toEntity(Response object, Class<Entity> targetType);
+    <E, R> E toEntity(R object, Class<E> targetType);
 
-    <Entity, Response> Response toResponse(Entity object, Class<Response> targetType);
+    <E, R> R toResponse(E object, Class<R> targetType);
 }

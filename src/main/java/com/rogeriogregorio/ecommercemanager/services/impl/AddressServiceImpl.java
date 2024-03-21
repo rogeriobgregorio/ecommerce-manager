@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class AddressServiceImpl implements AddressService {
@@ -26,7 +25,7 @@ public class AddressServiceImpl implements AddressService {
     private final AddressRepository addressRepository;
     private final UserService userService;
     private final Converter converter;
-    private static final Logger logger = LogManager.getLogger(CategoryServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(AddressServiceImpl.class);
 
     @Autowired
     public AddressServiceImpl(AddressRepository addressRepository, UserService userService, Converter converter) {
@@ -42,30 +41,12 @@ public class AddressServiceImpl implements AddressService {
             return addressRepository
                     .findAll()
                     .stream()
-                    .map(AddressEntity -> converter.toResponse(AddressEntity, AddressResponse.class))
-                    .collect(Collectors.toList());
+                    .map(addressEntity -> converter.toResponse(addressEntity, AddressResponse.class))
+                    .toList();
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar todos os endereços: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar buscar todas os endereços: " + exception);
-        }
-    }
-
-    @Transactional(readOnly = false)
-    public AddressResponse createAddress(AddressRequest addressRequest) {
-
-        addressRequest.setId(null);
-
-        AddressEntity addressEntity = buildAddressFromRequest(addressRequest);
-
-        try {
-            addressRepository.save(addressEntity);
-            logger.info("Endereço criado: {}", addressEntity.toString());
-            return converter.toResponse(addressEntity, AddressResponse.class);
-
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar criar o endereço: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar o endereço: " + exception);
         }
     }
 
@@ -81,15 +62,22 @@ public class AddressServiceImpl implements AddressService {
                 });
     }
 
-    @Transactional(readOnly = true)
-    public AddressEntity findAddressEntityById(Long id) {
+    @Transactional(readOnly = false)
+    public AddressResponse createAddress(AddressRequest addressRequest) {
 
-        return addressRepository
-                .findById(id)
-                .orElseThrow(() -> {
-                    logger.warn("Endereço não encontrado com o ID: {}", id);
-                    return new NotFoundException("Endereço não encontrado com o ID: " + id + ".");
-                });
+        addressRequest.setId(null);
+
+        AddressEntity addressEntity = buildAddressFromRequest(addressRequest);
+
+        try {
+            addressRepository.save(addressEntity);
+            logger.info("Endereço criado: {}", addressEntity);
+            return converter.toResponse(addressEntity, AddressResponse.class);
+
+        } catch (PersistenceException exception) {
+            logger.error("Erro ao tentar criar o endereço: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar criar o endereço: " + exception);
+        }
     }
 
     @Transactional(readOnly = false)
@@ -101,7 +89,7 @@ public class AddressServiceImpl implements AddressService {
 
         try {
             addressRepository.save(addressEntity);
-            logger.info("Endereço atualizado: {}", addressEntity.toString());
+            logger.info("Endereço atualizado: {}", addressEntity);
             return converter.toResponse(addressEntity, AddressResponse.class);
 
         } catch (PersistenceException exception) {
@@ -117,7 +105,7 @@ public class AddressServiceImpl implements AddressService {
 
         try {
             addressRepository.deleteById(id);
-            logger.warn("Endereço removido: {}", addressEntity.toString());
+            logger.warn("Endereço removido: {}", addressEntity);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir o endereço: {}", exception.getMessage(), exception);
@@ -125,7 +113,16 @@ public class AddressServiceImpl implements AddressService {
         }
     }
 
-    @Transactional(readOnly = true)
+    public AddressEntity findAddressEntityById(Long id) {
+
+        return addressRepository
+                .findById(id)
+                .orElseThrow(() -> {
+                    logger.warn("Endereço não encontrado com o ID: {}", id);
+                    return new NotFoundException("Endereço não encontrado com o ID: " + id + ".");
+                });
+    }
+
     public AddressEntity buildAddressFromRequest(AddressRequest addressRequest) {
 
         UserEntity user = userService.findUserEntityById(addressRequest.getUserId());

@@ -8,6 +8,7 @@ class ECommerceManagerApplicationTests {
 
 	@Test
 	void contextLoads() {
+
 	}
 
 }

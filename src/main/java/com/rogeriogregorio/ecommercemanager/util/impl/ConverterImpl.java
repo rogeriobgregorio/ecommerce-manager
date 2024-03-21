@@ -1,7 +1,6 @@
-package com.rogeriogregorio.ecommercemanager.util.Impl;
+package com.rogeriogregorio.ecommercemanager.util.impl;
 
 import com.rogeriogregorio.ecommercemanager.exceptions.ConverterException;
-import com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class ConverterImpl implements Converter {
 
     private final ModelMapper modelMapper;
-    private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(ConverterImpl.class);
 
     @Autowired
     public ConverterImpl(ModelMapper modelMapper) {
@@ -22,7 +21,7 @@ public class ConverterImpl implements Converter {
     }
 
     @Override
-    public <Entity, Response> Entity toEntity(Response object, Class<Entity> targetType) {
+    public <E, R> E toEntity(R object, Class<E> targetType) {
 
         try {
             return modelMapper.map(object, targetType);
@@ -34,7 +33,7 @@ public class ConverterImpl implements Converter {
     }
 
     @Override
-    public <Entity, Response> Response toResponse(Entity object, Class<Response> targetType) {
+    public <E, R> R toResponse(E object, Class<R> targetType) {
 
         try {
             return modelMapper.map(object, targetType);

@@ -71,7 +71,7 @@ public class ECommerceManagerExceptionHandler {
     }
 
     @ExceptionHandler(RepositoryException.class)
-    public ResponseEntity<StandardError> HandleRepositoryException(RepositoryException ex) {
+    public ResponseEntity<StandardError> handleRepositoryException(RepositoryException ex) {
 
         StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR, "RepositoryException: erro ao tentar acessar o repositório", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
@@ -85,7 +85,7 @@ public class ECommerceManagerExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<StandardError> DataIntegrityViolationException(DataIntegrityViolationException ex) {
+    public ResponseEntity<StandardError> dataIntegrityViolationException(DataIntegrityViolationException ex) {
 
         String message = ex.getMostSpecificCause().getMessage().contains("EMAIL") ? "O email já está em uso." : "Verifique a existência de um recurso com o mesmo nome.";
 

@@ -2,7 +2,6 @@ package com.rogeriogregorio.ecommercemanager.controllers;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.CategoryRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.CategoryResponse;
-import com.rogeriogregorio.ecommercemanager.dto.responses.ProductResponse;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

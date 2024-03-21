@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -45,7 +44,7 @@ public class OrderServiceImpl implements OrderService {
                     .findAll()
                     .stream()
                     .map(orderEntity -> converter.toResponse(orderEntity, OrderResponse.class))
-                    .collect(Collectors.toList());
+                    .toList();
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar todos os pedidos: {}", exception.getMessage(), exception);
@@ -62,7 +61,7 @@ public class OrderServiceImpl implements OrderService {
 
         try {
             orderRepository.save(orderEntity);
-            logger.info("Pedido criado: {}", orderEntity.toString());
+            logger.info("Pedido criado: {}", orderEntity);
             return converter.toResponse(orderEntity, OrderResponse.class);
 
         } catch (PersistenceException exception) {
@@ -76,7 +75,7 @@ public class OrderServiceImpl implements OrderService {
 
         try {
             orderRepository.save(orderEntity);
-            logger.info("Pedido pago salvo: {}", orderEntity.toString());
+            logger.info("Pedido pago salvo: {}", orderEntity);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar salvar o pedido pago: {}", exception.getMessage(), exception);
@@ -96,17 +95,6 @@ public class OrderServiceImpl implements OrderService {
                 });
     }
 
-    @Transactional(readOnly = true)
-    public OrderEntity findOrderEntityById(Long id) {
-
-        return orderRepository
-                .findById(id)
-                .orElseThrow(() -> {
-                    logger.warn("Pedido não encontrado com o ID: {}", id);
-                    return new NotFoundException("Pedido não encontrado com o ID: " + id + ".");
-                });
-    }
-
     @Transactional(readOnly = false)
     public OrderResponse updateOrder(OrderRequest orderRequest) {
 
@@ -116,7 +104,7 @@ public class OrderServiceImpl implements OrderService {
 
         try {
             orderRepository.save(orderEntity);
-            logger.info("Pedido atualizado: {}", orderEntity.toString());
+            logger.info("Pedido atualizado: {}", orderEntity);
             return converter.toResponse(orderEntity, OrderResponse.class);
 
         } catch (PersistenceException exception) {
@@ -152,7 +140,7 @@ public class OrderServiceImpl implements OrderService {
                     .findByClient_Id(id)
                     .stream()
                     .map(orderEntity -> converter.toResponse(orderEntity, OrderResponse.class))
-                    .collect(Collectors.toList());
+                    .toList();
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar pedidos pelo id do cliente: {}", exception.getMessage(), exception);
@@ -160,7 +148,16 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    @Transactional(readOnly = true)
+    public OrderEntity findOrderEntityById(Long id) {
+
+        return orderRepository
+                .findById(id)
+                .orElseThrow(() -> {
+                    logger.warn("Pedido não encontrado com o ID: {}", id);
+                    return new NotFoundException("Pedido não encontrado com o ID: " + id + ".");
+                });
+    }
+
     public boolean isOrderPaid(OrderEntity orderEntity) {
 
         return orderEntity.getOrderStatus() == OrderStatus.PAID ||
@@ -168,13 +165,11 @@ public class OrderServiceImpl implements OrderService {
                 orderEntity.getOrderStatus() == OrderStatus.DELIVERED;
     }
 
-    @Transactional(readOnly = true)
     public boolean isOrderItemsNotEmpty(OrderEntity orderEntity) {
 
         return !orderEntity.getItems().isEmpty();
     }
 
-    @Transactional(readOnly = true)
     public void validateOrderStatusChange(OrderRequest orderRequest) {
 
         OrderStatus requestedStatus = orderRequest.getOrderStatus();
@@ -191,7 +186,6 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    @Transactional(readOnly = true)
     public OrderEntity buildOrderFromRequest(OrderRequest orderRequest) {
 
         UserEntity client = userService.findUserEntityById(orderRequest.getClientId());

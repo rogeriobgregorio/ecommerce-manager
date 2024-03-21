@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class OrderItemServiceImpl implements OrderItemService {
@@ -48,7 +47,7 @@ public class OrderItemServiceImpl implements OrderItemService {
                     .findAll()
                     .stream()
                     .map(orderItemEntity -> converter.toResponse(orderItemEntity, OrderItemResponse.class))
-                    .collect(Collectors.toList());
+                    .toList();
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar todos os itens do pedido: {}", exception.getMessage(), exception);
@@ -69,7 +68,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         try {
             orderItemRepository.save(orderItemEntity);
-            logger.info("Item do pedido criado: {}", orderItemEntity.toString());
+            logger.info("Item do pedido criado: {}", orderItemEntity);
             return converter.toResponse(orderItemEntity, OrderItemResponse.class);
 
         } catch (PersistenceException exception) {
@@ -105,7 +104,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         try {
             orderItemRepository.save(orderItemEntity);
-            logger.info("Item do pedido atualizado: {}", orderItemEntity.toString());
+            logger.info("Item do pedido atualizado: {}", orderItemEntity);
             return converter.toResponse(orderItemEntity, OrderItemResponse.class);
 
         } catch (PersistenceException exception) {
@@ -127,7 +126,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         try {
             orderItemRepository.deleteById(id);
-            logger.warn("Item do pedido removido: {}", id.getProductEntity().toString());
+            logger.warn("Item do pedido removido: {}", id.getProductEntity());
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir item do pedido: {}", exception.getMessage(), exception);
@@ -135,7 +134,6 @@ public class OrderItemServiceImpl implements OrderItemService {
         }
     }
 
-    @Transactional(readOnly = true)
     public OrderItemPK buildOrderItemPK(Long orderId, Long itemId) {
 
         OrderEntity orderEntity = orderService.findOrderEntityById(orderId);
@@ -148,7 +146,6 @@ public class OrderItemServiceImpl implements OrderItemService {
         return id;
     }
 
-    @Transactional(readOnly = true)
     public OrderItemEntity buildOrderItemFromRequest(OrderItemRequest orderItemRequest) {
 
         OrderEntity orderEntity = orderService.findOrderEntityById(orderItemRequest.getOrderId());

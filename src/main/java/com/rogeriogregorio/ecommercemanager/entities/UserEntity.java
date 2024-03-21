@@ -33,12 +33,12 @@ public class UserEntity implements Serializable {
 
     @Column(name = "email", unique = true)
     @NotBlank(message = "O e-mail não deve estar em branco")
-    @Pattern(regexp = "^[A-Za-z0-9]+([._-][A-Za-z0-9]+)*@[A-Za-z0-9]+([.-][A-Za-z0-9]+)*\\.[A-Za-z]{2,}$", message = "Insira um endereço de e-mail válido. Exemplo: usuario@example.com")
+    @Pattern(regexp = "^[A-Za-z0-9]+([._-][A-Za-z0-9]+)*+@[A-Za-z0-9]+([.-][A-Za-z0-9]+)*+\\.[A-Za-z]{2,}$\n", message = "Insira um endereço de e-mail válido. Exemplo: usuario@example.com")
     private String email;
 
     @Column(name = "phone")
     @NotBlank(message = "O telefone não deve estar em branco")
-    @Pattern(regexp = "^[0-9]{8,11}$", message = "O telefone deve ter entre 8 e 11 números.")
+    @Pattern(regexp = "\\d{8,11}$", message = "O telefone deve ter entre 8 e 11 números.")
     private String phone;
 
     @Column(name = "password")

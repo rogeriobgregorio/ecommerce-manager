@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class PaymentServiceImplTest {
+class PaymentServiceImplTest {
 
     @Mock
     private PaymentRepository paymentRepository;

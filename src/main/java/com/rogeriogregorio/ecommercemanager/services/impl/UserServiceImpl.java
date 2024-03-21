@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -39,7 +38,7 @@ public class UserServiceImpl implements UserService {
                     .findAll()
                     .stream()
                     .map(userEntity -> converter.toResponse(userEntity, UserResponse.class))
-                    .collect(Collectors.toList());
+                    .toList();
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar todos os usuários: {}", exception.getMessage(), exception);
@@ -59,17 +58,6 @@ public class UserServiceImpl implements UserService {
                 });
     }
 
-    @Transactional(readOnly = true)
-    public UserEntity findUserEntityById(Long id) {
-
-        return userRepository
-                .findById(id)
-                .orElseThrow(() -> {
-                    logger.warn("Usuário não encontrado com o ID: {}", id);
-                    return new NotFoundException("Usuário não encontrado com o ID: " + id + ".");
-                });
-    }
-
     @Transactional(readOnly = false)
     public UserResponse createUser(UserRequest userRequest) {
 
@@ -79,7 +67,7 @@ public class UserServiceImpl implements UserService {
 
         try {
             userRepository.save(userEntity);
-            logger.info("Usuário criado: {}", userEntity.toString());
+            logger.info("Usuário criado: {}", userEntity);
             return converter.toResponse(userEntity, UserResponse.class);
 
         } catch (PersistenceException exception) {
@@ -97,7 +85,7 @@ public class UserServiceImpl implements UserService {
 
         try {
             userRepository.save(userEntity);
-            logger.info("Usuário atualizado: {}", userEntity.toString());
+            logger.info("Usuário atualizado: {}", userEntity);
             return converter.toResponse(userEntity, UserResponse.class);
 
         } catch (PersistenceException exception) {
@@ -113,7 +101,7 @@ public class UserServiceImpl implements UserService {
 
         try {
             userRepository.deleteById(id);
-            logger.warn("Usuário removido: {}", userEntity.toString());
+            logger.warn("Usuário removido: {}", userEntity);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir o usuário: {}", exception.getMessage(), exception);
@@ -128,7 +116,7 @@ public class UserServiceImpl implements UserService {
             return userRepository.findByName(name)
                     .stream()
                     .map(userEntity -> converter.toResponse(userEntity, UserResponse.class))
-                    .collect(Collectors.toList());
+                    .toList();
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar buscar usuário pelo nome: {}", exception.getMessage(), exception);
@@ -141,7 +129,7 @@ public class UserServiceImpl implements UserService {
 
         try {
             userRepository.save(userEntity);
-            logger.info("Endereço do usuário atualizado: {}", userEntity.toString());
+            logger.info("Endereço do usuário atualizado: {}", userEntity);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar atualizar o endereço do usuário: {}", exception.getMessage(), exception);
@@ -150,7 +138,16 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    @Transactional(readOnly = true)
+    public UserEntity findUserEntityById(Long id) {
+
+        return userRepository
+                .findById(id)
+                .orElseThrow(() -> {
+                    logger.warn("Usuário não encontrado com o ID: {}", id);
+                    return new NotFoundException("Usuário não encontrado com o ID: " + id + ".");
+                });
+    }
+
     public boolean isAddressPresent(UserEntity userEntity) {
 
         return userEntity.getAddressEntity() != null;
