@@ -22,5 +22,5 @@ public interface InventoryItemService {
 
     void deleteInventoryItem(Long id);
 
-    InventoryItemEntity buildAddressFromRequest(InventoryItemRequest inventoryItemRequest);
+    InventoryItemEntity buildInventoryItemFromRequest(InventoryItemRequest inventoryItemRequest);
 }
