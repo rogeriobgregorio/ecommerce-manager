@@ -2,6 +2,7 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
+import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import com.rogeriogregorio.ecommercemanager.entities.PaymentEntity;
 import org.springframework.stereotype.Component;
 
@@ -21,4 +22,6 @@ public interface PaymentService {
     void deletePayment(Long id);
 
     PaymentEntity buildPaymentFromRequest(PaymentRequest paymentRequest);
+
+    void validatePaymentConditions(OrderEntity order);
 }

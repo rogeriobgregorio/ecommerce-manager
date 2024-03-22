@@ -25,6 +25,4 @@ public interface UserService {
     List<UserResponse> findUserByName(String name);
 
     void saveUserAddress(UserEntity userEntity);
-
-    boolean isAddressPresent(UserEntity userEntity);
 }

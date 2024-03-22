@@ -28,7 +28,9 @@ public interface OrderService {
 
     boolean isOrderPaid(OrderEntity orderEntity);
 
-    boolean isOrderItemsNotEmpty(OrderEntity orderEntity);
+    boolean isOrderItemsPresent(OrderEntity orderEntity);
+
+    public boolean isAddressClientPresent(OrderEntity orderEntity);
 
     void validateOrderStatusChange(OrderRequest orderRequest);
 

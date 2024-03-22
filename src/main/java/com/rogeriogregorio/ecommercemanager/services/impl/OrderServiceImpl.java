@@ -165,9 +165,14 @@ public class OrderServiceImpl implements OrderService {
                 orderEntity.getOrderStatus() == OrderStatus.DELIVERED;
     }
 
-    public boolean isOrderItemsNotEmpty(OrderEntity orderEntity) {
+    public boolean isOrderItemsPresent(OrderEntity orderEntity) {
 
         return !orderEntity.getItems().isEmpty();
+    }
+
+    public boolean isAddressClientPresent(OrderEntity orderEntity) {
+
+        return orderEntity.getClient().getAddressEntity() != null;
     }
 
     public void validateOrderStatusChange(OrderRequest orderRequest) {

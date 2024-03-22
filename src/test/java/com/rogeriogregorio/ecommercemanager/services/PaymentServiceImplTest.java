@@ -39,9 +39,6 @@ class PaymentServiceImplTest {
     private OrderService orderService;
 
     @Mock
-    private UserService userService;
-
-    @Mock
     private Converter converter;
 
     @InjectMocks
@@ -50,7 +47,7 @@ class PaymentServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        paymentService = new PaymentServiceImpl(paymentRepository, orderService, userService, converter);
+        paymentService = new PaymentServiceImpl(paymentRepository, orderService, converter);
     }
 
     @Test
@@ -164,8 +161,8 @@ class PaymentServiceImplTest {
         PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
         PaymentResponse expectedResponse = new PaymentResponse(1L, Instant.now(), orderEntity);
 
-        when(orderService.isOrderItemsNotEmpty(orderEntity)).thenReturn(true);
-        when(userService.isAddressPresent(userEntity)).thenReturn(true);
+        when(orderService.isOrderItemsPresent(orderEntity)).thenReturn(true);
+        when(orderService.isAddressClientPresent(orderEntity)).thenReturn(true);
         when(orderService.findOrderEntityById(paymentRequest.getOrderId())).thenReturn(orderEntity);
         doNothing().when(orderService).savePaidOrder(orderEntity);
         when(paymentRepository.save(paymentEntity)).thenReturn(paymentEntity);
@@ -204,8 +201,8 @@ class PaymentServiceImplTest {
         PaymentRequest paymentRequest = new PaymentRequest(1L);
         PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
 
-        when(orderService.isOrderItemsNotEmpty(orderEntity)).thenReturn(true);
-        when(userService.isAddressPresent(userEntity)).thenReturn(true);
+        when(orderService.isOrderItemsPresent(orderEntity)).thenReturn(true);
+        when(orderService.isAddressClientPresent(orderEntity)).thenReturn(true);
         when(orderService.findOrderEntityById(paymentRequest.getOrderId())).thenReturn(orderEntity);
         doNothing().when(orderService).savePaidOrder(orderEntity);
         when(paymentRepository.save(paymentEntity)).thenThrow(PersistenceException.class);

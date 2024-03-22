@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
-@Table(name = "tb_order_item")
+@Table(name = "tb_order_items")
 public class OrderItemEntity implements Serializable {
 
     @Serial

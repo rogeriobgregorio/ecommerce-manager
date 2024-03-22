@@ -147,9 +147,4 @@ public class UserServiceImpl implements UserService {
                     return new NotFoundException("Usuário não encontrado com o ID: " + id + ".");
                 });
     }
-
-    public boolean isAddressPresent(UserEntity userEntity) {
-
-        return userEntity.getAddressEntity() != null;
-    }
 }
