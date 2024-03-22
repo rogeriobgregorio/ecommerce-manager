@@ -38,6 +38,19 @@ public class InventoryItemEntity implements Serializable {
     public InventoryItemEntity() {
     }
 
+    public InventoryItemEntity(ProductEntity product, Integer quantityInStock, StockStatus stockStatus) {
+        this.product = product;
+        this.quantityInStock = quantityInStock;
+        setStockStatus(stockStatus);
+    }
+
+    public InventoryItemEntity(Long id, ProductEntity product, Integer quantityInStock, StockStatus stockStatus) {
+        this.id = id;
+        this.product = product;
+        this.quantityInStock = quantityInStock;
+        setStockStatus(stockStatus);
+    }
+
     public InventoryItemEntity(ProductEntity product, Integer quantityInStock, Integer quantitySold, StockStatus stockStatus) {
         this.product = product;
         this.quantityInStock = quantityInStock;
