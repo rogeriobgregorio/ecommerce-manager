@@ -10,7 +10,7 @@ import java.util.List;
 @Component
 public interface StockMovementService {
 
-    List<StockMovementResponse> findAllStockMovement();
+    List<StockMovementResponse> findAllStockMovements();
 
     StockMovementResponse createStockMovement(StockMovementRequest stockMovementRequest);
 

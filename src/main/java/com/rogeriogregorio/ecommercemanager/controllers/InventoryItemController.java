@@ -46,7 +46,7 @@ public class InventoryItemController {
                 .body(inventoryItemService.findInventoryItemById(id));
     }
 
-    @PutMapping(value = "/inventoryItem")
+    @PutMapping(value = "/inventoryItems")
     public ResponseEntity<InventoryItemResponse> updateInventoryItem(@Valid @RequestBody InventoryItemRequest inventoryItemRequest) {
 
         return ResponseEntity

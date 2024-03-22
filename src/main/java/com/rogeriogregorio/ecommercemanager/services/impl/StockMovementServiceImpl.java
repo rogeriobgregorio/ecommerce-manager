@@ -34,7 +34,7 @@ public class StockMovementServiceImpl implements StockMovementService {
     }
 
 
-    public List<StockMovementResponse> findAllStockMovement() {
+    public List<StockMovementResponse> findAllStockMovements() {
 
         try {
             return stockMovementRepository
