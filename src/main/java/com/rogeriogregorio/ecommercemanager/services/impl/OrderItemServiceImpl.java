@@ -55,6 +55,20 @@ public class OrderItemServiceImpl implements OrderItemService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public OrderItemResponse findOrderItemById(Long orderId, Long itemId) {
+
+        OrderItemPK id = buildOrderItemPK(orderId, itemId);
+
+        return orderItemRepository
+                .findById(id)
+                .map(orderItemEntity -> converter.toResponse(orderItemEntity, OrderItemResponse.class))
+                .orElseThrow(() -> {
+                    logger.warn("Itens não encontrado com o ID: {}", id);
+                    return new NotFoundException("Itens não encontrado com o ID: " + id + ".");
+                });
+    }
+
     @Transactional(readOnly = false)
     public OrderItemResponse createOrderItem(OrderItemRequest orderItemRequest) {
 
@@ -75,20 +89,6 @@ public class OrderItemServiceImpl implements OrderItemService {
             logger.error("Erro ao tentar criar item do pedido: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar criar item do pedido: " + exception);
         }
-    }
-
-    @Transactional(readOnly = true)
-    public OrderItemResponse findOrderItemById(Long orderId, Long itemId) {
-
-        OrderItemPK id = buildOrderItemPK(orderId, itemId);
-
-        return orderItemRepository
-                .findById(id)
-                .map(orderItemEntity -> converter.toResponse(orderItemEntity, OrderItemResponse.class))
-                .orElseThrow(() -> {
-                    logger.warn("Itens não encontrado com o ID: {}", id);
-                    return new NotFoundException("Itens não encontrado com o ID: " + id + ".");
-                });
     }
 
     @Transactional(readOnly = false)

@@ -117,4 +117,3 @@ public class InventoryItemEntity implements Serializable {
                 quantityInStock + ", quantitySold= " + quantitySold + ", stockStatus= " + stockStatus + "]";
     }
 }
-
