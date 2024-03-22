@@ -1,33 +1,28 @@
-package com.rogeriogregorio.ecommercemanager.dto.requests;
+package com.rogeriogregorio.ecommercemanager.dto.responses;
 
+import com.rogeriogregorio.ecommercemanager.entities.InventoryItemEntity;
 import com.rogeriogregorio.ecommercemanager.entities.enums.MovementType;
 
 import java.io.Serial;
 import java.io.Serializable;
 
-public class StockMovementRequest implements Serializable {
+public class StockMovementResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     private Long id;
-    private Long inventoryItemId;
+    private InventoryItemEntity inventoryItem;
     private Integer movementType;
     private Integer quantityMoved;
 
-    public StockMovementRequest() {
+    public StockMovementResponse() {
     }
 
-    public StockMovementRequest(Long inventoryItemId, MovementType movementType, Integer quantityMoved) {
-        this.inventoryItemId = inventoryItemId;
-        setMovementType(movementType);
-        this.quantityMoved = quantityMoved;
-    }
-
-    public StockMovementRequest(Long id, Long inventoryItemId, MovementType movementType, Integer quantityMoved) {
+    public StockMovementResponse(Long id, InventoryItemEntity inventoryItem, Integer movementType, Integer quantityMoved) {
         this.id = id;
-        this.inventoryItemId = inventoryItemId;
-        setMovementType(movementType);
+        this.inventoryItem = inventoryItem;
+        this.movementType = movementType;
         this.quantityMoved = quantityMoved;
     }
 
@@ -39,12 +34,12 @@ public class StockMovementRequest implements Serializable {
         this.id = id;
     }
 
-    public Long getInventoryItemId() {
-        return inventoryItemId;
+    public InventoryItemEntity getInventoryItem() {
+        return inventoryItem;
     }
 
-    public void setInventoryItemId(Long inventoryItemId) {
-        this.inventoryItemId = inventoryItemId;
+    public void setInventoryItem(InventoryItemEntity inventoryItem) {
+        this.inventoryItem = inventoryItem;
     }
 
     public MovementType getMovementType() {
@@ -66,11 +61,5 @@ public class StockMovementRequest implements Serializable {
 
     public void setQuantityMoved(Integer quantityMoved) {
         this.quantityMoved = quantityMoved;
-    }
-
-    @Override
-    public String toString() {
-        return "[Movimentação do estoque: id= " + id + ", inventoryItem= " + inventoryItemId +
-                ", movementType= " + movementType + ", quantityMoved= " + quantityMoved + "]";
     }
 }
