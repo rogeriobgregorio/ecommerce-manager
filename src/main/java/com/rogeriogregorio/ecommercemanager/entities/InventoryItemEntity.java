@@ -2,7 +2,9 @@ package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.rogeriogregorio.ecommercemanager.entities.enums.StockStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -24,10 +26,12 @@ public class InventoryItemEntity implements Serializable {
     private ProductEntity product;
 
     @NotNull(message = "A quantidade em estoque não pode ser nula")
+    @Min(value = 1, message = "A quantidade adicionada ao estoque deve ser no mínimo 1")
     @Column(name = "quantity_in_stock")
     private Integer quantityInStock;
 
     @NotNull(message = "A quantidade vendida não pode ser nula")
+    @PositiveOrZero(message = "A quantidade vendida deve ser um número positivo ou zero")
     @Column(name = "quantity_sold")
     private Integer quantitySold;
 
@@ -36,12 +40,6 @@ public class InventoryItemEntity implements Serializable {
     private Integer stockStatus;
 
     public InventoryItemEntity() {
-    }
-
-    public InventoryItemEntity(ProductEntity product, Integer quantityInStock, StockStatus stockStatus) {
-        this.product = product;
-        this.quantityInStock = quantityInStock;
-        setStockStatus(stockStatus);
     }
 
     public InventoryItemEntity(Long id, ProductEntity product, Integer quantityInStock, StockStatus stockStatus) {

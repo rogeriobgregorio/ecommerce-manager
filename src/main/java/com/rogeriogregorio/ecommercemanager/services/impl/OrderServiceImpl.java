@@ -135,17 +135,15 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public List<OrderResponse> findOrderByClientId(Long id) {
 
-        try {
             return orderRepository
                     .findByClient_Id(id)
+                    .orElseThrow(() -> {
+                        logger.warn("Nenhum pedido encontrado com o ID do cliente: {}", id);
+                        return new NotFoundException("Nenhum pedido encontrado com o ID do cliente: " + id + ".");
+                    })
                     .stream()
                     .map(orderEntity -> converter.toResponse(orderEntity, OrderResponse.class))
                     .toList();
-
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar pedidos pelo id do cliente: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar pedidos pelo id do cliente: " + exception);
-        }
     }
 
     public OrderEntity findOrderEntityById(Long id) {

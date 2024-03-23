@@ -22,7 +22,7 @@ public class InventoryItemController {
         this.inventoryItemService = inventoryItemService;
     }
 
-    @GetMapping(value = "/inventoryItems")
+    @GetMapping(value = "/inventory-items")
     public ResponseEntity<List<InventoryItemResponse>> getAllInventoryItem() {
 
         return ResponseEntity
@@ -30,7 +30,7 @@ public class InventoryItemController {
                 .body(inventoryItemService.findAllInventoryItems());
     }
 
-    @PostMapping(value = "/inventoryItems")
+    @PostMapping(value = "/inventory-items")
     public ResponseEntity<InventoryItemResponse> createInventoryItem(@Valid @RequestBody InventoryItemRequest inventoryItemRequest) {
 
         return ResponseEntity
@@ -38,7 +38,7 @@ public class InventoryItemController {
                 .body(inventoryItemService.createInventoryItem(inventoryItemRequest));
     }
 
-    @GetMapping(value = "/inventoryItems/{id}")
+    @GetMapping(value = "/inventory-items/{id}")
     public ResponseEntity<InventoryItemResponse> getInventoryItemById(@PathVariable Long id) {
 
         return ResponseEntity
@@ -46,7 +46,7 @@ public class InventoryItemController {
                 .body(inventoryItemService.findInventoryItemById(id));
     }
 
-    @PutMapping(value = "/inventoryItems")
+    @PutMapping(value = "/inventory-items")
     public ResponseEntity<InventoryItemResponse> updateInventoryItem(@Valid @RequestBody InventoryItemRequest inventoryItemRequest) {
 
         return ResponseEntity
@@ -54,7 +54,7 @@ public class InventoryItemController {
                 .body(inventoryItemService.updateInventoryItem(inventoryItemRequest));
     }
 
-    @DeleteMapping(value = "/inventoryItems/{id}")
+    @DeleteMapping(value = "/inventory-items/{id}")
     public ResponseEntity<Void> deleteInventoryItem(@PathVariable Long id) {
 
         inventoryItemService.deleteInventoryItem(id);

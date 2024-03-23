@@ -2,12 +2,14 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
+import com.rogeriogregorio.ecommercemanager.entities.InventoryItemEntity;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import com.rogeriogregorio.ecommercemanager.entities.PaymentEntity;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
+import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.services.PaymentService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -26,13 +28,15 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final OrderService orderService;
+    private final InventoryItemService inventoryItemService;
     private final Converter converter;
     private static final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
 
     @Autowired
-    public PaymentServiceImpl(PaymentRepository paymentRepository, OrderService orderService, Converter converter) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, OrderService orderService, InventoryItemService inventoryItemService, Converter converter) {
         this.paymentRepository = paymentRepository;
         this.orderService = orderService;
+        this.inventoryItemService = inventoryItemService;
         this.converter = converter;
     }
 
@@ -61,6 +65,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         try {
             paymentRepository.save(paymentEntity);
+
             logger.info("Pagamento criado: {}", paymentEntity);
             return converter.toResponse(paymentEntity, PaymentResponse.class);
 

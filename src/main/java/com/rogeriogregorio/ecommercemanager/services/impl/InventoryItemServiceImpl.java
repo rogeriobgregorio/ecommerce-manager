@@ -78,16 +78,6 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 });
     }
 
-    public InventoryItemEntity findInventoryItemEntityById(Long id) {
-
-        return inventoryItemRepository
-                .findById(id)
-                .orElseThrow(() -> {
-                    logger.warn("Item do inventário não encontrado com o ID: {}", id);
-                    return new NotFoundException("Item do inventário não encontrado com o ID: " + id + ".");
-                });
-    }
-
     public InventoryItemResponse updateInventoryItem(InventoryItemRequest inventoryItemRequest) {
 
         InventoryItemEntity inventoryItemEntity = buildInventoryItemFromRequest(inventoryItemRequest);
@@ -118,19 +108,47 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
     }
 
+    public InventoryItemEntity findInventoryItemEntityById(Long id) {
+
+        return inventoryItemRepository
+                .findById(id)
+                .orElseThrow(() -> {
+                    logger.warn("Item do inventário não encontrado com o ID: {}", id);
+                    return new NotFoundException("Item do inventário não encontrado com o ID: " + id + ".");
+                });
+    }
+
     public InventoryItemEntity buildInventoryItemFromRequest(InventoryItemRequest inventoryItemRequest) {
 
         ProductEntity product = productService.findProductEntityById(inventoryItemRequest.getProductId());
 
-        if (inventoryItemRequest.getId() == null) {
+        validateItemInventoryConditions(inventoryItemRequest);
 
-            return new InventoryItemEntity(product, inventoryItemRequest.getQuantityInStock(), inventoryItemRequest.getStockStatus());
+        return inventoryItemRequest.getId() == null ?
+                new InventoryItemEntity(product, inventoryItemRequest.getQuantityInStock(), 0, inventoryItemRequest.getStockStatus()) :
+                new InventoryItemEntity(inventoryItemRequest.getId(), product, inventoryItemRequest.getQuantityInStock(), 0, inventoryItemRequest.getStockStatus());
+    }
 
-        } else {
+    public InventoryItemEntity findInventoryItemEntityByProductId(Long id) {
 
-            findInventoryItemEntityById(inventoryItemRequest.getId());
+        return inventoryItemRepository.findByProduct_Id(id);
+    }
 
-            return new InventoryItemEntity(inventoryItemRequest.getId(), product, inventoryItemRequest.getQuantityInStock(), inventoryItemRequest.getStockStatus());
+    public void validateItemInventoryConditions(InventoryItemRequest inventoryItemRequest) {
+
+        Long inventoryItemId = inventoryItemRequest.getId();
+
+        if (inventoryItemId == null && isProductPresent(inventoryItemRequest)) {
+            throw new IllegalStateException("Não é possível incluir o item ao inventário: produto já adicionado.");
         }
+
+        if (inventoryItemId != null) {
+            findInventoryItemEntityById(inventoryItemId);
+        }
+    }
+
+    public boolean isProductPresent(InventoryItemRequest inventoryItemRequest) {
+
+        return findInventoryItemEntityByProductId(inventoryItemRequest.getProductId()) != null;
     }
 }

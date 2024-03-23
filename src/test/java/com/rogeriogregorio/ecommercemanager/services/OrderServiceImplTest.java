@@ -349,7 +349,7 @@ class OrderServiceImplTest {
         List<OrderResponse> expectedResponses = Collections.singletonList(orderResponse);
 
         when(converter.toResponse(orderEntity, OrderResponse.class)).thenReturn(orderResponse);
-        when(orderRepository.findByClient_Id(1L)).thenReturn(orderEntityList);
+        when(orderRepository.findByClient_Id(1L)).thenReturn(Optional.of(orderEntityList));
 
         // Act
         List<OrderResponse> actualResponses = orderService.findOrderByClientId(1L);
@@ -379,7 +379,7 @@ class OrderServiceImplTest {
             when(converter.toResponse(orderEntity, OrderResponse.class)).thenReturn(orderResponse);
         }
 
-        when(orderRepository.findByClient_Id(1L)).thenReturn(orderEntityList);
+        when(orderRepository.findByClient_Id(1L)).thenReturn(Optional.of(orderEntityList));
 
         // Act
         List<OrderResponse> actualResponses = orderService.findOrderByClientId(1L);
@@ -393,30 +393,13 @@ class OrderServiceImplTest {
     }
 
     @Test
-    @DisplayName("findOrderByClientId - Busca bem-sucedida retorna lista de pedidos vazia")
+    @DisplayName("findOrderByClientId - Exceção ao retornar lista de pedidos vazia")
     void findOrderByClientId_SuccessfulSearch_ReturnsEmptyList() {
         // Arrange
-        List<OrderEntity> emptyOrderEntityList = new ArrayList<>();
-        when(orderRepository.findByClient_Id(1L)).thenReturn(emptyOrderEntityList);
-
-        // Act
-        List<OrderResponse> actualResponses = orderService.findOrderByClientId(1L);
-
-        // Assert
-        assertEquals(0, actualResponses.size(), "Expected an empty list of responses");
-        assertIterableEquals(emptyOrderEntityList, actualResponses, "Expected an empty list of responses");
-
-        verify(orderRepository, times(1)).findByClient_Id(1L);
-    }
-
-    @Test
-    @DisplayName("findOrderByClientId - Exceção ao tentar buscar lista de pedidos")
-    void findOrderByClientId_RepositoryExceptionHandling() {
-        // Arrange
-        when(orderRepository.findByClient_Id(1L)).thenThrow(PersistenceException.class);
+        when(orderRepository.findByClient_Id(1L)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(RepositoryException.class, () -> orderService.findOrderByClientId(1L), "Expected RepositoryException to be thrown");
+        assertThrows(NotFoundException.class, () -> orderService.findOrderByClientId(1L), "Expected NotFoundException to be thrown");
 
         verify(orderRepository, times(1)).findByClient_Id(1L);
     }
