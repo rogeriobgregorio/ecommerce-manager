@@ -3,7 +3,10 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 import com.rogeriogregorio.ecommercemanager.dto.requests.InventoryItemRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.InventoryItemResponse;
 import com.rogeriogregorio.ecommercemanager.entities.InventoryItemEntity;
+import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
+import com.rogeriogregorio.ecommercemanager.entities.OrderItemEntity;
 import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
+import com.rogeriogregorio.ecommercemanager.entities.enums.StockStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.InventoryItemRepository;
@@ -151,4 +154,38 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         return findInventoryItemEntityByProductId(inventoryItemRequest.getProductId()) != null;
     }
+
+    public boolean isItemsInInventoryAvailable(OrderEntity order) {
+        for (OrderItemEntity orderItem : order.getItems()) {
+            ProductEntity product = orderItem.getProductEntity();
+            InventoryItemEntity inventoryItem = findInventoryItemEntityById(product.getId());
+
+            if (inventoryItem == null || inventoryItem.getQuantityInStock() < orderItem.getQuantity()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Transactional
+    public void updateInventoryAndQuantitySold(OrderEntity order) {
+        for (OrderItemEntity orderItem : order.getItems()) {
+            ProductEntity product = orderItem.getProductEntity();
+            InventoryItemEntity inventoryItem = findInventoryItemEntityById(product.getId());
+
+            if (inventoryItem != null) {
+                int purchasedQuantity = orderItem.getQuantity();
+                int remainingQuantity = inventoryItem.getQuantityInStock() - purchasedQuantity;
+
+                if (remainingQuantity <= 0) {
+                    inventoryItem.setStockStatus(StockStatus.OUT_OF_STOCK);
+                }
+
+                inventoryItem.setQuantityInStock(remainingQuantity);
+                inventoryItem.setQuantitySold(inventoryItem.getQuantitySold() + purchasedQuantity);
+                inventoryItemRepository.save(inventoryItem);
+            }
+        }
+    }
+
 }

@@ -2,12 +2,12 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
-import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
-import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
+import com.rogeriogregorio.ecommercemanager.entities.*;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
+import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -156,13 +156,6 @@ public class OrderServiceImpl implements OrderService {
                 });
     }
 
-    public boolean isOrderPaid(OrderEntity orderEntity) {
-
-        return orderEntity.getOrderStatus() == OrderStatus.PAID ||
-                orderEntity.getOrderStatus() == OrderStatus.SHIPPED ||
-                orderEntity.getOrderStatus() == OrderStatus.DELIVERED;
-    }
-
     public boolean isOrderItemsPresent(OrderEntity orderEntity) {
 
         return !orderEntity.getItems().isEmpty();
@@ -171,6 +164,22 @@ public class OrderServiceImpl implements OrderService {
     public boolean isAddressClientPresent(OrderEntity orderEntity) {
 
         return orderEntity.getClient().getAddressEntity() != null;
+    }
+
+    public boolean isOrderPaid(OrderEntity orderEntity) {
+
+        return orderEntity.getOrderStatus() == OrderStatus.PAID ||
+                orderEntity.getOrderStatus() == OrderStatus.SHIPPED ||
+                orderEntity.getOrderStatus() == OrderStatus.DELIVERED;
+    }
+
+    public OrderEntity buildOrderFromRequest(OrderRequest orderRequest) {
+
+        UserEntity client = userService.findUserEntityById(orderRequest.getClientId());
+
+        return orderRequest.getId() == null ?
+                new OrderEntity(Instant.now(), OrderStatus.WAITING_PAYMENT, client) :
+                new OrderEntity(orderRequest.getId(), Instant.now(), orderRequest.getOrderStatus(), client);
     }
 
     public void validateOrderStatusChange(OrderRequest orderRequest) {
@@ -187,15 +196,5 @@ public class OrderServiceImpl implements OrderService {
         if (!isOrderPaid && requestedStatus != OrderStatus.CANCELED) {
             throw new IllegalStateException("Não é possível alterar o status de entrega: pedido ainda aguardando pagamento.");
         }
-    }
-
-    public OrderEntity buildOrderFromRequest(OrderRequest orderRequest) {
-
-        UserEntity client = userService.findUserEntityById(orderRequest.getClientId());
-
-        return orderRequest.getId() == null ?
-                new OrderEntity(Instant.now(), OrderStatus.WAITING_PAYMENT, client) :
-                new OrderEntity(orderRequest.getId(), Instant.now(), orderRequest.getOrderStatus(), client);
-
     }
 }
