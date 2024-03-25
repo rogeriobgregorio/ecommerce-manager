@@ -25,13 +25,15 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
+    private final InventoryItemService inventoryItemService;
     private final UserService userService;
     private final Converter converter;
     private static final Logger logger = LogManager.getLogger(OrderServiceImpl.class);
 
     @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository, UserService userService, Converter converter) {
+    public OrderServiceImpl(OrderRepository orderRepository, InventoryItemService inventoryItemService, UserService userService, Converter converter) {
         this.orderRepository = orderRepository;
+        this.inventoryItemService = inventoryItemService;
         this.userService = userService;
         this.converter = converter;
     }
@@ -57,7 +59,7 @@ public class OrderServiceImpl implements OrderService {
 
         orderRequest.setId(null);
 
-        OrderEntity orderEntity = buildOrderFromRequest(orderRequest);
+        OrderEntity orderEntity = buildOrderCreate(orderRequest);
 
         try {
             orderRepository.save(orderEntity);
@@ -100,7 +102,7 @@ public class OrderServiceImpl implements OrderService {
 
         validateOrderStatusChange(orderRequest);
 
-        OrderEntity orderEntity = buildOrderFromRequest(orderRequest);
+        OrderEntity orderEntity = buildOrderUpdate(orderRequest);
 
         try {
             orderRepository.save(orderEntity);
@@ -135,15 +137,15 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public List<OrderResponse> findOrderByClientId(Long id) {
 
-            return orderRepository
-                    .findByClient_Id(id)
-                    .orElseThrow(() -> {
-                        logger.warn("Nenhum pedido encontrado com o ID do cliente: {}", id);
-                        return new NotFoundException("Nenhum pedido encontrado com o ID do cliente: " + id + ".");
-                    })
-                    .stream()
-                    .map(orderEntity -> converter.toResponse(orderEntity, OrderResponse.class))
-                    .toList();
+        return orderRepository
+                .findByClient_Id(id)
+                .orElseThrow(() -> {
+                    logger.warn("Nenhum pedido encontrado com o ID do cliente: {}", id);
+                    return new NotFoundException("Nenhum pedido encontrado com o ID do cliente: " + id + ".");
+                })
+                .stream()
+                .map(orderEntity -> converter.toResponse(orderEntity, OrderResponse.class))
+                .toList();
     }
 
     public OrderEntity findOrderEntityById(Long id) {
@@ -173,13 +175,22 @@ public class OrderServiceImpl implements OrderService {
                 orderEntity.getOrderStatus() == OrderStatus.DELIVERED;
     }
 
-    public OrderEntity buildOrderFromRequest(OrderRequest orderRequest) {
+    public OrderEntity buildOrderCreate(OrderRequest orderRequest) {
 
         UserEntity client = userService.findUserEntityById(orderRequest.getClientId());
 
-        return orderRequest.getId() == null ?
-                new OrderEntity(Instant.now(), OrderStatus.WAITING_PAYMENT, client) :
-                new OrderEntity(orderRequest.getId(), Instant.now(), orderRequest.getOrderStatus(), client);
+        OrderEntity orderCreate = new OrderEntity(Instant.now(), OrderStatus.WAITING_PAYMENT, client);
+
+        inventoryItemService.isItemsAvailable(orderCreate);
+
+        return orderCreate;
+    }
+
+    public OrderEntity buildOrderUpdate(OrderRequest orderRequest) {
+
+        UserEntity client = userService.findUserEntityById(orderRequest.getClientId());
+
+        return new OrderEntity(orderRequest.getId(), Instant.now(), orderRequest.getOrderStatus(), client);
     }
 
     public void validateOrderStatusChange(OrderRequest orderRequest) {

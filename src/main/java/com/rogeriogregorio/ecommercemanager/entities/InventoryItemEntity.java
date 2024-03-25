@@ -2,7 +2,6 @@ package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.rogeriogregorio.ecommercemanager.entities.enums.StockStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
@@ -26,7 +25,7 @@ public class InventoryItemEntity implements Serializable {
     private ProductEntity product;
 
     @NotNull(message = "A quantidade em estoque não pode ser nula")
-    @Min(value = 1, message = "A quantidade adicionada ao estoque deve ser no mínimo 1")
+    @PositiveOrZero(message = "A quantidade do estoque deve ser um número positivo ou zero")
     @Column(name = "quantity_in_stock")
     private Integer quantityInStock;
 

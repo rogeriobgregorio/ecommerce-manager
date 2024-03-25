@@ -155,29 +155,41 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         return findInventoryItemEntityByProductId(inventoryItemRequest.getProductId()) != null;
     }
 
-    public boolean isItemsInInventoryAvailable(OrderEntity order) {
+    public InventoryItemEntity findInventoryItemByProduct(ProductEntity productEntity) {
+
+        return inventoryItemRepository
+                .findByProduct(productEntity)
+                .orElseThrow(() -> {
+                    logger.warn("Item não encontrado no inventário: {}", productEntity);
+                    return new NotFoundException("Item não encontrado no inventário: " + productEntity + ".");
+                });
+    }
+
+    public boolean isItemsAvailable(OrderEntity order) {
+
         for (OrderItemEntity orderItem : order.getItems()) {
             ProductEntity product = orderItem.getProductEntity();
-            InventoryItemEntity inventoryItem = findInventoryItemEntityById(product.getId());
+            InventoryItemEntity inventoryItem = findInventoryItemByProduct(product);
 
-            if (inventoryItem == null || inventoryItem.getQuantityInStock() < orderItem.getQuantity()) {
-                return false;
+            if (inventoryItem.getQuantityInStock() < orderItem.getQuantity()) {
+                throw new NotFoundException("Quantidade em estoque insuficiente: " + inventoryItem + ".");
             }
         }
         return true;
     }
 
     @Transactional
-    public void updateInventoryAndQuantitySold(OrderEntity order) {
+    public void updateInventory(OrderEntity order) {
+
         for (OrderItemEntity orderItem : order.getItems()) {
             ProductEntity product = orderItem.getProductEntity();
-            InventoryItemEntity inventoryItem = findInventoryItemEntityById(product.getId());
+            InventoryItemEntity inventoryItem = findInventoryItemByProduct(product);
 
             if (inventoryItem != null) {
                 int purchasedQuantity = orderItem.getQuantity();
                 int remainingQuantity = inventoryItem.getQuantityInStock() - purchasedQuantity;
 
-                if (remainingQuantity <= 0) {
+                if (remainingQuantity == 0) {
                     inventoryItem.setStockStatus(StockStatus.OUT_OF_STOCK);
                 }
 

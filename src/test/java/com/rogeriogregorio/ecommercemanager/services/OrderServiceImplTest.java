@@ -37,6 +37,9 @@ class OrderServiceImplTest {
     private OrderRepository orderRepository;
 
     @Mock
+    private InventoryItemService inventoryItemService;
+
+    @Mock
     private UserService userService;
 
     @Mock
@@ -48,7 +51,7 @@ class OrderServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        orderService = new OrderServiceImpl(orderRepository, userService, converter);
+        orderService = new OrderServiceImpl(orderRepository, inventoryItemService, userService, converter);
     }
 
     @Test
@@ -147,6 +150,7 @@ class OrderServiceImplTest {
         OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
 
         when(userService.findUserEntityById(orderRequest.getClientId())).thenReturn(userEntity);
+        when(inventoryItemService.isItemsAvailable(orderEntity)).thenReturn(true);
         when(converter.toResponse(orderEntity, OrderResponse.class)).thenReturn(expectedResponse);
         when(orderRepository.save(orderEntity)).thenReturn(orderEntity);
 
@@ -158,6 +162,7 @@ class OrderServiceImplTest {
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
         verify(userService, times(1)).findUserEntityById(orderRequest.getClientId());
+        verify(inventoryItemService, times(1)).isItemsAvailable(orderEntity);
         verify(converter, times(1)).toResponse(orderEntity, OrderResponse.class);
         verify(orderRepository, times(1)).save(orderEntity);
     }
@@ -170,12 +175,14 @@ class OrderServiceImplTest {
         OrderRequest orderRequest = new OrderRequest(1L);
         OrderEntity orderEntity = new OrderEntity(Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
 
+        when(inventoryItemService.isItemsAvailable(orderEntity)).thenReturn(true);
         when(userService.findUserEntityById(orderRequest.getClientId())).thenReturn(userEntity);
         when(orderRepository.save(orderEntity)).thenThrow(PersistenceException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> orderService.createOrder(orderRequest), "Expected RepositoryException due to a generic runtime exception");
 
+        verify(inventoryItemService, times(1)).isItemsAvailable(orderEntity);
         verify(orderRepository, times(1)).save(orderEntity);
     }
 

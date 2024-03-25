@@ -66,6 +66,8 @@ public class PaymentServiceImpl implements PaymentService {
         try {
             paymentRepository.save(paymentEntity);
 
+            inventoryItemService.updateInventory(paymentEntity.getOrderEntity());
+
             logger.info("Pagamento criado: {}", paymentEntity);
             return converter.toResponse(paymentEntity, PaymentResponse.class);
 

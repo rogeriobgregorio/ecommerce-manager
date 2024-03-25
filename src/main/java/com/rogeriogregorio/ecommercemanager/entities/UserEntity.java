@@ -2,6 +2,7 @@ package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -33,7 +34,7 @@ public class UserEntity implements Serializable {
 
     @Column(name = "email", unique = true)
     @NotBlank(message = "O e-mail não deve estar em branco")
-    @Pattern(regexp = "^[A-Za-z0-9]+([._-][A-Za-z0-9]+)*+@[A-Za-z0-9]+([.-][A-Za-z0-9]+)*+\\.[A-Za-z]{2,}$\n", message = "Insira um endereço de e-mail válido. Exemplo: usuario@example.com")
+    @Email(message = "Insira um endereço de e-mail válido. Exemplo: usuario@example.com")
     private String email;
 
     @Column(name = "phone")
