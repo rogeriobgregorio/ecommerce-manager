@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -59,7 +60,7 @@ public class OrderServiceImpl implements OrderService {
 
         orderRequest.setId(null);
 
-        OrderEntity orderEntity = buildOrderCreate(orderRequest);
+        OrderEntity orderEntity = buildOrderFromRequest(orderRequest);
 
         try {
             orderRepository.save(orderEntity);
@@ -102,7 +103,7 @@ public class OrderServiceImpl implements OrderService {
 
         validateOrderStatusChange(orderRequest);
 
-        OrderEntity orderEntity = buildOrderUpdate(orderRequest);
+        OrderEntity orderEntity = buildOrderFromRequest(orderRequest);
 
         try {
             orderRepository.save(orderEntity);
@@ -170,27 +171,30 @@ public class OrderServiceImpl implements OrderService {
 
     public boolean isOrderPaid(OrderEntity orderEntity) {
 
-        return orderEntity.getOrderStatus() == OrderStatus.PAID ||
-                orderEntity.getOrderStatus() == OrderStatus.SHIPPED ||
-                orderEntity.getOrderStatus() == OrderStatus.DELIVERED;
+        OrderStatus orderStatus = orderEntity.getOrderStatus();
+
+        Set<OrderStatus> paidStatuses = Set.of(
+                OrderStatus.PAID,
+                OrderStatus.SHIPPED,
+                OrderStatus.DELIVERED
+        );
+
+        return paidStatuses.contains(orderStatus);
     }
 
-    public OrderEntity buildOrderCreate(OrderRequest orderRequest) {
+    public OrderEntity buildOrderFromRequest(OrderRequest orderRequest) {
 
         UserEntity client = userService.findUserEntityById(orderRequest.getClientId());
+        Long orderId = orderRequest.getId();
 
-        OrderEntity orderCreate = new OrderEntity(Instant.now(), OrderStatus.WAITING_PAYMENT, client);
+        if (orderId == null) {
+            OrderEntity orderCreate = new OrderEntity(Instant.now(), OrderStatus.WAITING_PAYMENT, client);
+            inventoryItemService.isItemsAvailable(orderCreate);
+            return orderCreate;
 
-        inventoryItemService.isItemsAvailable(orderCreate);
-
-        return orderCreate;
-    }
-
-    public OrderEntity buildOrderUpdate(OrderRequest orderRequest) {
-
-        UserEntity client = userService.findUserEntityById(orderRequest.getClientId());
-
-        return new OrderEntity(orderRequest.getId(), Instant.now(), orderRequest.getOrderStatus(), client);
+        } else {
+            return new OrderEntity(orderId, Instant.now(), orderRequest.getOrderStatus(), client);
+        }
     }
 
     public void validateOrderStatusChange(OrderRequest orderRequest) {

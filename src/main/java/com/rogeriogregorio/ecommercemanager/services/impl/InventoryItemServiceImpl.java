@@ -178,7 +178,6 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         return true;
     }
 
-    @Transactional
     public void updateInventory(OrderEntity order) {
 
         for (OrderItemEntity orderItem : order.getItems()) {

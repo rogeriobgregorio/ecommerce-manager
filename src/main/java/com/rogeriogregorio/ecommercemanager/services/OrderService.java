@@ -34,7 +34,5 @@ public interface OrderService {
 
     void validateOrderStatusChange(OrderRequest orderRequest);
 
-    OrderEntity buildOrderCreate(OrderRequest orderRequest);
-
-    OrderEntity buildOrderUpdate(OrderRequest orderRequest);
+    OrderEntity buildOrderFromRequest(OrderRequest orderRequest);
 }

@@ -2,7 +2,6 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
-import com.rogeriogregorio.ecommercemanager.entities.InventoryItemEntity;
 import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
 import com.rogeriogregorio.ecommercemanager.entities.PaymentEntity;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
@@ -133,11 +132,13 @@ public class PaymentServiceImpl implements PaymentService {
 
         if (orderService.isOrderPaid(order)) {
             throw new IllegalStateException("Não foi possível processar o pagamento: pedido já pago.");
+        }
 
-        } else if (!orderService.isOrderItemsPresent(order)) {
+        if (!orderService.isOrderItemsPresent(order)) {
             throw new IllegalStateException("Não foi possível processar o pagamento: não há item no pedido.");
+        }
 
-        } else if (!orderService.isAddressClientPresent(order)) {
+        if (!orderService.isAddressClientPresent(order)) {
             throw new IllegalStateException("Não foi possível processar o pagamento: endereço de entrega não cadastrado.");
         }
     }
