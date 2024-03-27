@@ -2,7 +2,7 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.ProductRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductResponse;
-import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
+import com.rogeriogregorio.ecommercemanager.entities.Product;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,9 +14,9 @@ public interface ProductService {
 
     ProductResponse createProduct(ProductRequest productRequest);
 
-    ProductResponse findProductById(Long id);
+    ProductResponse findProductResponseById(Long id);
 
-    ProductEntity findProductEntityById(Long id);
+    Product findProductById(Long id);
 
     ProductResponse updateProduct(ProductRequest productRequest);
 
@@ -24,5 +24,5 @@ public interface ProductService {
 
     List<ProductResponse> findProductByName(String name);
 
-    ProductEntity buildProductFromRequest(ProductRequest productRequest);
+    Product buildProduct(ProductRequest productRequest);
 }

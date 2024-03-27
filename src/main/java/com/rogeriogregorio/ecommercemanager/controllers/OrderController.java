@@ -43,7 +43,7 @@ public class OrderController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(orderService.findOrderById(id));
+                .body(orderService.findOrderResponseById(id));
     }
 
     @PutMapping(value = "/orders")

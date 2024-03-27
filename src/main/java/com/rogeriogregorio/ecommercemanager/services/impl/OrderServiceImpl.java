@@ -2,7 +2,8 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
-import com.rogeriogregorio.ecommercemanager.entities.*;
+import com.rogeriogregorio.ecommercemanager.entities.Order;
+import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
@@ -19,8 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -46,7 +47,7 @@ public class OrderServiceImpl implements OrderService {
             return orderRepository
                     .findAll()
                     .stream()
-                    .map(orderEntity -> converter.toResponse(orderEntity, OrderResponse.class))
+                    .map(order -> converter.toResponse(order, OrderResponse.class))
                     .toList();
 
         } catch (PersistenceException exception) {
@@ -60,12 +61,14 @@ public class OrderServiceImpl implements OrderService {
 
         orderRequest.setId(null);
 
-        OrderEntity orderEntity = buildOrderFromRequest(orderRequest);
+        Order order = buildOrder(orderRequest);
+
+        inventoryItemService.isItemsAvailable(order);
 
         try {
-            orderRepository.save(orderEntity);
-            logger.info("Pedido criado: {}", orderEntity);
-            return converter.toResponse(orderEntity, OrderResponse.class);
+            orderRepository.save(order);
+            logger.info("Pedido criado: {}", order);
+            return converter.toResponse(order, OrderResponse.class);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar criar o pedido: {}", exception.getMessage(), exception);
@@ -74,11 +77,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional(readOnly = false)
-    public void savePaidOrder(OrderEntity orderEntity) {
+    public void savePaidOrder(Order order) {
 
         try {
-            orderRepository.save(orderEntity);
-            logger.info("Pedido pago salvo: {}", orderEntity);
+            orderRepository.save(order);
+            logger.info("Pedido pago salvo: {}", order);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar salvar o pedido pago: {}", exception.getMessage(), exception);
@@ -87,11 +90,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional(readOnly = true)
-    public OrderResponse findOrderById(Long id) {
+    public OrderResponse findOrderResponseById(Long id) {
 
         return orderRepository
                 .findById(id)
-                .map(orderEntity -> converter.toResponse(orderEntity, OrderResponse.class))
+                .map(order -> converter.toResponse(order, OrderResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Pedido não encontrado com o ID: {}", id);
                     return new NotFoundException("Pedido não encontrado com o ID: " + id + ".");
@@ -103,12 +106,12 @@ public class OrderServiceImpl implements OrderService {
 
         validateOrderStatusChange(orderRequest);
 
-        OrderEntity orderEntity = buildOrderFromRequest(orderRequest);
+        Order order = buildOrder(orderRequest);
 
         try {
-            orderRepository.save(orderEntity);
-            logger.info("Pedido atualizado: {}", orderEntity);
-            return converter.toResponse(orderEntity, OrderResponse.class);
+            orderRepository.save(order);
+            logger.info("Pedido atualizado: {}", order);
+            return converter.toResponse(order, OrderResponse.class);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar atualizar o pedido: {}", exception.getMessage(), exception);
@@ -119,9 +122,9 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public void deleteOrder(Long id) {
 
-        OrderEntity orderEntity = findOrderEntityById(id);
+        Order order = findOrderById(id);
 
-        if (isOrderPaid(orderEntity)) {
+        if (isOrderPaid(order)) {
             throw new IllegalStateException("Não é possível excluir um pedido que já foi pago.");
         }
 
@@ -149,7 +152,7 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
     }
 
-    public OrderEntity findOrderEntityById(Long id) {
+    public Order findOrderById(Long id) {
 
         return orderRepository
                 .findById(id)
@@ -159,50 +162,42 @@ public class OrderServiceImpl implements OrderService {
                 });
     }
 
-    public boolean isOrderItemsPresent(OrderEntity orderEntity) {
+    public boolean isOrderItemsPresent(Order order) {
 
-        return !orderEntity.getItems().isEmpty();
+        return order.getItems() != null;
     }
 
-    public boolean isAddressClientPresent(OrderEntity orderEntity) {
+    public boolean isAddressClientPresent(Order order) {
 
-        return orderEntity.getClient().getAddressEntity() != null;
+        return order.getClient().getAddressEntity() != null;
     }
 
-    public boolean isOrderPaid(OrderEntity orderEntity) {
+    public boolean isOrderPaid(Order order) {
 
-        OrderStatus orderStatus = orderEntity.getOrderStatus();
+        OrderStatus orderStatus = order.getOrderStatus();
 
-        Set<OrderStatus> paidStatuses = Set.of(
+        return EnumSet.of(
                 OrderStatus.PAID,
                 OrderStatus.SHIPPED,
                 OrderStatus.DELIVERED
-        );
-
-        return paidStatuses.contains(orderStatus);
+        ).contains(orderStatus);
     }
 
-    public OrderEntity buildOrderFromRequest(OrderRequest orderRequest) {
+    public Order buildOrder(OrderRequest orderRequest) {
 
-        UserEntity client = userService.findUserEntityById(orderRequest.getClientId());
         Long orderId = orderRequest.getId();
+        Instant instant = Instant.now();
+        OrderStatus orderStatus = (orderId == null) ? OrderStatus.WAITING_PAYMENT : orderRequest.getOrderStatus();
+        User client = userService.findUserById(orderRequest.getClientId());
 
-        if (orderId == null) {
-            OrderEntity orderCreate = new OrderEntity(Instant.now(), OrderStatus.WAITING_PAYMENT, client);
-            inventoryItemService.isItemsAvailable(orderCreate);
-            return orderCreate;
-
-        } else {
-            return new OrderEntity(orderId, Instant.now(), orderRequest.getOrderStatus(), client);
-        }
+        return new Order(orderId, instant, orderStatus, client);
     }
 
     public void validateOrderStatusChange(OrderRequest orderRequest) {
 
         OrderStatus requestedStatus = orderRequest.getOrderStatus();
-
-        OrderEntity orderEntity = findOrderEntityById(orderRequest.getId());
-        boolean isOrderPaid = isOrderPaid(orderEntity);
+        Order order = findOrderById(orderRequest.getId());
+        boolean isOrderPaid = isOrderPaid(order);
 
         if (isOrderPaid && requestedStatus == OrderStatus.WAITING_PAYMENT) {
             throw new IllegalStateException("Não é possível alterar o status de pagamento: pedido já pago.");

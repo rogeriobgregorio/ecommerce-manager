@@ -2,7 +2,7 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.StockMovementRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.StockMovementResponse;
-import com.rogeriogregorio.ecommercemanager.entities.StockMovementEntity;
+import com.rogeriogregorio.ecommercemanager.entities.StockMovement;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,13 +14,13 @@ public interface StockMovementService {
 
     StockMovementResponse createStockMovement(StockMovementRequest stockMovementRequest);
 
-    StockMovementResponse findStockMovementById(Long id);
+    StockMovementResponse findStockMovementResponseById(Long id);
 
-    StockMovementEntity findStockMovementEntityById(Long id);
+    StockMovement findStockMovementById(Long id);
 
     StockMovementResponse updateStockMovement(StockMovementRequest stockMovementRequest);
 
     void deleteStockMovement(Long id);
 
-    StockMovementEntity buildStockMovementFromRequest(StockMovementRequest stockMovementRequest);
+    StockMovement buildStockMovement(StockMovementRequest stockMovementRequest);
 }

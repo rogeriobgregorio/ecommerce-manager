@@ -2,8 +2,8 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
-import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
-import com.rogeriogregorio.ecommercemanager.entities.PaymentEntity;
+import com.rogeriogregorio.ecommercemanager.entities.Order;
+import com.rogeriogregorio.ecommercemanager.entities.Payment;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -15,13 +15,13 @@ public interface PaymentService {
 
     PaymentResponse createPayment(PaymentRequest paymentRequest);
 
-    PaymentResponse findPaymentById(Long id);
+    PaymentResponse findPaymentResponseById(Long id);
 
-    PaymentEntity findPaymentEntityById(Long id);
+    Payment findPaymentById(Long id);
 
     void deletePayment(Long id);
 
-    PaymentEntity buildPaymentFromRequest(PaymentRequest paymentRequest);
+    Payment buildPayment(PaymentRequest paymentRequest);
 
-    void validatePaymentConditions(OrderEntity order);
+    void validatePayment(Order order);
 }

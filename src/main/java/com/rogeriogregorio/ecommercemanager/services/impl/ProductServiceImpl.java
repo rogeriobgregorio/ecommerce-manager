@@ -2,8 +2,8 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.ProductRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductResponse;
-import com.rogeriogregorio.ecommercemanager.entities.CategoryEntity;
-import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
+import com.rogeriogregorio.ecommercemanager.entities.Category;
+import com.rogeriogregorio.ecommercemanager.entities.Product;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductRepository;
@@ -41,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
             return productRepository
                     .findAll()
                     .stream()
-                    .map(productEntity -> converter.toResponse(productEntity, ProductResponse.class))
+                    .map(product -> converter.toResponse(product, ProductResponse.class))
                     .toList();
 
         } catch (PersistenceException exception) {
@@ -55,12 +55,12 @@ public class ProductServiceImpl implements ProductService {
 
         productRequest.setId(null);
 
-        ProductEntity productEntity = buildProductFromRequest(productRequest);
+        Product product = buildProduct(productRequest);
 
         try {
-            productRepository.save(productEntity);
-            logger.info("Produto criado: {}", productEntity);
-            return converter.toResponse(productEntity, ProductResponse.class);
+            productRepository.save(product);
+            logger.info("Produto criado: {}", product);
+            return converter.toResponse(product, ProductResponse.class);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar criar o produto: {}", exception.getMessage(), exception);
@@ -69,11 +69,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional(readOnly = true)
-    public ProductResponse findProductById(Long id) {
+    public ProductResponse findProductResponseById(Long id) {
 
         return productRepository
                 .findById(id)
-                .map(productEntity -> converter.toResponse(productEntity, ProductResponse.class))
+                .map(product -> converter.toResponse(product, ProductResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Produto não encontrado com o ID: {}", id);
                     return new NotFoundException("Produto não encontrado com o ID: " + id + ".");
@@ -83,14 +83,14 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = false)
     public ProductResponse updateProduct(ProductRequest productRequest) {
 
-        findProductEntityById(productRequest.getId());
+        findProductById(productRequest.getId());
 
-        ProductEntity productEntity = buildProductFromRequest(productRequest);
+        Product product = buildProduct(productRequest);
 
         try {
-            productRepository.save(productEntity);
-            logger.info("produto atualizado: {}", productEntity);
-            return converter.toResponse(productEntity, ProductResponse.class);
+            productRepository.save(product);
+            logger.info("produto atualizado: {}", product);
+            return converter.toResponse(product, ProductResponse.class);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar atualizar o produto: {}", exception.getMessage(), exception);
@@ -101,11 +101,11 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = false)
     public void deleteProduct(Long id) {
 
-        ProductEntity productEntity = findProductEntityById(id);
+        Product product = findProductById(id);
 
         try {
             productRepository.deleteById(id);
-            logger.warn("Produto removido: {}", productEntity);
+            logger.warn("Produto removido: {}", product);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir o produto: {}", exception.getMessage(), exception);
@@ -120,7 +120,7 @@ public class ProductServiceImpl implements ProductService {
             return productRepository
                     .findProductByName(name)
                     .stream()
-                    .map(productEntity -> converter.toResponse(productEntity, ProductResponse.class))
+                    .map(product -> converter.toResponse(product, ProductResponse.class))
                     .toList();
 
         } catch (PersistenceException exception) {
@@ -129,7 +129,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    public ProductEntity findProductEntityById(Long id) {
+    public Product findProductById(Long id) {
 
         return productRepository
                 .findById(id)
@@ -139,13 +139,13 @@ public class ProductServiceImpl implements ProductService {
                 });
     }
 
-    public ProductEntity buildProductFromRequest(ProductRequest productRequest) {
+    public Product buildProduct(ProductRequest productRequest) {
 
-        List<CategoryEntity> categoryList = categoryService.findAllCategoriesById(productRequest.getCategoryIdList());
+        List<Category> categoryList = categoryService.findAllCategoriesByIds(productRequest.getCategoryIdList());
 
-        ProductEntity productEntity = converter.toEntity(productRequest, ProductEntity.class);
-        productEntity.getCategories().addAll(categoryList);
+        Product product = converter.toEntity(productRequest, Product.class);
+        product.getCategories().addAll(categoryList);
 
-        return productEntity;
+        return product;
     }
 }

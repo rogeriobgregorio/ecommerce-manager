@@ -12,7 +12,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "tb_payments")
-public class PaymentEntity implements Serializable {
+public class Payment implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -29,20 +29,20 @@ public class PaymentEntity implements Serializable {
     @JsonIgnore
     @OneToOne
     @MapsId
-    private OrderEntity orderEntity;
+    private Order order;
 
-    public PaymentEntity() {
+    public Payment() {
     }
 
-    public PaymentEntity(Instant moment, OrderEntity orderEntity) {
+    public Payment(Instant moment, Order order) {
         this.moment = moment;
-        this.orderEntity = orderEntity;
+        this.order = order;
     }
 
-    public PaymentEntity(Long id, Instant moment, OrderEntity orderEntity) {
+    public Payment(Long id, Instant moment, Order order) {
         this.id = id;
         this.moment = moment;
-        this.orderEntity = orderEntity;
+        this.order = order;
     }
 
     public Long getId() {
@@ -61,19 +61,19 @@ public class PaymentEntity implements Serializable {
         this.moment = moment;
     }
 
-    public OrderEntity getOrderEntity() {
-        return orderEntity;
+    public Order getOrderEntity() {
+        return order;
     }
 
-    public void setOrderEntity(OrderEntity orderEntity) {
-        this.orderEntity = orderEntity;
+    public void setOrderEntity(Order order) {
+        this.order = order;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        PaymentEntity that = (PaymentEntity) o;
+        Payment that = (Payment) o;
         return Objects.equals(id, that.id);
     }
 
@@ -84,6 +84,6 @@ public class PaymentEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "[Pagamento: id= " + id + ", moment= " + moment + ", orderEntity= " + orderEntity +"]";
+        return "[Pagamento: id= " + id + ", moment= " + moment + ", order= " + order +"]";
     }
 }

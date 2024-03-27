@@ -2,7 +2,7 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
-import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
+import com.rogeriogregorio.ecommercemanager.entities.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,11 +14,11 @@ public interface OrderService {
 
     OrderResponse createOrder(OrderRequest orderRequest);
 
-    void savePaidOrder(OrderEntity orderEntity);
+    void savePaidOrder(Order order);
 
-    OrderResponse findOrderById(Long id);
+    OrderResponse findOrderResponseById(Long id);
 
-    OrderEntity findOrderEntityById(Long id);
+    Order findOrderById(Long id);
 
     OrderResponse updateOrder(OrderRequest orderRequest);
 
@@ -26,13 +26,13 @@ public interface OrderService {
 
     List<OrderResponse> findOrderByClientId(Long id);
 
-    boolean isOrderPaid(OrderEntity orderEntity);
+    boolean isOrderPaid(Order order);
 
-    boolean isOrderItemsPresent(OrderEntity orderEntity);
+    boolean isOrderItemsPresent(Order order);
 
-    public boolean isAddressClientPresent(OrderEntity orderEntity);
+    public boolean isAddressClientPresent(Order order);
 
     void validateOrderStatusChange(OrderRequest orderRequest);
 
-    OrderEntity buildOrderFromRequest(OrderRequest orderRequest);
+    Order buildOrder(OrderRequest orderRequest);
 }

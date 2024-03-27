@@ -43,7 +43,7 @@ public class PaymentController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(paymentService.findPaymentById(id));
+                .body(paymentService.findPaymentResponseById(id));
     }
 
     @DeleteMapping(value = "/payments/{id}")

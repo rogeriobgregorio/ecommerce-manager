@@ -2,8 +2,8 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.ProductRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductResponse;
-import com.rogeriogregorio.ecommercemanager.entities.CategoryEntity;
-import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
+import com.rogeriogregorio.ecommercemanager.entities.Category;
+import com.rogeriogregorio.ecommercemanager.entities.Product;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductRepository;
@@ -52,18 +52,18 @@ class ProductServiceImplTest {
     @DisplayName("findAllProducts - Busca bem-sucedida retorna lista contendo um produto")
     void findAllProducts_SuccessfulSearch_ReturnsListResponse_OneProduct() {
         // Arrange
-        CategoryEntity categoryEntity = new CategoryEntity(1L, "Video games");
-        List<CategoryEntity> categoryEntityList = Collections.singletonList(categoryEntity);
+        Category category = new Category(1L, "Video games");
+        List<Category> categoryList = Collections.singletonList(category);
 
-        ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        productEntity.getCategories().addAll(categoryEntityList);
-        List<ProductEntity> productEntityList = Collections.singletonList(productEntity);
+        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
+        product.getCategories().addAll(categoryList);
+        List<Product> productList = Collections.singletonList(product);
 
         ProductResponse productResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
         List<ProductResponse> expectedResponses = Collections.singletonList(productResponse);
 
-        when(converter.toResponse(productEntity, ProductResponse.class)).thenReturn(productResponse);
-        when(productRepository.findAll()).thenReturn(productEntityList);
+        when(converter.toResponse(product, ProductResponse.class)).thenReturn(productResponse);
+        when(productRepository.findAll()).thenReturn(productList);
 
         // Act
         List<ProductResponse> actualResponses = productService.findAllProducts();
@@ -73,7 +73,7 @@ class ProductServiceImplTest {
         assertEquals(expectedResponses.get(0).getCategories(), actualResponses.get(0).getCategories(), "Expected a list of responses with one product");
         assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with one product");
 
-        verify(converter, times(1)).toResponse(productEntity, ProductResponse.class);
+        verify(converter, times(1)).toResponse(product, ProductResponse.class);
         verify(productRepository, times(1)).findAll();
     }
 
@@ -81,20 +81,20 @@ class ProductServiceImplTest {
     @DisplayName("findAllProducts - Busca bem-sucedida retorna lista contendo múltiplos produtos")
     void findAllProducts_SuccessfulSearch_ReturnsListResponse_MultipleProducts() {
         // Arrange
-        List<ProductEntity> productEntityList = new ArrayList<>();
+        List<Product> productList = new ArrayList<>();
         List<ProductResponse> expectedResponses = new ArrayList<>();
 
         for (long i = 1; i <= 10; i++) {
-            ProductEntity productEntity = new ProductEntity(i, "Produto" + i, "Descrição" + i, 100.0 + i, "www.url" +i+ ".com");
-            productEntityList.add(productEntity);
+            Product product = new Product(i, "Produto" + i, "Descrição" + i, 100.0 + i, "www.url" +i+ ".com");
+            productList.add(product);
 
             ProductResponse productResponse = new ProductResponse(i, "Produto" + i, "Descrição" + i, 100.0 + i, "www.url" +i+ ".com");
             expectedResponses.add(productResponse);
 
-            when(converter.toResponse(productEntity, ProductResponse.class)).thenReturn(productResponse);
+            when(converter.toResponse(product, ProductResponse.class)).thenReturn(productResponse);
         }
 
-        when(productRepository.findAll()).thenReturn(productEntityList);
+        when(productRepository.findAll()).thenReturn(productList);
 
         // Act
         List<ProductResponse> actualResponses = productService.findAllProducts();
@@ -103,7 +103,7 @@ class ProductServiceImplTest {
         assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with one product");
         assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with one product");
 
-        verify(converter, times(10)).toResponse(any(ProductEntity.class), eq(ProductResponse.class));
+        verify(converter, times(10)).toResponse(any(Product.class), eq(ProductResponse.class));
         verify(productRepository, times(1)).findAll();
     }
 
@@ -111,16 +111,16 @@ class ProductServiceImplTest {
     @DisplayName("findAllProducts - Busca bem-sucedida retorna lista de produtos vazia")
     void findAllProducts_SuccessfulSearch_ReturnsEmptyList() {
         // Arrange
-        List<ProductEntity> emptyProductEntityList = Collections.emptyList();
+        List<Product> emptyProductList = Collections.emptyList();
 
-        when(productRepository.findAll()).thenReturn(emptyProductEntityList);
+        when(productRepository.findAll()).thenReturn(emptyProductList);
 
         // Act
         List<ProductResponse> actualResponses = productService.findAllProducts();
 
         // Assert
         assertEquals(0, actualResponses.size(), "Expected an empty list of responses");
-        assertIterableEquals(emptyProductEntityList, actualResponses, "Expected an empty list of responses");
+        assertIterableEquals(emptyProductList, actualResponses, "Expected an empty list of responses");
 
         verify(productRepository, times(1)).findAll();
     }
@@ -141,21 +141,21 @@ class ProductServiceImplTest {
     @DisplayName("createProduct - Criação bem-sucedida retorna produto criado")
     void createProduct_SuccessfulCreation_ReturnsProductResponse() {
         // Arrange
-        CategoryEntity categoryEntity = new CategoryEntity(1L, "Video games");
-        List<CategoryEntity> categoryEntityList = Collections.singletonList(categoryEntity);
+        Category category = new Category(1L, "Video games");
+        List<Category> categoryList = Collections.singletonList(category);
 
         List<Long> categoryListId = new ArrayList<>();
         categoryListId.add(1L);
 
         ProductRequest productRequest = new ProductRequest(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com", categoryListId);
-        ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        productEntity.getCategories().addAll(categoryEntityList);
+        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
+        product.getCategories().addAll(categoryList);
         ProductResponse expectedResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
-        when(converter.toEntity(productRequest, ProductEntity.class)).thenReturn(productEntity);
-        when(categoryService.findAllCategoriesById(categoryListId)).thenReturn(categoryEntityList);
-        when(productRepository.save(productEntity)).thenReturn(productEntity);
-        when(converter.toResponse(productEntity, ProductResponse.class)).thenReturn(expectedResponse);
+        when(converter.toEntity(productRequest, Product.class)).thenReturn(product);
+        when(categoryService.findAllCategoriesByIds(categoryListId)).thenReturn(categoryList);
+        when(productRepository.save(product)).thenReturn(product);
+        when(converter.toResponse(product, ProductResponse.class)).thenReturn(expectedResponse);
 
         // Act
         ProductResponse actualResponse = productService.createProduct(productRequest);
@@ -164,61 +164,61 @@ class ProductServiceImplTest {
         assertNotNull(actualResponse, "ProductResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(converter, times(1)).toEntity(productRequest, ProductEntity.class);
-        verify(categoryService, times(1)).findAllCategoriesById(categoryListId);
-        verify(productRepository, times(1)).save(productEntity);
-        verify(converter, times(1)).toResponse(productEntity, ProductResponse.class);
+        verify(converter, times(1)).toEntity(productRequest, Product.class);
+        verify(categoryService, times(1)).findAllCategoriesByIds(categoryListId);
+        verify(productRepository, times(1)).save(product);
+        verify(converter, times(1)).toResponse(product, ProductResponse.class);
     }
 
     @Test
     @DisplayName("createProduct - Exceção no repositório ao tentar criar produto")
     void createProduct_RepositoryExceptionHandling() {
         // Arrange
-        CategoryEntity categoryEntity = new CategoryEntity(1L, "Video games");
-        List<CategoryEntity> categoryEntityList = Collections.singletonList(categoryEntity);
+        Category category = new Category(1L, "Video games");
+        List<Category> categoryList = Collections.singletonList(category);
 
         List<Long> categoryListId = new ArrayList<>();
         categoryListId.add(1L);
 
         ProductRequest productRequest = new ProductRequest(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com", categoryListId);
-        ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        productEntity.getCategories().addAll(categoryEntityList);
+        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
+        product.getCategories().addAll(categoryList);
 
-        when(converter.toEntity(productRequest, ProductEntity.class)).thenReturn(productEntity);
-        when(categoryService.findAllCategoriesById(categoryListId)).thenReturn(categoryEntityList);
-        when(productRepository.save(productEntity)).thenThrow(PersistenceException.class);
+        when(converter.toEntity(productRequest, Product.class)).thenReturn(product);
+        when(categoryService.findAllCategoriesByIds(categoryListId)).thenReturn(categoryList);
+        when(productRepository.save(product)).thenThrow(PersistenceException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> productService.createProduct(productRequest));
 
-        verify(converter, times(1)).toEntity(productRequest, ProductEntity.class);
-        verify(categoryService, times(1)).findAllCategoriesById(categoryListId);
-        verify(productRepository, times(1)).save(productEntity);
+        verify(converter, times(1)).toEntity(productRequest, Product.class);
+        verify(categoryService, times(1)).findAllCategoriesByIds(categoryListId);
+        verify(productRepository, times(1)).save(product);
     }
 
     @Test
     @DisplayName("findProductById - Busca bem-sucedida retorna produto")
     void findProductById_SuccessfulSearch_ReturnsProductResponse() {
         // Arrange
-        CategoryEntity categoryEntity = new CategoryEntity(1L, "Video games");
-        List<CategoryEntity> categoryEntityList = Collections.singletonList(categoryEntity);
+        Category category = new Category(1L, "Video games");
+        List<Category> categoryList = Collections.singletonList(category);
 
-        ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        productEntity.getCategories().addAll(categoryEntityList);
+        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
+        product.getCategories().addAll(categoryList);
 
         ProductResponse expectedResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
-        when(converter.toResponse(productEntity, ProductResponse.class)).thenReturn(expectedResponse);
-        when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity));
+        when(converter.toResponse(product, ProductResponse.class)).thenReturn(expectedResponse);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
         // Act
-        ProductResponse actualResponse = productService.findProductById(1L);
+        ProductResponse actualResponse = productService.findProductResponseById(1L);
 
         // Assert
         assertNotNull(actualResponse, "ProductResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(converter, times(1)).toResponse(productEntity, ProductResponse.class);
+        verify(converter, times(1)).toResponse(product, ProductResponse.class);
         verify(productRepository, times(1)).findById(1L);
     }
 
@@ -229,7 +229,7 @@ class ProductServiceImplTest {
         when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(NotFoundException.class, () -> productService.findProductById(1L));
+        assertThrows(NotFoundException.class, () -> productService.findProductResponseById(1L));
 
         verify(productRepository, times(1)).findById(1L);
     }
@@ -238,22 +238,22 @@ class ProductServiceImplTest {
     @DisplayName("updateProduct - Atualização bem-sucedida retorna produto atualizado")
     void updateProduct_SuccessfulUpdate_ReturnsProductResponse() {
         // Arrange
-        CategoryEntity categoryEntity = new CategoryEntity(1L, "Video games");
-        List<CategoryEntity> categoryEntityList = Collections.singletonList(categoryEntity);
+        Category category = new Category(1L, "Video games");
+        List<Category> categoryList = Collections.singletonList(category);
 
         List<Long> categoryListId = new ArrayList<>();
         categoryListId.add(1L);
 
         ProductRequest productRequest = new ProductRequest(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com", categoryListId);
-        ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        productEntity.getCategories().addAll(categoryEntityList);
+        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
+        product.getCategories().addAll(categoryList);
         ProductResponse expectedResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
-        when(converter.toEntity(productRequest, ProductEntity.class)).thenReturn(productEntity);
-        when(productRepository.findById(productEntity.getId())).thenReturn(Optional.of(productEntity));
-        when(categoryService.findAllCategoriesById(categoryListId)).thenReturn(categoryEntityList);
-        when(productRepository.save(productEntity)).thenReturn(productEntity);
-        when(converter.toResponse(productEntity, ProductResponse.class)).thenReturn(expectedResponse);
+        when(converter.toEntity(productRequest, Product.class)).thenReturn(product);
+        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+        when(categoryService.findAllCategoriesByIds(categoryListId)).thenReturn(categoryList);
+        when(productRepository.save(product)).thenReturn(product);
+        when(converter.toResponse(product, ProductResponse.class)).thenReturn(expectedResponse);
 
         // Act
         ProductResponse actualResponse = productService.updateProduct(productRequest);
@@ -262,24 +262,24 @@ class ProductServiceImplTest {
         assertNotNull(actualResponse, "ProductResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual response should match");
 
-        verify(converter, times(1)).toEntity(productRequest, ProductEntity.class);
-        verify(productRepository, times(1)).findById(productEntity.getId());
-        verify(categoryService, times(1)).findAllCategoriesById(categoryListId);
+        verify(converter, times(1)).toEntity(productRequest, Product.class);
+        verify(productRepository, times(1)).findById(product.getId());
+        verify(categoryService, times(1)).findAllCategoriesByIds(categoryListId);
     }
 
     @Test
     @DisplayName("updateProduct - Exceção ao tentar atualizar produto inexistente")
     void updateProduto_NotFoundExceptionHandling() {
         // Arrange
-        CategoryEntity categoryEntity = new CategoryEntity(1L, "Video games");
-        List<CategoryEntity> categoryEntityList = Collections.singletonList(categoryEntity);
+        Category category = new Category(1L, "Video games");
+        List<Category> categoryList = Collections.singletonList(category);
 
         List<Long> categoryListId = new ArrayList<>();
         categoryListId.add(1L);
 
         ProductRequest productRequest = new ProductRequest(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com", categoryListId);
-        ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        productEntity.getCategories().addAll(categoryEntityList);
+        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
+        product.getCategories().addAll(categoryList);
 
         when(productRepository.findById(productRequest.getId())).thenReturn(Optional.empty());
 
@@ -293,37 +293,37 @@ class ProductServiceImplTest {
     @DisplayName("updateProduto - Exceção no repositório ao tentar atualizar produto")
     void updateProduto_RepositoryExceptionHandling() {
         // Arrange
-        CategoryEntity categoryEntity = new CategoryEntity(1L, "Video games");
-        List<CategoryEntity> categoryEntityList = Collections.singletonList(categoryEntity);
+        Category category = new Category(1L, "Video games");
+        List<Category> categoryList = Collections.singletonList(category);
 
         List<Long> categoryListId = new ArrayList<>();
         categoryListId.add(1L);
 
         ProductRequest productRequest = new ProductRequest(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com", categoryListId);
-        ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        productEntity.getCategories().addAll(categoryEntityList);
+        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
+        product.getCategories().addAll(categoryList);
 
-        when(converter.toEntity(productRequest, ProductEntity.class)).thenReturn(productEntity);
-        when(productRepository.findById(productEntity.getId())).thenReturn(Optional.of(productEntity));
-        when(categoryService.findAllCategoriesById(categoryListId)).thenReturn(categoryEntityList);
-        when(productRepository.save(productEntity)).thenThrow(PersistenceException.class);
+        when(converter.toEntity(productRequest, Product.class)).thenReturn(product);
+        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+        when(categoryService.findAllCategoriesByIds(categoryListId)).thenReturn(categoryList);
+        when(productRepository.save(product)).thenThrow(PersistenceException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> productService.updateProduct(productRequest));
 
-        verify(converter, times(1)).toEntity(productRequest, ProductEntity.class);
-        verify(productRepository, times(1)).findById(productEntity.getId());
-        verify(categoryService, times(1)).findAllCategoriesById(categoryListId);
-        verify(productRepository, times(1)).save(productEntity);
+        verify(converter, times(1)).toEntity(productRequest, Product.class);
+        verify(productRepository, times(1)).findById(product.getId());
+        verify(categoryService, times(1)).findAllCategoriesByIds(categoryListId);
+        verify(productRepository, times(1)).save(product);
     }
 
     @Test
     @DisplayName("deleteProduct - Exclusão bem-sucedida do produto")
     void deleteProduct_DeletesSuccessfully() {
         // Arrange
-        ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
+        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
-        when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
         // Act
         productService.deleteProduct(1L);
@@ -349,9 +349,9 @@ class ProductServiceImplTest {
     @DisplayName("deleteProduct - Exceção no repositório ao tentar excluir produto")
     void deleteProduct_RepositoryExceptionHandling() {
         // Arrange
-        ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
+        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
-        when(productRepository.findById(1L)).thenReturn(Optional.of(productEntity));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         doThrow(PersistenceException.class).when(productRepository).deleteById(1L);
 
         // Act and Assert
@@ -367,14 +367,14 @@ class ProductServiceImplTest {
         // Arrange
         String productName = "Playstation 5";
 
-        ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-        List<ProductEntity> productEntityList = Collections.singletonList(productEntity);
+        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
+        List<Product> productList = Collections.singletonList(product);
 
         ProductResponse productResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
         List<ProductResponse> expectedResponses = Collections.singletonList(productResponse);
 
-        when(productRepository.findProductByName(eq(productName))).thenReturn(productEntityList);
-        when(converter.toResponse(eq(productEntity), eq(ProductResponse.class))).thenReturn(productResponse);
+        when(productRepository.findProductByName(eq(productName))).thenReturn(productList);
+        when(converter.toResponse(eq(product), eq(ProductResponse.class))).thenReturn(productResponse);
 
         // Act
         List<ProductResponse> actualResponses = productService.findProductByName("Playstation 5");
@@ -385,7 +385,7 @@ class ProductServiceImplTest {
         assertEquals(productName, actualResponses.get(0).getName(), "Names should match");
 
         verify(productRepository, times(1)).findProductByName(eq(productName));
-        verify(converter, times(1)).toResponse(eq(productEntity), eq(ProductResponse.class));
+        verify(converter, times(1)).toResponse(eq(product), eq(ProductResponse.class));
     }
 
     @Test
@@ -394,20 +394,20 @@ class ProductServiceImplTest {
         // Arrange
         String productName = "Playstation 5";
 
-        List<ProductEntity> productEntityList = new ArrayList<>();
+        List<Product> productList = new ArrayList<>();
         List<ProductResponse> expectedResponses = new ArrayList<>();
 
         for (long i = 1; i <= 10; i++) {
-            ProductEntity productEntity = new ProductEntity(i, "Produto" + i, "Descrição" + i, 100.0 + i, "www.url" +i+ ".com");
-            productEntityList.add(productEntity);
+            Product product = new Product(i, "Produto" + i, "Descrição" + i, 100.0 + i, "www.url" +i+ ".com");
+            productList.add(product);
 
             ProductResponse productResponse = new ProductResponse(i, "Produto" + i, "Descrição" + i, 100.0 + i, "www.url" +i+ ".com");
             expectedResponses.add(productResponse);
 
-            when(converter.toResponse(eq(productEntity), eq(ProductResponse.class))).thenReturn(productResponse);
+            when(converter.toResponse(eq(product), eq(ProductResponse.class))).thenReturn(productResponse);
         }
 
-        when(productRepository.findProductByName(eq(productName))).thenReturn(productEntityList);
+        when(productRepository.findProductByName(eq(productName))).thenReturn(productList);
 
         // Act
         List<ProductResponse> actualResponses = productService.findProductByName("Playstation 5");
@@ -417,7 +417,7 @@ class ProductServiceImplTest {
         assertEquals(expectedResponses, actualResponses, "Size of ProductResponses should match size of ProductEntities");
 
         verify(productRepository, times(1)).findProductByName(eq(productName));
-        verify(converter, times(10)).toResponse(any(ProductEntity.class), eq(ProductResponse.class));
+        verify(converter, times(10)).toResponse(any(Product.class), eq(ProductResponse.class));
     }
 
     @Test

@@ -2,8 +2,8 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
-import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
-import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
+import com.rogeriogregorio.ecommercemanager.entities.Order;
+import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
@@ -58,15 +58,15 @@ class OrderServiceImplTest {
     @DisplayName("findAllOrders - Busca bem-sucedida retorna lista contendo um pedido")
     void findAllOrders_SuccessfulSearch_ReturnsListResponse_OneOrder() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
-        List<OrderEntity> orderEntityList = Collections.singletonList(orderEntity);
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        Order order = new Order(1L, Instant.now(), OrderStatus.PAID, user);
+        List<Order> orderList = Collections.singletonList(order);
 
-        OrderResponse orderResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, userEntity);
+        OrderResponse orderResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, user);
         List<OrderResponse> expectedResponses = Collections.singletonList(orderResponse);
 
-        when(converter.toResponse(orderEntity, OrderResponse.class)).thenReturn(orderResponse);
-        when(orderRepository.findAll()).thenReturn(orderEntityList);
+        when(converter.toResponse(order, OrderResponse.class)).thenReturn(orderResponse);
+        when(orderRepository.findAll()).thenReturn(orderList);
 
         // Act
         List<OrderResponse> actualResponses = orderService.findAllOrders();
@@ -75,7 +75,7 @@ class OrderServiceImplTest {
         assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with one order");
         assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with one order");
 
-        verify(converter, times(1)).toResponse(orderEntity, OrderResponse.class);
+        verify(converter, times(1)).toResponse(order, OrderResponse.class);
         verify(orderRepository, times(1)).findAll();
     }
 
@@ -83,21 +83,21 @@ class OrderServiceImplTest {
     @DisplayName("findAllOrders - Busca bem-sucedida retorna lista contendo múltiplos pedidos")
     void findAllOrders_SuccessfulSearch_ReturnsListResponse_MultipleOrders() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        List<OrderEntity> orderEntityList = new ArrayList<>();
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        List<Order> orderList = new ArrayList<>();
         List<OrderResponse> expectedResponses = new ArrayList<>();
 
         for (int i = 1; i <= 10; i++) {
-            OrderEntity orderEntity = new OrderEntity((long) i, Instant.now(), OrderStatus.PAID, userEntity);
-            orderEntityList.add(orderEntity);
+            Order order = new Order((long) i, Instant.now(), OrderStatus.PAID, user);
+            orderList.add(order);
 
-            OrderResponse orderResponse = new OrderResponse((long) i, Instant.now(), OrderStatus.PAID, userEntity);
+            OrderResponse orderResponse = new OrderResponse((long) i, Instant.now(), OrderStatus.PAID, user);
             expectedResponses.add(orderResponse);
 
-            when(converter.toResponse(orderEntity, OrderResponse.class)).thenReturn(orderResponse);
+            when(converter.toResponse(order, OrderResponse.class)).thenReturn(orderResponse);
         }
 
-        when(orderRepository.findAll()).thenReturn(orderEntityList);
+        when(orderRepository.findAll()).thenReturn(orderList);
 
         // Act
         List<OrderResponse> actualResponses = orderService.findAllOrders();
@@ -106,7 +106,7 @@ class OrderServiceImplTest {
         assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with multiple orders");
         assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with multiple orders");
 
-        verify(converter, times(10)).toResponse(any(OrderEntity.class), eq(OrderResponse.class));
+        verify(converter, times(10)).toResponse(any(Order.class), eq(OrderResponse.class));
         verify(orderRepository, times(1)).findAll();
     }
 
@@ -114,16 +114,16 @@ class OrderServiceImplTest {
     @DisplayName("findAllOrders - Busca bem-sucedida retorna lista de pedidos vazia")
     void findAllOrders_SuccessfulSearch_ReturnsEmptyList() {
         // Arrange
-        List<OrderEntity> emptyOrderEntityList = new ArrayList<>();
+        List<Order> emptyOrderList = new ArrayList<>();
 
-        when(orderRepository.findAll()).thenReturn(emptyOrderEntityList);
+        when(orderRepository.findAll()).thenReturn(emptyOrderList);
 
         // Act
         List<OrderResponse> actualResponses = orderService.findAllOrders();
 
         // Assert
         assertEquals(0, actualResponses.size(), "Expected an empty list of responses");
-        assertIterableEquals(emptyOrderEntityList, actualResponses, "Expected an empty list of responses");
+        assertIterableEquals(emptyOrderList, actualResponses, "Expected an empty list of responses");
 
         verify(orderRepository, times(1)).findAll();
     }
@@ -144,15 +144,15 @@ class OrderServiceImplTest {
     @DisplayName("createOrder - Criação bem-sucedida retorna pedido criado")
     void createOrder_SuccessfulCreation_ReturnsOrderResponse() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderRequest orderRequest = new OrderRequest(1L);
-        OrderEntity orderEntity = new OrderEntity(Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
-        OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
+        Order order = new Order(Instant.now(), OrderStatus.WAITING_PAYMENT, user);
+        OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
 
-        when(userService.findUserEntityById(orderRequest.getClientId())).thenReturn(userEntity);
-        when(inventoryItemService.isItemsAvailable(orderEntity)).thenReturn(true);
-        when(converter.toResponse(orderEntity, OrderResponse.class)).thenReturn(expectedResponse);
-        when(orderRepository.save(orderEntity)).thenReturn(orderEntity);
+        when(userService.findUserById(orderRequest.getClientId())).thenReturn(user);
+        when(inventoryItemService.isItemsAvailable(order)).thenReturn(true);
+        when(converter.toResponse(order, OrderResponse.class)).thenReturn(expectedResponse);
+        when(orderRepository.save(order)).thenReturn(order);
 
         // Act
         OrderResponse actualResponse = orderService.createOrder(orderRequest);
@@ -161,50 +161,50 @@ class OrderServiceImplTest {
         assertNotNull(actualResponse, "OrderResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(userService, times(1)).findUserEntityById(orderRequest.getClientId());
-        verify(inventoryItemService, times(1)).isItemsAvailable(orderEntity);
-        verify(converter, times(1)).toResponse(orderEntity, OrderResponse.class);
-        verify(orderRepository, times(1)).save(orderEntity);
+        verify(userService, times(1)).findUserById(orderRequest.getClientId());
+        verify(inventoryItemService, times(1)).isItemsAvailable(order);
+        verify(converter, times(1)).toResponse(order, OrderResponse.class);
+        verify(orderRepository, times(1)).save(order);
     }
 
     @Test
     @DisplayName("createOrder - Exceção no repositório ao tentar criar pedido")
     void createOrder_RepositoryExceptionHandling() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderRequest orderRequest = new OrderRequest(1L);
-        OrderEntity orderEntity = new OrderEntity(Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
+        Order order = new Order(Instant.now(), OrderStatus.WAITING_PAYMENT, user);
 
-        when(inventoryItemService.isItemsAvailable(orderEntity)).thenReturn(true);
-        when(userService.findUserEntityById(orderRequest.getClientId())).thenReturn(userEntity);
-        when(orderRepository.save(orderEntity)).thenThrow(PersistenceException.class);
+        when(inventoryItemService.isItemsAvailable(order)).thenReturn(true);
+        when(userService.findUserById(orderRequest.getClientId())).thenReturn(user);
+        when(orderRepository.save(order)).thenThrow(PersistenceException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> orderService.createOrder(orderRequest), "Expected RepositoryException due to a generic runtime exception");
 
-        verify(inventoryItemService, times(1)).isItemsAvailable(orderEntity);
-        verify(orderRepository, times(1)).save(orderEntity);
+        verify(inventoryItemService, times(1)).isItemsAvailable(order);
+        verify(orderRepository, times(1)).save(order);
     }
 
     @Test
     @DisplayName("findOrderById - Busca bem-sucedida retorna pedido")
     void findOrderById_SuccessfulSearch_ReturnsOrderResponse() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
-        OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, userEntity);
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        Order order = new Order(1L, Instant.now(), OrderStatus.PAID, user);
+        OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, user);
 
-        when(converter.toResponse(orderEntity, OrderResponse.class)).thenReturn(expectedResponse);
-        when(orderRepository.findById(1L)).thenReturn(Optional.of(orderEntity));
+        when(converter.toResponse(order, OrderResponse.class)).thenReturn(expectedResponse);
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
 
         // Act
-        OrderResponse actualResponse = orderService.findOrderById(1L);
+        OrderResponse actualResponse = orderService.findOrderResponseById(1L);
 
         // Assert
         assertNotNull(actualResponse, "OrderResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(converter, times(1)).toResponse(orderEntity, OrderResponse.class);
+        verify(converter, times(1)).toResponse(order, OrderResponse.class);
         verify(orderRepository, times(1)).findById(1L);
     }
 
@@ -215,7 +215,7 @@ class OrderServiceImplTest {
         when(orderRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(NotFoundException.class, () -> orderService.findOrderById(1L), "Expected NotFoundException for non-existent order");
+        assertThrows(NotFoundException.class, () -> orderService.findOrderResponseById(1L), "Expected NotFoundException for non-existent order");
 
         verify(orderRepository, times(1)).findById(1L);
     }
@@ -224,14 +224,14 @@ class OrderServiceImplTest {
     @DisplayName("updateOrder - Atualização bem-sucedida retorna pedido atualizado")
     void updateOrder_SuccessfulUpdate_ReturnsOrderResponse() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID, 1L);
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
-        OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, userEntity);
+        Order order = new Order(1L, Instant.now(), OrderStatus.PAID, user);
+        OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, user);
 
-        when(orderRepository.findById(orderRequest.getId())).thenReturn(Optional.of(orderEntity));
-        when(orderRepository.save(orderEntity)).thenReturn(orderEntity);
-        when(converter.toResponse(orderEntity, OrderResponse.class)).thenReturn(expectedResponse);
+        when(orderRepository.findById(orderRequest.getId())).thenReturn(Optional.of(order));
+        when(orderRepository.save(order)).thenReturn(order);
+        when(converter.toResponse(order, OrderResponse.class)).thenReturn(expectedResponse);
 
         // Act
         OrderResponse actualResponse = orderService.updateOrder(orderRequest);
@@ -244,52 +244,52 @@ class OrderServiceImplTest {
         assertEquals(expectedResponse.getClient(), actualResponse.getClient(), "Clients should match");
 
         verify(orderRepository, times(1)).findById(orderRequest.getId());
-        verify(orderRepository, times(1)).save(orderEntity);
-        verify(converter, times(1)).toResponse(orderEntity, OrderResponse.class);
+        verify(orderRepository, times(1)).save(order);
+        verify(converter, times(1)).toResponse(order, OrderResponse.class);
     }
 
     @Test
     @DisplayName("updateOrder - Exceção ao tentar atualizar pedido inexistente")
     void updateOrder_NotFoundExceptionHandling() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID, 1L);
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
+        Order order = new Order(1L, Instant.now(), OrderStatus.PAID, user);
 
         when(orderRepository.findById(orderRequest.getId())).thenReturn(Optional.empty());
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> orderService.updateOrder(orderRequest), "Expected NotFoundException for non-existent order");
 
-        verify(orderRepository, times(1)).findById(orderEntity.getId());
+        verify(orderRepository, times(1)).findById(order.getId());
     }
 
     @Test
     @DisplayName("updateOrder - Exceção no repositório ao tentar atualizar pedido")
     void updateOrder_RepositoryExceptionHandling() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID, 1L);
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
+        Order order = new Order(1L, Instant.now(), OrderStatus.PAID, user);
 
-        when(orderRepository.findById(orderRequest.getId())).thenReturn(Optional.of(orderEntity));
-        when(orderRepository.save(orderEntity)).thenThrow(PersistenceException.class);
+        when(orderRepository.findById(orderRequest.getId())).thenReturn(Optional.of(order));
+        when(orderRepository.save(order)).thenThrow(PersistenceException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> orderService.updateOrder(orderRequest), "Expected RepositoryException for update failure");
 
-        verify(orderRepository, times(1)).findById(orderEntity.getId());
-        verify(orderRepository, times(1)).save(orderEntity);
+        verify(orderRepository, times(1)).findById(order.getId());
+        verify(orderRepository, times(1)).save(order);
     }
 
     @Test
     @DisplayName("deleteOrder - Exclusão bem-sucedida do pedido")
     void deleteOrder_DeletesOrderSuccessfully() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        Order order = new Order(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
 
-        when(orderRepository.findById(1L)).thenReturn(Optional.of(orderEntity));
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
 
         // Act
         orderService.deleteOrder(1L);
@@ -314,10 +314,10 @@ class OrderServiceImplTest {
     @DisplayName("deleteOrder - Exceção no repositório ao tentar excluir pedido")
     void deleteOrder_RepositoryExceptionHandling() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        Order order = new Order(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
 
-        when(orderRepository.findById(1L)).thenReturn(Optional.of(orderEntity));
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
         doThrow(PersistenceException.class).when(orderRepository).deleteById(1L);
 
         // Act and Assert
@@ -331,10 +331,10 @@ class OrderServiceImplTest {
     @DisplayName("deleteOrder - Exceção ao tentar excluir pedido pago")
     void deleteOrder_IllegalStateExceptionHandling() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        Order order = new Order(1L, Instant.now(), OrderStatus.PAID, user);
 
-        when(orderRepository.findById(1L)).thenReturn(Optional.of(orderEntity));
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
 
         // Act and Assert
         assertThrows(IllegalStateException.class, () -> orderService.deleteOrder(1L), "Expected IllegalException for delete failure");
@@ -346,15 +346,15 @@ class OrderServiceImplTest {
     @DisplayName("findOrderByClientId - Busca bem-sucedida retorna lista contendo um pedido")
     void findOrderByClientId_SuccessfulSearch_ReturnsOrderResponse_OneOrder() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.PAID, userEntity);
-        List<OrderEntity> orderEntityList = Collections.singletonList(orderEntity);
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        Order order = new Order(1L, Instant.now(), OrderStatus.PAID, user);
+        List<Order> orderList = Collections.singletonList(order);
 
-        OrderResponse orderResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, userEntity);
+        OrderResponse orderResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, user);
         List<OrderResponse> expectedResponses = Collections.singletonList(orderResponse);
 
-        when(converter.toResponse(orderEntity, OrderResponse.class)).thenReturn(orderResponse);
-        when(orderRepository.findByClient_Id(1L)).thenReturn(Optional.of(orderEntityList));
+        when(converter.toResponse(order, OrderResponse.class)).thenReturn(orderResponse);
+        when(orderRepository.findByClient_Id(1L)).thenReturn(Optional.of(orderList));
 
         // Act
         List<OrderResponse> actualResponses = orderService.findOrderByClientId(1L);
@@ -363,7 +363,7 @@ class OrderServiceImplTest {
         assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with one order");
         assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with one order");
 
-        verify(converter, times(1)).toResponse(orderEntity, OrderResponse.class);
+        verify(converter, times(1)).toResponse(order, OrderResponse.class);
         verify(orderRepository, times(1)).findByClient_Id(1L);
     }
 
@@ -371,20 +371,20 @@ class OrderServiceImplTest {
     @DisplayName("findOrderByClientId - Busca bem-sucedida retorna lista contendo múltiplos pedidos")
     void findOrderByClientId_SuccessfulSearch_ReturnsListResponse_MultipleOrders() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        List<OrderEntity> orderEntityList = new ArrayList<>();
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        List<Order> orderList = new ArrayList<>();
         List<OrderResponse> expectedResponses = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
-            OrderEntity orderEntity = new OrderEntity((long) i, Instant.now(), OrderStatus.PAID, userEntity);
-            orderEntityList.add(orderEntity);
+            Order order = new Order((long) i, Instant.now(), OrderStatus.PAID, user);
+            orderList.add(order);
 
-            OrderResponse orderResponse = new OrderResponse((long) i, Instant.now(), OrderStatus.PAID, userEntity);
+            OrderResponse orderResponse = new OrderResponse((long) i, Instant.now(), OrderStatus.PAID, user);
             expectedResponses.add(orderResponse);
 
-            when(converter.toResponse(orderEntity, OrderResponse.class)).thenReturn(orderResponse);
+            when(converter.toResponse(order, OrderResponse.class)).thenReturn(orderResponse);
         }
 
-        when(orderRepository.findByClient_Id(1L)).thenReturn(Optional.of(orderEntityList));
+        when(orderRepository.findByClient_Id(1L)).thenReturn(Optional.of(orderList));
 
         // Act
         List<OrderResponse> actualResponses = orderService.findOrderByClientId(1L);
@@ -393,7 +393,7 @@ class OrderServiceImplTest {
         assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with multiple orders");
         assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with multiple orders");
 
-        verify(converter, times(10)).toResponse(any(OrderEntity.class), eq(OrderResponse.class));
+        verify(converter, times(10)).toResponse(any(Order.class), eq(OrderResponse.class));
         verify(orderRepository, times(1)).findByClient_Id(1L);
     }
 

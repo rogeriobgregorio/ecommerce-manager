@@ -43,7 +43,7 @@ public class ProductController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(productService.findProductById(id));
+                .body(productService.findProductResponseById(id));
     }
 
     @PutMapping(value = "/products")

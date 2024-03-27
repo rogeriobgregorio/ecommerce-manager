@@ -1,9 +1,9 @@
 package com.rogeriogregorio.ecommercemanager.dto.responses;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.rogeriogregorio.ecommercemanager.entities.CategoryEntity;
-import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
-import com.rogeriogregorio.ecommercemanager.entities.OrderItemEntity;
+import com.rogeriogregorio.ecommercemanager.entities.Category;
+import com.rogeriogregorio.ecommercemanager.entities.Order;
+import com.rogeriogregorio.ecommercemanager.entities.OrderItem;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -21,8 +21,8 @@ public class ProductResponse implements Serializable {
     private String description;
     private BigDecimal price;
     private String imgUrl;
-    private Set<CategoryEntity> categories = new HashSet<>();
-    private Set<OrderItemEntity> items = new HashSet<>();
+    private Set<Category> categories = new HashSet<>();
+    private Set<OrderItem> items = new HashSet<>();
 
     public ProductResponse() {
     }
@@ -75,25 +75,25 @@ public class ProductResponse implements Serializable {
         this.imgUrl = imgUrl;
     }
 
-    public Set<CategoryEntity> getCategories() {
+    public Set<Category> getCategories() {
         return categories;
     }
 
-    public void setCategories(Set<CategoryEntity> categories) {
+    public void setCategories(Set<Category> categories) {
         this.categories = categories;
     }
 
     @JsonIgnore
-    public Set<OrderEntity> getOrders() {
+    public Set<Order> getOrders() {
 
-        Set<OrderEntity> orders = new HashSet<>();
-        for (OrderItemEntity orderItem : items) {
+        Set<Order> orders = new HashSet<>();
+        for (OrderItem orderItem : items) {
             orders.add(orderItem.getOrderEntity());
         }
         return orders;
     }
 
-    public void setItems(Set<OrderItemEntity> items) {
+    public void setItems(Set<OrderItem> items) {
         this.items = items;
     }
 }

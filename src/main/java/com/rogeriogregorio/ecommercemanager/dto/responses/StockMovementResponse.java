@@ -1,6 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.dto.responses;
 
-import com.rogeriogregorio.ecommercemanager.entities.InventoryItemEntity;
+import com.rogeriogregorio.ecommercemanager.entities.InventoryItem;
 import com.rogeriogregorio.ecommercemanager.entities.enums.MovementType;
 
 import java.io.Serial;
@@ -12,14 +12,14 @@ public class StockMovementResponse implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
-    private InventoryItemEntity inventoryItem;
+    private InventoryItem inventoryItem;
     private Integer movementType;
     private Integer quantityMoved;
 
     public StockMovementResponse() {
     }
 
-    public StockMovementResponse(Long id, InventoryItemEntity inventoryItem, Integer movementType, Integer quantityMoved) {
+    public StockMovementResponse(Long id, InventoryItem inventoryItem, Integer movementType, Integer quantityMoved) {
         this.id = id;
         this.inventoryItem = inventoryItem;
         this.movementType = movementType;
@@ -34,11 +34,11 @@ public class StockMovementResponse implements Serializable {
         this.id = id;
     }
 
-    public InventoryItemEntity getInventoryItem() {
+    public InventoryItem getInventoryItem() {
         return inventoryItem;
     }
 
-    public void setInventoryItem(InventoryItemEntity inventoryItem) {
+    public void setInventoryItem(InventoryItem inventoryItem) {
         this.inventoryItem = inventoryItem;
     }
 

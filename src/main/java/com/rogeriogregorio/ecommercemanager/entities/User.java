@@ -17,7 +17,7 @@ import java.util.Objects;
 @Table(name = "tb_users", uniqueConstraints = {
         @UniqueConstraint(columnNames = "email", name = "unique_email_constraint")
 })
-public class UserEntity implements Serializable {
+public class User implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -49,23 +49,23 @@ public class UserEntity implements Serializable {
 
     @JsonIgnore
     @OneToMany(mappedBy = "client")
-    private List<OrderEntity> orders = new ArrayList<>();
+    private List<Order> orders = new ArrayList<>();
 
-    @OneToOne(mappedBy = "userEntity", cascade = CascadeType.REMOVE)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
     @JoinColumn(name = "address_id", referencedColumnName = "id")
-    private AddressEntity addressEntity;
+    private Address address;
 
-    public UserEntity() {
+    public User() {
     }
 
-    public UserEntity(String name, String email, String phone, String password) {
+    public User(String name, String email, String phone, String password) {
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.password = password;
     }
 
-    public UserEntity(Long id, String name, String email, String phone, String password) {
+    public User(Long id, String name, String email, String phone, String password) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -114,23 +114,23 @@ public class UserEntity implements Serializable {
         this.password = password;
     }
 
-    public List<OrderEntity> getOrders() {
+    public List<Order> getOrders() {
         return orders;
     }
 
-    public AddressEntity getAddressEntity() {
-        return addressEntity;
+    public Address getAddressEntity() {
+        return address;
     }
 
-    public void setAddressEntity(AddressEntity addressEntity) {
-        this.addressEntity = addressEntity;
+    public void setAddressEntity(Address address) {
+        this.address = address;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        UserEntity that = (UserEntity) o;
+        User that = (User) o;
         return Objects.equals(id, that.id);
     }
 

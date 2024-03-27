@@ -2,7 +2,7 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.AddressRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
-import com.rogeriogregorio.ecommercemanager.entities.AddressEntity;
+import com.rogeriogregorio.ecommercemanager.entities.Address;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,13 +14,13 @@ public interface AddressService {
 
     AddressResponse createAddress(AddressRequest addressRequest);
 
-    AddressResponse findAddressById(Long id);
+    AddressResponse findAddressResponseById(Long id);
 
-    AddressEntity findAddressEntityById(Long id);
+    Address findAddressById(Long id);
 
     AddressResponse updateAddress(AddressRequest addressRequest);
 
     void deleteAddress(Long id);
 
-    AddressEntity buildAddressFromRequest(AddressRequest addressRequest);
+    Address buildAddress(AddressRequest addressRequest);
 }

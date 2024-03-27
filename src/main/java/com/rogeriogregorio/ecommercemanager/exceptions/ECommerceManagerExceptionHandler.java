@@ -33,7 +33,7 @@ public class ECommerceManagerExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<StandardError> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
 
-        String message = "Erro de tipo de argumento: " + ex.getName() + " deve ser um número inteiro.";
+        String message = "Ocorreu um erro de tipo de argumento: " + ex.getName() + ".";
         StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "MethodArgumentTypeMismatchException: Incompatibilidade de tipo de argumento", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
@@ -41,7 +41,7 @@ public class ECommerceManagerExceptionHandler {
     @ExceptionHandler(InvalidDataAccessApiUsageException.class)
     public ResponseEntity<StandardError> handleInvalidDataAccessApiUsageException(InvalidDataAccessApiUsageException ex) {
 
-        String message = "O ID fornecido não pode ser nulo: " + ex.getMessage();
+        String message = "Ocorreu um erro de uso inválido da API de acesso a dados: " + ex.getMessage();
         StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "InvalidDataAccessApiUsageException: uso inválido da API de acesso a dados", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
@@ -57,7 +57,7 @@ public class ECommerceManagerExceptionHandler {
     @ExceptionHandler(MissingPathVariableException.class)
     public ResponseEntity<StandardError> handleMissingPathVariableException(MissingPathVariableException ex) {
 
-        String message = "O valor do id enviado é nulo: " + ex.getMessage();
+        String message = "O valor do parâmetro enviado é nulo: " + ex.getMessage();
         StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "MissingPathVariableException: variável de caminho ausente", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
@@ -87,7 +87,7 @@ public class ECommerceManagerExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<StandardError> dataIntegrityViolationException(DataIntegrityViolationException ex) {
 
-        String message = ex.getMostSpecificCause().getMessage().contains("EMAIL") ? "O email já está em uso." : "Verifique a existência de um recurso com o mesmo nome.";
+        String message = ex.getMostSpecificCause().getMessage().contains("EMAIL") ? "O email já está em uso." : "Verifique se o recurso já foi criado.";
 
         StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "DataIntegrityViolationException: erro de violação da integridade dos dados", message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);

@@ -1,7 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.dto.responses;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
+import com.rogeriogregorio.ecommercemanager.entities.Order;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -15,15 +15,15 @@ public class PaymentResponse implements Serializable {
     private Long id;
     private Instant moment;
     @JsonIgnore
-    private OrderEntity orderEntity;
+    private Order order;
 
     public PaymentResponse() {
     }
 
-    public PaymentResponse(Long id, Instant moment, OrderEntity orderEntity) {
+    public PaymentResponse(Long id, Instant moment, Order order) {
         this.id = id;
         this.moment = moment;
-        this.orderEntity = orderEntity;
+        this.order = order;
     }
 
     public Long getId() {
@@ -42,11 +42,11 @@ public class PaymentResponse implements Serializable {
         this.moment = moment;
     }
 
-    public OrderEntity getOrderEntity() {
-        return orderEntity;
+    public Order getOrderEntity() {
+        return order;
     }
 
-    public void setOrderEntity(OrderEntity orderEntity) {
-        this.orderEntity = orderEntity;
+    public void setOrderEntity(Order order) {
+        this.order = order;
     }
 }

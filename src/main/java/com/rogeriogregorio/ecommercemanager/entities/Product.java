@@ -1,6 +1,5 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
@@ -20,7 +19,7 @@ import java.util.Set;
 @Table(name = "tb_products", uniqueConstraints = {
         @UniqueConstraint(columnNames = "name", name = "unique_name_constraint")
 })
-public class ProductEntity implements Serializable {
+public class Product implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -51,22 +50,22 @@ public class ProductEntity implements Serializable {
     @JoinTable(name = "tb_product_category",
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id"))
-    private Set<CategoryEntity> categories = new HashSet<>();
+    private Set<Category> categories = new HashSet<>();
 
-    @OneToMany(mappedBy = "id.productEntity")
-    private Set<OrderItemEntity> items = new HashSet<>();
+    @OneToMany(mappedBy = "id.product")
+    private Set<OrderItem> items = new HashSet<>();
 
-    public ProductEntity() {
+    public Product() {
     }
 
-    public ProductEntity(String name, String description, Double price, String imgUrl) {
+    public Product(String name, String description, Double price, String imgUrl) {
         this.name = name;
         this.description = description;
         this.price = BigDecimal.valueOf(price);
         this.imgUrl = imgUrl;
     }
 
-    public ProductEntity(Long id, String name, String description, Double price, String imgUrl) {
+    public Product(Long id, String name, String description, Double price, String imgUrl) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -114,15 +113,15 @@ public class ProductEntity implements Serializable {
         this.imgUrl = imgUrl;
     }
 
-    public Set<CategoryEntity> getCategories() {
+    public Set<Category> getCategories() {
         return categories;
     }
 
     @JsonIgnore
-    public Set<OrderEntity> getOrders() {
+    public Set<Order> getOrders() {
 
-        Set<OrderEntity> orders = new HashSet<>();
-        for (OrderItemEntity orderItem : items) {
+        Set<Order> orders = new HashSet<>();
+        for (OrderItem orderItem : items) {
             orders.add(orderItem.getOrderEntity());
         }
         return orders;
@@ -132,7 +131,7 @@ public class ProductEntity implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ProductEntity that = (ProductEntity) o;
+        Product that = (Product) o;
         return Objects.equals(id, that.id);
     }
 

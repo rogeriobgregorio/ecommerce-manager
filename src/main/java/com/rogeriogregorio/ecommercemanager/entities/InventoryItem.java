@@ -11,7 +11,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "tb_inventory_items")
-public class InventoryItemEntity implements Serializable {
+public class InventoryItem implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -22,7 +22,7 @@ public class InventoryItemEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "product_id")
-    private ProductEntity product;
+    private Product product;
 
     @NotNull(message = "A quantidade em estoque não pode ser nula")
     @PositiveOrZero(message = "A quantidade do estoque deve ser um número positivo ou zero")
@@ -38,24 +38,24 @@ public class InventoryItemEntity implements Serializable {
     @Column(name = "stock_status")
     private Integer stockStatus;
 
-    public InventoryItemEntity() {
+    public InventoryItem() {
     }
 
-    public InventoryItemEntity(Long id, ProductEntity product, Integer quantityInStock, StockStatus stockStatus) {
+    public InventoryItem(Long id, Product product, Integer quantityInStock, StockStatus stockStatus) {
         this.id = id;
         this.product = product;
         this.quantityInStock = quantityInStock;
         setStockStatus(stockStatus);
     }
 
-    public InventoryItemEntity(ProductEntity product, Integer quantityInStock, Integer quantitySold, StockStatus stockStatus) {
+    public InventoryItem(Product product, Integer quantityInStock, Integer quantitySold, StockStatus stockStatus) {
         this.product = product;
         this.quantityInStock = quantityInStock;
         this.quantitySold = quantitySold;
         setStockStatus(stockStatus);
     }
 
-    public InventoryItemEntity(Long id, ProductEntity product, Integer quantityInStock, Integer quantitySold, StockStatus stockStatus) {
+    public InventoryItem(Long id, Product product, Integer quantityInStock, Integer quantitySold, StockStatus stockStatus) {
         this.id = id;
         this.product = product;
         this.quantityInStock = quantityInStock;
@@ -71,11 +71,11 @@ public class InventoryItemEntity implements Serializable {
         this.id = id;
     }
 
-    public ProductEntity getProduct() {
+    public Product getProduct() {
         return product;
     }
 
-    public void setProduct(ProductEntity product) {
+    public void setProduct(Product product) {
         this.product = product;
     }
 
@@ -112,7 +112,7 @@ public class InventoryItemEntity implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        InventoryItemEntity that = (InventoryItemEntity) o;
+        InventoryItem that = (InventoryItem) o;
         return Objects.equals(id, that.id);
     }
 

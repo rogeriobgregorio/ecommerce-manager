@@ -12,7 +12,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "tb_addresses")
-public class AddressEntity implements Serializable {
+public class Address implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -50,12 +50,12 @@ public class AddressEntity implements Serializable {
     @JsonIgnore
     @OneToOne
     @MapsId
-    private UserEntity userEntity;
+    private User user;
 
-    public AddressEntity() {
+    public Address() {
     }
 
-    public AddressEntity(String street, String city, String state, String cep, String country) {
+    public Address(String street, String city, String state, String cep, String country) {
         this.street = street;
         this.city = city;
         this.state = state;
@@ -63,7 +63,7 @@ public class AddressEntity implements Serializable {
         this.country = country;
     }
 
-    public AddressEntity(Long id, String street, String city, String state, String cep, String country) {
+    public Address(Long id, String street, String city, String state, String cep, String country) {
         this.id = id;
         this.street = street;
         this.city = city;
@@ -120,19 +120,19 @@ public class AddressEntity implements Serializable {
         this.country = country;
     }
 
-    public UserEntity getUserEntity() {
-        return userEntity;
+    public User getUserEntity() {
+        return user;
     }
 
-    public void setUserEntity(UserEntity userEntity) {
-        this.userEntity = userEntity;
+    public void setUserEntity(User user) {
+        this.user = user;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AddressEntity that = (AddressEntity) o;
+        Address that = (Address) o;
         return Objects.equals(id, that.id);
     }
 

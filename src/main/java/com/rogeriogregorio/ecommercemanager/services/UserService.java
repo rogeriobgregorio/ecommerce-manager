@@ -2,7 +2,7 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
-import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
+import com.rogeriogregorio.ecommercemanager.entities.User;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,9 +14,9 @@ public interface UserService {
 
     UserResponse createUser(UserRequest userRequest);
 
-    UserResponse findUserById(Long id);
+    UserResponse findUserResponseById(Long id);
 
-    UserEntity findUserEntityById(Long id);
+    User findUserById(Long id);
 
     UserResponse updateUser(UserRequest userRequest);
 
@@ -24,5 +24,5 @@ public interface UserService {
 
     List<UserResponse> findUserByName(String name);
 
-    void saveUserAddress(UserEntity userEntity);
+    void saveUserAddress(User user);
 }

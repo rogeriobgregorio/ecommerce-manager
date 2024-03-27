@@ -1,7 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.dto.responses;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
+import com.rogeriogregorio.ecommercemanager.entities.User;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -12,19 +12,13 @@ public class AddressResponse implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
-
     private String street;
-
     private String city;
-
     private String state;
-
     private String cep;
-
     private String country;
-
     @JsonIgnore
-    private UserEntity user;
+    private User user;
 
     public AddressResponse() {
     }
@@ -86,11 +80,11 @@ public class AddressResponse implements Serializable {
         this.country = country;
     }
 
-    public UserEntity getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(UserEntity user) {
+    public void setUser(User user) {
         this.user = user;
     }
 }

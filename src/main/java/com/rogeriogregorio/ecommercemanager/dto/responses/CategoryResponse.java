@@ -1,7 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.dto.responses;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
+import com.rogeriogregorio.ecommercemanager.entities.Product;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -16,7 +16,7 @@ public class CategoryResponse implements Serializable {
     private Long id;
     private String name;
     @JsonIgnore
-    private Set<ProductEntity> products = new HashSet<>();
+    private Set<Product> products = new HashSet<>();
 
     public CategoryResponse() {
     }
@@ -42,11 +42,11 @@ public class CategoryResponse implements Serializable {
         this.name = name;
     }
 
-    public Set<ProductEntity> getProducts() {
+    public Set<Product> getProducts() {
         return products;
     }
 
-    public void setProducts(Set<ProductEntity> products) {
+    public void setProducts(Set<Product> products) {
         this.products = products;
     }
 }

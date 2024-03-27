@@ -2,7 +2,7 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.CategoryRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.CategoryResponse;
-import com.rogeriogregorio.ecommercemanager.entities.CategoryEntity;
+import com.rogeriogregorio.ecommercemanager.entities.Category;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.CategoryRepository;
@@ -48,14 +48,14 @@ class CategoryServiceImplTest {
     @DisplayName("findAllCategories - Busca bem-sucedida retorna lista contendo uma categoria")
     void findAllCategories_SuccessfulSearch_ReturnsListResponse_OneCategory() {
         // Arrange
-        CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
-        List<CategoryEntity> categoryEntityList = Collections.singletonList(categoryEntity);
+        Category category = new Category(1L, "Computers");
+        List<Category> categoryList = Collections.singletonList(category);
 
         CategoryResponse categoryResponse = new CategoryResponse(1L, "Computers");
         List<CategoryResponse> expectedResponses = Collections.singletonList(categoryResponse);
 
-        when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(categoryResponse);
-        when(categoryRepository.findAll()).thenReturn(categoryEntityList);
+        when(converter.toResponse(category, CategoryResponse.class)).thenReturn(categoryResponse);
+        when(categoryRepository.findAll()).thenReturn(categoryList);
 
         // Act
         List<CategoryResponse> actualResponses = categoryService.findAllCategories();
@@ -64,7 +64,7 @@ class CategoryServiceImplTest {
         assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with one category");
         assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with one categories");
 
-        verify(converter, times(1)).toResponse(categoryEntity, CategoryResponse.class);
+        verify(converter, times(1)).toResponse(category, CategoryResponse.class);
         verify(categoryRepository, times(1)).findAll();
     }
 
@@ -72,19 +72,19 @@ class CategoryServiceImplTest {
     @DisplayName("findAllCategories - Busca bem-sucedida retorna lista contendo múltiplas categoria")
     void findAllCategories_SuccessfulSearch_ReturnsListResponse_MultipleCategories() {
         // Arrange
-        List<CategoryEntity> categoryEntityList = new ArrayList<>();
+        List<Category> categoryList = new ArrayList<>();
         List<CategoryResponse> expectedResponses = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
-            CategoryEntity categoryEntity = new CategoryEntity((long) i, "category example");
-            categoryEntityList.add(categoryEntity);
+            Category category = new Category((long) i, "category example");
+            categoryList.add(category);
 
             CategoryResponse categoryResponse = new CategoryResponse((long) i, "category example");
             expectedResponses.add(categoryResponse);
 
-            when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(categoryResponse);
+            when(converter.toResponse(category, CategoryResponse.class)).thenReturn(categoryResponse);
         }
 
-        when(categoryRepository.findAll()).thenReturn(categoryEntityList);
+        when(categoryRepository.findAll()).thenReturn(categoryList);
 
         // Act
         List<CategoryResponse> actualResponses = categoryService.findAllCategories();
@@ -93,7 +93,7 @@ class CategoryServiceImplTest {
         assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with multiple categories");
         assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with multiple orders");
 
-        verify(converter, times(10)).toResponse(any(CategoryEntity.class), eq(CategoryResponse.class));
+        verify(converter, times(10)).toResponse(any(Category.class), eq(CategoryResponse.class));
         verify(categoryRepository, times(1)).findAll();
     }
 
@@ -101,7 +101,7 @@ class CategoryServiceImplTest {
     @DisplayName("findAllCategories - Busca bem-sucedida retorna lista de categorias vazia")
     void findAllCategories_SuccessfulSearch_ReturnsEmptyList() {
         // Arrange
-        List<CategoryEntity> emptyCategoryList = new ArrayList<>();
+        List<Category> emptyCategoryList = new ArrayList<>();
 
         when(categoryRepository.findAll()).thenReturn(emptyCategoryList);
 
@@ -132,11 +132,11 @@ class CategoryServiceImplTest {
     void createCategory_SuccessfulCreation_ReturnsCategoryResponse() {
         // Arrange
         CategoryRequest categoryRequest = new CategoryRequest("Computers");
-        CategoryEntity categoryEntity = new CategoryEntity("Computers");
+        Category category = new Category("Computers");
         CategoryResponse expectedResponse = new CategoryResponse(1L, "Computers");
 
-        when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(expectedResponse);
-        when(categoryRepository.save(categoryEntity)).thenReturn(categoryEntity);
+        when(converter.toResponse(category, CategoryResponse.class)).thenReturn(expectedResponse);
+        when(categoryRepository.save(category)).thenReturn(category);
 
         // Act
         CategoryResponse actualResponse = categoryService.createCategory(categoryRequest);
@@ -145,8 +145,8 @@ class CategoryServiceImplTest {
         assertNotNull(actualResponse, "CategoryResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(converter, times(1)).toResponse(categoryEntity, CategoryResponse.class);
-        verify(categoryRepository, times(1)).save(categoryEntity);
+        verify(converter, times(1)).toResponse(category, CategoryResponse.class);
+        verify(categoryRepository, times(1)).save(category);
     }
 
     @Test
@@ -154,34 +154,34 @@ class CategoryServiceImplTest {
     void createCategory_RepositoryExceptionHandling() {
         // Arrange
         CategoryRequest categoryRequest = new CategoryRequest(1L, "Computers");
-        CategoryEntity categoryEntity = new CategoryEntity("Computers");
+        Category category = new Category("Computers");
 
-        when(categoryRepository.save(categoryEntity)).thenThrow(PersistenceException.class);
+        when(categoryRepository.save(category)).thenThrow(PersistenceException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> categoryService.createCategory(categoryRequest), "Expected RepositoryException due to a PersistenceException");
 
-        verify(categoryRepository, times(1)).save(categoryEntity);
+        verify(categoryRepository, times(1)).save(category);
     }
 
     @Test
     @DisplayName("findCategoryById - Busca bem-sucedida retorna pedido")
     void findCategoryById_SuccessfulSearch_ReturnsOrderResponse() {
         // Arrange
-        CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
+        Category category = new Category(1L, "Computers");
         CategoryResponse expectedResponse = new CategoryResponse(1L, "Computers");
 
-        when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(expectedResponse);
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
+        when(converter.toResponse(category, CategoryResponse.class)).thenReturn(expectedResponse);
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
 
         // Act
-        CategoryResponse actualResponse = categoryService.findCategoryById(1L);
+        CategoryResponse actualResponse = categoryService.findCategoryResponseById(1L);
 
         // Assert
         assertNotNull(actualResponse, "categoryResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(converter, times(1)).toResponse(categoryEntity, CategoryResponse.class);
+        verify(converter, times(1)).toResponse(category, CategoryResponse.class);
         verify(categoryRepository, times(1)).findById(1L);
     }
 
@@ -192,7 +192,7 @@ class CategoryServiceImplTest {
         when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(NotFoundException.class, () -> categoryService.findCategoryById(1L), "Expected NotFoundException for non-existent category");
+        assertThrows(NotFoundException.class, () -> categoryService.findCategoryResponseById(1L), "Expected NotFoundException for non-existent category");
 
         verify(categoryRepository, times(1)).findById(1L);
     }
@@ -202,12 +202,12 @@ class CategoryServiceImplTest {
     void updateCategory_SuccessfulUpdate_ReturnsCategoryResponse() {
         // Arrange
         CategoryRequest categoryRequest = new CategoryRequest(1L,"Computers");
-        CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
+        Category category = new Category(1L, "Computers");
         CategoryResponse expectedResponse = new CategoryResponse(1L, "Computers");
 
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
-        when(converter.toResponse(categoryEntity, CategoryResponse.class)).thenReturn(expectedResponse);
-        when(categoryRepository.save(categoryEntity)).thenReturn(categoryEntity);
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(converter.toResponse(category, CategoryResponse.class)).thenReturn(expectedResponse);
+        when(categoryRepository.save(category)).thenReturn(category);
 
         // Act
         CategoryResponse actualResponse = categoryService.updateCategory(categoryRequest);
@@ -218,8 +218,8 @@ class CategoryServiceImplTest {
         assertEquals(expectedResponse.getName(), actualResponse.getName(), "Names should match");
 
         verify(categoryRepository, times(1)).findById(1L);
-        verify(categoryRepository, times(1)).save(categoryEntity);
-        verify(converter, times(1)).toResponse(categoryEntity, CategoryResponse.class);
+        verify(categoryRepository, times(1)).save(category);
+        verify(converter, times(1)).toResponse(category, CategoryResponse.class);
     }
 
     @Test
@@ -241,26 +241,26 @@ class CategoryServiceImplTest {
     void updateCategory_RepositoryExceptionHandling() {
         // Arrange
         CategoryRequest categoryRequest = new CategoryRequest(1L,"Computers");
-        CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
+        Category category = new Category(1L, "Computers");
 
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
-        when(categoryRepository.save(categoryEntity)).thenThrow(PersistenceException.class);
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(categoryRepository.save(category)).thenThrow(PersistenceException.class);
 
         // Act
         assertThrows(RepositoryException.class, () -> categoryService.updateCategory(categoryRequest), "Expected RepositoryException due to a generic runtime exception");
 
         // Assert
         verify(categoryRepository, times(1)).findById(1L);
-        verify(categoryRepository, times(1)).save(categoryEntity);
+        verify(categoryRepository, times(1)).save(category);
     }
 
     @Test
     @DisplayName("deleteCategory - Exclusão bem-sucedida da categoria")
     void deleteCategory_DeletesCategorySuccessfully() {
         // Arrange
-        CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
+        Category category = new Category(1L, "Computers");
 
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
 
         // Act
         categoryService.deleteCategory(1L);
@@ -286,9 +286,9 @@ class CategoryServiceImplTest {
     @DisplayName("deleteCategory - Exceção no repositório ao tentar excluir categoria")
     void deleteCategory_RepositoryExceptionHandling() {
         // Arrange
-        CategoryEntity categoryEntity = new CategoryEntity(1L, "Computers");
+        Category category = new Category(1L, "Computers");
 
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(categoryEntity));
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
         doThrow(PersistenceException.class).when(categoryRepository).deleteById(1L);
 
         // Act and Assert

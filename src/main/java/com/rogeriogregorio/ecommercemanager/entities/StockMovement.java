@@ -10,7 +10,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "tb_stock_movements")
-public class StockMovementEntity implements Serializable {
+public class StockMovement implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -21,7 +21,7 @@ public class StockMovementEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "inventory_item_id")
-    private InventoryItemEntity inventoryItem;
+    private InventoryItem inventoryItem;
 
     @NotNull(message = "O tipo de movimentação não pode ser nulo")
     @Column(name = "movement_type")
@@ -31,16 +31,16 @@ public class StockMovementEntity implements Serializable {
     @Column(name = "quantity_moved")
     private Integer quantityMoved;
 
-    public StockMovementEntity() {
+    public StockMovement() {
     }
 
-    public StockMovementEntity(InventoryItemEntity inventoryItem, MovementType movementType, Integer quantityMoved) {
+    public StockMovement(InventoryItem inventoryItem, MovementType movementType, Integer quantityMoved) {
         this.inventoryItem = inventoryItem;
         setMovementType(movementType);
         this.quantityMoved = quantityMoved;
     }
 
-    public StockMovementEntity(Long id, InventoryItemEntity inventoryItem, MovementType movementType, Integer quantityMoved) {
+    public StockMovement(Long id, InventoryItem inventoryItem, MovementType movementType, Integer quantityMoved) {
         this.id = id;
         this.inventoryItem = inventoryItem;
         setMovementType(movementType);
@@ -55,11 +55,11 @@ public class StockMovementEntity implements Serializable {
         this.id = id;
     }
 
-    public InventoryItemEntity getInventoryItem() {
+    public InventoryItem getInventoryItem() {
         return inventoryItem;
     }
 
-    public void setInventoryItem(InventoryItemEntity inventoryItem) {
+    public void setInventoryItem(InventoryItem inventoryItem) {
         this.inventoryItem = inventoryItem;
     }
 
@@ -88,7 +88,7 @@ public class StockMovementEntity implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        StockMovementEntity that = (StockMovementEntity) o;
+        StockMovement that = (StockMovement) o;
         return Objects.equals(id, that.id);
     }
 

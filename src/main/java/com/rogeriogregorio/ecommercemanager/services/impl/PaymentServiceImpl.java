@@ -2,8 +2,8 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
-import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
-import com.rogeriogregorio.ecommercemanager.entities.PaymentEntity;
+import com.rogeriogregorio.ecommercemanager.entities.Order;
+import com.rogeriogregorio.ecommercemanager.entities.Payment;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
@@ -46,7 +46,7 @@ public class PaymentServiceImpl implements PaymentService {
             return paymentRepository
                     .findAll()
                     .stream()
-                    .map(paymentEntity -> converter.toResponse(paymentEntity, PaymentResponse.class))
+                    .map(payment -> converter.toResponse(payment, PaymentResponse.class))
                     .toList();
 
         } catch (PersistenceException exception) {
@@ -60,15 +60,15 @@ public class PaymentServiceImpl implements PaymentService {
 
         paymentRequest.setId(null);
 
-        PaymentEntity paymentEntity = buildPaymentFromRequest(paymentRequest);
+        Payment payment = buildPayment(paymentRequest);
 
         try {
-            paymentRepository.save(paymentEntity);
+            paymentRepository.save(payment);
 
-            inventoryItemService.updateInventory(paymentEntity.getOrderEntity());
+            inventoryItemService.saveInventoryItem(payment.getOrderEntity());
 
-            logger.info("Pagamento criado: {}", paymentEntity);
-            return converter.toResponse(paymentEntity, PaymentResponse.class);
+            logger.info("Pagamento criado: {}", payment);
+            return converter.toResponse(payment, PaymentResponse.class);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar criar o pagamento: {}", exception.getMessage(), exception);
@@ -77,11 +77,11 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Transactional(readOnly = true)
-    public PaymentResponse findPaymentById(Long id) {
+    public PaymentResponse findPaymentResponseById(Long id) {
 
         return paymentRepository
                 .findById(id)
-                .map(paymentEntity -> converter.toResponse(paymentEntity, PaymentResponse.class))
+                .map(payment -> converter.toResponse(payment, PaymentResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Pagamento não encontrado com o ID: {}", id);
                     return new NotFoundException("Pagamento não encontrado com o ID: " + id + ".");
@@ -91,11 +91,11 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional(readOnly = false)
     public void deletePayment(Long id) {
 
-        PaymentEntity paymentEntity = findPaymentEntityById(id);
+        Payment payment = findPaymentById(id);
 
         try {
             paymentRepository.deleteById(id);
-            logger.warn("Pagamento removido: {}", paymentEntity);
+            logger.warn("Pagamento removido: {}", payment);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir o pagamento: {}", exception.getMessage(), exception);
@@ -103,7 +103,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
-    public PaymentEntity findPaymentEntityById(Long id) {
+    public Payment findPaymentById(Long id) {
 
         return paymentRepository
                 .findById(id)
@@ -113,22 +113,22 @@ public class PaymentServiceImpl implements PaymentService {
                 });
     }
 
-    public PaymentEntity buildPaymentFromRequest(PaymentRequest paymentRequest) {
+    public Payment buildPayment(PaymentRequest paymentRequest) {
 
-        OrderEntity orderToBePaid = orderService.findOrderEntityById(paymentRequest.getOrderId());
+        Order orderToBePaid = orderService.findOrderById(paymentRequest.getOrderId());
 
-        validatePaymentConditions(orderToBePaid);
+        validatePayment(orderToBePaid);
 
-        PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderToBePaid);
+        Payment payment = new Payment(Instant.now(), orderToBePaid);
 
-        orderToBePaid.setPaymentEntity(paymentEntity);
+        orderToBePaid.setPaymentEntity(payment);
         orderToBePaid.setOrderStatus(OrderStatus.PAID);
         orderService.savePaidOrder(orderToBePaid);
 
-        return paymentEntity;
+        return payment;
     }
 
-    public void validatePaymentConditions(OrderEntity order) {
+    public void validatePayment(Order order) {
 
         if (orderService.isOrderPaid(order)) {
             throw new IllegalStateException("Não foi possível processar o pagamento: pedido já pago.");

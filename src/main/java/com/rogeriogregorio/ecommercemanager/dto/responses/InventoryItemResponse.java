@@ -1,6 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.dto.responses;
 
-import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
+import com.rogeriogregorio.ecommercemanager.entities.Product;
 import com.rogeriogregorio.ecommercemanager.entities.enums.StockStatus;
 
 import java.io.Serial;
@@ -12,7 +12,7 @@ public class InventoryItemResponse implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
-    private ProductEntity product;
+    private Product product;
     private Integer quantityInStock;
     private Integer quantitySold;
     private Integer stockStatus;
@@ -20,7 +20,7 @@ public class InventoryItemResponse implements Serializable {
     public InventoryItemResponse() {
     }
 
-    public InventoryItemResponse(Long id, ProductEntity product, Integer quantityInStock, Integer quantitySold, Integer stockStatus) {
+    public InventoryItemResponse(Long id, Product product, Integer quantityInStock, Integer quantitySold, Integer stockStatus) {
         this.id = id;
         this.product = product;
         this.quantityInStock = quantityInStock;
@@ -36,11 +36,11 @@ public class InventoryItemResponse implements Serializable {
         this.id = id;
     }
 
-    public ProductEntity getProduct() {
+    public Product getProduct() {
         return product;
     }
 
-    public void setProduct(ProductEntity product) {
+    public void setProduct(Product product) {
         this.product = product;
     }
 

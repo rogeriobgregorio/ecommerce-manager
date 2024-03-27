@@ -2,8 +2,8 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.AddressRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
-import com.rogeriogregorio.ecommercemanager.entities.AddressEntity;
-import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
+import com.rogeriogregorio.ecommercemanager.entities.Address;
+import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.AddressRepository;
@@ -52,18 +52,18 @@ class AddressServiceImplTest {
     @DisplayName("findAllAddresses - Busca bem-sucedida retorna lista contendo um endereço")
     void findAllAddresses_SuccessfulSearch_ReturnsListResponse_OneAddresses() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-        addressEntity.setUserEntity(userEntity);
-        List<AddressEntity> addressEntityList = Collections.singletonList(addressEntity);
+        Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        address.setUserEntity(user);
+        List<Address> addressList = Collections.singletonList(address);
 
         AddressResponse addressResponse = new AddressResponse(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-        addressResponse.setUser(userEntity);
+        addressResponse.setUser(user);
         List<AddressResponse> expectedResponses = Collections.singletonList(addressResponse);
 
-        when(converter.toResponse(addressEntity, AddressResponse.class)).thenReturn(addressResponse);
-        when(addressRepository.findAll()).thenReturn(addressEntityList);
+        when(converter.toResponse(address, AddressResponse.class)).thenReturn(addressResponse);
+        when(addressRepository.findAll()).thenReturn(addressList);
 
         // Act
         List<AddressResponse> actualResponse = addressService.findAllAddresses();
@@ -72,7 +72,7 @@ class AddressServiceImplTest {
         assertEquals(expectedResponses.size(), actualResponse.size(), "Expected a list of responses with one address");
         assertIterableEquals(expectedResponses, actualResponse, "Expected a list of responses with one address");
 
-        verify(converter, times(1)).toResponse(addressEntity, AddressResponse.class);
+        verify(converter, times(1)).toResponse(address, AddressResponse.class);
         verify(addressRepository, times(1)).findAll();
     }
 
@@ -80,23 +80,23 @@ class AddressServiceImplTest {
     @DisplayName("findAllAddresses - Busca bem-sucedida retorna lista contendo múltiplos endereços")
     void findAllAddresses_SuccessfulSearch_ReturnsListResponse_MultipleAddresses() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        List<AddressEntity> addressEntityList = new ArrayList<>();
+        List<Address> addressList = new ArrayList<>();
         List<AddressResponse> expectedResponses = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
-            AddressEntity addressEntity = new AddressEntity((long) i, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-            addressEntity.setUserEntity(userEntity);
-            addressEntityList.add(addressEntity);
+            Address address = new Address((long) i, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+            address.setUserEntity(user);
+            addressList.add(address);
 
             AddressResponse addressResponse = new AddressResponse((long) i, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-            addressResponse.setUser(userEntity);
+            addressResponse.setUser(user);
             expectedResponses.add(addressResponse);
 
-            when(converter.toResponse(addressEntity, AddressResponse.class)).thenReturn(addressResponse);
+            when(converter.toResponse(address, AddressResponse.class)).thenReturn(addressResponse);
         }
 
-        when(addressRepository.findAll()).thenReturn(addressEntityList);
+        when(addressRepository.findAll()).thenReturn(addressList);
 
         // Act
         List<AddressResponse> actualResponses = addressService.findAllAddresses();
@@ -105,7 +105,7 @@ class AddressServiceImplTest {
         assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with multiple address");
         assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with multiple address");
 
-        verify(converter, times(10)).toResponse(any(AddressEntity.class), eq(AddressResponse.class));
+        verify(converter, times(10)).toResponse(any(Address.class), eq(AddressResponse.class));
         verify(addressRepository, times(1)).findAll();
     }
 
@@ -125,19 +125,19 @@ class AddressServiceImplTest {
     @DisplayName("createAddress - Criação bem-sucedida retorna endereço criado")
     void createAddress_SuccessfulCreation_ReturnsAddressResponse() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-        addressEntity.setUserEntity(userEntity);
+        Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        address.setUserEntity(user);
 
         AddressRequest addressRequest = new AddressRequest("Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
         AddressResponse expectedResponse = new AddressResponse(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
 
-        when(userService.findUserEntityById(addressRequest.getUserId())).thenReturn(userEntity);
-        when(converter.toEntity(addressRequest, AddressEntity.class)).thenReturn(addressEntity);
-        doNothing().when(userService).saveUserAddress(userEntity);
-        when(addressRepository.save(addressEntity)).thenReturn(addressEntity);
-        when(converter.toResponse(addressEntity, AddressResponse.class)).thenReturn(expectedResponse);
+        when(userService.findUserById(addressRequest.getUserId())).thenReturn(user);
+        when(converter.toEntity(addressRequest, Address.class)).thenReturn(address);
+        doNothing().when(userService).saveUserAddress(user);
+        when(addressRepository.save(address)).thenReturn(address);
+        when(converter.toResponse(address, AddressResponse.class)).thenReturn(expectedResponse);
 
         // Act
         AddressResponse actualResponse = addressService.createAddress(addressRequest);
@@ -146,60 +146,60 @@ class AddressServiceImplTest {
         assertNotNull(actualResponse, "AddressResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(userService, times(1)).findUserEntityById(addressRequest.getUserId());
-        verify(converter, times(1)).toEntity(addressRequest, AddressEntity.class);
-        verify(userService, times(1)).saveUserAddress(userEntity);
-        verify(addressRepository, times(1)).save(addressEntity);
-        verify(converter, times(1)).toResponse(addressEntity, AddressResponse.class);
+        verify(userService, times(1)).findUserById(addressRequest.getUserId());
+        verify(converter, times(1)).toEntity(addressRequest, Address.class);
+        verify(userService, times(1)).saveUserAddress(user);
+        verify(addressRepository, times(1)).save(address);
+        verify(converter, times(1)).toResponse(address, AddressResponse.class);
     }
 
     @Test
     @DisplayName("createAddress - Exceção no repositório ao tentar criar endereço")
     void createAddress_RepositoryExceptionHandling() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-        addressEntity.setUserEntity(userEntity);
+        Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        address.setUserEntity(user);
 
         AddressRequest addressRequest = new AddressRequest("Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
 
-        when(userService.findUserEntityById(addressRequest.getUserId())).thenReturn(userEntity);
-        when(converter.toEntity(addressRequest, AddressEntity.class)).thenReturn(addressEntity);
-        doNothing().when(userService).saveUserAddress(userEntity);
-        when(addressRepository.save(addressEntity)).thenThrow(PersistenceException.class);
+        when(userService.findUserById(addressRequest.getUserId())).thenReturn(user);
+        when(converter.toEntity(addressRequest, Address.class)).thenReturn(address);
+        doNothing().when(userService).saveUserAddress(user);
+        when(addressRepository.save(address)).thenThrow(PersistenceException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> addressService.createAddress(addressRequest), "Expected RepositoryException due to a PersistenceException");
 
-        verify(userService, times(1)).findUserEntityById(addressRequest.getUserId());
-        verify(converter, times(1)).toEntity(addressRequest, AddressEntity.class);
-        verify(userService, times(1)).saveUserAddress(userEntity);
-        verify(addressRepository, times(1)).save(addressEntity);
+        verify(userService, times(1)).findUserById(addressRequest.getUserId());
+        verify(converter, times(1)).toEntity(addressRequest, Address.class);
+        verify(userService, times(1)).saveUserAddress(user);
+        verify(addressRepository, times(1)).save(address);
     }
 
     @Test
     @DisplayName("findAddressById - Busca bem-sucedida retorna endereço")
     void findAddressById_SuccessfulSearch_ReturnsOrderResponse() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-        addressEntity.setUserEntity(userEntity);
+        Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        address.setUserEntity(user);
         AddressResponse expectedResponse = new AddressResponse(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
 
-        when(addressRepository.findById(1L)).thenReturn(Optional.of(addressEntity));
-        when(converter.toResponse(addressEntity, AddressResponse.class)).thenReturn(expectedResponse);
+        when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
+        when(converter.toResponse(address, AddressResponse.class)).thenReturn(expectedResponse);
 
         // Act
-        AddressResponse actualResponse = addressService.findAddressById(1L);
+        AddressResponse actualResponse = addressService.findAddressResponseById(1L);
 
         // Assert
         assertNotNull(actualResponse, "AddressResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
         verify(addressRepository, times(1)).findById(1L);
-        verify(converter, times(1)).toResponse(addressEntity, AddressResponse.class);
+        verify(converter, times(1)).toResponse(address, AddressResponse.class);
     }
 
     @Test
@@ -209,7 +209,7 @@ class AddressServiceImplTest {
         when(addressRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Assert and Assert
-        assertThrows(NotFoundException.class, () -> addressService.findAddressById(1L), "Expected NotFoundException for non-existent address");
+        assertThrows(NotFoundException.class, () -> addressService.findAddressResponseById(1L), "Expected NotFoundException for non-existent address");
 
         verify(addressRepository, times(1)).findById(1L);
     }
@@ -218,20 +218,20 @@ class AddressServiceImplTest {
     @DisplayName("updateAddress - Atualização bem-sucedida retorna endereço atualizado")
     void updateAddress_SuccessfulUpdate_ReturnsAddressResponse() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-        addressEntity.setUserEntity(userEntity);
+        Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        address.setUserEntity(user);
 
         AddressRequest addressRequest = new AddressRequest(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
         AddressResponse expectedResponse = new AddressResponse(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
 
-        when(addressRepository.findById(addressEntity.getId())).thenReturn(Optional.of(addressEntity));
-        when(userService.findUserEntityById(addressRequest.getUserId())).thenReturn(userEntity);
-        when(converter.toEntity(addressRequest, AddressEntity.class)).thenReturn(addressEntity);
-        doNothing().when(userService).saveUserAddress(userEntity);
-        when(addressRepository.save(addressEntity)).thenReturn(addressEntity);
-        when(converter.toResponse(addressEntity, AddressResponse.class)).thenReturn(expectedResponse);
+        when(addressRepository.findById(address.getId())).thenReturn(Optional.of(address));
+        when(userService.findUserById(addressRequest.getUserId())).thenReturn(user);
+        when(converter.toEntity(addressRequest, Address.class)).thenReturn(address);
+        doNothing().when(userService).saveUserAddress(user);
+        when(addressRepository.save(address)).thenReturn(address);
+        when(converter.toResponse(address, AddressResponse.class)).thenReturn(expectedResponse);
 
         // Act
         AddressResponse actualResponse = addressService.updateAddress(addressRequest);
@@ -240,43 +240,43 @@ class AddressServiceImplTest {
         assertNotNull(actualResponse, "AddressResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(addressRepository, times(1)).findById(addressEntity.getId());
-        verify(userService, times(1)).findUserEntityById(addressRequest.getUserId());
-        verify(converter, times(1)).toEntity(addressRequest, AddressEntity.class);
-        verify(userService, times(1)).saveUserAddress(userEntity);
-        verify(addressRepository, times(1)).save(addressEntity);
-        verify(converter, times(1)).toResponse(addressEntity, AddressResponse.class);
+        verify(addressRepository, times(1)).findById(address.getId());
+        verify(userService, times(1)).findUserById(addressRequest.getUserId());
+        verify(converter, times(1)).toEntity(addressRequest, Address.class);
+        verify(userService, times(1)).saveUserAddress(user);
+        verify(addressRepository, times(1)).save(address);
+        verify(converter, times(1)).toResponse(address, AddressResponse.class);
     }
 
     @Test
     @DisplayName("updateAddress - Exceção ao tentar atualizar endereço inexistente")
     void updateAddress_NotFoundExceptionHandling() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-        addressEntity.setUserEntity(userEntity);
+        Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        address.setUserEntity(user);
 
         AddressRequest addressRequest = new AddressRequest(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
 
-        when(addressRepository.findById(addressEntity.getId())).thenReturn(Optional.empty());
+        when(addressRepository.findById(address.getId())).thenReturn(Optional.empty());
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> addressService.updateAddress(addressRequest), "Expected NotFoundException for update failure");
 
-        verify(addressRepository, times(1)).findById(addressEntity.getId());
+        verify(addressRepository, times(1)).findById(address.getId());
     }
 
     @Test
     @DisplayName("deleteAddress - Exclusão bem-sucedida do endereço")
     void deleteAddress_DeletesAddressSuccessfully() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-        addressEntity.setUserEntity(userEntity);
+        Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        address.setUserEntity(user);
 
-        when(addressRepository.findById(1L)).thenReturn(Optional.of(addressEntity));
+        when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
 
         // Act
         addressService.deleteAddress(1L);
@@ -304,19 +304,19 @@ class AddressServiceImplTest {
     @DisplayName("deleteAddress - Exceção no repositório ao tentar excluir endereço inexistente")
     void deleteAddress_RepositoryExceptionHandling() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-        addressEntity.setUserEntity(userEntity);
+        Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        address.setUserEntity(user);
 
         AddressRequest addressRequest = new AddressRequest(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
 
-        when(addressRepository.findById(addressEntity.getId())).thenReturn(Optional.of(addressEntity));
+        when(addressRepository.findById(address.getId())).thenReturn(Optional.of(address));
         doThrow(PersistenceException.class).when(addressRepository).deleteById(1L);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> addressService.deleteAddress(1L), "Expected RepositoryException for delete failure");
 
-        verify(addressRepository, times(1)).findById(addressEntity.getId());
+        verify(addressRepository, times(1)).findById(address.getId());
     }
 }

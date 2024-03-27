@@ -1,6 +1,5 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK;
 import jakarta.persistence.Column;
@@ -18,7 +17,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "tb_order_items")
-public class OrderItemEntity implements Serializable {
+public class OrderItem implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -36,40 +35,40 @@ public class OrderItemEntity implements Serializable {
     @DecimalMin(value = "0.01", message = "O preço deve ser maior que 0")
     private BigDecimal price;
 
-    public OrderItemEntity() {
+    public OrderItem() {
     }
 
-    public OrderItemEntity(OrderEntity orderEntity, ProductEntity productEntity, Integer quantity, Double price) {
+    public OrderItem(Order order, Product product, Integer quantity, Double price) {
 
-        id.setOrderEntity(orderEntity);
-        id.setProductEntity(productEntity);
+        id.setOrderEntity(order);
+        id.setProductEntity(product);
         this.quantity = quantity;
         this.price = BigDecimal.valueOf(price);
     }
 
-    public OrderItemEntity(OrderEntity orderEntity, ProductEntity productEntity, Integer quantity, BigDecimal price) {
+    public OrderItem(Order order, Product product, Integer quantity, BigDecimal price) {
 
-        id.setOrderEntity(orderEntity);
-        id.setProductEntity(productEntity);
+        id.setOrderEntity(order);
+        id.setProductEntity(product);
         this.quantity = quantity;
         this.price = price;
     }
 
     @JsonIgnore
-    public OrderEntity getOrderEntity() {
+    public Order getOrderEntity() {
         return id.getOrderEntity();
     }
 
-    public void setOrderEntity(OrderEntity orderEntity) {
-        id.setOrderEntity(orderEntity);
+    public void setOrderEntity(Order order) {
+        id.setOrderEntity(order);
     }
 
-    public ProductEntity getProductEntity() {
+    public Product getProductEntity() {
         return id.getProductEntity();
     }
 
-    public void setProductEntity(ProductEntity productEntity) {
-        id.setProductEntity(productEntity);
+    public void setProductEntity(Product product) {
+        id.setProductEntity(product);
     }
 
     public Integer getQuantity() {
@@ -96,7 +95,7 @@ public class OrderItemEntity implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        OrderItemEntity that = (OrderItemEntity) o;
+        OrderItem that = (OrderItem) o;
         return Objects.equals(id, that.id);
     }
 

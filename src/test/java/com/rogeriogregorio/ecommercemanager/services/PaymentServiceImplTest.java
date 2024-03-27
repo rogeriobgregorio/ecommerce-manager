@@ -57,17 +57,17 @@ class PaymentServiceImplTest {
     @DisplayName("findAllPayments - Busca bem-sucedida retorna lista contendo um pagamento")
     void findAllPayments_SuccessfulSearch_ReturnsListResponse_OnePayment() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        Order order = new Order(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, user);
 
-        PaymentEntity paymentEntity = new PaymentEntity(1L, Instant.now(), orderEntity);
-        List<PaymentEntity> paymentEntityList = Collections.singletonList(paymentEntity);
+        Payment payment = new Payment(1L, Instant.now(), order);
+        List<Payment> paymentList = Collections.singletonList(payment);
 
-        PaymentResponse paymentResponse = new PaymentResponse(1L, Instant.now(), orderEntity);
+        PaymentResponse paymentResponse = new PaymentResponse(1L, Instant.now(), order);
         List<PaymentResponse> expectedResponses = Collections.singletonList(paymentResponse);
 
-        when(converter.toResponse(paymentEntity, PaymentResponse.class)).thenReturn(paymentResponse);
-        when(paymentRepository.findAll()).thenReturn(paymentEntityList);
+        when(converter.toResponse(payment, PaymentResponse.class)).thenReturn(paymentResponse);
+        when(paymentRepository.findAll()).thenReturn(paymentList);
 
         // Act
         List<PaymentResponse> actualResponses = paymentService.findAllPayments();
@@ -76,7 +76,7 @@ class PaymentServiceImplTest {
         assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with one payment");
         assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with one payment");
 
-        verify(converter, times(1)).toResponse(paymentEntity, PaymentResponse.class);
+        verify(converter, times(1)).toResponse(payment, PaymentResponse.class);
         verify(paymentRepository, times(1)).findAll();
     }
 
@@ -84,23 +84,23 @@ class PaymentServiceImplTest {
     @DisplayName("findAllPayments - Busca bem-sucedida retorna lista contendo múltiplos pagamentos")
     void findAllPayments_SuccessfulSearch_ReturnsListResponse_MultiplePayments() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, userEntity);
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        Order order = new Order(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, user);
 
-        List<PaymentEntity> paymentEntityList = new ArrayList<>();
+        List<Payment> paymentList = new ArrayList<>();
         List<PaymentResponse> expectedResponses = new ArrayList<>();
 
         for (int i = 1; i <= 10; i++) {
-            PaymentEntity paymentEntity = new PaymentEntity((long) i, Instant.now(), orderEntity);
-            paymentEntityList.add(paymentEntity);
+            Payment payment = new Payment((long) i, Instant.now(), order);
+            paymentList.add(payment);
 
-            PaymentResponse paymentResponse = new PaymentResponse((long) i, Instant.now(), orderEntity);
+            PaymentResponse paymentResponse = new PaymentResponse((long) i, Instant.now(), order);
             expectedResponses.add(paymentResponse);
 
-            when(converter.toResponse(paymentEntity, PaymentResponse.class)).thenReturn(paymentResponse);
+            when(converter.toResponse(payment, PaymentResponse.class)).thenReturn(paymentResponse);
         }
 
-        when(paymentRepository.findAll()).thenReturn(paymentEntityList);
+        when(paymentRepository.findAll()).thenReturn(paymentList);
 
         // Act
         List<PaymentResponse> actualResponses = paymentService.findAllPayments();
@@ -109,7 +109,7 @@ class PaymentServiceImplTest {
         assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with multiple payments");
         assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with multiple payments");
 
-        verify(converter, times(10)).toResponse(any(PaymentEntity.class), eq(PaymentResponse.class));
+        verify(converter, times(10)).toResponse(any(Payment.class), eq(PaymentResponse.class));
         verify(paymentRepository, times(1)).findAll();
     }
 
@@ -117,16 +117,16 @@ class PaymentServiceImplTest {
     @DisplayName("findAllPayments - Busca bem-sucedida retorna lista de pagamentos vazia")
     void findAllPayments_SuccessfulSearch_ReturnsEmptyList() {
         // Arrange
-        List<PaymentEntity> emptyPaymentEntityList = new ArrayList<>();
+        List<Payment> emptyPaymentList = new ArrayList<>();
 
-        when(paymentRepository.findAll()).thenReturn(emptyPaymentEntityList);
+        when(paymentRepository.findAll()).thenReturn(emptyPaymentList);
 
         // Act
         List<PaymentResponse> actualResponses = paymentService.findAllPayments();
 
         // Assert
         assertEquals(0, actualResponses.size(), "Expected an empty list of responses");
-        assertIterableEquals(emptyPaymentEntityList, actualResponses, "Expected an empty list of responses");
+        assertIterableEquals(emptyPaymentList, actualResponses, "Expected an empty list of responses");
 
         verify(paymentRepository, times(1)).findAll();
     }
@@ -147,29 +147,29 @@ class PaymentServiceImplTest {
     @DisplayName("createPayment - Criação bem-sucedida retorna pagamento criado")
     void createPayment_SuccessfulCreation_ReturnsPaymentResponse() {
         // Arrange
-        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
 
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        userEntity.setAddressEntity(addressEntity);
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        user.setAddressEntity(address);
 
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
-        ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
+        Order order = new Order(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
+        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
-        OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
+        OrderItem orderItem = new OrderItem(order, product, orderItemRequest.getQuantity(), product.getPrice());
 
-        orderEntity.getItems().add(orderItemEntity);
+        order.getItems().add(orderItem);
 
         PaymentRequest paymentRequest = new PaymentRequest(1L);
-        PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
-        PaymentResponse expectedResponse = new PaymentResponse(1L, Instant.now(), orderEntity);
+        Payment payment = new Payment(Instant.now(), order);
+        PaymentResponse expectedResponse = new PaymentResponse(1L, Instant.now(), order);
 
-        when(orderService.isOrderItemsPresent(orderEntity)).thenReturn(true);
-        when(orderService.isAddressClientPresent(orderEntity)).thenReturn(true);
-        when(orderService.findOrderEntityById(paymentRequest.getOrderId())).thenReturn(orderEntity);
-        doNothing().when(orderService).savePaidOrder(orderEntity);
-        when(paymentRepository.save(paymentEntity)).thenReturn(paymentEntity);
-        when(converter.toResponse(paymentEntity, PaymentResponse.class)).thenReturn(expectedResponse);
+        when(orderService.isOrderItemsPresent(order)).thenReturn(true);
+        when(orderService.isAddressClientPresent(order)).thenReturn(true);
+        when(orderService.findOrderById(paymentRequest.getOrderId())).thenReturn(order);
+        doNothing().when(orderService).savePaidOrder(order);
+        when(paymentRepository.save(payment)).thenReturn(payment);
+        when(converter.toResponse(payment, PaymentResponse.class)).thenReturn(expectedResponse);
 
         // Act
         PaymentResponse actualResponse = paymentService.createPayment(paymentRequest);
@@ -178,67 +178,67 @@ class PaymentServiceImplTest {
         assertNotNull(actualResponse, "paymentResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(orderService, times(1)).findOrderEntityById(paymentRequest.getOrderId());
-        verify(orderService, times(1)).savePaidOrder(orderEntity);
-        verify(paymentRepository, times(1)).save(paymentEntity);
-        verify(converter, times(1)).toResponse(paymentEntity, PaymentResponse.class);
+        verify(orderService, times(1)).findOrderById(paymentRequest.getOrderId());
+        verify(orderService, times(1)).savePaidOrder(order);
+        verify(paymentRepository, times(1)).save(payment);
+        verify(converter, times(1)).toResponse(payment, PaymentResponse.class);
     }
 
     @Test
     @DisplayName("createPayment - Exceção no repositório ao tentar criar pagamento")
     void createPayment_RepositoryExceptionHandling() {
         // Arrange
-        AddressEntity addressEntity = new AddressEntity(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
+        Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
 
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        userEntity.setAddressEntity(addressEntity);
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        user.setAddressEntity(address);
 
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
-        ProductEntity productEntity = new ProductEntity(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
+        Order order = new Order(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
+        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
 
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
-        OrderItemEntity orderItemEntity = new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
+        OrderItem orderItem = new OrderItem(order, product, orderItemRequest.getQuantity(), product.getPrice());
 
-        orderEntity.getItems().add(orderItemEntity);
+        order.getItems().add(orderItem);
 
         PaymentRequest paymentRequest = new PaymentRequest(1L);
-        PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
+        Payment payment = new Payment(Instant.now(), order);
 
-        when(orderService.isOrderItemsPresent(orderEntity)).thenReturn(true);
-        when(orderService.isAddressClientPresent(orderEntity)).thenReturn(true);
-        when(orderService.findOrderEntityById(paymentRequest.getOrderId())).thenReturn(orderEntity);
-        doNothing().when(orderService).savePaidOrder(orderEntity);
-        when(paymentRepository.save(paymentEntity)).thenThrow(PersistenceException.class);
+        when(orderService.isOrderItemsPresent(order)).thenReturn(true);
+        when(orderService.isAddressClientPresent(order)).thenReturn(true);
+        when(orderService.findOrderById(paymentRequest.getOrderId())).thenReturn(order);
+        doNothing().when(orderService).savePaidOrder(order);
+        when(paymentRepository.save(payment)).thenThrow(PersistenceException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> paymentService.createPayment(paymentRequest), "Expected RepositoryException due to a generic runtime exception");
 
-        verify(orderService, times(1)).findOrderEntityById(paymentRequest.getOrderId());
-        verify(orderService, times(1)).savePaidOrder(orderEntity);
-        verify(paymentRepository, times(1)).save(paymentEntity);
+        verify(orderService, times(1)).findOrderById(paymentRequest.getOrderId());
+        verify(orderService, times(1)).savePaidOrder(order);
+        verify(paymentRepository, times(1)).save(payment);
     }
 
     @Test
     @DisplayName("findPaymentById - Busca bem-sucedida retorna pagamento")
     void findCategoryById_SuccessfulSearch_ReturnsOrderResponse() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        Order order = new Order(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
 
-        PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
-        PaymentResponse expectedResponse = new PaymentResponse(1L, Instant.now(), orderEntity);
+        Payment payment = new Payment(Instant.now(), order);
+        PaymentResponse expectedResponse = new PaymentResponse(1L, Instant.now(), order);
 
-        when(converter.toResponse(paymentEntity, PaymentResponse.class)).thenReturn(expectedResponse);
-        when(paymentRepository.findById(1L)).thenReturn(Optional.of(paymentEntity));
+        when(converter.toResponse(payment, PaymentResponse.class)).thenReturn(expectedResponse);
+        when(paymentRepository.findById(1L)).thenReturn(Optional.of(payment));
 
         // Act
-        PaymentResponse actualResponse = paymentService.findPaymentById(1L);
+        PaymentResponse actualResponse = paymentService.findPaymentResponseById(1L);
 
         // Assert
         assertNotNull(actualResponse, "paymentResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(converter, times(1)).toResponse(paymentEntity, PaymentResponse.class);
+        verify(converter, times(1)).toResponse(payment, PaymentResponse.class);
         verify(paymentRepository, times(1)).findById(1L);
     }
 
@@ -249,7 +249,7 @@ class PaymentServiceImplTest {
         when(paymentRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(NotFoundException.class, () -> paymentService.findPaymentById(1L));
+        assertThrows(NotFoundException.class, () -> paymentService.findPaymentResponseById(1L));
 
         verify(paymentRepository, times(1)).findById(1L);
     }
@@ -258,12 +258,12 @@ class PaymentServiceImplTest {
     @DisplayName("deletePayment - Exclusão bem-sucedida do pedido")
     void deletePayment_DeletesPaymentSuccessfully() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        Order order = new Order(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
 
-        PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
+        Payment payment = new Payment(Instant.now(), order);
 
-        when(paymentRepository.findById(1L)).thenReturn(Optional.of(paymentEntity));
+        when(paymentRepository.findById(1L)).thenReturn(Optional.of(payment));
 
         // Act
         paymentService.deletePayment(1L);
@@ -288,12 +288,12 @@ class PaymentServiceImplTest {
     @DisplayName("deletePayment - Exceção no repositório ao tentar excluir pagamento")
     void deletePayment_RepositoryExceptionHandling() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        OrderEntity orderEntity = new OrderEntity(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, userEntity);
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        Order order = new Order(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
 
-        PaymentEntity paymentEntity = new PaymentEntity(Instant.now(), orderEntity);
+        Payment payment = new Payment(Instant.now(), order);
 
-        when(paymentRepository.findById(1L)).thenReturn(Optional.of(paymentEntity));
+        when(paymentRepository.findById(1L)).thenReturn(Optional.of(payment));
         doThrow(PersistenceException.class).when(paymentRepository).deleteById(1L);
 
         // Act and Assert

@@ -1,6 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -15,7 +16,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "tb_orders")
-public class OrderEntity implements Serializable {
+public class Order implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -36,24 +37,24 @@ public class OrderEntity implements Serializable {
     @ManyToOne
     @JoinColumn(name = "client_id")
     @NotNull(message = "O cliente não pode ser nulo")
-    private UserEntity client;
+    private User client;
 
-    @OneToMany(mappedBy = "id.orderEntity")
-    private Set<OrderItemEntity> items = new HashSet<>();
+    @OneToMany(mappedBy = "id.order")
+    private Set<OrderItem> items = new HashSet<>();
 
-    @OneToOne(mappedBy = "orderEntity", cascade = CascadeType.REMOVE)
-    private PaymentEntity paymentEntity;
+    @OneToOne(mappedBy = "order", cascade = CascadeType.REMOVE)
+    private Payment payment;
 
-    public OrderEntity() {
+    public Order() {
     }
 
-    public OrderEntity(Instant moment, OrderStatus orderStatus, UserEntity client) {
+    public Order(Instant moment, OrderStatus orderStatus, User client) {
         this.moment = moment;
         setOrderStatus(orderStatus);
         this.client = client;
     }
 
-    public OrderEntity(Long id, Instant moment, OrderStatus orderStatus, UserEntity client) {
+    public Order(Long id, Instant moment, OrderStatus orderStatus, User client) {
         this.id = id;
         this.moment = moment;
         setOrderStatus(orderStatus);
@@ -89,23 +90,23 @@ public class OrderEntity implements Serializable {
         this.orderStatus = orderStatus.getCode();
     }
 
-    public UserEntity getClient() {
+    public User getClient() {
         return client;
     }
 
-    public void setClient(UserEntity client) {
+    public void setClient(User client) {
         this.client = client;
     }
 
-    public PaymentEntity getPaymentEntity() {
-        return paymentEntity;
+    public Payment getPaymentEntity() {
+        return payment;
     }
 
-    public void setPaymentEntity(PaymentEntity paymentEntity) {
-        this.paymentEntity = paymentEntity;
+    public void setPaymentEntity(Payment payment) {
+        this.payment = payment;
     }
 
-    public Set<OrderItemEntity> getItems() {
+    public Set<OrderItem> getItems() {
         return items;
     }
 
@@ -113,7 +114,7 @@ public class OrderEntity implements Serializable {
 
         BigDecimal total = BigDecimal.valueOf(0.0);
 
-        for (OrderItemEntity orderItem : items) {
+        for (OrderItem orderItem : items) {
             total = total.add(orderItem.getSubTotal());
         }
         return total;
@@ -123,7 +124,7 @@ public class OrderEntity implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        OrderEntity that = (OrderEntity) o;
+        Order that = (Order) o;
         return Objects.equals(id, that.id);
     }
 

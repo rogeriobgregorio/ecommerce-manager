@@ -16,7 +16,7 @@ import java.util.Set;
 @Table(name = "tb_categories", uniqueConstraints = {
         @UniqueConstraint(columnNames = "name", name = "unique_name_constraint")
 })
-public class CategoryEntity implements Serializable {
+public class Category implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -33,16 +33,16 @@ public class CategoryEntity implements Serializable {
 
     @JsonIgnore
     @ManyToMany(mappedBy = "categories")
-    private Set<ProductEntity> products = new HashSet<>();
+    private Set<Product> products = new HashSet<>();
 
-    public CategoryEntity() {
+    public Category() {
     }
 
-    public CategoryEntity(String name) {
+    public Category(String name) {
         this.name = name;
     }
 
-    public CategoryEntity(Long id, String name) {
+    public Category(Long id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -63,7 +63,7 @@ public class CategoryEntity implements Serializable {
         this.name = name;
     }
 
-    public Set<ProductEntity> getProducts() {
+    public Set<Product> getProducts() {
         return products;
     }
 
@@ -71,7 +71,7 @@ public class CategoryEntity implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CategoryEntity that = (CategoryEntity) o;
+        Category that = (Category) o;
         return Objects.equals(id, that.id);
     }
 

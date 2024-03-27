@@ -43,7 +43,7 @@ public class StockMovementController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(stockMovementService.findStockMovementById(id));
+                .body(stockMovementService.findStockMovementResponseById(id));
     }
 
     @PutMapping(value = "/stockMovements")

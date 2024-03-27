@@ -1,8 +1,8 @@
 package com.rogeriogregorio.ecommercemanager.dto.responses;
 
-import com.rogeriogregorio.ecommercemanager.entities.OrderItemEntity;
-import com.rogeriogregorio.ecommercemanager.entities.PaymentEntity;
-import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
+import com.rogeriogregorio.ecommercemanager.entities.OrderItem;
+import com.rogeriogregorio.ecommercemanager.entities.Payment;
+import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 
 import java.io.Serial;
@@ -20,14 +20,14 @@ public class OrderResponse implements Serializable {
     private Long id;
     private Instant moment;
     private Integer orderStatus;
-    private UserEntity client;
-    private Set<OrderItemEntity> items = new HashSet<>();
-    private PaymentEntity paymentEntity;
+    private User client;
+    private Set<OrderItem> items = new HashSet<>();
+    private Payment payment;
 
     public OrderResponse() {
     }
 
-    public OrderResponse(Long id, Instant moment, OrderStatus orderStatus, UserEntity client) {
+    public OrderResponse(Long id, Instant moment, OrderStatus orderStatus, User client) {
         this.id = id;
         this.moment = moment;
         setOrderStatus(orderStatus);
@@ -63,27 +63,27 @@ public class OrderResponse implements Serializable {
         this.orderStatus = orderStatus.getCode();
     }
 
-    public UserEntity getClient() {
+    public User getClient() {
         return client;
     }
 
-    public void setClient(UserEntity client) {
+    public void setClient(User client) {
         this.client = client;
     }
 
-    public PaymentEntity getPaymentEntity() {
-        return paymentEntity;
+    public Payment getPaymentEntity() {
+        return payment;
     }
 
-    public void setPaymentEntity(PaymentEntity paymentEntity) {
-        this.paymentEntity = paymentEntity;
+    public void setPaymentEntity(Payment payment) {
+        this.payment = payment;
     }
 
-    public Set<OrderItemEntity> getItems() {
+    public Set<OrderItem> getItems() {
         return items;
     }
 
-    public void setItems(Set<OrderItemEntity> items) {
+    public void setItems(Set<OrderItem> items) {
         this.items = items;
     }
 
@@ -91,7 +91,7 @@ public class OrderResponse implements Serializable {
 
         BigDecimal total = BigDecimal.valueOf(0.0);
 
-        for (OrderItemEntity orderItem : items) {
+        for (OrderItem orderItem : items) {
             total = total.add(orderItem.getSubTotal());
         }
         return total;

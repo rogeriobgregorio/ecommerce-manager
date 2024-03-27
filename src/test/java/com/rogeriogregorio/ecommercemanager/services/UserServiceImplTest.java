@@ -2,8 +2,7 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
-import com.rogeriogregorio.ecommercemanager.entities.AddressEntity;
-import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
+import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
@@ -51,14 +50,14 @@ class UserServiceImplTest {
     @DisplayName("findAllUsers - Busca bem-sucedida retorna lista contendo um usuário")
     void findAllUsers_SuccessfulSearch_ReturnsListResponse_OneUser() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        List<UserEntity> userEntityList = Collections.singletonList(userEntity);
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        List<User> userList = Collections.singletonList(user);
 
         UserResponse userResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
         List<UserResponse> expectedResponses = Collections.singletonList(userResponse);
 
-        when(converter.toResponse(userEntity, UserResponse.class)).thenReturn(userResponse);
-        when(userRepository.findAll()).thenReturn(userEntityList);
+        when(converter.toResponse(user, UserResponse.class)).thenReturn(userResponse);
+        when(userRepository.findAll()).thenReturn(userList);
 
         // Act
         List<UserResponse> actualResponses = userService.findAllUsers();
@@ -67,7 +66,7 @@ class UserServiceImplTest {
         assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with one user");
         assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with one user");
 
-        verify(converter, times(1)).toResponse(userEntity, UserResponse.class);
+        verify(converter, times(1)).toResponse(user, UserResponse.class);
         verify(userRepository, times(1)).findAll();
     }
 
@@ -75,22 +74,22 @@ class UserServiceImplTest {
     @DisplayName("findAllUsers - Busca bem-sucedida retorna lista contendo múltiplos usuários")
     void findAllUsers_SuccessfulSearch_ReturnsListResponse_MultipleUsers() {
         // Arrange
-        List<UserEntity> userEntityList = new ArrayList<>();
+        List<User> userList = new ArrayList<>();
         List<UserResponse> expectedResponses = new ArrayList<>();
 
         for (long i = 1; i <= 10; i++) {
-            UserEntity userEntity = new UserEntity(i, "Usuário " + i, "user" + i + "@email.com",
+            User user = new User(i, "Usuário " + i, "user" + i + "@email.com",
                     "1191234567" + i, "senha123");
-            userEntityList.add(userEntity);
+            userList.add(user);
 
             UserResponse userResponse = new UserResponse(i, "Usuário " + i, "user" + i + "@email.com",
                     "1191234567" + i);
             expectedResponses.add(userResponse);
 
-            when(converter.toResponse(userEntity, UserResponse.class)).thenReturn(userResponse);
+            when(converter.toResponse(user, UserResponse.class)).thenReturn(userResponse);
         }
 
-        when(userRepository.findAll()).thenReturn(userEntityList);
+        when(userRepository.findAll()).thenReturn(userList);
 
         // Act
         List<UserResponse> actualResponses = userService.findAllUsers();
@@ -99,7 +98,7 @@ class UserServiceImplTest {
         assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with ten users");
         assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with ten users");
 
-        verify(converter, times(10)).toResponse(any(UserEntity.class), eq(UserResponse.class));
+        verify(converter, times(10)).toResponse(any(User.class), eq(UserResponse.class));
         verify(userRepository, times(1)).findAll();
     }
 
@@ -107,16 +106,16 @@ class UserServiceImplTest {
     @DisplayName("findAllUsers - Busca bem-sucedida retorna lista de usuários vazia")
     void findAllUsers_SuccessfulSearch_ReturnsEmptyList() {
         // Arrange
-        List<UserEntity> emptyUserEntityList = Collections.emptyList();
+        List<User> emptyUserList = Collections.emptyList();
 
-        when(userRepository.findAll()).thenReturn(emptyUserEntityList);
+        when(userRepository.findAll()).thenReturn(emptyUserList);
 
         // Act
         List<UserResponse> actualResponses = userService.findAllUsers();
 
         // Assert
         assertEquals(0, actualResponses.size(), "Expected an empty list of responses");
-        assertIterableEquals(emptyUserEntityList, actualResponses, "Expected an empty list of responses");
+        assertIterableEquals(emptyUserList, actualResponses, "Expected an empty list of responses");
 
         verify(userRepository, times(1)).findAll();
     }
@@ -138,12 +137,12 @@ class UserServiceImplTest {
     void createUser_SuccessfulCreation_ReturnsUserResponse() {
         // Arrange
         UserRequest userRequest = new UserRequest("João Silva", "joao@email.com", "11912345678", "senha123");
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         UserResponse expectedResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
 
-        when(converter.toEntity(userRequest, UserEntity.class)).thenReturn(userEntity);
-        when(converter.toResponse(userEntity, UserResponse.class)).thenReturn(expectedResponse);
-        when(userRepository.save(userEntity)).thenReturn(userEntity);
+        when(converter.toEntity(userRequest, User.class)).thenReturn(user);
+        when(converter.toResponse(user, UserResponse.class)).thenReturn(expectedResponse);
+        when(userRepository.save(user)).thenReturn(user);
 
         // Act
         UserResponse actualResponse = userService.createUser(userRequest);
@@ -152,9 +151,9 @@ class UserServiceImplTest {
         assertNotNull(actualResponse, "UserResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(userRepository, times(1)).save(userEntity);
-        verify(converter, times(1)).toEntity(userRequest, UserEntity.class);
-        verify(converter, times(1)).toResponse(userEntity, UserResponse.class);
+        verify(userRepository, times(1)).save(user);
+        verify(converter, times(1)).toEntity(userRequest, User.class);
+        verify(converter, times(1)).toResponse(user, UserResponse.class);
     }
 
     @Test
@@ -162,16 +161,16 @@ class UserServiceImplTest {
     void createUser_DataException_EmailAlreadyRegistered() {
         // Arrange
         UserRequest userRequest = new UserRequest("João Silva", "joao@email.com", "11912345678", "senha123");
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        when(converter.toEntity(userRequest, UserEntity.class)).thenReturn(userEntity);
-        when(userRepository.save(userEntity)).thenThrow(PersistenceException.class);
+        when(converter.toEntity(userRequest, User.class)).thenReturn(user);
+        when(userRepository.save(user)).thenThrow(PersistenceException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> userService.createUser(userRequest), "Expected DataIntegrityException due to duplicate email");
 
-        verify(converter, times(1)).toEntity(userRequest, UserEntity.class);
-        verify(userRepository, times(1)).save(userEntity);
+        verify(converter, times(1)).toEntity(userRequest, User.class);
+        verify(userRepository, times(1)).save(user);
     }
 
     @Test
@@ -179,36 +178,36 @@ class UserServiceImplTest {
     void createUser_RepositoryExceptionHandling() {
         // Arrange
         UserRequest userRequest = new UserRequest("João Silva", "joao@email.com", "11912345678", "senha123");
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        when(converter.toEntity(userRequest, UserEntity.class)).thenReturn(userEntity);
-        when(userRepository.save(userEntity)).thenThrow(PersistenceException.class);
+        when(converter.toEntity(userRequest, User.class)).thenReturn(user);
+        when(userRepository.save(user)).thenThrow(PersistenceException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> userService.createUser(userRequest), "Expected RepositoryException due to a PersistenceException");
 
-        verify(converter, times(1)).toEntity(userRequest, UserEntity.class);
-        verify(userRepository, times(1)).save(userEntity);
+        verify(converter, times(1)).toEntity(userRequest, User.class);
+        verify(userRepository, times(1)).save(user);
     }
 
     @Test
     @DisplayName("findUserById - Busca bem-sucedida retorna usuário")
     void findUserById_SuccessfulSearch_ReturnsUserResponse() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         UserResponse expectedResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
 
-        when(converter.toResponse(userEntity, UserResponse.class)).thenReturn(expectedResponse);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
+        when(converter.toResponse(user, UserResponse.class)).thenReturn(expectedResponse);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         // Act
-        UserResponse actualResponse = userService.findUserById(1L);
+        UserResponse actualResponse = userService.findUserResponseById(1L);
 
         // Assert
         assertNotNull(actualResponse, "UserResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(converter, times(1)).toResponse(userEntity, UserResponse.class);
+        verify(converter, times(1)).toResponse(user, UserResponse.class);
         verify(userRepository, times(1)).findById(1L);
     }
 
@@ -219,7 +218,7 @@ class UserServiceImplTest {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(NotFoundException.class, () -> userService.findUserById(1L), "Expected NotFoundException for non-existent user");
+        assertThrows(NotFoundException.class, () -> userService.findUserResponseById(1L), "Expected NotFoundException for non-existent user");
 
         verify(userRepository, times(1)).findById(1L);
     }
@@ -229,13 +228,13 @@ class UserServiceImplTest {
     void updateUser_SuccessfulUpdate_ReturnsUserResponse() {
         // Arrange
         UserRequest userRequest = new UserRequest(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
         UserResponse expectedResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
-        when(converter.toEntity(userRequest, UserEntity.class)).thenReturn(userEntity);
-        when(userRepository.save(userEntity)).thenReturn(userEntity);
-        when(converter.toResponse(userEntity, UserResponse.class)).thenReturn(expectedResponse);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(converter.toEntity(userRequest, User.class)).thenReturn(user);
+        when(userRepository.save(user)).thenReturn(user);
+        when(converter.toResponse(user, UserResponse.class)).thenReturn(expectedResponse);
 
         // Act
         UserResponse actualResponse = userService.updateUser(userRequest);
@@ -245,9 +244,9 @@ class UserServiceImplTest {
         assertEquals(expectedResponse, actualResponse, "Expected and actual should match");
 
         verify(userRepository, times(1)).findById(1L);
-        verify(converter, times(1)).toEntity(userRequest, UserEntity.class);
-        verify(userRepository, times(1)).save(userEntity);
-        verify(converter, times(1)).toResponse(userEntity, UserResponse.class);
+        verify(converter, times(1)).toEntity(userRequest, User.class);
+        verify(userRepository, times(1)).save(user);
+        verify(converter, times(1)).toResponse(user, UserResponse.class);
     }
 
     @Test
@@ -259,7 +258,7 @@ class UserServiceImplTest {
         when(userRepository.findById(userRequest.getId())).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(NotFoundException.class, () -> userService.findUserById(1L), "Expected NotFoundException for non-existent user");
+        assertThrows(NotFoundException.class, () -> userService.findUserResponseById(1L), "Expected NotFoundException for non-existent user");
 
         verify(userRepository, times(1)).findById(userRequest.getId());
     }
@@ -269,18 +268,18 @@ class UserServiceImplTest {
     void updateUser_RepositoryExceptionHandling() {
         // Arrange
         UserRequest userRequest = new UserRequest(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
-        when(converter.toEntity(userRequest, UserEntity.class)).thenReturn(userEntity);
-        when(userRepository.save(userEntity)).thenThrow(PersistenceException.class);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(converter.toEntity(userRequest, User.class)).thenReturn(user);
+        when(userRepository.save(user)).thenThrow(PersistenceException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> userService.updateUser(userRequest), "Expected RepositoryException for update failure");
 
         verify(userRepository, times(1)).findById(1L);
-        verify(converter, times(1)).toEntity(userRequest, UserEntity.class);
-        verify(userRepository, times(1)).save(userEntity);
+        verify(converter, times(1)).toEntity(userRequest, User.class);
+        verify(userRepository, times(1)).save(user);
     }
 
     @Test
@@ -288,27 +287,27 @@ class UserServiceImplTest {
     void updateUser_DateException_EmailAlreadyRegistered() {
         // Arrange
         UserRequest userRequest = new UserRequest(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
-        when(converter.toEntity(userRequest, UserEntity.class)).thenReturn(userEntity);
-        when(userRepository.save(userEntity)).thenThrow(DataIntegrityViolationException.class);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(converter.toEntity(userRequest, User.class)).thenReturn(user);
+        when(userRepository.save(user)).thenThrow(DataIntegrityViolationException.class);
 
         // Act and Assert
         assertThrows(DataIntegrityViolationException.class, () -> userService.updateUser(userRequest), "Expected DataIntegrityViolationException for update failure");
 
         verify(userRepository, times(1)).findById(1L);
-        verify(converter, times(1)).toEntity(userRequest, UserEntity.class);
-        verify(userRepository, times(1)).save(userEntity);
+        verify(converter, times(1)).toEntity(userRequest, User.class);
+        verify(userRepository, times(1)).save(user);
     }
 
     @Test
     @DisplayName("deleteUser - Exclusão bem-sucedida do usuário")
     void deleteUser_DeletesSuccessfully() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         // Act
         userService.deleteUser(1L);
@@ -334,9 +333,9 @@ class UserServiceImplTest {
     @DisplayName("deleteUser - Exceção no repositório ao tentar excluir usuário")
     void deleteUser_RepositoryExceptionHandling() {
         // Arrange
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(userEntity));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         doThrow(PersistenceException.class).when(userRepository).deleteById(1L);
 
         // Act and Assert
@@ -351,15 +350,15 @@ class UserServiceImplTest {
     void findUserByName_SuccessfulSearch_ReturnsListResponse_OneUser() {
         // Arrange
         String userName = "João Silva";
-        UserEntity userEntity = new UserEntity(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
+        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
-        List<UserEntity> userEntityList = Collections.singletonList(userEntity);
+        List<User> userList = Collections.singletonList(user);
 
         UserResponse userResponse = new UserResponse(1L, "João Silva", "joao@email.com", "11912345678");
         List<UserResponse> expectedResponses = Collections.singletonList(userResponse);
 
-        when(converter.toResponse(eq(userEntity), eq(UserResponse.class))).thenReturn(userResponse);
-        when(userRepository.findByName(eq(userName))).thenReturn(userEntityList);
+        when(converter.toResponse(eq(user), eq(UserResponse.class))).thenReturn(userResponse);
+        when(userRepository.findByName(eq(userName))).thenReturn(userList);
 
         // Act
         List<UserResponse> actualResponses = userService.findUserByName("João Silva");
@@ -370,7 +369,7 @@ class UserServiceImplTest {
         assertEquals(userName, actualResponses.get(0).getName(), "Names should match");
 
         verify(userRepository, times(1)).findByName(eq(userName));
-        verify(converter, times(1)).toResponse(eq(userEntity), eq(UserResponse.class));
+        verify(converter, times(1)).toResponse(eq(user), eq(UserResponse.class));
     }
 
     @Test
@@ -379,22 +378,22 @@ class UserServiceImplTest {
         // Arrange
         String userName = "João Silva";
 
-        List<UserEntity> userEntityList = new ArrayList<>();
+        List<User> userList = new ArrayList<>();
         List<UserResponse> expectedResponses = new ArrayList<>();
 
         for (long i = 1; i <= 10; i++) {
-            UserEntity userEntity = new UserEntity(i, "João Silva", "joao" + i + "@email.com",
+            User user = new User(i, "João Silva", "joao" + i + "@email.com",
                     "1191234567" + i, "senha123");
-            userEntityList.add(userEntity);
+            userList.add(user);
 
             UserResponse userResponse = new UserResponse(i, "João Silva", "joao" + i + "@email.com",
                     "1191234567" + i);
             expectedResponses.add(userResponse);
 
-            when(converter.toResponse(eq(userEntity), eq(UserResponse.class))).thenReturn(userResponse);
+            when(converter.toResponse(eq(user), eq(UserResponse.class))).thenReturn(userResponse);
         }
 
-        when(userRepository.findByName(eq(userName))).thenReturn(userEntityList);
+        when(userRepository.findByName(eq(userName))).thenReturn(userList);
 
         // Act
         List<UserResponse> actualResponses = userService.findUserByName("João Silva");
@@ -404,7 +403,7 @@ class UserServiceImplTest {
         assertEquals(expectedResponses, actualResponses, "Size of UserResponses should match size of UserEntities");
 
         verify(userRepository, times(1)).findByName(eq(userName));
-        verify(converter, times(10)).toResponse(any(UserEntity.class), eq(UserResponse.class));
+        verify(converter, times(10)).toResponse(any(User.class), eq(UserResponse.class));
     }
 
     @Test

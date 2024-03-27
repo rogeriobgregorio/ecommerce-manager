@@ -2,7 +2,7 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.CategoryRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.CategoryResponse;
-import com.rogeriogregorio.ecommercemanager.entities.CategoryEntity;
+import com.rogeriogregorio.ecommercemanager.entities.Category;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,11 +14,11 @@ public interface CategoryService {
 
     CategoryResponse createCategory(CategoryRequest categoryRequest);
 
-    CategoryResponse findCategoryById(Long id);
+    CategoryResponse findCategoryResponseById(Long id);
 
-    CategoryEntity findCategoryEntityById(Long id);
+    Category findCategoryById(Long id);
 
-    List<CategoryEntity> findAllCategoriesById(List<Long> id);
+    List<Category> findAllCategoriesByIds(List<Long> id);
 
     CategoryResponse updateCategory(CategoryRequest categoryRequest);
 
@@ -26,5 +26,5 @@ public interface CategoryService {
 
     List<CategoryResponse> findCategoryByName(String name);
 
-    CategoryEntity buildCategoryFromRequest(CategoryRequest categoryRequest);
+    Category buildCategory(CategoryRequest categoryRequest);
 }

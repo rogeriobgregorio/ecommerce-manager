@@ -2,7 +2,7 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
-import com.rogeriogregorio.ecommercemanager.entities.UserEntity;
+import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
             return userRepository
                     .findAll()
                     .stream()
-                    .map(userEntity -> converter.toResponse(userEntity, UserResponse.class))
+                    .map(user -> converter.toResponse(user, UserResponse.class))
                     .toList();
 
         } catch (PersistenceException exception) {
@@ -47,11 +47,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserResponse findUserById(Long id) {
+    public UserResponse findUserResponseById(Long id) {
 
         return userRepository
                 .findById(id)
-                .map(userEntity -> converter.toResponse(userEntity, UserResponse.class))
+                .map(user -> converter.toResponse(user, UserResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Usuário não encontrado com o ID: {}", id);
                     return new NotFoundException("Usuário não encontrado com o ID: " + id + ".");
@@ -63,12 +63,12 @@ public class UserServiceImpl implements UserService {
 
         userRequest.setId(null);
 
-        UserEntity userEntity = converter.toEntity(userRequest, UserEntity.class);
+        User user = converter.toEntity(userRequest, User.class);
 
         try {
-            userRepository.save(userEntity);
-            logger.info("Usuário criado: {}", userEntity);
-            return converter.toResponse(userEntity, UserResponse.class);
+            userRepository.save(user);
+            logger.info("Usuário criado: {}", user);
+            return converter.toResponse(user, UserResponse.class);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar criar o usuário: {}", exception.getMessage(), exception);
@@ -79,14 +79,14 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = false)
     public UserResponse updateUser(UserRequest userRequest) {
 
-        findUserEntityById(userRequest.getId());
+        findUserById(userRequest.getId());
 
-        UserEntity userEntity = converter.toEntity(userRequest, UserEntity.class);
+        User user = converter.toEntity(userRequest, User.class);
 
         try {
-            userRepository.save(userEntity);
-            logger.info("Usuário atualizado: {}", userEntity);
-            return converter.toResponse(userEntity, UserResponse.class);
+            userRepository.save(user);
+            logger.info("Usuário atualizado: {}", user);
+            return converter.toResponse(user, UserResponse.class);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar atualizar o usuário: {}", exception.getMessage(), exception);
@@ -97,11 +97,11 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = false)
     public void deleteUser(Long id) {
 
-        UserEntity userEntity = findUserEntityById(id);
+        User user = findUserById(id);
 
         try {
             userRepository.deleteById(id);
-            logger.warn("Usuário removido: {}", userEntity);
+            logger.warn("Usuário removido: {}", user);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir o usuário: {}", exception.getMessage(), exception);
@@ -115,7 +115,7 @@ public class UserServiceImpl implements UserService {
         try {
             return userRepository.findByName(name)
                     .stream()
-                    .map(userEntity -> converter.toResponse(userEntity, UserResponse.class))
+                    .map(user -> converter.toResponse(user, UserResponse.class))
                     .toList();
 
         } catch (PersistenceException exception) {
@@ -125,20 +125,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional(readOnly = false)
-    public void saveUserAddress(UserEntity userEntity) {
+    public void saveUserAddress(User user) {
 
         try {
-            userRepository.save(userEntity);
-            logger.info("Endereço do usuário atualizado: {}", userEntity);
+            userRepository.save(user);
+            logger.info("Endereço do usuário atualizado: {}", user);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar atualizar o endereço do usuário: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar atualizar o endereço do usuário: " + exception);
         }
-
     }
 
-    public UserEntity findUserEntityById(Long id) {
+    public User findUserById(Long id) {
 
         return userRepository
                 .findById(id)

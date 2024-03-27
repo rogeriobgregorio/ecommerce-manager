@@ -1,7 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.entities.primarykey;
 
-import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
-import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
+import com.rogeriogregorio.ecommercemanager.entities.Order;
+import com.rogeriogregorio.ecommercemanager.entities.Product;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -18,26 +18,26 @@ public class OrderItemPK implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
-    private OrderEntity orderEntity;
+    private Order order;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
-    private ProductEntity productEntity;
+    private Product product;
 
-    public OrderEntity getOrderEntity() {
-        return orderEntity;
+    public Order getOrderEntity() {
+        return order;
     }
 
-    public void setOrderEntity(OrderEntity orderEntity) {
-        this.orderEntity = orderEntity;
+    public void setOrderEntity(Order order) {
+        this.order = order;
     }
 
-    public ProductEntity getProductEntity() {
-        return productEntity;
+    public Product getProductEntity() {
+        return product;
     }
 
-    public void setProductEntity(ProductEntity productEntity) {
-        this.productEntity = productEntity;
+    public void setProductEntity(Product product) {
+        this.product = product;
     }
 
     @Override
@@ -45,11 +45,11 @@ public class OrderItemPK implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OrderItemPK that = (OrderItemPK) o;
-        return Objects.equals(orderEntity, that.orderEntity) && Objects.equals(productEntity, that.productEntity);
+        return Objects.equals(order, that.order) && Objects.equals(product, that.product);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(orderEntity, productEntity);
+        return Objects.hash(order, product);
     }
 }

@@ -2,9 +2,9 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderItemRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderItemResponse;
-import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
-import com.rogeriogregorio.ecommercemanager.entities.OrderItemEntity;
-import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
+import com.rogeriogregorio.ecommercemanager.entities.Order;
+import com.rogeriogregorio.ecommercemanager.entities.OrderItem;
+import com.rogeriogregorio.ecommercemanager.entities.Product;
 import com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -72,18 +73,18 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = false)
     public OrderItemResponse createOrderItem(OrderItemRequest orderItemRequest) {
 
-        OrderEntity orderEntity = orderService.findOrderEntityById(orderItemRequest.getOrderId());
+        Order order = orderService.findOrderById(orderItemRequest.getOrderId());
 
-        if (orderService.isOrderPaid(orderEntity)) {
+        if (orderService.isOrderPaid(order)) {
             throw new IllegalStateException("Não é possível adicionar um item a um pedido que já foi pago.");
         }
 
-        OrderItemEntity orderItemEntity = buildOrderItemFromRequest(orderItemRequest);
+        OrderItem orderItem = buildOrderItem(orderItemRequest);
 
         try {
-            orderItemRepository.save(orderItemEntity);
-            logger.info("Item do pedido criado: {}", orderItemEntity);
-            return converter.toResponse(orderItemEntity, OrderItemResponse.class);
+            orderItemRepository.save(orderItem);
+            logger.info("Item do pedido criado: {}", orderItem);
+            return converter.toResponse(orderItem, OrderItemResponse.class);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar criar item do pedido: {}", exception.getMessage(), exception);
@@ -94,18 +95,18 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = false)
     public OrderItemResponse updateOrderItem(OrderItemRequest orderItemRequest) {
 
-        OrderEntity orderEntity = orderService.findOrderEntityById(orderItemRequest.getOrderId());
+        Order order = orderService.findOrderById(orderItemRequest.getOrderId());
 
-        if (orderService.isOrderPaid(orderEntity)) {
-            throw new IllegalStateException("Não é possível editar um item de um pedido que já foi pago.");
+        if (orderService.isOrderPaid(order)) {
+            throw new IllegalStateException("Não é possível atualizar um item de um pedido que já foi pago.");
         }
 
-        OrderItemEntity orderItemEntity = buildOrderItemFromRequest(orderItemRequest);
+        OrderItem orderItem = buildOrderItem(orderItemRequest);
 
         try {
-            orderItemRepository.save(orderItemEntity);
-            logger.info("Item do pedido atualizado: {}", orderItemEntity);
-            return converter.toResponse(orderItemEntity, OrderItemResponse.class);
+            orderItemRepository.save(orderItem);
+            logger.info("Item do pedido atualizado: {}", orderItem);
+            return converter.toResponse(orderItem, OrderItemResponse.class);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar atualizar o item do pedido: {}", exception.getMessage(), exception);
@@ -116,9 +117,9 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = false)
     public void deleteOrderItem(Long orderId, Long itemId) {
 
-        OrderEntity orderEntity = orderService.findOrderEntityById(orderId);
+        Order order = orderService.findOrderById(orderId);
 
-        if (orderService.isOrderPaid(orderEntity)) {
+        if (orderService.isOrderPaid(order)) {
             throw new IllegalStateException("Não é possível excluir um item de um pedido que já foi pago.");
         }
 
@@ -136,21 +137,23 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     public OrderItemPK buildOrderItemPK(Long orderId, Long itemId) {
 
-        OrderEntity orderEntity = orderService.findOrderEntityById(orderId);
-        ProductEntity productEntity = productService.findProductEntityById(itemId);
+        Order order = orderService.findOrderById(orderId);
+        Product product = productService.findProductById(itemId);
 
         OrderItemPK id = new OrderItemPK();
-        id.setOrderEntity(orderEntity);
-        id.setProductEntity(productEntity);
+        id.setOrderEntity(order);
+        id.setProductEntity(product);
 
         return id;
     }
 
-    public OrderItemEntity buildOrderItemFromRequest(OrderItemRequest orderItemRequest) {
+    public OrderItem buildOrderItem(OrderItemRequest orderItemRequest) {
 
-        OrderEntity orderEntity = orderService.findOrderEntityById(orderItemRequest.getOrderId());
-        ProductEntity productEntity = productService.findProductEntityById(orderItemRequest.getProductId());
+        Order order = orderService.findOrderById(orderItemRequest.getOrderId());
+        Product product = productService.findProductById(orderItemRequest.getProductId());
+        int quantity = orderItemRequest.getQuantity();
+        BigDecimal price = product.getPrice();
 
-        return new OrderItemEntity(orderEntity, productEntity, orderItemRequest.getQuantity(), productEntity.getPrice());
+        return new OrderItem(order, product, quantity, price);
     }
 }

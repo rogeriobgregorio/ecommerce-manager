@@ -2,7 +2,7 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderItemRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderItemResponse;
-import com.rogeriogregorio.ecommercemanager.entities.OrderItemEntity;
+import com.rogeriogregorio.ecommercemanager.entities.OrderItem;
 import com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK;
 import org.springframework.stereotype.Component;
 
@@ -23,5 +23,5 @@ public interface OrderItemService {
 
     OrderItemPK buildOrderItemPK(Long orderId, Long itemId);
 
-    OrderItemEntity buildOrderItemFromRequest(OrderItemRequest orderItemRequest);
+    OrderItem buildOrderItem(OrderItemRequest orderItemRequest);
 }

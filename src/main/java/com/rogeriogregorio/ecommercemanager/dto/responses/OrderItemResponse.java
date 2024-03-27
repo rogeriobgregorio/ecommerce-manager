@@ -1,8 +1,8 @@
 package com.rogeriogregorio.ecommercemanager.dto.responses;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.rogeriogregorio.ecommercemanager.entities.OrderEntity;
-import com.rogeriogregorio.ecommercemanager.entities.ProductEntity;
+import com.rogeriogregorio.ecommercemanager.entities.Order;
+import com.rogeriogregorio.ecommercemanager.entities.Product;
 import com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK;
 
 import java.io.Serial;
@@ -21,37 +21,37 @@ public class OrderItemResponse implements Serializable {
     public OrderItemResponse() {
     }
 
-    public OrderItemResponse(OrderEntity orderEntity, ProductEntity productEntity, Integer quantity, Double price) {
+    public OrderItemResponse(Order order, Product product, Integer quantity, Double price) {
 
-        id.setOrderEntity(orderEntity);
-        id.setProductEntity(productEntity);
+        id.setOrderEntity(order);
+        id.setProductEntity(product);
         this.quantity = quantity;
         this.price = BigDecimal.valueOf(price);
     }
 
-    public OrderItemResponse(OrderEntity orderEntity, ProductEntity productEntity, Integer quantity, BigDecimal price) {
+    public OrderItemResponse(Order order, Product product, Integer quantity, BigDecimal price) {
 
-        id.setOrderEntity(orderEntity);
-        id.setProductEntity(productEntity);
+        id.setOrderEntity(order);
+        id.setProductEntity(product);
         this.quantity = quantity;
         this.price = price;
     }
 
     @JsonIgnore
-    public OrderEntity getOrderEntity() {
+    public Order getOrderEntity() {
         return id.getOrderEntity();
     }
 
-    public void setOrderEntity(OrderEntity orderEntity) {
-        id.setOrderEntity(orderEntity);
+    public void setOrderEntity(Order order) {
+        id.setOrderEntity(order);
     }
 
-    public ProductEntity getProductEntity() {
+    public Product getProductEntity() {
         return id.getProductEntity();
     }
 
-    public void setProductEntity(ProductEntity productEntity) {
-        id.setProductEntity(productEntity);
+    public void setProductEntity(Product product) {
+        id.setProductEntity(product);
     }
 
     public Integer getQuantity() {
