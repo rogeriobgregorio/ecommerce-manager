@@ -1,7 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -98,11 +97,11 @@ public class Order implements Serializable {
         this.client = client;
     }
 
-    public Payment getPaymentEntity() {
+    public Payment getPayment() {
         return payment;
     }
 
-    public void setPaymentEntity(Payment payment) {
+    public void setPayment(Payment payment) {
         this.payment = payment;
     }
 

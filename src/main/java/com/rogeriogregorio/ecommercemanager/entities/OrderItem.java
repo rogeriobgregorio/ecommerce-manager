@@ -40,35 +40,35 @@ public class OrderItem implements Serializable {
 
     public OrderItem(Order order, Product product, Integer quantity, Double price) {
 
-        id.setOrderEntity(order);
-        id.setProductEntity(product);
+        id.setOrder(order);
+        id.setProduct(product);
         this.quantity = quantity;
         this.price = BigDecimal.valueOf(price);
     }
 
     public OrderItem(Order order, Product product, Integer quantity, BigDecimal price) {
 
-        id.setOrderEntity(order);
-        id.setProductEntity(product);
+        id.setOrder(order);
+        id.setProduct(product);
         this.quantity = quantity;
         this.price = price;
     }
 
     @JsonIgnore
-    public Order getOrderEntity() {
-        return id.getOrderEntity();
+    public Order getOrder() {
+        return id.getOrder();
     }
 
-    public void setOrderEntity(Order order) {
-        id.setOrderEntity(order);
+    public void setOrder(Order order) {
+        id.setOrder(order);
     }
 
-    public Product getProductEntity() {
-        return id.getProductEntity();
+    public Product getProduct() {
+        return id.getProduct();
     }
 
-    public void setProductEntity(Product product) {
-        id.setProductEntity(product);
+    public void setProduct(Product product) {
+        id.setProduct(product);
     }
 
     public Integer getQuantity() {

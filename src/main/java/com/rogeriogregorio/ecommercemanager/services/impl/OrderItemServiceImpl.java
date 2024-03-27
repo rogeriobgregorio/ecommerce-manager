@@ -127,7 +127,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         try {
             orderItemRepository.deleteById(id);
-            logger.warn("Item do pedido removido: {}", id.getProductEntity());
+            logger.warn("Item do pedido removido: {}", id.getProduct());
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir item do pedido: {}", exception.getMessage(), exception);
@@ -141,8 +141,8 @@ public class OrderItemServiceImpl implements OrderItemService {
         Product product = productService.findProductById(itemId);
 
         OrderItemPK id = new OrderItemPK();
-        id.setOrderEntity(order);
-        id.setProductEntity(product);
+        id.setOrder(order);
+        id.setProduct(product);
 
         return id;
     }

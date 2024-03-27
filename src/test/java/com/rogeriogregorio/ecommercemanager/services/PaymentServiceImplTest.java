@@ -150,7 +150,7 @@ class PaymentServiceImplTest {
         Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
 
         User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        user.setAddressEntity(address);
+        user.setAddress(address);
 
         Order order = new Order(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
         Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
@@ -191,7 +191,7 @@ class PaymentServiceImplTest {
         Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
 
         User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-        user.setAddressEntity(address);
+        user.setAddress(address);
 
         Order order = new Order(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
         Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");

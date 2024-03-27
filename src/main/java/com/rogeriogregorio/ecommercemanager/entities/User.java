@@ -118,11 +118,11 @@ public class User implements Serializable {
         return orders;
     }
 
-    public Address getAddressEntity() {
+    public Address getAddress() {
         return address;
     }
 
-    public void setAddressEntity(Address address) {
+    public void setAddress(Address address) {
         this.address = address;
     }
 

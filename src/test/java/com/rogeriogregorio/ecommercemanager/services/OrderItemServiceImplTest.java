@@ -217,8 +217,8 @@ class OrderItemServiceImplTest {
         OrderItemResponse expectedResponse = new OrderItemResponse(order, product, 1, 4099.0);
 
         OrderItemPK id = new OrderItemPK();
-        id.setOrderEntity(order);
-        id.setProductEntity(product);
+        id.setOrder(order);
+        id.setProduct(product);
 
         when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(order);
         when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(product);
@@ -250,8 +250,8 @@ class OrderItemServiceImplTest {
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
 
         OrderItemPK id = new OrderItemPK();
-        id.setOrderEntity(order);
-        id.setProductEntity(product);
+        id.setOrder(order);
+        id.setProduct(product);
 
         when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(order);
         when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(product);
@@ -348,8 +348,8 @@ class OrderItemServiceImplTest {
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
 
         OrderItemPK id = new OrderItemPK();
-        id.setOrderEntity(order);
-        id.setProductEntity(product);
+        id.setOrder(order);
+        id.setProduct(product);
 
         when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(order);
         when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(product);
@@ -391,8 +391,8 @@ class OrderItemServiceImplTest {
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
 
         OrderItemPK id = new OrderItemPK();
-        id.setOrderEntity(order);
-        id.setProductEntity(product);
+        id.setOrder(order);
+        id.setProduct(product);
 
         when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(order);
         when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(product);
@@ -419,8 +419,8 @@ class OrderItemServiceImplTest {
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
 
         OrderItemPK expectedPK = new OrderItemPK();
-        expectedPK.setOrderEntity(order);
-        expectedPK.setProductEntity(product);
+        expectedPK.setOrder(order);
+        expectedPK.setProduct(product);
 
         when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(order);
         when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(product);

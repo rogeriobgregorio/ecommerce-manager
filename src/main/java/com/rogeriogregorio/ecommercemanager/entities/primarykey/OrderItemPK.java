@@ -24,19 +24,19 @@ public class OrderItemPK implements Serializable {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    public Order getOrderEntity() {
+    public Order getOrder() {
         return order;
     }
 
-    public void setOrderEntity(Order order) {
+    public void setOrder(Order order) {
         this.order = order;
     }
 
-    public Product getProductEntity() {
+    public Product getProduct() {
         return product;
     }
 
-    public void setProductEntity(Product product) {
+    public void setProduct(Product product) {
         this.product = product;
     }
 

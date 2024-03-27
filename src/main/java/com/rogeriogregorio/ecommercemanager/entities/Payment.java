@@ -61,11 +61,11 @@ public class Payment implements Serializable {
         this.moment = moment;
     }
 
-    public Order getOrderEntity() {
+    public Order getOrder() {
         return order;
     }
 
-    public void setOrderEntity(Order order) {
+    public void setOrder(Order order) {
         this.order = order;
     }
 

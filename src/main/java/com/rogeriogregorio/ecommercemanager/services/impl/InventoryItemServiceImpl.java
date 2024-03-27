@@ -167,7 +167,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     public boolean isItemsAvailable(Order order) {
 
         for (OrderItem orderItem : order.getItems()) {
-            Product product = orderItem.getProductEntity();
+            Product product = orderItem.getProduct();
             InventoryItem inventoryItem = findInventoryItemByProduct(product);
 
             int quantityInStock = inventoryItem.getQuantityInStock();
@@ -187,7 +187,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     public void saveInventoryItem(Order order) {
 
         for (OrderItem orderItem : order.getItems()) {
-            Product product = orderItem.getProductEntity();
+            Product product = orderItem.getProduct();
             InventoryItem inventoryItem = findInventoryItemByProduct(product);
 
             if (inventoryItem != null) {

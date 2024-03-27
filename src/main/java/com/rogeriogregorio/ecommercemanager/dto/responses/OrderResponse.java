@@ -71,11 +71,11 @@ public class OrderResponse implements Serializable {
         this.client = client;
     }
 
-    public Payment getPaymentEntity() {
+    public Payment getPayment() {
         return payment;
     }
 
-    public void setPaymentEntity(Payment payment) {
+    public void setPayment(Payment payment) {
         this.payment = payment;
     }
 

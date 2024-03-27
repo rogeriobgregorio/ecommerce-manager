@@ -169,7 +169,7 @@ public class OrderServiceImpl implements OrderService {
 
     public boolean isAddressClientPresent(Order order) {
 
-        return order.getClient().getAddressEntity() != null;
+        return order.getClient().getAddress() != null;
     }
 
     public boolean isOrderPaid(Order order) {

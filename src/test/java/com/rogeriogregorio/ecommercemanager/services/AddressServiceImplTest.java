@@ -55,7 +55,7 @@ class AddressServiceImplTest {
         User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-        address.setUserEntity(user);
+        address.setUser(user);
         List<Address> addressList = Collections.singletonList(address);
 
         AddressResponse addressResponse = new AddressResponse(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
@@ -86,7 +86,7 @@ class AddressServiceImplTest {
         List<AddressResponse> expectedResponses = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
             Address address = new Address((long) i, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-            address.setUserEntity(user);
+            address.setUser(user);
             addressList.add(address);
 
             AddressResponse addressResponse = new AddressResponse((long) i, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
@@ -128,7 +128,7 @@ class AddressServiceImplTest {
         User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-        address.setUserEntity(user);
+        address.setUser(user);
 
         AddressRequest addressRequest = new AddressRequest("Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
         AddressResponse expectedResponse = new AddressResponse(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
@@ -160,7 +160,7 @@ class AddressServiceImplTest {
         User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-        address.setUserEntity(user);
+        address.setUser(user);
 
         AddressRequest addressRequest = new AddressRequest("Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
 
@@ -185,7 +185,7 @@ class AddressServiceImplTest {
         User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-        address.setUserEntity(user);
+        address.setUser(user);
         AddressResponse expectedResponse = new AddressResponse(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
 
         when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
@@ -221,7 +221,7 @@ class AddressServiceImplTest {
         User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-        address.setUserEntity(user);
+        address.setUser(user);
 
         AddressRequest addressRequest = new AddressRequest(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
         AddressResponse expectedResponse = new AddressResponse(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
@@ -255,7 +255,7 @@ class AddressServiceImplTest {
         User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-        address.setUserEntity(user);
+        address.setUser(user);
 
         AddressRequest addressRequest = new AddressRequest(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
 
@@ -274,7 +274,7 @@ class AddressServiceImplTest {
         User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-        address.setUserEntity(user);
+        address.setUser(user);
 
         when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
 
@@ -307,7 +307,7 @@ class AddressServiceImplTest {
         User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-        address.setUserEntity(user);
+        address.setUser(user);
 
         AddressRequest addressRequest = new AddressRequest(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
 

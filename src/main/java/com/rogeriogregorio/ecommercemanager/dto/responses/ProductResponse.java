@@ -88,7 +88,7 @@ public class ProductResponse implements Serializable {
 
         Set<Order> orders = new HashSet<>();
         for (OrderItem orderItem : items) {
-            orders.add(orderItem.getOrderEntity());
+            orders.add(orderItem.getOrder());
         }
         return orders;
     }

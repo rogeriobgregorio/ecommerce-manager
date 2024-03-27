@@ -65,7 +65,7 @@ public class PaymentServiceImpl implements PaymentService {
         try {
             paymentRepository.save(payment);
 
-            inventoryItemService.saveInventoryItem(payment.getOrderEntity());
+            inventoryItemService.saveInventoryItem(payment.getOrder());
 
             logger.info("Pagamento criado: {}", payment);
             return converter.toResponse(payment, PaymentResponse.class);
@@ -121,7 +121,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment payment = new Payment(Instant.now(), orderToBePaid);
 
-        orderToBePaid.setPaymentEntity(payment);
+        orderToBePaid.setPayment(payment);
         orderToBePaid.setOrderStatus(OrderStatus.PAID);
         orderService.savePaidOrder(orderToBePaid);
 

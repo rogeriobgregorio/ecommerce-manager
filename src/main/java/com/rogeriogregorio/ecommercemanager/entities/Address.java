@@ -120,11 +120,11 @@ public class Address implements Serializable {
         this.country = country;
     }
 
-    public User getUserEntity() {
+    public User getUser() {
         return user;
     }
 
-    public void setUserEntity(User user) {
+    public void setUser(User user) {
         this.user = user;
     }
 
