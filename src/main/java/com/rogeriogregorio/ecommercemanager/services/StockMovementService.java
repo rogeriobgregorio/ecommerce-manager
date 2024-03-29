@@ -21,6 +21,4 @@ public interface StockMovementService {
     StockMovementResponse updateStockMovement(StockMovementRequest stockMovementRequest);
 
     void deleteStockMovement(Long id);
-
-    StockMovement buildStockMovement(StockMovementRequest stockMovementRequest);
 }

@@ -165,7 +165,7 @@ class PaymentServiceImplTest {
         PaymentResponse expectedResponse = new PaymentResponse(1L, Instant.now(), order);
 
         when(orderService.isOrderItemsPresent(order)).thenReturn(true);
-        when(orderService.isAddressClientPresent(order)).thenReturn(true);
+        when(orderService.isDeliveryAddressPresent(order)).thenReturn(true);
         when(orderService.findOrderById(paymentRequest.getOrderId())).thenReturn(order);
         doNothing().when(orderService).savePaidOrder(order);
         when(paymentRepository.save(payment)).thenReturn(payment);
@@ -205,7 +205,7 @@ class PaymentServiceImplTest {
         Payment payment = new Payment(Instant.now(), order);
 
         when(orderService.isOrderItemsPresent(order)).thenReturn(true);
-        when(orderService.isAddressClientPresent(order)).thenReturn(true);
+        when(orderService.isDeliveryAddressPresent(order)).thenReturn(true);
         when(orderService.findOrderById(paymentRequest.getOrderId())).thenReturn(order);
         doNothing().when(orderService).savePaidOrder(order);
         when(paymentRepository.save(payment)).thenThrow(PersistenceException.class);

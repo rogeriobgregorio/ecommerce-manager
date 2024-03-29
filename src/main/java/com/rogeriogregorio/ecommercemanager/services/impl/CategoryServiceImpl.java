@@ -76,7 +76,6 @@ public class CategoryServiceImpl implements CategoryService {
                 });
     }
 
-
     @Transactional(readOnly = true)
     public List<Category> findAllCategoriesByIds(List<Long> id) {
 
@@ -87,7 +86,6 @@ public class CategoryServiceImpl implements CategoryService {
             logger.error("Erro ao tentar buscar todas as categorias por id: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar buscar todas as categorias por id: " + exception);
         }
-
     }
 
     @Transactional(readOnly = false)
@@ -154,6 +152,6 @@ public class CategoryServiceImpl implements CategoryService {
         Long id = categoryRequest.getId();
         String name = categoryRequest.getName();
 
-        return id == null ? new Category(name) : new Category(id, name);
+        return (id == null) ? new Category(name) : new Category(id, name);
     }
 }

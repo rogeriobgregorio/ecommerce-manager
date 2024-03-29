@@ -53,6 +53,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         }
     }
 
+    @Transactional(readOnly = false)
     public InventoryItemResponse createInventoryItem(InventoryItemRequest inventoryItemRequest) {
 
         inventoryItemRequest.setId(null);
@@ -70,6 +71,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         }
     }
 
+    @Transactional(readOnly = true)
     public InventoryItemResponse findInventoryItemResponseById(Long id) {
 
         return inventoryItemRepository
@@ -81,6 +83,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 });
     }
 
+    @Transactional(readOnly = false)
     public InventoryItemResponse updateInventoryItem(InventoryItemRequest inventoryItemRequest) {
 
         InventoryItem inventoryItem = buildInventoryItem(inventoryItemRequest);
@@ -96,19 +99,19 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         }
     }
 
+    @Transactional(readOnly = false)
     public void deleteInventoryItem(Long id) {
 
-        findInventoryItemById(id);
+        InventoryItem inventoryItem = findInventoryItemById(id);
 
         try {
             inventoryItemRepository.deleteById(id);
-            logger.warn("Item do inventário removido: {}", id);
+            logger.warn("Item do inventário removido: {}", inventoryItem);
 
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir o Item do inventário: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar excluir o Item do inventário: " + exception);
         }
-
     }
 
     public InventoryItem findInventoryItemById(Long id) {
@@ -121,23 +124,24 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 });
     }
 
-    public InventoryItem buildInventoryItem(InventoryItemRequest inventoryItemRequest) {
+    public InventoryItem findInventoryItemByProduct(Product product) {
 
-        Product product = productService.findProductById(inventoryItemRequest.getProductId());
-
-        validateItemInventory(inventoryItemRequest);
-
-        Long id = inventoryItemRequest.getId();
-        Integer quantityInStock = inventoryItemRequest.getQuantityInStock();
-        StockStatus stockStatus = inventoryItemRequest.getStockStatus();
-
-        return id == null ?
-                new InventoryItem(product, quantityInStock, 0, stockStatus) :
-                new InventoryItem(id, product, quantityInStock, 0, stockStatus);
+        return inventoryItemRepository
+                .findByProduct(product)
+                .orElseThrow(() -> {
+                    logger.warn("Item não encontrado no inventário: {}", product);
+                    return new NotFoundException("Item não encontrado no inventário: " + product + ".");
+                });
     }
 
-    public boolean isProductPresent(Long productId) {
-        return inventoryItemRepository.findByProduct_Id(productId) != null;
+    public void saveInventoryItem(InventoryItem inventoryItem) {
+
+        try {
+            inventoryItemRepository.save(inventoryItem);
+        } catch (PersistenceException exception) {
+            logger.error("Erro ao tentar salvar o item do inventário: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar salvar o item do inventário: " + exception.getMessage(), exception);
+        }
     }
 
     public void validateItemInventory(InventoryItemRequest inventoryItemRequest) {
@@ -154,17 +158,18 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         }
     }
 
-    public InventoryItem findInventoryItemByProduct(Product product) {
+    public boolean isProductPresent(Long productId) {
 
-        return inventoryItemRepository
-                .findByProduct(product)
-                .orElseThrow(() -> {
-                    logger.warn("Item não encontrado no inventário: {}", product);
-                    return new NotFoundException("Item não encontrado no inventário: " + product + ".");
-                });
+        try {
+            return inventoryItemRepository.findByProduct_Id(productId) != null;
+
+        } catch (PersistenceException exception) {
+            logger.error("Erro ao tentar verificar a presença do item no inventário: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar verificar a presença do item no inventário: " + exception);
+        }
     }
 
-    public boolean isItemsAvailable(Order order) {
+    public boolean isListItemsAvailable(Order order) {
 
         for (OrderItem orderItem : order.getItems()) {
             Product product = orderItem.getProduct();
@@ -184,31 +189,56 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         return true;
     }
 
-    public void saveInventoryItem(Order order) {
+    public boolean isItemAvailable(OrderItem orderItem) {
+
+        Product product = orderItem.getProduct();
+        InventoryItem inventoryItem = findInventoryItemByProduct(product);
+
+        int quantityRequired = orderItem.getQuantity();
+        int quantityInStock = inventoryItem.getQuantityInStock();
+
+        if (quantityRequired > quantityInStock) {
+            throw new NotFoundException("""
+                    Quantidade de %s em estoque insuficiente.
+                    Quantidade requerida: %d, quantidade em estoque: %d.
+                    """.formatted(product.getName(), quantityRequired, quantityInStock)
+            );
+        }
+        return true;
+    }
+
+    public void updateInventoryItemQuantity(Order order) {
 
         for (OrderItem orderItem : order.getItems()) {
             Product product = orderItem.getProduct();
             InventoryItem inventoryItem = findInventoryItemByProduct(product);
 
-            if (inventoryItem != null) {
-                int purchasedQuantity = orderItem.getQuantity();
-                int remainingQuantity = inventoryItem.getQuantityInStock() - purchasedQuantity;
+            int purchasedQuantity = orderItem.getQuantity();
+            int remainingQuantity = inventoryItem.getQuantityInStock() - purchasedQuantity;
 
-                if (remainingQuantity == 0) {
-                    inventoryItem.setStockStatus(StockStatus.OUT_OF_STOCK);
-                }
-
-                inventoryItem.setQuantityInStock(remainingQuantity);
-                inventoryItem.setQuantitySold(inventoryItem.getQuantitySold() + purchasedQuantity);
-
-                try {
-                    inventoryItemRepository.save(inventoryItem);
-                } catch (PersistenceException exception) {
-                    logger.error("Erro ao tentar salvar o item do inventário: {}", exception.getMessage(), exception);
-                    throw new RepositoryException("Erro ao tentar salvar o item do inventário: " + exception.getMessage(), exception);
-                }
+            if (remainingQuantity == 0) {
+                inventoryItem.setStockStatus(StockStatus.OUT_OF_STOCK);
             }
+
+            inventoryItem.setQuantityInStock(remainingQuantity);
+            inventoryItem.setQuantitySold(inventoryItem.getQuantitySold() + purchasedQuantity);
+
+            saveInventoryItem(inventoryItem);
         }
     }
 
+    public InventoryItem buildInventoryItem(InventoryItemRequest inventoryItemRequest) {
+
+        Product product = productService.findProductById(inventoryItemRequest.getProductId());
+
+        validateItemInventory(inventoryItemRequest);
+
+        Long id = inventoryItemRequest.getId();
+        Integer quantityInStock = inventoryItemRequest.getQuantityInStock();
+        StockStatus stockStatus = inventoryItemRequest.getStockStatus();
+
+        return id == null ?
+                new InventoryItem(product, quantityInStock, 0, stockStatus) :
+                new InventoryItem(id, product, quantityInStock, 0, stockStatus);
+    }
 }

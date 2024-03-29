@@ -63,7 +63,7 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = buildOrder(orderRequest);
 
-        inventoryItemService.isItemsAvailable(order);
+        inventoryItemService.isListItemsAvailable(order);
 
         try {
             orderRepository.save(order);
@@ -167,7 +167,7 @@ public class OrderServiceImpl implements OrderService {
         return order.getItems() != null;
     }
 
-    public boolean isAddressClientPresent(Order order) {
+    public boolean isDeliveryAddressPresent(Order order) {
 
         return order.getClient().getAddress() != null;
     }
@@ -183,16 +183,6 @@ public class OrderServiceImpl implements OrderService {
         ).contains(orderStatus);
     }
 
-    public Order buildOrder(OrderRequest orderRequest) {
-
-        Long orderId = orderRequest.getId();
-        Instant instant = Instant.now();
-        OrderStatus orderStatus = (orderId == null) ? OrderStatus.WAITING_PAYMENT : orderRequest.getOrderStatus();
-        User client = userService.findUserById(orderRequest.getClientId());
-
-        return new Order(orderId, instant, orderStatus, client);
-    }
-
     public void validateOrderStatusChange(OrderRequest orderRequest) {
 
         OrderStatus requestedStatus = orderRequest.getOrderStatus();
@@ -206,5 +196,15 @@ public class OrderServiceImpl implements OrderService {
         if (!isOrderPaid && requestedStatus != OrderStatus.CANCELED) {
             throw new IllegalStateException("Não é possível alterar o status de entrega: pedido ainda aguardando pagamento.");
         }
+    }
+
+    public Order buildOrder(OrderRequest orderRequest) {
+
+        Long orderId = orderRequest.getId();
+        Instant instant = Instant.now();
+        OrderStatus orderStatus = (orderId == null) ? OrderStatus.WAITING_PAYMENT : orderRequest.getOrderStatus();
+        User client = userService.findUserById(orderRequest.getClientId());
+
+        return new Order(orderId, instant, orderStatus, client);
     }
 }

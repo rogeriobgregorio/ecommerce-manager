@@ -21,6 +21,4 @@ public interface AddressService {
     AddressResponse updateAddress(AddressRequest addressRequest);
 
     void deleteAddress(Long id);
-
-    Address buildAddress(AddressRequest addressRequest);
 }

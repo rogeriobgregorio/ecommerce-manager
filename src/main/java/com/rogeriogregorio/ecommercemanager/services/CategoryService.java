@@ -25,6 +25,4 @@ public interface CategoryService {
     void deleteCategory(Long id);
 
     List<CategoryResponse> findCategoryByName(String name);
-
-    Category buildCategory(CategoryRequest categoryRequest);
 }

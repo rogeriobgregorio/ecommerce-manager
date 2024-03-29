@@ -65,7 +65,7 @@ public class PaymentServiceImpl implements PaymentService {
         try {
             paymentRepository.save(payment);
 
-            inventoryItemService.saveInventoryItem(payment.getOrder());
+            inventoryItemService.updateInventoryItemQuantity(payment.getOrder());
 
             logger.info("Pagamento criado: {}", payment);
             return converter.toResponse(payment, PaymentResponse.class);
@@ -113,6 +113,21 @@ public class PaymentServiceImpl implements PaymentService {
                 });
     }
 
+    public void validatePayment(Order order) {
+
+        if (orderService.isOrderPaid(order)) {
+            throw new IllegalStateException("Não foi possível processar o pagamento: pedido já pago.");
+        }
+
+        if (!orderService.isOrderItemsPresent(order)) {
+            throw new IllegalStateException("Não foi possível processar o pagamento: não há item no pedido.");
+        }
+
+        if (!orderService.isDeliveryAddressPresent(order)) {
+            throw new IllegalStateException("Não foi possível processar o pagamento: endereço de entrega não cadastrado.");
+        }
+    }
+
     public Payment buildPayment(PaymentRequest paymentRequest) {
 
         Order orderToBePaid = orderService.findOrderById(paymentRequest.getOrderId());
@@ -126,21 +141,6 @@ public class PaymentServiceImpl implements PaymentService {
         orderService.savePaidOrder(orderToBePaid);
 
         return payment;
-    }
-
-    public void validatePayment(Order order) {
-
-        if (orderService.isOrderPaid(order)) {
-            throw new IllegalStateException("Não foi possível processar o pagamento: pedido já pago.");
-        }
-
-        if (!orderService.isOrderItemsPresent(order)) {
-            throw new IllegalStateException("Não foi possível processar o pagamento: não há item no pedido.");
-        }
-
-        if (!orderService.isAddressClientPresent(order)) {
-            throw new IllegalStateException("Não foi possível processar o pagamento: endereço de entrega não cadastrado.");
-        }
     }
 }
 

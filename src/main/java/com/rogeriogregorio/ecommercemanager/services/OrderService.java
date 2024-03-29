@@ -30,9 +30,5 @@ public interface OrderService {
 
     boolean isOrderItemsPresent(Order order);
 
-    public boolean isAddressClientPresent(Order order);
-
-    void validateOrderStatusChange(OrderRequest orderRequest);
-
-    Order buildOrder(OrderRequest orderRequest);
+    public boolean isDeliveryAddressPresent(Order order);
 }

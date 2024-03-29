@@ -9,6 +9,7 @@ import com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderItemRepository;
+import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.OrderItemService;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
@@ -28,14 +29,16 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     private final OrderItemRepository orderItemRepository;
     private final OrderService orderService;
+    private final InventoryItemService inventoryItemService;
     private final ProductService productService;
     private final Converter converter;
     private static final Logger logger = LogManager.getLogger(OrderItemServiceImpl.class);
 
     @Autowired
-    public OrderItemServiceImpl(OrderItemRepository orderItemRepository, OrderService orderService, ProductService productService, Converter converter) {
+    public OrderItemServiceImpl(OrderItemRepository orderItemRepository, OrderService orderService, InventoryItemService inventoryItemService, ProductService productService, Converter converter) {
         this.orderItemRepository = orderItemRepository;
         this.orderService = orderService;
+        this.inventoryItemService = inventoryItemService;
         this.productService = productService;
         this.converter = converter;
     }
@@ -73,12 +76,6 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = false)
     public OrderItemResponse createOrderItem(OrderItemRequest orderItemRequest) {
 
-        Order order = orderService.findOrderById(orderItemRequest.getOrderId());
-
-        if (orderService.isOrderPaid(order)) {
-            throw new IllegalStateException("Não é possível adicionar um item a um pedido que já foi pago.");
-        }
-
         OrderItem orderItem = buildOrderItem(orderItemRequest);
 
         try {
@@ -94,12 +91,6 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     @Transactional(readOnly = false)
     public OrderItemResponse updateOrderItem(OrderItemRequest orderItemRequest) {
-
-        Order order = orderService.findOrderById(orderItemRequest.getOrderId());
-
-        if (orderService.isOrderPaid(order)) {
-            throw new IllegalStateException("Não é possível atualizar um item de um pedido que já foi pago.");
-        }
 
         OrderItem orderItem = buildOrderItem(orderItemRequest);
 
@@ -119,9 +110,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         Order order = orderService.findOrderById(orderId);
 
-        if (orderService.isOrderPaid(order)) {
-            throw new IllegalStateException("Não é possível excluir um item de um pedido que já foi pago.");
-        }
+        validateOrderChangeEligibility(order);
 
         OrderItemPK id = buildOrderItemPK(orderId, itemId);
 
@@ -132,6 +121,13 @@ public class OrderItemServiceImpl implements OrderItemService {
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar excluir item do pedido: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar excluir o item do pedido: " + exception);
+        }
+    }
+
+    public void validateOrderChangeEligibility(Order order) {
+
+        if (orderService.isOrderPaid(order)) {
+            throw new IllegalStateException("Não é possível alterar a lista de itens de um pedido que já foi pago.");
         }
     }
 
@@ -150,10 +146,16 @@ public class OrderItemServiceImpl implements OrderItemService {
     public OrderItem buildOrderItem(OrderItemRequest orderItemRequest) {
 
         Order order = orderService.findOrderById(orderItemRequest.getOrderId());
+
+        validateOrderChangeEligibility(order);
+
         Product product = productService.findProductById(orderItemRequest.getProductId());
         int quantity = orderItemRequest.getQuantity();
         BigDecimal price = product.getPrice();
+        OrderItem orderItem = new OrderItem(order, product, quantity, price);
 
-        return new OrderItem(order, product, quantity, price);
+        inventoryItemService.isItemAvailable(orderItem);
+
+        return orderItem;
     }
 }

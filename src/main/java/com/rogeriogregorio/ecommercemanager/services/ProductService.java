@@ -23,6 +23,4 @@ public interface ProductService {
     void deleteProduct(Long id);
 
     List<ProductResponse> findProductByName(String name);
-
-    Product buildProduct(ProductRequest productRequest);
 }

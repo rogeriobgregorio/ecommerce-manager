@@ -113,7 +113,8 @@ public class UserServiceImpl implements UserService {
     public List<UserResponse> findUserByName(String name) {
 
         try {
-            return userRepository.findByName(name)
+            return userRepository
+                    .findByName(name)
                     .stream()
                     .map(user -> converter.toResponse(user, UserResponse.class))
                     .toList();

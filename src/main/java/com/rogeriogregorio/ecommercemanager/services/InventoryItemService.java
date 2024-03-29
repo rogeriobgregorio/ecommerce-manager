@@ -4,7 +4,7 @@ import com.rogeriogregorio.ecommercemanager.dto.requests.InventoryItemRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.InventoryItemResponse;
 import com.rogeriogregorio.ecommercemanager.entities.InventoryItem;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
-import com.rogeriogregorio.ecommercemanager.entities.Product;
+import com.rogeriogregorio.ecommercemanager.entities.OrderItem;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -26,13 +26,9 @@ public interface InventoryItemService {
 
     InventoryItem buildInventoryItem(InventoryItemRequest inventoryItemRequest);
 
-    boolean isItemsAvailable(Order order);
+    boolean isListItemsAvailable(Order order);
 
-    void saveInventoryItem(Order order);
+    void updateInventoryItemQuantity(Order order);
 
-    void validateItemInventory(InventoryItemRequest inventoryItemRequest);
-
-    InventoryItem findInventoryItemByProduct(Product product);
-
-    boolean isProductPresent(Long productId);
+    boolean isItemAvailable(OrderItem orderItem);
 }
