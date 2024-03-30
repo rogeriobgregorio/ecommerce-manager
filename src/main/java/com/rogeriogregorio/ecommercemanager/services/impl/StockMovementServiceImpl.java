@@ -144,16 +144,6 @@ public class StockMovementServiceImpl implements StockMovementService {
         }
     }
 
-    public void updateStockMovementEntrance(InventoryItem inventoryItem) {
-
-        int inputQuantity = inventoryItem.getQuantityInStock();
-
-        Instant moment = Instant.now();
-        StockMovement stockMovement = new StockMovement(moment, inventoryItem, MovementType.EXIT, inputQuantity);
-
-        saveStockMovement(stockMovement);
-    }
-
     public StockMovement buildStockMovement(StockMovementRequest stockMovementRequest) {
 
         InventoryItem inventoryItem = inventoryItemService.findInventoryItemById(stockMovementRequest.getId());

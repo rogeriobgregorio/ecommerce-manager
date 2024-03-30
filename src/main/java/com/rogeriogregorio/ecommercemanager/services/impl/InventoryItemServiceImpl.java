@@ -2,15 +2,14 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.InventoryItemRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.InventoryItemResponse;
-import com.rogeriogregorio.ecommercemanager.entities.InventoryItem;
-import com.rogeriogregorio.ecommercemanager.entities.Order;
-import com.rogeriogregorio.ecommercemanager.entities.OrderItem;
-import com.rogeriogregorio.ecommercemanager.entities.Product;
+import com.rogeriogregorio.ecommercemanager.entities.*;
+import com.rogeriogregorio.ecommercemanager.entities.enums.MovementType;
 import com.rogeriogregorio.ecommercemanager.entities.enums.StockStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.InsufficientQuantityInStockException;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.InventoryItemRepository;
+import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -21,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -28,13 +28,15 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
     private final InventoryItemRepository inventoryItemRepository;
     private final ProductService productService;
+    private final StockMovementRepository stockMovementRepository;
     private final Converter converter;
     private static final Logger logger = LogManager.getLogger(InventoryItemServiceImpl.class);
 
     @Autowired
-    public InventoryItemServiceImpl(InventoryItemRepository inventoryItemRepository, ProductService productService, Converter converter) {
+    public InventoryItemServiceImpl(InventoryItemRepository inventoryItemRepository, ProductService productService, StockMovementRepository stockMovementRepository, Converter converter) {
         this.inventoryItemRepository = inventoryItemRepository;
         this.productService = productService;
+        this.stockMovementRepository = stockMovementRepository;
         this.converter = converter;
     }
 
@@ -62,6 +64,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         try {
             inventoryItemRepository.save(inventoryItem);
+            updateStockMovementEntrance(inventoryItem);
             logger.info("Item do inventário criado: {}", inventoryItem);
             return converter.toResponse(inventoryItem, InventoryItemResponse.class);
 
@@ -235,6 +238,21 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             inventoryItem.setQuantitySold(inventoryItem.getQuantitySold() + purchasedQuantity);
 
             saveInventoryItem(inventoryItem);
+        }
+    }
+
+    public void updateStockMovementEntrance(InventoryItem inventoryItem) {
+
+        Instant moment = Instant.now();
+        int quantity = inventoryItem.getQuantityInStock();
+        StockMovement stockMovement = new StockMovement(moment, inventoryItem, MovementType.ENTRANCE, quantity);
+
+        try {
+            stockMovementRepository.save(stockMovement);
+            logger.info("Movimentação do estoque criada: {}", stockMovement);
+        } catch (PersistenceException exception) {
+            logger.error("Erro ao tentar criar a movimentação do estoque: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao tentar criar a movimentação do estoque: " + exception);
         }
     }
 

@@ -22,7 +22,7 @@ public class StockMovementController {
         this.stockMovementService = stockMovementService;
     }
 
-    @GetMapping(value = "/stockMovements")
+    @GetMapping(value = "/stock-movements")
     public ResponseEntity<List<StockMovementResponse>> getAllStockMovement() {
 
         return ResponseEntity
@@ -30,7 +30,7 @@ public class StockMovementController {
                 .body(stockMovementService.findAllStockMovements());
     }
 
-    @PostMapping(value = "/stockMovements")
+    @PostMapping(value = "/stock-movements")
     public ResponseEntity<StockMovementResponse> createStockMovement(@Valid @RequestBody StockMovementRequest stockMovementRequest) {
 
         return ResponseEntity
@@ -38,7 +38,7 @@ public class StockMovementController {
                 .body(stockMovementService.createStockMovement(stockMovementRequest));
     }
 
-    @GetMapping(value = "/stockMovements/{id}")
+    @GetMapping(value = "/stock-movements/{id}")
     public ResponseEntity<StockMovementResponse> getStockMovementById(@PathVariable Long id) {
 
         return ResponseEntity
@@ -46,7 +46,7 @@ public class StockMovementController {
                 .body(stockMovementService.findStockMovementResponseById(id));
     }
 
-    @PutMapping(value = "/stockMovements")
+    @PutMapping(value = "/stock-movements")
     public ResponseEntity<StockMovementResponse> updateStockMovement(@Valid @RequestBody StockMovementRequest stockMovementRequest) {
 
         return ResponseEntity
@@ -54,7 +54,7 @@ public class StockMovementController {
                 .body(stockMovementService.updateStockMovement(stockMovementRequest));
     }
 
-    @DeleteMapping(value = "/stockMovements/{id}")
+    @DeleteMapping(value = "/stock-movements/{id}")
     public ResponseEntity<Void> deleteStockMovement(@PathVariable Long id) {
 
         stockMovementService.deleteStockMovement(id);
