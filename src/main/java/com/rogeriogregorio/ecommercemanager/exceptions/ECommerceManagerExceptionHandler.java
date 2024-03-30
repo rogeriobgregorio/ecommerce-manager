@@ -84,8 +84,15 @@ public class ECommerceManagerExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    @ExceptionHandler(InsufficientQuantityInStockException.class)
+    public ResponseEntity<StandardError> handleInsufficientQuantityInStock(InsufficientQuantityInStockException ex) {
+
+        StandardError error = new StandardError(HttpStatus.BAD_REQUEST, "InsufficientQuantityInStock: quantidade em estoque insuficiente", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<StandardError> dataIntegrityViolationException(DataIntegrityViolationException ex) {
+    public ResponseEntity<StandardError> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
 
         String message = ex.getMostSpecificCause().getMessage().contains("EMAIL") ? "O email já está em uso." : "Verifique se o recurso já foi criado.";
 

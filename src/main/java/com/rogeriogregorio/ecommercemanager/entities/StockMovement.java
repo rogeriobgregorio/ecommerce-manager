@@ -1,11 +1,13 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.rogeriogregorio.ecommercemanager.entities.enums.MovementType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Objects;
 
 @Entity
@@ -18,6 +20,11 @@ public class StockMovement implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
+    @Column(name = "moment")
+    @NotNull(message = "O momento do pedido não pode ser nulo")
+    private Instant moment;
 
     @ManyToOne
     @JoinColumn(name = "inventory_item_id")
@@ -34,14 +41,16 @@ public class StockMovement implements Serializable {
     public StockMovement() {
     }
 
-    public StockMovement(InventoryItem inventoryItem, MovementType movementType, Integer quantityMoved) {
+    public StockMovement(Instant moment, InventoryItem inventoryItem, MovementType movementType, Integer quantityMoved) {
+        this.moment = moment;
         this.inventoryItem = inventoryItem;
         setMovementType(movementType);
         this.quantityMoved = quantityMoved;
     }
 
-    public StockMovement(Long id, InventoryItem inventoryItem, MovementType movementType, Integer quantityMoved) {
+    public StockMovement(Long id, Instant moment, InventoryItem inventoryItem, MovementType movementType, Integer quantityMoved) {
         this.id = id;
+        this.moment = moment;
         this.inventoryItem = inventoryItem;
         setMovementType(movementType);
         this.quantityMoved = quantityMoved;
@@ -53,6 +62,14 @@ public class StockMovement implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Instant getMoment() {
+        return moment;
+    }
+
+    public void setMoment(Instant moment) {
+        this.moment = moment;
     }
 
     public InventoryItem getInventoryItem() {
@@ -99,7 +116,7 @@ public class StockMovement implements Serializable {
 
     @Override
     public String toString() {
-        return "[Movimentação do estoque: id= " + id + ", inventoryItem= " + inventoryItem +
+        return "[Movimentação do estoque: id= " + id + ", moment= " + moment + ", inventoryItem= " + inventoryItem +
                 ", movementType= " + movementType + ", quantityMoved= " + quantityMoved +"]";
     }
 }

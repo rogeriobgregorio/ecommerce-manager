@@ -20,8 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -174,13 +174,8 @@ public class OrderServiceImpl implements OrderService {
 
     public boolean isOrderPaid(Order order) {
 
-        OrderStatus orderStatus = order.getOrderStatus();
-
-        return EnumSet.of(
-                OrderStatus.PAID,
-                OrderStatus.SHIPPED,
-                OrderStatus.DELIVERED
-        ).contains(orderStatus);
+        String orderStatus = order.getOrderStatus().name();
+        return Set.of("PAID", "SHIPPED", "DELIVERED").contains(orderStatus);
     }
 
     public void validateOrderStatusChange(OrderRequest orderRequest) {
@@ -194,7 +189,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         if (!isOrderPaid && requestedStatus != OrderStatus.CANCELED) {
-            throw new IllegalStateException("Não é possível alterar o status de entrega: pedido ainda aguardando pagamento.");
+            throw new IllegalStateException("Não é possível alterar o status de entrega: pedido aguardando pagamento.");
         }
     }
 

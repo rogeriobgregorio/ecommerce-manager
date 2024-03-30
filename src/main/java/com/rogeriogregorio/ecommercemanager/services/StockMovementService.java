@@ -2,6 +2,8 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.StockMovementRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.StockMovementResponse;
+import com.rogeriogregorio.ecommercemanager.entities.InventoryItem;
+import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.StockMovement;
 import org.springframework.stereotype.Component;
 
@@ -21,4 +23,8 @@ public interface StockMovementService {
     StockMovementResponse updateStockMovement(StockMovementRequest stockMovementRequest);
 
     void deleteStockMovement(Long id);
+
+    void updateStockMovementExit(Order order);
+
+    void updateStockMovementEntrance(InventoryItem inventoryItem);
 }

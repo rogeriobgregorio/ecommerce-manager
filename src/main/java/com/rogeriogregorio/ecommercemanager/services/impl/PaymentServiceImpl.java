@@ -11,6 +11,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.services.PaymentService;
+import com.rogeriogregorio.ecommercemanager.services.StockMovementService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
@@ -28,14 +29,16 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final OrderService orderService;
     private final InventoryItemService inventoryItemService;
+    private final StockMovementService stockMovementService;
     private final Converter converter;
     private static final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
 
     @Autowired
-    public PaymentServiceImpl(PaymentRepository paymentRepository, OrderService orderService, InventoryItemService inventoryItemService, Converter converter) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, OrderService orderService, InventoryItemService inventoryItemService, StockMovementService stockMovementService, Converter converter) {
         this.paymentRepository = paymentRepository;
         this.orderService = orderService;
         this.inventoryItemService = inventoryItemService;
+        this.stockMovementService = stockMovementService;
         this.converter = converter;
     }
 
@@ -64,9 +67,8 @@ public class PaymentServiceImpl implements PaymentService {
 
         try {
             paymentRepository.save(payment);
-
             inventoryItemService.updateInventoryItemQuantity(payment.getOrder());
-
+            stockMovementService.updateStockMovementExit(payment.getOrder());
             logger.info("Pagamento criado: {}", payment);
             return converter.toResponse(payment, PaymentResponse.class);
 
@@ -120,7 +122,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         if (!orderService.isOrderItemsPresent(order)) {
-            throw new IllegalStateException("Não foi possível processar o pagamento: não há item no pedido.");
+            throw new IllegalStateException("Não foi possível processar o pagamento: nenhum item no pedido.");
         }
 
         if (!orderService.isDeliveryAddressPresent(order)) {

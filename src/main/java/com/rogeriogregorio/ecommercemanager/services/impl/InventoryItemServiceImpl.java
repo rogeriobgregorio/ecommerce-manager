@@ -7,6 +7,7 @@ import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.OrderItem;
 import com.rogeriogregorio.ecommercemanager.entities.Product;
 import com.rogeriogregorio.ecommercemanager.entities.enums.StockStatus;
+import com.rogeriogregorio.ecommercemanager.exceptions.InsufficientQuantityInStockException;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.InventoryItemRepository;
@@ -57,7 +58,6 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     public InventoryItemResponse createInventoryItem(InventoryItemRequest inventoryItemRequest) {
 
         inventoryItemRequest.setId(null);
-
         InventoryItem inventoryItem = buildInventoryItem(inventoryItemRequest);
 
         try {
@@ -138,6 +138,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         try {
             inventoryItemRepository.save(inventoryItem);
+
         } catch (PersistenceException exception) {
             logger.error("Erro ao tentar salvar o item do inventário: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar salvar o item do inventário: " + exception.getMessage(), exception);
@@ -174,15 +175,20 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         for (OrderItem orderItem : order.getItems()) {
             Product product = orderItem.getProduct();
             InventoryItem inventoryItem = findInventoryItemByProduct(product);
+            StockStatus itemStatus = inventoryItem.getStockStatus();
+
+            if (itemStatus == StockStatus.OUT_OF_STOCK) {
+                throw new InsufficientQuantityInStockException("O item " + product.getName() + " está esgotado.");
+            }
 
             int quantityInStock = inventoryItem.getQuantityInStock();
             int quantityRequired = orderItem.getQuantity();
 
             if (quantityRequired > quantityInStock) {
-                throw new NotFoundException("""
-                        Quantidade de %s em estoque insuficiente.
-                        Quantidade requerida: %d, quantidade em estoque: %d.
-                        """.formatted(product.getName(), quantityRequired, quantityInStock)
+                throw new InsufficientQuantityInStockException("Quantidade de "
+                        + product.getName() + " em estoque insuficiente."
+                        + " Quantidade requerida: " + quantityRequired
+                        + ", quantidade em estoque: " + quantityInStock + "."
                 );
             }
         }
@@ -193,15 +199,20 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         Product product = orderItem.getProduct();
         InventoryItem inventoryItem = findInventoryItemByProduct(product);
+        StockStatus itemStatus = inventoryItem.getStockStatus();
+
+        if (itemStatus == StockStatus.OUT_OF_STOCK) {
+            throw new InsufficientQuantityInStockException("O item " + product.getName() + " está esgotado.");
+        }
 
         int quantityRequired = orderItem.getQuantity();
         int quantityInStock = inventoryItem.getQuantityInStock();
 
         if (quantityRequired > quantityInStock) {
-            throw new NotFoundException("""
-                    Quantidade de %s em estoque insuficiente.
-                    Quantidade requerida: %d, quantidade em estoque: %d.
-                    """.formatted(product.getName(), quantityRequired, quantityInStock)
+            throw new InsufficientQuantityInStockException("Quantidade de "
+                    + product.getName() + " em estoque insuficiente."
+                    + " Quantidade requerida: " + quantityRequired
+                    + ", quantidade em estoque: " + quantityInStock + "."
             );
         }
         return true;
@@ -237,8 +248,6 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         Integer quantityInStock = inventoryItemRequest.getQuantityInStock();
         StockStatus stockStatus = inventoryItemRequest.getStockStatus();
 
-        return id == null ?
-                new InventoryItem(product, quantityInStock, 0, stockStatus) :
-                new InventoryItem(id, product, quantityInStock, 0, stockStatus);
+        return new InventoryItem(id, product, quantityInStock, 0, stockStatus);
     }
 }

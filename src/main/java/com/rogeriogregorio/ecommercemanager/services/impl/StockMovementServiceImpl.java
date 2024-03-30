@@ -2,8 +2,8 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.StockMovementRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.StockMovementResponse;
-import com.rogeriogregorio.ecommercemanager.entities.InventoryItem;
-import com.rogeriogregorio.ecommercemanager.entities.StockMovement;
+import com.rogeriogregorio.ecommercemanager.entities.*;
+import com.rogeriogregorio.ecommercemanager.entities.enums.MovementType;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -116,18 +117,51 @@ public class StockMovementServiceImpl implements StockMovementService {
         }
     }
 
+    public void saveStockMovement(StockMovement stockMovement) {
+
+        try {
+            stockMovementRepository.save(stockMovement);
+            logger.info("Movimentação do estoque salva: {}", stockMovement);
+
+        } catch (PersistenceException exception) {
+            logger.error("Erro ao tentar salvar a movimentação do estoque: {}", exception.getMessage(), exception);
+            throw new RepositoryException("Erro ao salvar criar a movimentação do estoque: " + exception);
+        }
+    }
+
+    public void updateStockMovementExit(Order order) {
+
+        for (OrderItem orderItem : order.getItems()) {
+            Product product = orderItem.getProduct();
+            InventoryItem inventoryItem = inventoryItemService.findInventoryItemByProduct(product);
+
+            int outputQuantity = orderItem.getQuantity();
+
+            Instant moment = Instant.now();
+            StockMovement stockMovement = new StockMovement(moment, inventoryItem, MovementType.EXIT, outputQuantity);
+
+            saveStockMovement(stockMovement);
+        }
+    }
+
+    public void updateStockMovementEntrance(InventoryItem inventoryItem) {
+
+        int inputQuantity = inventoryItem.getQuantityInStock();
+
+        Instant moment = Instant.now();
+        StockMovement stockMovement = new StockMovement(moment, inventoryItem, MovementType.EXIT, inputQuantity);
+
+        saveStockMovement(stockMovement);
+    }
+
     public StockMovement buildStockMovement(StockMovementRequest stockMovementRequest) {
 
         InventoryItem inventoryItem = inventoryItemService.findInventoryItemById(stockMovementRequest.getId());
+        Long id = stockMovementRequest.getId();
+        Instant moment = Instant.now();
+        MovementType movementType = stockMovementRequest.getMovementType();
+        int quantityMoved = stockMovementRequest.getQuantityMoved();
 
-        if (stockMovementRequest.getId() == null) {
-
-            return new StockMovement(inventoryItem, stockMovementRequest.getMovementType(), stockMovementRequest.getQuantityMoved());
-
-        } else {
-            findStockMovementById(stockMovementRequest.getId());
-
-            return new StockMovement(stockMovementRequest.getId(), inventoryItem, stockMovementRequest.getMovementType(), stockMovementRequest.getQuantityMoved());
-        }
+        return new StockMovement(id, moment, inventoryItem, movementType, quantityMoved);
     }
 }

@@ -5,6 +5,7 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.InventoryItemResponse;
 import com.rogeriogregorio.ecommercemanager.entities.InventoryItem;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.OrderItem;
+import com.rogeriogregorio.ecommercemanager.entities.Product;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -23,6 +24,8 @@ public interface InventoryItemService {
     InventoryItemResponse updateInventoryItem(InventoryItemRequest inventoryItemRequest);
 
     void deleteInventoryItem(Long id);
+
+    InventoryItem findInventoryItemByProduct(Product product);
 
     InventoryItem buildInventoryItem(InventoryItemRequest inventoryItemRequest);
 

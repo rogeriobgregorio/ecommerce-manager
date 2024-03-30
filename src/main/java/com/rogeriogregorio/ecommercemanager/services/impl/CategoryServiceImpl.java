@@ -152,6 +152,6 @@ public class CategoryServiceImpl implements CategoryService {
         Long id = categoryRequest.getId();
         String name = categoryRequest.getName();
 
-        return (id == null) ? new Category(name) : new Category(id, name);
+        return new Category(id, name);
     }
 }

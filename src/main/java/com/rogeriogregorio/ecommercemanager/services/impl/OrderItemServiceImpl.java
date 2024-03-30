@@ -127,7 +127,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     public void validateOrderChangeEligibility(Order order) {
 
         if (orderService.isOrderPaid(order)) {
-            throw new IllegalStateException("Não é possível alterar a lista de itens de um pedido que já foi pago.");
+            throw new IllegalStateException("Não é possível alterar a lista de itens: pedido já foi pago.");
         }
     }
 

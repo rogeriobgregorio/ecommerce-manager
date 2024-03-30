@@ -5,6 +5,7 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.MovementType;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 
 public class StockMovementResponse implements Serializable {
 
@@ -12,6 +13,7 @@ public class StockMovementResponse implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
+    private Instant moment;
     private InventoryItem inventoryItem;
     private Integer movementType;
     private Integer quantityMoved;
@@ -19,10 +21,11 @@ public class StockMovementResponse implements Serializable {
     public StockMovementResponse() {
     }
 
-    public StockMovementResponse(Long id, InventoryItem inventoryItem, Integer movementType, Integer quantityMoved) {
+    public StockMovementResponse(Long id, Instant moment, InventoryItem inventoryItem, MovementType movementType, Integer quantityMoved) {
         this.id = id;
+        this.moment = moment;
         this.inventoryItem = inventoryItem;
-        this.movementType = movementType;
+        setMovementType(movementType);
         this.quantityMoved = quantityMoved;
     }
 
@@ -32,6 +35,14 @@ public class StockMovementResponse implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Instant getMoment() {
+        return moment;
+    }
+
+    public void setMoment(Instant moment) {
+        this.moment = moment;
     }
 
     public InventoryItem getInventoryItem() {
