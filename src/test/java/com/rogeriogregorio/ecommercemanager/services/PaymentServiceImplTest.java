@@ -9,6 +9,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.PaymentServiceImpl;
+import com.rogeriogregorio.ecommercemanager.services.validatorstrategy.PaymentValidator;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,15 +43,21 @@ class PaymentServiceImplTest {
     private InventoryItemService inventoryItemService;
 
     @Mock
+    private StockMovementService stockMovementService;
+
+    @Mock
     private Converter converter;
 
     @InjectMocks
     private PaymentServiceImpl paymentService;
 
+    PaymentServiceImplTest() {
+    }
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        paymentService = new PaymentServiceImpl(paymentRepository, orderService, inventoryItemService, converter);
+        paymentService = new PaymentServiceImpl(paymentRepository, orderService, inventoryItemService, stockMovementService, converter);
     }
 
     @Test

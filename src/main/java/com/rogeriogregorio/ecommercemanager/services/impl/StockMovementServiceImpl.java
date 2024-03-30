@@ -15,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -34,7 +35,7 @@ public class StockMovementServiceImpl implements StockMovementService {
         this.converter = converter;
     }
 
-
+    @Transactional(readOnly = true)
     public List<StockMovementResponse> findAllStockMovements() {
 
         try {
@@ -50,6 +51,7 @@ public class StockMovementServiceImpl implements StockMovementService {
         }
     }
 
+    @Transactional(readOnly = false)
     public StockMovementResponse createStockMovement(StockMovementRequest stockMovementRequest) {
 
         stockMovementRequest.setId(null);
@@ -67,6 +69,7 @@ public class StockMovementServiceImpl implements StockMovementService {
         }
     }
 
+    @Transactional(readOnly = true)
     public StockMovementResponse findStockMovementResponseById(Long id) {
 
         return stockMovementRepository
@@ -78,16 +81,7 @@ public class StockMovementServiceImpl implements StockMovementService {
                 });
     }
 
-    public StockMovement findStockMovementById(Long id) {
-
-        return stockMovementRepository
-                .findById(id)
-                .orElseThrow(() -> {
-                    logger.warn("Movimentação do estoque não encontrado com o ID: {}", id);
-                    return new NotFoundException("Movimentação do estoque não encontrado com o ID: " + id + ".");
-                });
-    }
-
+    @Transactional(readOnly = false)
     public StockMovementResponse updateStockMovement(StockMovementRequest stockMovementRequest) {
 
         StockMovement stockMovement = buildStockMovement(stockMovementRequest);
@@ -103,6 +97,7 @@ public class StockMovementServiceImpl implements StockMovementService {
         }
     }
 
+    @Transactional(readOnly = false)
     public void deleteStockMovement(Long id) {
 
         findStockMovementById(id);
@@ -115,6 +110,16 @@ public class StockMovementServiceImpl implements StockMovementService {
             logger.error("Erro ao tentar excluir a movimentação do estoque: {}", exception.getMessage(), exception);
             throw new RepositoryException("Erro ao tentar excluir a movimentação do estoque: " + exception);
         }
+    }
+
+    public StockMovement findStockMovementById(Long id) {
+
+        return stockMovementRepository
+                .findById(id)
+                .orElseThrow(() -> {
+                    logger.warn("Movimentação do estoque não encontrado com o ID: {}", id);
+                    return new NotFoundException("Movimentação do estoque não encontrado com o ID: " + id + ".");
+                });
     }
 
     public void saveStockMovement(StockMovement stockMovement) {
