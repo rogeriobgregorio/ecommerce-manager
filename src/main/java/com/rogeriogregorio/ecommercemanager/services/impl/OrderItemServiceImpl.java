@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class OrderItemServiceImpl implements OrderItemService {
@@ -35,7 +36,8 @@ public class OrderItemServiceImpl implements OrderItemService {
     private static final Logger logger = LogManager.getLogger(OrderItemServiceImpl.class);
 
     @Autowired
-    public OrderItemServiceImpl(OrderItemRepository orderItemRepository, OrderService orderService, InventoryItemService inventoryItemService, ProductService productService, Converter converter) {
+    public OrderItemServiceImpl(OrderItemRepository orderItemRepository, OrderService orderService,
+                                InventoryItemService inventoryItemService, ProductService productService, Converter converter) {
         this.orderItemRepository = orderItemRepository;
         this.orderService = orderService;
         this.inventoryItemService = inventoryItemService;
@@ -126,7 +128,10 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     public void validateOrderChangeEligibility(Order order) {
 
-        if (orderService.isOrderPaid(order)) {
+        String orderStatus = order.getOrderStatus().name();
+        boolean isOrderPaid = Set.of("PAID", "SHIPPED", "DELIVERED").contains(orderStatus);
+
+        if (isOrderPaid) {
             throw new IllegalStateException("Não é possível alterar a lista de itens: o pedido já foi pago.");
         }
     }

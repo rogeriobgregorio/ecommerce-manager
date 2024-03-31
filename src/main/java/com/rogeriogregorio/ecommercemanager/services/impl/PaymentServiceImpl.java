@@ -50,9 +50,9 @@ public class PaymentServiceImpl implements PaymentService {
         this.stockMovementService = stockMovementService;
         this.converter = converter;
         this.validators = Arrays.asList(
-                new OrderPaidValidatorImpl(orderService),
-                new OrderItemsPresentValidatorImpl(orderService),
-                new DeliveryAddressPresentValidatorImpl(orderService)
+                new OrderPaidValidatorImpl(),
+                new OrderItemsPresentValidatorImpl(),
+                new DeliveryAddressPresentValidatorImpl()
         );
     }
 

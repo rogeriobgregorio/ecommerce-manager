@@ -37,9 +37,6 @@ class OrderServiceImplTest {
     private OrderRepository orderRepository;
 
     @Mock
-    private InventoryItemService inventoryItemService;
-
-    @Mock
     private UserService userService;
 
     @Mock
@@ -51,7 +48,7 @@ class OrderServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        orderService = new OrderServiceImpl(orderRepository, userService, converter, validators);
+        orderService = new OrderServiceImpl(orderRepository, userService, converter);
     }
 
     @Test

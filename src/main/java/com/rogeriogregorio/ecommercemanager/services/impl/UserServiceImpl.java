@@ -125,7 +125,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    @Transactional(readOnly = false)
     public void saveUserAddress(User user) {
 
         try {

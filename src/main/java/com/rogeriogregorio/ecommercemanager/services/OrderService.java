@@ -25,10 +25,4 @@ public interface OrderService {
     void deleteOrder(Long id);
 
     List<OrderResponse> findOrderByClientId(Long id);
-
-    boolean isOrderPaid(Order order);
-
-    boolean isOrderItemsPresent(Order order);
-
-    public boolean isDeliveryAddressPresent(Order order);
 }

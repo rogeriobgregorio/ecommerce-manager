@@ -11,10 +11,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.services.OrderStatusValidator;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
-import com.rogeriogregorio.ecommercemanager.services.validatorstrategy.payment.DeliveryAddressPresentValidatorImpl;
-import com.rogeriogregorio.ecommercemanager.services.validatorstrategy.payment.OrderItemsPresentValidatorImpl;
-import com.rogeriogregorio.ecommercemanager.services.validatorstrategy.payment.OrderPaidValidatorImpl;
-import com.rogeriogregorio.ecommercemanager.services.validatorstrategy.payment.order.*;
+import com.rogeriogregorio.ecommercemanager.services.validatorstrategy.order.*;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
@@ -39,7 +36,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     public OrderServiceImpl(OrderRepository orderRepository, UserService userService,
-                            Converter converter, List<OrderStatusValidator> validators) {
+                            Converter converter) {
         this.orderRepository = orderRepository;
         this.userService = userService;
         this.converter = converter;
@@ -132,11 +129,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public void deleteOrder(Long id) {
 
-        Order order = findOrderById(id);
-
-        if (isOrderPaid(order)) {
-            throw new IllegalStateException("Não é possível excluir um pedido que já foi pago.");
-        }
+        validateOrderDeleteEligibility(id);
 
         try {
             orderRepository.deleteById(id);
@@ -172,28 +165,24 @@ public class OrderServiceImpl implements OrderService {
                 });
     }
 
-    public boolean isOrderItemsPresent(Order order) {
-
-        return !order.getItems().isEmpty();
-    }
-
-    public boolean isDeliveryAddressPresent(Order order) {
-
-        return order.getClient().getAddress() != null;
-    }
-
-    public boolean isOrderPaid(Order order) {
-
-        String orderStatus = order.getOrderStatus().name();
-        return Set.of("PAID", "SHIPPED", "DELIVERED").contains(orderStatus);
-    }
-
     public void validateOrderStatusChange(OrderRequest orderRequest) {
 
         Order order = findOrderById(orderRequest.getId());
 
         for (OrderStatusValidator validator : validators) {
             validator.validate(order, orderRequest);
+        }
+    }
+
+    public void validateOrderDeleteEligibility(Long id) {
+
+        Order order = findOrderById(id);
+
+        String orderStatus = order.getOrderStatus().name();
+        boolean isOrderPaid = Set.of("PAID", "SHIPPED", "DELIVERED").contains(orderStatus);
+
+        if (isOrderPaid) {
+            throw new IllegalStateException("Não é possível excluir um pedido que já foi pago.");
         }
     }
 

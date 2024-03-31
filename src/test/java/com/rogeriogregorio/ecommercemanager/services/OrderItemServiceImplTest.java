@@ -42,6 +42,9 @@ class OrderItemServiceImplTest {
     private ProductService productService;
 
     @Mock
+    private InventoryItemService inventoryItemService;
+
+    @Mock
     private Converter converter;
 
     @InjectMocks
