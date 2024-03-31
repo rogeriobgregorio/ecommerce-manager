@@ -22,19 +22,10 @@ public class OrderItemResponse implements Serializable {
     }
 
     public OrderItemResponse(Order order, Product product, Integer quantity, Double price) {
-
         id.setOrder(order);
         id.setProduct(product);
         this.quantity = quantity;
         this.price = BigDecimal.valueOf(price);
-    }
-
-    public OrderItemResponse(Order order, Product product, Integer quantity, BigDecimal price) {
-
-        id.setOrder(order);
-        id.setProduct(product);
-        this.quantity = quantity;
-        this.price = price;
     }
 
     @JsonIgnore

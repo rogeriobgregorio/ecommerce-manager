@@ -27,16 +27,20 @@ import java.util.List;
 public class InventoryItemServiceImpl implements InventoryItemService {
 
     private final InventoryItemRepository inventoryItemRepository;
-    private final ProductService productService;
     private final StockMovementRepository stockMovementRepository;
+    private final ProductService productService;
     private final Converter converter;
     private static final Logger logger = LogManager.getLogger(InventoryItemServiceImpl.class);
 
     @Autowired
-    public InventoryItemServiceImpl(InventoryItemRepository inventoryItemRepository, ProductService productService, StockMovementRepository stockMovementRepository, Converter converter) {
+    public InventoryItemServiceImpl(InventoryItemRepository inventoryItemRepository,
+                                    StockMovementRepository stockMovementRepository,
+                                    ProductService productService,
+                                    Converter converter) {
+
         this.inventoryItemRepository = inventoryItemRepository;
-        this.productService = productService;
         this.stockMovementRepository = stockMovementRepository;
+        this.productService = productService;
         this.converter = converter;
     }
 
@@ -47,12 +51,12 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             return inventoryItemRepository
                     .findAll()
                     .stream()
-                    .map(inventoryItemEntity -> converter.toResponse(inventoryItemEntity, InventoryItemResponse.class))
+                    .map(inventoryItem -> converter.toResponse(inventoryItem, InventoryItemResponse.class))
                     .toList();
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar todos os itens do inventário: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar todos os itens do inventário: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar buscar todos os itens do inventário: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar buscar todos os itens do inventário: " + ex);
         }
     }
 
@@ -68,9 +72,9 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             logger.info("Item do inventário criado: {}", inventoryItem);
             return converter.toResponse(inventoryItem, InventoryItemResponse.class);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar criar o item do inventário: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar o item do inventário: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar criar o item do inventário: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar criar o item do inventário: " + ex);
         }
     }
 
@@ -79,7 +83,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         return inventoryItemRepository
                 .findById(id)
-                .map(inventoryItemEntity -> converter.toResponse(inventoryItemEntity, InventoryItemResponse.class))
+                .map(inventoryItem -> converter.toResponse(inventoryItem, InventoryItemResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Item do inventário não encontrado com o ID: {}", id);
                     return new NotFoundException("Item do inventário não encontrado com o ID: " + id + ".");
@@ -96,9 +100,9 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             logger.info("Item do inventário atualizado: {}", inventoryItem);
             return converter.toResponse(inventoryItem, InventoryItemResponse.class);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar atualizar o item do inventário: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar atualizar o item do inventário: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar atualizar o item do inventário: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar atualizar o item do inventário: " + ex);
         }
     }
 
@@ -111,9 +115,9 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             inventoryItemRepository.deleteById(id);
             logger.warn("Item do inventário removido: {}", inventoryItem);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar excluir o Item do inventário: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar excluir o Item do inventário: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar excluir o Item do inventário: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar excluir o Item do inventário: " + ex);
         }
     }
 
@@ -141,10 +145,11 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         try {
             inventoryItemRepository.save(inventoryItem);
+            logger.info("Quantidade do item no inventário atualizada: {}", inventoryItem);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar salvar o item do inventário: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar salvar o item do inventário: " + exception.getMessage(), exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar salvar o item do inventário: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar salvar o item do inventário: " + ex.getMessage(), ex);
         }
     }
 
@@ -167,9 +172,9 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         try {
             return inventoryItemRepository.findByProduct_Id(productId) != null;
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar verificar a presença do item no inventário: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar verificar a presença do item no inventário: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar verificar a presença do item no inventário: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar verificar a presença do item no inventário: " + ex);
         }
     }
 
@@ -250,15 +255,17 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         try {
             stockMovementRepository.save(stockMovement);
             logger.info("Movimentação do estoque criada: {}", stockMovement);
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar criar a movimentação do estoque: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar a movimentação do estoque: " + exception);
+
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar criar a movimentação do estoque: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar criar a movimentação do estoque: " + ex);
         }
     }
 
     public InventoryItem buildInventoryItem(InventoryItemRequest inventoryItemRequest) {
 
-        Product product = productService.findProductById(inventoryItemRequest.getProductId());
+        Long productId = inventoryItemRequest.getProductId();
+        Product product = productService.findProductById(productId);
 
         validateItemInventory(inventoryItemRequest);
 

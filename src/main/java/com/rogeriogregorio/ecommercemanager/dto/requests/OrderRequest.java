@@ -55,10 +55,4 @@ public class OrderRequest implements Serializable {
     public void setClientId(Long clientId) {
         this.clientId = clientId;
     }
-
-
-    @Override
-    public String toString() {
-        return "[Pedido: id= " + id + ", orderStatus= " + orderStatus + ", clientId= " + clientId + "]";
-    }
 }

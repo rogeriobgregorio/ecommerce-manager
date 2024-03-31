@@ -36,13 +36,13 @@ class OrderItemServiceImplTest {
     private OrderItemRepository orderItemRepository;
 
     @Mock
-    private OrderService orderService;
+    private InventoryItemService inventoryItemService;
 
     @Mock
     private ProductService productService;
 
     @Mock
-    private InventoryItemService inventoryItemService;
+    private OrderService orderService;
 
     @Mock
     private Converter converter;
@@ -53,7 +53,7 @@ class OrderItemServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        orderItemService = new OrderItemServiceImpl(orderItemRepository, orderService, inventoryItemService, productService, converter);
+        orderItemService = new OrderItemServiceImpl(orderItemRepository, inventoryItemService, productService, orderService, converter);
     }
 
     @Test

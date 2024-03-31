@@ -67,10 +67,4 @@ public class StockMovementRequest implements Serializable {
     public void setQuantityMoved(Integer quantityMoved) {
         this.quantityMoved = quantityMoved;
     }
-
-    @Override
-    public String toString() {
-        return "[Movimentação do estoque: id= " + id + ", inventoryItem= " + inventoryItemId +
-                ", movementType= " + movementType + ", quantityMoved= " + quantityMoved + "]";
-    }
 }

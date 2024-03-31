@@ -67,10 +67,4 @@ public class InventoryItemRequest implements Serializable {
 
         this.stockStatus = stockStatus.getCode();
     }
-
-    @Override
-    public String toString() {
-        return "[Item do inventário: id= " + id + ", product= " + productId
-                + ", quantityInStock= " + quantityInStock + ", stockStatus= " + stockStatus + "]";
-    }
 }

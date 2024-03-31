@@ -1,17 +1,17 @@
-package com.rogeriogregorio.ecommercemanager.services.validatorstrategy.order;
+package com.rogeriogregorio.ecommercemanager.services.strategy.orderstatus;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
-import com.rogeriogregorio.ecommercemanager.services.OrderStatusValidator;
+import com.rogeriogregorio.ecommercemanager.services.OrderStatusStrategy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CanceledValidatorImpl implements OrderStatusValidator {
+public class CanceledStrategyImpl implements OrderStatusStrategy {
 
-    private static final Logger logger = LogManager.getLogger(CanceledValidatorImpl.class);
+    private static final Logger logger = LogManager.getLogger(CanceledStrategyImpl.class);
 
     @Override
     public void validate(Order order, OrderRequest orderRequest) {

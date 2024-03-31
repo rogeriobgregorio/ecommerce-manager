@@ -28,7 +28,10 @@ public class AddressServiceImpl implements AddressService {
     private static final Logger logger = LogManager.getLogger(AddressServiceImpl.class);
 
     @Autowired
-    public AddressServiceImpl(AddressRepository addressRepository, UserService userService, Converter converter) {
+    public AddressServiceImpl(AddressRepository addressRepository,
+                              UserService userService,
+                              Converter converter) {
+
         this.addressRepository = addressRepository;
         this.userService = userService;
         this.converter = converter;
@@ -44,9 +47,9 @@ public class AddressServiceImpl implements AddressService {
                     .map(address -> converter.toResponse(address, AddressResponse.class))
                     .toList();
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar todos os endereços: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar todas os endereços: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar buscar todos os endereços: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar buscar todas os endereços: " + ex);
         }
     }
 
@@ -66,7 +69,6 @@ public class AddressServiceImpl implements AddressService {
     public AddressResponse createAddress(AddressRequest addressRequest) {
 
         addressRequest.setId(null);
-
         Address address = buildAddress(addressRequest);
 
         try {
@@ -74,9 +76,9 @@ public class AddressServiceImpl implements AddressService {
             logger.info("Endereço criado: {}", address);
             return converter.toResponse(address, AddressResponse.class);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar criar o endereço: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar o endereço: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar criar o endereço: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar criar o endereço: " + ex);
         }
     }
 
@@ -84,7 +86,6 @@ public class AddressServiceImpl implements AddressService {
     public AddressResponse updateAddress(AddressRequest addressRequest) {
 
         findAddressById(addressRequest.getId());
-
         Address address = buildAddress(addressRequest);
 
         try {
@@ -92,9 +93,9 @@ public class AddressServiceImpl implements AddressService {
             logger.info("Endereço atualizado: {}", address);
             return converter.toResponse(address, AddressResponse.class);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar atualizar o endereço: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar atualizar o endereço: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar atualizar o endereço: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar atualizar o endereço: " + ex);
         }
     }
 
@@ -107,9 +108,9 @@ public class AddressServiceImpl implements AddressService {
             addressRepository.deleteById(id);
             logger.warn("Endereço removido: {}", address);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar excluir o endereço: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar excluir o endereço: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar excluir o endereço: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar excluir o endereço: " + ex);
         }
     }
 
@@ -125,7 +126,8 @@ public class AddressServiceImpl implements AddressService {
 
     public Address buildAddress(AddressRequest addressRequest) {
 
-        User user = userService.findUserById(addressRequest.getUserId());
+        Long userId = addressRequest.getUserId();
+        User user = userService.findUserById(userId);
 
         Address address = converter.toEntity(addressRequest, Address.class);
         address.setUser(user);

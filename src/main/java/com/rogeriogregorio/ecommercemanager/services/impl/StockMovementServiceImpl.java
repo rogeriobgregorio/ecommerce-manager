@@ -29,7 +29,10 @@ public class StockMovementServiceImpl implements StockMovementService {
     private static final Logger logger = LogManager.getLogger(StockMovementServiceImpl.class);
 
     @Autowired
-    public StockMovementServiceImpl(StockMovementRepository stockMovementRepository, InventoryItemService inventoryItemService, Converter converter) {
+    public StockMovementServiceImpl(StockMovementRepository stockMovementRepository,
+                                    InventoryItemService inventoryItemService,
+                                    Converter converter) {
+
         this.stockMovementRepository = stockMovementRepository;
         this.inventoryItemService = inventoryItemService;
         this.converter = converter;
@@ -45,9 +48,9 @@ public class StockMovementServiceImpl implements StockMovementService {
                     .map(stockMovement -> converter.toResponse(stockMovement, StockMovementResponse.class))
                     .toList();
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar todas as movimentações do estoque: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar todas as movimentações do estoque: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar buscar todas as movimentações do estoque: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar buscar todas as movimentações do estoque: " + ex);
         }
     }
 
@@ -55,7 +58,6 @@ public class StockMovementServiceImpl implements StockMovementService {
     public StockMovementResponse createStockMovement(StockMovementRequest stockMovementRequest) {
 
         stockMovementRequest.setId(null);
-
         StockMovement stockMovement = buildStockMovement(stockMovementRequest);
 
         try {
@@ -63,9 +65,9 @@ public class StockMovementServiceImpl implements StockMovementService {
             logger.info("Movimentação do estoque criada: {}", stockMovement);
             return converter.toResponse(stockMovement, StockMovementResponse.class);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar criar a movimentação do estoque: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar a movimentação do estoque: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar criar a movimentação do estoque: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar criar a movimentação do estoque: " + ex);
         }
     }
 
@@ -91,9 +93,9 @@ public class StockMovementServiceImpl implements StockMovementService {
             logger.info("Movimentação do estoque atualizada: {}", stockMovement);
             return converter.toResponse(stockMovement, StockMovementResponse.class);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar atualizar a movimentação do estoque: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar atualizar a movimentação do estoque: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar atualizar a movimentação do estoque: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar atualizar a movimentação do estoque: " + ex);
         }
     }
 
@@ -106,9 +108,9 @@ public class StockMovementServiceImpl implements StockMovementService {
             stockMovementRepository.deleteById(id);
             logger.info("Movimentação do estoque removida: {}", id);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar excluir a movimentação do estoque: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar excluir a movimentação do estoque: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar excluir a movimentação do estoque: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar excluir a movimentação do estoque: " + ex);
         }
     }
 
@@ -128,9 +130,9 @@ public class StockMovementServiceImpl implements StockMovementService {
             stockMovementRepository.save(stockMovement);
             logger.info("Movimentação do estoque salva: {}", stockMovement);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar salvar a movimentação do estoque: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao salvar criar a movimentação do estoque: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar salvar a movimentação do estoque: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao salvar criar a movimentação do estoque: " + ex);
         }
     }
 
@@ -151,8 +153,8 @@ public class StockMovementServiceImpl implements StockMovementService {
 
     public StockMovement buildStockMovement(StockMovementRequest stockMovementRequest) {
 
-        InventoryItem inventoryItem = inventoryItemService.findInventoryItemById(stockMovementRequest.getId());
         Long id = stockMovementRequest.getId();
+        InventoryItem inventoryItem = inventoryItemService.findInventoryItemById(id);
         Instant moment = Instant.now();
         MovementType movementType = stockMovementRequest.getMovementType();
         int quantityMoved = stockMovementRequest.getQuantityMoved();

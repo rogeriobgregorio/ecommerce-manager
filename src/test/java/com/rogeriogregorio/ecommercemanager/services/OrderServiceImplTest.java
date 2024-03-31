@@ -43,7 +43,7 @@ class OrderServiceImplTest {
     private Converter converter;
 
     @Mock
-    private List<OrderStatusValidator> validators;
+    private List<OrderStatusStrategy> validators;
 
     @InjectMocks
     private OrderServiceImpl orderService;

@@ -9,7 +9,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
-import com.rogeriogregorio.ecommercemanager.services.OrderStatusValidator;
+import com.rogeriogregorio.ecommercemanager.services.OrderStatusStrategy;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import jakarta.persistence.PersistenceException;
@@ -29,14 +29,14 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final UserService userService;
     private final Converter converter;
-    private final List<OrderStatusValidator> validators;
+    private final List<OrderStatusStrategy> validators;
     private static final Logger logger = LogManager.getLogger(OrderServiceImpl.class);
 
     @Autowired
     public OrderServiceImpl(OrderRepository orderRepository,
                             UserService userService,
                             Converter converter,
-                            List<OrderStatusValidator> validators) {
+                            List<OrderStatusStrategy> validators) {
 
         this.orderRepository = orderRepository;
         this.userService = userService;
@@ -54,9 +54,9 @@ public class OrderServiceImpl implements OrderService {
                     .map(order -> converter.toResponse(order, OrderResponse.class))
                     .toList();
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar todos os pedidos: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar todos os pedidos: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar buscar todos os pedidos: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar buscar todos os pedidos: " + ex);
         }
     }
 
@@ -64,7 +64,6 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse createOrder(OrderRequest orderRequest) {
 
         orderRequest.setId(null);
-
         Order order = buildOrder(orderRequest);
 
         try {
@@ -72,9 +71,9 @@ public class OrderServiceImpl implements OrderService {
             logger.info("Pedido criado: {}", order);
             return converter.toResponse(order, OrderResponse.class);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar criar o pedido: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar o pedido: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar criar o pedido: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar criar o pedido: " + ex);
         }
     }
 
@@ -85,9 +84,9 @@ public class OrderServiceImpl implements OrderService {
             orderRepository.save(order);
             logger.info("Pedido pago salvo: {}", order);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar salvar o pedido pago: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar salvar o pedido pago: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar salvar o pedido pago: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar salvar o pedido pago: " + ex);
         }
     }
 
@@ -107,7 +106,6 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse updateOrder(OrderRequest orderRequest) {
 
         validateOrderStatusChange(orderRequest);
-
         Order order = buildOrder(orderRequest);
 
         try {
@@ -115,9 +113,9 @@ public class OrderServiceImpl implements OrderService {
             logger.info("Pedido atualizado: {}", order);
             return converter.toResponse(order, OrderResponse.class);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar atualizar o pedido: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar atualizar o pedido: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar atualizar o pedido: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar atualizar o pedido: " + ex);
         }
     }
 
@@ -130,9 +128,9 @@ public class OrderServiceImpl implements OrderService {
             orderRepository.deleteById(id);
             logger.warn("Pedido removido: {}", id);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar excluir o pedido: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar excluir o pedido: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar excluir o pedido: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar excluir o pedido: " + ex);
         }
     }
 
@@ -146,7 +144,7 @@ public class OrderServiceImpl implements OrderService {
                     return new NotFoundException("Nenhum pedido encontrado com o ID do cliente: " + id + ".");
                 })
                 .stream()
-                .map(orderEntity -> converter.toResponse(orderEntity, OrderResponse.class))
+                .map(order -> converter.toResponse(order, OrderResponse.class))
                 .toList();
     }
 
@@ -162,9 +160,10 @@ public class OrderServiceImpl implements OrderService {
 
     public void validateOrderStatusChange(OrderRequest orderRequest) {
 
-        Order order = findOrderById(orderRequest.getId());
+        Long orderId = orderRequest.getId();
+        Order order = findOrderById(orderId);
 
-        for (OrderStatusValidator validator : validators) {
+        for (OrderStatusStrategy validator : validators) {
             validator.validate(order, orderRequest);
         }
     }
@@ -172,7 +171,6 @@ public class OrderServiceImpl implements OrderService {
     public void validateOrderDeleteEligibility(Long id) {
 
         Order order = findOrderById(id);
-
         String orderStatus = order.getOrderStatus().name();
         boolean isOrderPaid = Set.of("PAID", "SHIPPED", "DELIVERED").contains(orderStatus);
 

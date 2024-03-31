@@ -28,7 +28,10 @@ public class ProductServiceImpl implements ProductService {
     private static final Logger logger = LogManager.getLogger(ProductServiceImpl.class);
 
     @Autowired
-    public ProductServiceImpl(ProductRepository productRepository, CategoryService categoryService, Converter converter) {
+    public ProductServiceImpl(ProductRepository productRepository,
+                              CategoryService categoryService,
+                              Converter converter) {
+
         this.productRepository = productRepository;
         this.categoryService = categoryService;
         this.converter = converter;
@@ -44,9 +47,9 @@ public class ProductServiceImpl implements ProductService {
                     .map(product -> converter.toResponse(product, ProductResponse.class))
                     .toList();
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar todos os produtos: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar todos os produtos: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar buscar todos os produtos: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar buscar todos os produtos: " + ex);
         }
     }
 
@@ -54,7 +57,6 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse createProduct(ProductRequest productRequest) {
 
         productRequest.setId(null);
-
         Product product = buildProduct(productRequest);
 
         try {
@@ -62,9 +64,9 @@ public class ProductServiceImpl implements ProductService {
             logger.info("Produto criado: {}", product);
             return converter.toResponse(product, ProductResponse.class);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar criar o produto: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar o produto: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar criar o produto: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar criar o produto: " + ex);
         }
     }
 
@@ -84,7 +86,6 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse updateProduct(ProductRequest productRequest) {
 
         findProductById(productRequest.getId());
-
         Product product = buildProduct(productRequest);
 
         try {
@@ -92,9 +93,9 @@ public class ProductServiceImpl implements ProductService {
             logger.info("produto atualizado: {}", product);
             return converter.toResponse(product, ProductResponse.class);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar atualizar o produto: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar atualizar o produto: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar atualizar o produto: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar atualizar o produto: " + ex);
         }
     }
 
@@ -107,9 +108,9 @@ public class ProductServiceImpl implements ProductService {
             productRepository.deleteById(id);
             logger.warn("Produto removido: {}", product);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar excluir o produto: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar excluir o produto: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar excluir o produto: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar excluir o produto: " + ex);
         }
     }
 
@@ -123,9 +124,9 @@ public class ProductServiceImpl implements ProductService {
                     .map(product -> converter.toResponse(product, ProductResponse.class))
                     .toList();
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar produto pelo nome: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar produto pelo nome: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar buscar produto pelo nome: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar buscar produto pelo nome: " + ex);
         }
     }
 
@@ -141,7 +142,8 @@ public class ProductServiceImpl implements ProductService {
 
     public Product buildProduct(ProductRequest productRequest) {
 
-        List<Category> categoryList = categoryService.findAllCategoriesByIds(productRequest.getCategoryIdList());
+        List<Long> categoryIdList = productRequest.getCategoryIdList();
+        List<Category> categoryList = categoryService.findAllCategoriesByIds(categoryIdList);
 
         Product product = converter.toEntity(productRequest, Product.class);
         product.getCategories().addAll(categoryList);

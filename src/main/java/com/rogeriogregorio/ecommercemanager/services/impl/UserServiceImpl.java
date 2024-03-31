@@ -25,7 +25,9 @@ public class UserServiceImpl implements UserService {
     private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, Converter converter) {
+    public UserServiceImpl(UserRepository userRepository,
+                           Converter converter) {
+
         this.userRepository = userRepository;
         this.converter = converter;
     }
@@ -40,9 +42,9 @@ public class UserServiceImpl implements UserService {
                     .map(user -> converter.toResponse(user, UserResponse.class))
                     .toList();
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar todos os usuários: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar todos os usuários: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar buscar todos os usuários: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar buscar todos os usuários: " + ex);
         }
     }
 
@@ -70,9 +72,9 @@ public class UserServiceImpl implements UserService {
             logger.info("Usuário criado: {}", user);
             return converter.toResponse(user, UserResponse.class);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar criar o usuário: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar o usuário: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar criar o usuário: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar criar o usuário: " + ex);
         }
     }
 
@@ -80,7 +82,6 @@ public class UserServiceImpl implements UserService {
     public UserResponse updateUser(UserRequest userRequest) {
 
         findUserById(userRequest.getId());
-
         User user = converter.toEntity(userRequest, User.class);
 
         try {
@@ -88,9 +89,9 @@ public class UserServiceImpl implements UserService {
             logger.info("Usuário atualizado: {}", user);
             return converter.toResponse(user, UserResponse.class);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar atualizar o usuário: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar atualizar o usuário: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar atualizar o usuário: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar atualizar o usuário: " + ex);
         }
     }
 
@@ -103,9 +104,9 @@ public class UserServiceImpl implements UserService {
             userRepository.deleteById(id);
             logger.warn("Usuário removido: {}", user);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar excluir o usuário: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar excluir o usuário: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar excluir o usuário: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar excluir o usuário: " + ex);
         }
     }
 
@@ -119,21 +120,9 @@ public class UserServiceImpl implements UserService {
                     .map(user -> converter.toResponse(user, UserResponse.class))
                     .toList();
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar usuário pelo nome: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar usuário pelo nome: " + exception);
-        }
-    }
-
-    public void saveUserAddress(User user) {
-
-        try {
-            userRepository.save(user);
-            logger.info("Endereço do usuário atualizado: {}", user);
-
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar atualizar o endereço do usuário: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar atualizar o endereço do usuário: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar buscar usuário pelo nome: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar buscar usuário pelo nome: " + ex);
         }
     }
 
@@ -145,5 +134,17 @@ public class UserServiceImpl implements UserService {
                     logger.warn("Usuário não encontrado com o ID: {}", id);
                     return new NotFoundException("Usuário não encontrado com o ID: " + id + ".");
                 });
+    }
+
+    public void saveUserAddress(User user) {
+
+        try {
+            userRepository.save(user);
+            logger.info("Endereço do usuário atualizado: {}", user);
+
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar atualizar o endereço do usuário: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar atualizar o endereço do usuário: " + ex);
+        }
     }
 }

@@ -36,19 +36,19 @@ class PaymentServiceImplTest {
     private PaymentRepository paymentRepository;
 
     @Mock
-    private OrderService orderService;
-
-    @Mock
     private InventoryItemService inventoryItemService;
 
     @Mock
     private StockMovementService stockMovementService;
 
     @Mock
+    private OrderService orderService;
+
+    @Mock
     private Converter converter;
 
     @Mock
-    private List<PaymentValidator> validators;
+    private List<PaymentStrategy> validators;
 
     @InjectMocks
     private PaymentServiceImpl paymentService;
@@ -59,7 +59,7 @@ class PaymentServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        paymentService = new PaymentServiceImpl(paymentRepository, orderService, inventoryItemService, stockMovementService, converter, validators);
+        paymentService = new PaymentServiceImpl(paymentRepository, inventoryItemService, stockMovementService, orderService, converter, validators);
     }
 
     @Test

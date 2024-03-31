@@ -24,25 +24,25 @@ import java.util.List;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final OrderService orderService;
     private final InventoryItemService inventoryItemService;
     private final StockMovementService stockMovementService;
+    private final OrderService orderService;
     private final Converter converter;
-    private final List<PaymentValidator> validators;
+    private final List<PaymentStrategy> validators;
     private static final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
 
     @Autowired
     public PaymentServiceImpl(PaymentRepository paymentRepository,
-                              OrderService orderService,
                               InventoryItemService inventoryItemService,
                               StockMovementService stockMovementService,
+                              OrderService orderService,
                               Converter converter,
-                              List<PaymentValidator> validators) {
+                              List<PaymentStrategy> validators) {
 
         this.paymentRepository = paymentRepository;
-        this.orderService = orderService;
         this.inventoryItemService = inventoryItemService;
         this.stockMovementService = stockMovementService;
+        this.orderService = orderService;
         this.converter = converter;
         this.validators = validators;
     }
@@ -57,9 +57,9 @@ public class PaymentServiceImpl implements PaymentService {
                     .map(payment -> converter.toResponse(payment, PaymentResponse.class))
                     .toList();
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar pagamentos: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar pagamentos: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar buscar pagamentos: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar buscar pagamentos: " + ex);
         }
     }
 
@@ -67,19 +67,17 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentResponse createPayment(PaymentRequest paymentRequest) {
 
         paymentRequest.setId(null);
-
         Payment payment = buildPayment(paymentRequest);
 
         try {
             paymentRepository.save(payment);
-            inventoryItemService.updateInventoryItemQuantity(payment.getOrder());
-            stockMovementService.updateStockMovementExit(payment.getOrder());
+            updateInventoryStock(payment);
             logger.info("Pagamento criado: {}", payment);
             return converter.toResponse(payment, PaymentResponse.class);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar criar o pagamento: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar o pagamento: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar criar o pagamento: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar criar o pagamento: " + ex);
         }
     }
 
@@ -104,9 +102,9 @@ public class PaymentServiceImpl implements PaymentService {
             paymentRepository.deleteById(id);
             logger.warn("Pagamento removido: {}", payment);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar excluir o pagamento: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar excluir o pagamento: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar excluir o pagamento: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar excluir o pagamento: " + ex);
         }
     }
 
@@ -121,14 +119,22 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     public void validatePayment(Order order) {
-        for (PaymentValidator validator : validators) {
+        for (PaymentStrategy validator : validators) {
             validator.validate(order);
         }
     }
 
+    public void updateInventoryStock(Payment payment) {
+
+        Order orderPaid = payment.getOrder();
+        inventoryItemService.updateInventoryItemQuantity(orderPaid);
+        stockMovementService.updateStockMovementExit(orderPaid);
+    }
+
     public Payment buildPayment(PaymentRequest paymentRequest) {
 
-        Order orderToBePaid = orderService.findOrderById(paymentRequest.getOrderId());
+        Long orderId = paymentRequest.getOrderId();
+        Order orderToBePaid = orderService.findOrderById(orderId);
 
         validatePayment(orderToBePaid);
 

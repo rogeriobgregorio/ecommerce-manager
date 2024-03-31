@@ -93,10 +93,4 @@ public class AddressRequest implements Serializable {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
-
-    @Override
-    public String toString() {
-        return "[Endereço: id= " + id + ", street= " + street + ", city= " + city + ", " +
-                "state= " + state +", cep= " + cep + ", country= " + country + "]";
-    }
 }

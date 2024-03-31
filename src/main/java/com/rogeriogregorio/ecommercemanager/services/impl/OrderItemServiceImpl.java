@@ -29,19 +29,23 @@ import java.util.Set;
 public class OrderItemServiceImpl implements OrderItemService {
 
     private final OrderItemRepository orderItemRepository;
-    private final OrderService orderService;
     private final InventoryItemService inventoryItemService;
     private final ProductService productService;
+    private final OrderService orderService;
     private final Converter converter;
     private static final Logger logger = LogManager.getLogger(OrderItemServiceImpl.class);
 
     @Autowired
-    public OrderItemServiceImpl(OrderItemRepository orderItemRepository, OrderService orderService,
-                                InventoryItemService inventoryItemService, ProductService productService, Converter converter) {
+    public OrderItemServiceImpl(OrderItemRepository orderItemRepository,
+                                InventoryItemService inventoryItemService,
+                                ProductService productService,
+                                OrderService orderService,
+                                Converter converter) {
+
         this.orderItemRepository = orderItemRepository;
-        this.orderService = orderService;
         this.inventoryItemService = inventoryItemService;
         this.productService = productService;
+        this.orderService = orderService;
         this.converter = converter;
     }
 
@@ -52,12 +56,12 @@ public class OrderItemServiceImpl implements OrderItemService {
             return orderItemRepository
                     .findAll()
                     .stream()
-                    .map(orderItemEntity -> converter.toResponse(orderItemEntity, OrderItemResponse.class))
+                    .map(orderItem -> converter.toResponse(orderItem, OrderItemResponse.class))
                     .toList();
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar buscar todos os itens do pedido: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar buscar todos os itens do pedido: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar buscar todos os itens do pedido: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar buscar todos os itens do pedido: " + ex);
         }
     }
 
@@ -68,7 +72,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         return orderItemRepository
                 .findById(id)
-                .map(orderItemEntity -> converter.toResponse(orderItemEntity, OrderItemResponse.class))
+                .map(orderItem -> converter.toResponse(orderItem, OrderItemResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Itens não encontrado com o ID: {}", id);
                     return new NotFoundException("Itens não encontrado com o ID: " + id + ".");
@@ -85,9 +89,9 @@ public class OrderItemServiceImpl implements OrderItemService {
             logger.info("Item do pedido criado: {}", orderItem);
             return converter.toResponse(orderItem, OrderItemResponse.class);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar criar item do pedido: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar criar item do pedido: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar criar item do pedido: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar criar item do pedido: " + ex);
         }
     }
 
@@ -101,9 +105,9 @@ public class OrderItemServiceImpl implements OrderItemService {
             logger.info("Item do pedido atualizado: {}", orderItem);
             return converter.toResponse(orderItem, OrderItemResponse.class);
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar atualizar o item do pedido: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar atualizar o item do pedido: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar atualizar o item do pedido: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar atualizar o item do pedido: " + ex);
         }
     }
 
@@ -120,9 +124,9 @@ public class OrderItemServiceImpl implements OrderItemService {
             orderItemRepository.deleteById(id);
             logger.warn("Item do pedido removido: {}", id.getProduct());
 
-        } catch (PersistenceException exception) {
-            logger.error("Erro ao tentar excluir item do pedido: {}", exception.getMessage(), exception);
-            throw new RepositoryException("Erro ao tentar excluir o item do pedido: " + exception);
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar excluir item do pedido: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar excluir o item do pedido: " + ex);
         }
     }
 
@@ -150,11 +154,13 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     public OrderItem buildOrderItem(OrderItemRequest orderItemRequest) {
 
-        Order order = orderService.findOrderById(orderItemRequest.getOrderId());
+        Long orderId = orderItemRequest.getOrderId();
+        Order order = orderService.findOrderById(orderId);
 
         validateOrderChangeEligibility(order);
 
-        Product product = productService.findProductById(orderItemRequest.getProductId());
+        Long productId = orderItemRequest.getProductId();
+        Product product = productService.findProductById(productId);
         int quantity = orderItemRequest.getQuantity();
         BigDecimal price = product.getPrice();
         OrderItem orderItem = new OrderItem(order, product, quantity, price);
