@@ -42,13 +42,16 @@ class OrderServiceImplTest {
     @Mock
     private Converter converter;
 
+    @Mock
+    private List<OrderStatusValidator> validators;
+
     @InjectMocks
     private OrderServiceImpl orderService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        orderService = new OrderServiceImpl(orderRepository, userService, converter);
+        orderService = new OrderServiceImpl(orderRepository, userService, converter, validators);
     }
 
     @Test
@@ -147,7 +150,6 @@ class OrderServiceImplTest {
         OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
 
         when(userService.findUserById(orderRequest.getClientId())).thenReturn(user);
-        when(inventoryItemService.isListItemsAvailable(order)).thenReturn(true);
         when(converter.toResponse(order, OrderResponse.class)).thenReturn(expectedResponse);
         when(orderRepository.save(order)).thenReturn(order);
 
@@ -159,7 +161,6 @@ class OrderServiceImplTest {
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
         verify(userService, times(1)).findUserById(orderRequest.getClientId());
-        verify(inventoryItemService, times(1)).isListItemsAvailable(order);
         verify(converter, times(1)).toResponse(order, OrderResponse.class);
         verify(orderRepository, times(1)).save(order);
     }
@@ -172,14 +173,12 @@ class OrderServiceImplTest {
         OrderRequest orderRequest = new OrderRequest(1L);
         Order order = new Order(Instant.now(), OrderStatus.WAITING_PAYMENT, user);
 
-        when(inventoryItemService.isListItemsAvailable(order)).thenReturn(true);
         when(userService.findUserById(orderRequest.getClientId())).thenReturn(user);
         when(orderRepository.save(order)).thenThrow(PersistenceException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> orderService.createOrder(orderRequest), "Expected RepositoryException due to a generic runtime exception");
 
-        verify(inventoryItemService, times(1)).isListItemsAvailable(order);
         verify(orderRepository, times(1)).save(order);
     }
 

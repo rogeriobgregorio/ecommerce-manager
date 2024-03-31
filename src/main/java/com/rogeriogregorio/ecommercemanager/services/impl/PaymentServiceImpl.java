@@ -8,14 +8,7 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
-import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
-import com.rogeriogregorio.ecommercemanager.services.OrderService;
-import com.rogeriogregorio.ecommercemanager.services.PaymentService;
-import com.rogeriogregorio.ecommercemanager.services.StockMovementService;
-import com.rogeriogregorio.ecommercemanager.services.PaymentValidator;
-import com.rogeriogregorio.ecommercemanager.services.validatorstrategy.payment.DeliveryAddressPresentValidatorImpl;
-import com.rogeriogregorio.ecommercemanager.services.validatorstrategy.payment.OrderItemsPresentValidatorImpl;
-import com.rogeriogregorio.ecommercemanager.services.validatorstrategy.payment.OrderPaidValidatorImpl;
+import com.rogeriogregorio.ecommercemanager.services.*;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
@@ -25,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -41,19 +33,18 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Autowired
     public PaymentServiceImpl(PaymentRepository paymentRepository,
-                              OrderService orderService,InventoryItemService inventoryItemService,
-                              StockMovementService stockMovementService, Converter converter) {
+                              OrderService orderService,
+                              InventoryItemService inventoryItemService,
+                              StockMovementService stockMovementService,
+                              Converter converter,
+                              List<PaymentValidator> validators) {
 
         this.paymentRepository = paymentRepository;
         this.orderService = orderService;
         this.inventoryItemService = inventoryItemService;
         this.stockMovementService = stockMovementService;
         this.converter = converter;
-        this.validators = Arrays.asList(
-                new OrderPaidValidatorImpl(),
-                new OrderItemsPresentValidatorImpl(),
-                new DeliveryAddressPresentValidatorImpl()
-        );
+        this.validators = validators;
     }
 
     @Transactional(readOnly = true)

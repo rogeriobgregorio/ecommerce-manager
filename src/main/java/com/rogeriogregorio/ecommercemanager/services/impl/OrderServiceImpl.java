@@ -11,7 +11,6 @@ import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.services.OrderStatusValidator;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
-import com.rogeriogregorio.ecommercemanager.services.validatorstrategy.order.*;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -35,18 +33,15 @@ public class OrderServiceImpl implements OrderService {
     private static final Logger logger = LogManager.getLogger(OrderServiceImpl.class);
 
     @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository, UserService userService,
-                            Converter converter) {
+    public OrderServiceImpl(OrderRepository orderRepository,
+                            UserService userService,
+                            Converter converter,
+                            List<OrderStatusValidator> validators) {
+
         this.orderRepository = orderRepository;
         this.userService = userService;
         this.converter = converter;
-        this.validators = Arrays.asList(
-                new WaitingPaymentValidatorImpl(),
-                new PaidValidatorImpl(),
-                new ShippedValidatorImpl(),
-                new DeliveredValidatorImpl(),
-                new CanceledValidatorImpl()
-        );
+        this.validators = validators;
     }
 
     @Transactional(readOnly = true)
