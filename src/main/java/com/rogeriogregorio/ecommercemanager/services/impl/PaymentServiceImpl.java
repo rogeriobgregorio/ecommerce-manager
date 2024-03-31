@@ -12,7 +12,7 @@ import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.services.PaymentService;
 import com.rogeriogregorio.ecommercemanager.services.StockMovementService;
-import com.rogeriogregorio.ecommercemanager.services.validatorstrategy.PaymentValidator;
+import com.rogeriogregorio.ecommercemanager.services.PaymentValidator;
 import com.rogeriogregorio.ecommercemanager.services.validatorstrategy.payment.DeliveryAddressPresentValidatorImpl;
 import com.rogeriogregorio.ecommercemanager.services.validatorstrategy.payment.OrderItemsPresentValidatorImpl;
 import com.rogeriogregorio.ecommercemanager.services.validatorstrategy.payment.OrderPaidValidatorImpl;
@@ -40,8 +40,8 @@ public class PaymentServiceImpl implements PaymentService {
     private static final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
 
     @Autowired
-    public PaymentServiceImpl(PaymentRepository paymentRepository, OrderService orderService,
-                              InventoryItemService inventoryItemService,
+    public PaymentServiceImpl(PaymentRepository paymentRepository,
+                              OrderService orderService,InventoryItemService inventoryItemService,
                               StockMovementService stockMovementService, Converter converter) {
 
         this.paymentRepository = paymentRepository;
@@ -140,6 +140,8 @@ public class PaymentServiceImpl implements PaymentService {
         Order orderToBePaid = orderService.findOrderById(paymentRequest.getOrderId());
 
         validatePayment(orderToBePaid);
+
+        inventoryItemService.isListItemsAvailable(orderToBePaid);
 
         Payment payment = new Payment(Instant.now(), orderToBePaid);
 

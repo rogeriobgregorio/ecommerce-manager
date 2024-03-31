@@ -8,9 +8,13 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
-import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
+import com.rogeriogregorio.ecommercemanager.services.OrderStatusValidator;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
+import com.rogeriogregorio.ecommercemanager.services.validatorstrategy.payment.DeliveryAddressPresentValidatorImpl;
+import com.rogeriogregorio.ecommercemanager.services.validatorstrategy.payment.OrderItemsPresentValidatorImpl;
+import com.rogeriogregorio.ecommercemanager.services.validatorstrategy.payment.OrderPaidValidatorImpl;
+import com.rogeriogregorio.ecommercemanager.services.validatorstrategy.payment.order.*;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
@@ -20,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -27,17 +32,24 @@ import java.util.Set;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
-    private final InventoryItemService inventoryItemService;
     private final UserService userService;
     private final Converter converter;
+    private final List<OrderStatusValidator> validators;
     private static final Logger logger = LogManager.getLogger(OrderServiceImpl.class);
 
     @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository, InventoryItemService inventoryItemService, UserService userService, Converter converter) {
+    public OrderServiceImpl(OrderRepository orderRepository, UserService userService,
+                            Converter converter, List<OrderStatusValidator> validators) {
         this.orderRepository = orderRepository;
-        this.inventoryItemService = inventoryItemService;
         this.userService = userService;
         this.converter = converter;
+        this.validators = Arrays.asList(
+                new WaitingPaymentValidatorImpl(),
+                new PaidValidatorImpl(),
+                new ShippedValidatorImpl(),
+                new DeliveredValidatorImpl(),
+                new CanceledValidatorImpl()
+        );
     }
 
     @Transactional(readOnly = true)
@@ -62,8 +74,6 @@ public class OrderServiceImpl implements OrderService {
         orderRequest.setId(null);
 
         Order order = buildOrder(orderRequest);
-
-        inventoryItemService.isListItemsAvailable(order);
 
         try {
             orderRepository.save(order);
@@ -164,7 +174,7 @@ public class OrderServiceImpl implements OrderService {
 
     public boolean isOrderItemsPresent(Order order) {
 
-        return order.getItems() != null;
+        return !order.getItems().isEmpty();
     }
 
     public boolean isDeliveryAddressPresent(Order order) {
@@ -180,16 +190,10 @@ public class OrderServiceImpl implements OrderService {
 
     public void validateOrderStatusChange(OrderRequest orderRequest) {
 
-        OrderStatus requestedStatus = orderRequest.getOrderStatus();
         Order order = findOrderById(orderRequest.getId());
-        boolean isOrderPaid = isOrderPaid(order);
 
-        if (isOrderPaid && requestedStatus == OrderStatus.WAITING_PAYMENT) {
-            throw new IllegalStateException("Não é possível alterar o status de pagamento: pedido já pago.");
-        }
-
-        if (!isOrderPaid && requestedStatus != OrderStatus.CANCELED) {
-            throw new IllegalStateException("Não é possível alterar o status de entrega: pedido aguardando pagamento.");
+        for (OrderStatusValidator validator : validators) {
+            validator.validate(order, orderRequest);
         }
     }
 

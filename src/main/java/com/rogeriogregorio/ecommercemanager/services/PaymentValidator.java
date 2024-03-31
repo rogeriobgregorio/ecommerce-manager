@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.services.validatorstrategy;
+package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import org.springframework.stereotype.Component;
