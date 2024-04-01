@@ -17,6 +17,9 @@ import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,14 +48,14 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     }
 
     @Transactional(readOnly = true)
-    public List<InventoryItemResponse> findAllInventoryItems() {
+    public Page<InventoryItemResponse> findAllInventoryItems(int page, int size) {
 
         try {
-            return inventoryItemRepository
-                    .findAll()
-                    .stream()
-                    .map(inventoryItem -> converter.toResponse(inventoryItem, InventoryItemResponse.class))
-                    .toList();
+            Pageable pageable = PageRequest.of(page, size);
+            Page<InventoryItem> inventoryItemsPage = inventoryItemRepository.findAll(pageable);
+            return inventoryItemsPage
+                    .map(inventoryItem -> converter
+                    .toResponse(inventoryItem, InventoryItemResponse.class));
 
         } catch (PersistenceException ex) {
             logger.error("Erro ao tentar buscar todos os itens do inventário: {}", ex.getMessage(), ex);

@@ -5,11 +5,10 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.OrderItemResponse;
 import com.rogeriogregorio.ecommercemanager.services.OrderItemService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api")
@@ -23,11 +22,13 @@ public class OrderItemController {
     }
 
     @GetMapping(value = "/order-items")
-    public ResponseEntity<List<OrderItemResponse>> getAllOrderItems() {
+    public ResponseEntity<Page<OrderItemResponse>> getAllOrderItems(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(orderItemService.findAllOrderItems());
+                .body(orderItemService.findAllOrderItems(page, size));
     }
 
     @PostMapping(value = "/order-items")

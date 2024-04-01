@@ -3,14 +3,13 @@ package com.rogeriogregorio.ecommercemanager.services;
 import com.rogeriogregorio.ecommercemanager.dto.requests.AddressRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Address;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public interface AddressService {
 
-    List<AddressResponse> findAllAddresses();
+    Page<AddressResponse> findAllAddresses(int page, int size);
 
     AddressResponse createAddress(AddressRequest addressRequest);
 

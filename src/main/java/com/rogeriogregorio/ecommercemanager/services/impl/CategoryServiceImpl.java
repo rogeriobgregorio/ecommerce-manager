@@ -12,6 +12,9 @@ import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,14 +36,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public List<CategoryResponse> findAllCategories() {
+    public Page<CategoryResponse> findAllCategories(int page, int size) {
 
         try {
-            return categoryRepository
-                    .findAll()
-                    .stream()
-                    .map(category -> converter.toResponse(category, CategoryResponse.class))
-                    .toList();
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Category> categoriesPage = categoryRepository.findAll(pageable);
+            return categoriesPage
+                    .map(category -> converter
+                    .toResponse(category, CategoryResponse.class));
 
         } catch (PersistenceException ex) {
             logger.error("Erro ao tentar buscar todas as categorias: {}", ex.getMessage(), ex);
@@ -122,14 +125,14 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public List<CategoryResponse> findCategoryByName(String name) {
+    public Page<CategoryResponse> findCategoryByName(String name, int page, int size) {
 
         try {
-            return categoryRepository
-                    .findCategoryByName(name)
-                    .stream()
-                    .map(category -> converter.toResponse(category, CategoryResponse.class))
-                    .toList();
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Category> categoriesPage = categoryRepository.findCategoryByName(name, pageable);
+            return categoriesPage
+                    .map(category -> converter
+                    .toResponse(category, CategoryResponse.class));
 
         } catch (PersistenceException ex) {
             logger.error("Erro ao tentar buscar categoria pelo nome: {}", ex.getMessage(), ex);

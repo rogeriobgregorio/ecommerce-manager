@@ -16,6 +16,9 @@ import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,14 +48,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional(readOnly = true)
-    public List<OrderResponse> findAllOrders() {
+    public Page<OrderResponse> findAllOrders(int page, int size) {
 
         try {
-            return orderRepository
-                    .findAll()
-                    .stream()
-                    .map(order -> converter.toResponse(order, OrderResponse.class))
-                    .toList();
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Order> ordersPage = orderRepository.findAll(pageable);
+            return ordersPage
+                    .map(order -> converter
+                    .toResponse(order, OrderResponse.class));
 
         } catch (PersistenceException ex) {
             logger.error("Erro ao tentar buscar todos os pedidos: {}", ex.getMessage(), ex);
@@ -135,17 +138,19 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional(readOnly = true)
-    public List<OrderResponse> findOrderByClientId(Long id) {
+    public Page<OrderResponse> findOrderByClientId(Long id, int page, int size) {
 
-        return orderRepository
-                .findByClient_Id(id)
-                .orElseThrow(() -> {
-                    logger.warn("Nenhum pedido encontrado com o ID do cliente: {}", id);
-                    return new NotFoundException("Nenhum pedido encontrado com o ID do cliente: " + id + ".");
-                })
-                .stream()
-                .map(order -> converter.toResponse(order, OrderResponse.class))
-                .toList();
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Order> ordersPage = orderRepository.findByClient_Id(id, pageable);
+            return ordersPage
+                    .map(order -> converter
+                    .toResponse(order, OrderResponse.class));
+
+        } catch (PersistenceException ex) {
+            logger.error("Erro ao tentar buscar pedidos pelo ID do cliente: {}", ex.getMessage(), ex);
+            throw new RepositoryException("Erro ao tentar buscar pedidos pelo ID do cliente: " + ex);
+        }
     }
 
     public Order findOrderById(Long id) {

@@ -14,6 +14,9 @@ import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,14 +41,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductResponse> findAllProducts() {
+    public Page<ProductResponse> findAllProducts(int page, int size) {
 
         try {
-            return productRepository
-                    .findAll()
-                    .stream()
-                    .map(product -> converter.toResponse(product, ProductResponse.class))
-                    .toList();
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Product> productsPage = productRepository.findAll(pageable);
+            return productsPage
+                    .map(product -> converter
+                    .toResponse(product, ProductResponse.class));
 
         } catch (PersistenceException ex) {
             logger.error("Erro ao tentar buscar todos os produtos: {}", ex.getMessage(), ex);
@@ -115,14 +118,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProductResponse> findProductByName(String name) {
+    public Page<ProductResponse> findProductByName(String name, int page, int size) {
 
         try {
-            return productRepository
-                    .findProductByName(name)
-                    .stream()
-                    .map(product -> converter.toResponse(product, ProductResponse.class))
-                    .toList();
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Product> productsPage = productRepository.findProductByName(name, pageable);
+            return productsPage
+                    .map(product -> converter
+                    .toResponse(product, ProductResponse.class));
 
         } catch (PersistenceException ex) {
             logger.error("Erro ao tentar buscar produto pelo nome: {}", ex.getMessage(), ex);

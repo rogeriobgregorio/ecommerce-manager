@@ -14,6 +14,9 @@ import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,14 +42,14 @@ public class StockMovementServiceImpl implements StockMovementService {
     }
 
     @Transactional(readOnly = true)
-    public List<StockMovementResponse> findAllStockMovements() {
+    public Page<StockMovementResponse> findAllStockMovements(int page, int size) {
 
         try {
-            return stockMovementRepository
-                    .findAll()
-                    .stream()
-                    .map(stockMovement -> converter.toResponse(stockMovement, StockMovementResponse.class))
-                    .toList();
+            Pageable pageable = PageRequest.of(page, size);
+            Page<StockMovement> stockMovementsPage = stockMovementRepository.findAll(pageable);
+            return stockMovementsPage
+                    .map(stockMovement -> converter
+                    .toResponse(stockMovement, StockMovementResponse.class));
 
         } catch (PersistenceException ex) {
             logger.error("Erro ao tentar buscar todas as movimentações do estoque: {}", ex.getMessage(), ex);

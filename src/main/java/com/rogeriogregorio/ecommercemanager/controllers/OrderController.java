@@ -5,11 +5,10 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api")
@@ -23,11 +22,13 @@ public class OrderController {
     }
 
     @GetMapping(value = "/orders")
-    public ResponseEntity<List<OrderResponse>> getAllOrders() {
+    public ResponseEntity<Page<OrderResponse>> getAllOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(orderService.findAllOrders());
+                .body(orderService.findAllOrders(page, size));
     }
 
     @PostMapping(value = "/orders")
@@ -65,10 +66,13 @@ public class OrderController {
     }
 
     @GetMapping(value = "/clients/{id}/orders")
-    public ResponseEntity<List<OrderResponse>> getOrdersByClientId(@PathVariable Long id) {
+    public ResponseEntity<Page<OrderResponse>> getOrdersByClientId(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(orderService.findOrderByClientId(id));
+                .body(orderService.findOrderByClientId(id, page, size));
     }
 }

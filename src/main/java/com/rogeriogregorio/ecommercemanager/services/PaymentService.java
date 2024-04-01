@@ -3,14 +3,13 @@ package com.rogeriogregorio.ecommercemanager.services;
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Payment;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public interface PaymentService {
 
-    List<PaymentResponse> findAllPayments();
+    Page<PaymentResponse> findAllPayments(int page, int size);
 
     PaymentResponse createPayment(PaymentRequest paymentRequest);
 

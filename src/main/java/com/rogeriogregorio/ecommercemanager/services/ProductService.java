@@ -3,14 +3,13 @@ package com.rogeriogregorio.ecommercemanager.services;
 import com.rogeriogregorio.ecommercemanager.dto.requests.ProductRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Product;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public interface ProductService {
 
-    List<ProductResponse> findAllProducts();
+    Page<ProductResponse> findAllProducts(int page, int size);
 
     ProductResponse createProduct(ProductRequest productRequest);
 
@@ -22,5 +21,5 @@ public interface ProductService {
 
     void deleteProduct(Long id);
 
-    List<ProductResponse> findProductByName(String name);
+    Page<ProductResponse> findProductByName(String name, int page, int size);
 }

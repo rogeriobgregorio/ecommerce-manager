@@ -5,11 +5,10 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.services.AddressService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api")
@@ -23,11 +22,13 @@ public class AddressController {
     }
 
     @GetMapping(value = "/addresses")
-    public ResponseEntity<List<AddressResponse>> getAllAddresses() {
+    public ResponseEntity<Page<AddressResponse>> getAllAddresses(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(addressService.findAllAddresses());
+                .body(addressService.findAllAddresses(page, size));
     }
 
     @PostMapping(value = "/addresses")

@@ -5,11 +5,10 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.ProductResponse;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api")
@@ -23,11 +22,13 @@ public class ProductController {
     }
 
     @GetMapping(value = "/products")
-    public ResponseEntity<List<ProductResponse>> getAllProducts() {
+    public ResponseEntity<Page<ProductResponse>> getAllProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(productService.findAllProducts());
+                .body(productService.findAllProducts(page, size));
     }
 
     @PostMapping(value = "/products")
@@ -65,10 +66,13 @@ public class ProductController {
     }
 
     @GetMapping(value = "/products/search")
-    public ResponseEntity<List<ProductResponse>> getProductByName(@RequestParam("name") String name) {
+    public ResponseEntity<Page<ProductResponse>> getProductByName(
+            @RequestParam("name") String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(productService.findProductByName(name));
+                .body(productService.findProductByName(name, page, size));
     }
 }

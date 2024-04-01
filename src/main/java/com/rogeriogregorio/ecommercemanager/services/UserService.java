@@ -3,14 +3,13 @@ package com.rogeriogregorio.ecommercemanager.services;
 import com.rogeriogregorio.ecommercemanager.dto.requests.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.User;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public interface UserService {
 
-    List<UserResponse> findAllUsers();
+    Page<UserResponse> findAllUsers(int page, int size);
 
     UserResponse createUser(UserRequest userRequest);
 
@@ -22,7 +21,7 @@ public interface UserService {
 
     void deleteUser(Long id);
 
-    List<UserResponse> findUserByName(String name);
+    Page<UserResponse> findUserByName(String name, int page, int size);
 
     void saveUserAddress(User user);
 }

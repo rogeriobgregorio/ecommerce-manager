@@ -3,6 +3,7 @@ package com.rogeriogregorio.ecommercemanager.services;
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
 @Component
 public interface OrderService {
 
-    List<OrderResponse> findAllOrders();
+    Page<OrderResponse> findAllOrders(int page, int size);
 
     OrderResponse createOrder(OrderRequest orderRequest);
 
@@ -24,5 +25,5 @@ public interface OrderService {
 
     void deleteOrder(Long id);
 
-    List<OrderResponse> findOrderByClientId(Long id);
+    Page<OrderResponse> findOrderByClientId(Long id, int page, int size);
 }

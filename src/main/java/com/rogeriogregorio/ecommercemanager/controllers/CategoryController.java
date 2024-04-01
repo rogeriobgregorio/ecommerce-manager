@@ -5,11 +5,10 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.CategoryResponse;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api")
@@ -23,11 +22,13 @@ public class CategoryController {
     }
 
     @GetMapping(value = "/categories")
-    public ResponseEntity<List<CategoryResponse>> getAllCategories() {
+    public ResponseEntity<Page<CategoryResponse>> getAllCategories(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(categoryService.findAllCategories());
+                .body(categoryService.findAllCategories(page, size));
     }
 
     @PostMapping(value = "/categories")
@@ -65,10 +66,13 @@ public class CategoryController {
     }
 
     @GetMapping(value = "/categories/search")
-    public ResponseEntity<List<CategoryResponse>> getCategoryByName(@RequestParam("name") String name) {
+    public ResponseEntity<Page<CategoryResponse>> getCategoryByName(
+            @RequestParam("name") String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(categoryService.findCategoryByName(name));
+                .body(categoryService.findCategoryByName(name, page, size));
     }
 }

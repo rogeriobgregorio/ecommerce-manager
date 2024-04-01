@@ -4,14 +4,13 @@ import com.rogeriogregorio.ecommercemanager.dto.requests.StockMovementRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.StockMovementResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.StockMovement;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public interface StockMovementService {
 
-    List<StockMovementResponse> findAllStockMovements();
+    Page<StockMovementResponse> findAllStockMovements(int page, int size);
 
     StockMovementResponse createStockMovement(StockMovementRequest stockMovementRequest);
 
