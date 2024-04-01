@@ -13,12 +13,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -36,12 +33,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserResponse> findAllUsers(int page, int size) {
+    public Page<UserResponse> findAllUsers(Pageable pageable) {
 
         try {
-            Pageable pageable = PageRequest.of(page, size);
             Page<User> usersPage = userRepository.findAll(pageable);
-            return usersPage.map(user -> converter.toResponse(user, UserResponse.class));
+            return usersPage
+                    .map(user -> converter
+                    .toResponse(user, UserResponse.class));
 
         } catch (PersistenceException ex) {
             logger.error("Erro ao tentar buscar todos os usuários: {}", ex.getMessage(), ex);
@@ -112,10 +110,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserResponse> findUserByName(String name, int page, int size) {
+    public Page<UserResponse> findUserByName(String name, Pageable pageable) {
 
         try {
-            Pageable pageable = PageRequest.of(page, size);
             Page<User> usersPage = userRepository.findByName(name, pageable);
             return usersPage
                     .map(user -> converter

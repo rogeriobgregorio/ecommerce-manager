@@ -15,12 +15,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class AddressServiceImpl implements AddressService {
@@ -41,10 +38,9 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AddressResponse> findAllAddresses(int page, int size) {
+    public Page<AddressResponse> findAllAddresses(Pageable pageable) {
 
         try {
-            Pageable pageable = PageRequest.of(page, size);
             Page<Address> addressespage = addressRepository.findAll(pageable);
             return addressespage
                     .map(address -> converter

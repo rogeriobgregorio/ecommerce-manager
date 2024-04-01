@@ -15,13 +15,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 
 @Service
 public class StockMovementServiceImpl implements StockMovementService {
@@ -42,10 +40,9 @@ public class StockMovementServiceImpl implements StockMovementService {
     }
 
     @Transactional(readOnly = true)
-    public Page<StockMovementResponse> findAllStockMovements(int page, int size) {
+    public Page<StockMovementResponse> findAllStockMovements(Pageable pageable) {
 
         try {
-            Pageable pageable = PageRequest.of(page, size);
             Page<StockMovement> stockMovementsPage = stockMovementRepository.findAll(pageable);
             return stockMovementsPage
                     .map(stockMovement -> converter

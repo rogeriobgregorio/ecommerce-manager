@@ -18,13 +18,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 
 @Service
 public class InventoryItemServiceImpl implements InventoryItemService {
@@ -48,10 +46,9 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     }
 
     @Transactional(readOnly = true)
-    public Page<InventoryItemResponse> findAllInventoryItems(int page, int size) {
+    public Page<InventoryItemResponse> findAllInventoryItems(Pageable pageable) {
 
         try {
-            Pageable pageable = PageRequest.of(page, size);
             Page<InventoryItem> inventoryItemsPage = inventoryItemRepository.findAll(pageable);
             return inventoryItemsPage
                     .map(inventoryItem -> converter

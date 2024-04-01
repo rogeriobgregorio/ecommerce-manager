@@ -15,7 +15,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,10 +40,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductResponse> findAllProducts(int page, int size) {
+    public Page<ProductResponse> findAllProducts(Pageable pageable) {
 
         try {
-            Pageable pageable = PageRequest.of(page, size);
             Page<Product> productsPage = productRepository.findAll(pageable);
             return productsPage
                     .map(product -> converter
@@ -118,10 +116,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductResponse> findProductByName(String name, int page, int size) {
+    public Page<ProductResponse> findProductByName(String name, Pageable pageable) {
 
         try {
-            Pageable pageable = PageRequest.of(page, size);
             Page<Product> productsPage = productRepository.findProductByName(name, pageable);
             return productsPage
                     .map(product -> converter

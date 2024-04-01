@@ -7,6 +7,7 @@ import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.OrderItem;
 import com.rogeriogregorio.ecommercemanager.entities.Product;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.List;
 @Component
 public interface InventoryItemService {
 
-    Page<InventoryItemResponse> findAllInventoryItems(int page, int size);
+    Page<InventoryItemResponse> findAllInventoryItems(Pageable pageable);
 
     InventoryItemResponse createInventoryItem(InventoryItemRequest inventoryItemRequest);
 

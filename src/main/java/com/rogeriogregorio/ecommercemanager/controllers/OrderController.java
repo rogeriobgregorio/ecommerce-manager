@@ -5,10 +5,12 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api")
@@ -22,13 +24,11 @@ public class OrderController {
     }
 
     @GetMapping(value = "/orders")
-    public ResponseEntity<Page<OrderResponse>> getAllOrders(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<List<OrderResponse>> getAllOrders(Pageable pageable) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(orderService.findAllOrders(page, size));
+                .body(orderService.findAllOrders(pageable).getContent());
     }
 
     @PostMapping(value = "/orders")
@@ -66,13 +66,11 @@ public class OrderController {
     }
 
     @GetMapping(value = "/clients/{id}/orders")
-    public ResponseEntity<Page<OrderResponse>> getOrdersByClientId(
-            @PathVariable Long id,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<List<OrderResponse>> getOrdersByClientId(
+            @PathVariable Long id, Pageable pageable) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(orderService.findOrderByClientId(id, page, size));
+                .body(orderService.findOrderByClientId(id, pageable).getContent());
     }
 }

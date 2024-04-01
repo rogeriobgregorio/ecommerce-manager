@@ -5,10 +5,12 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.StockMovementResponse;
 import com.rogeriogregorio.ecommercemanager.services.StockMovementService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api")
@@ -22,13 +24,11 @@ public class StockMovementController {
     }
 
     @GetMapping(value = "/stock-movements")
-    public ResponseEntity<Page<StockMovementResponse>> getAllStockMovement(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<List<StockMovementResponse>> getAllStockMovement(Pageable pageable) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(stockMovementService.findAllStockMovements(page, size));
+                .body(stockMovementService.findAllStockMovements(pageable).getContent());
     }
 
     @PostMapping(value = "/stock-movements")
