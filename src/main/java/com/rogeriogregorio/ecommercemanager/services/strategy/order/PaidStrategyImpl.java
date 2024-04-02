@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.services.strategy.orderstatus;
+package com.rogeriogregorio.ecommercemanager.services.strategy.order;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
@@ -9,9 +9,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DeliveredStrategyImpl implements OrderStatusStrategy {
+public class PaidStrategyImpl implements OrderStatusStrategy {
 
-    private static final Logger logger = LogManager.getLogger(DeliveredStrategyImpl.class);
+    private static final Logger logger = LogManager.getLogger(PaidStrategyImpl.class);
 
     @Override
     public void validate(Order order, OrderRequest orderRequest) {
@@ -19,9 +19,9 @@ public class DeliveredStrategyImpl implements OrderStatusStrategy {
         OrderStatus statusRequest = orderRequest.getOrderStatus();
         OrderStatus currentStatus = order.getOrderStatus();
 
-        if (currentStatus == OrderStatus.DELIVERED && statusRequest != OrderStatus.DELIVERED) {
-            logger.warn("Não é possível alterar o status de entrega: o pedido {} está entregue.", order);
-            throw new IllegalStateException("Não é possível alterar o status de entrega: o pedido está entregue.");
+        if (currentStatus == OrderStatus.PAID && statusRequest != OrderStatus.SHIPPED) {
+            logger.warn("Não é possível alterar o status de entrega: o pedido {} está pago e aguarda ser enviado.", order);
+            throw new IllegalStateException("Não é possível alterar o status de entrega: o pedido está pago e aguarda ser enviado.");
         }
     }
 }

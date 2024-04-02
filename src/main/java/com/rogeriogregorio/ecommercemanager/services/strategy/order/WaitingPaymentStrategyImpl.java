@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.services.strategy.orderstatus;
+package com.rogeriogregorio.ecommercemanager.services.strategy.order;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
