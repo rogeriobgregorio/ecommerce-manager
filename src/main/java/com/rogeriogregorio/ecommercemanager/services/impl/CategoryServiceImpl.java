@@ -4,13 +4,10 @@ import com.rogeriogregorio.ecommercemanager.dto.requests.CategoryRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.CategoryResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Category;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
-import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.CategoryRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
-import jakarta.persistence.PersistenceException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,11 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class CategoryServiceImpl implements CategoryService {
+public class CategoryServiceImpl extends ErrorHandlerTemplateImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final Converter converter;
-    private static final Logger logger = LogManager.getLogger(CategoryServiceImpl.class);
 
     @Autowired
     public CategoryServiceImpl(CategoryRepository categoryRepository,
@@ -37,16 +33,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     public Page<CategoryResponse> findAllCategories(Pageable pageable) {
 
-        try {
-            Page<Category> categoriesPage = categoryRepository.findAll(pageable);
-            return categoriesPage
-                    .map(category -> converter
-                    .toResponse(category, CategoryResponse.class));
-
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar buscar todas as categorias: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar buscar todas as categorias: " + ex);
-        }
+        return handleError(() -> categoryRepository.findAll(pageable),
+                "Erro ao tentar buscar todas as categorias: ")
+                .map(category -> converter.toResponse(category, CategoryResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -55,22 +44,18 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRequest.setId(null);
         Category category = buildCategory(categoryRequest);
 
-        try {
-            categoryRepository.save(category);
-            logger.info("Categoria criada: {}", category);
-            return converter.toResponse(category, CategoryResponse.class);
+        handleError(() -> categoryRepository.save(category),
+                "Erro ao tentar criar a categoria: ");
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar criar a categoria: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar criar a categoria: " + ex);
-        }
+        logger.info("Categoria criada: {}", category);
+        return converter.toResponse(category, CategoryResponse.class);
     }
 
     @Transactional(readOnly = true)
     public CategoryResponse findCategoryResponseById(Long id) {
 
-        return categoryRepository
-                .findById(id)
+        return handleError(() -> categoryRepository.findById(id),
+                "Erro ao tentar encontrar a categoria pelo ID: ")
                 .map(category -> converter.toResponse(category, CategoryResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Categoria não encontrado com o ID: {}", id);
@@ -81,13 +66,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     public List<Category> findAllCategoriesByIds(List<Long> id) {
 
-        try {
-            return categoryRepository.findAllById(id);
-
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar buscar todas as categorias por id: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar buscar todas as categorias por id: " + ex);
-        }
+        return handleError(() -> categoryRepository.findAllById(id),
+                "Erro ao tentar buscar todas as categorias por id: ");
     }
 
     @Transactional(readOnly = false)
@@ -96,15 +76,11 @@ public class CategoryServiceImpl implements CategoryService {
         findCategoryById(categoryRequest.getId());
         Category category = buildCategory(categoryRequest);
 
-        try {
-            categoryRepository.save(category);
-            logger.info("Categoria atualizada: {}", category);
-            return converter.toResponse(category, CategoryResponse.class);
+        handleError(() -> categoryRepository.save(category),
+                "Erro ao tentar atualizar a categoria: ");
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar atualizar a categoria: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar atualizar a categoria: " + ex);
-        }
+        logger.info("Categoria atualizada: {}", category);
+        return converter.toResponse(category, CategoryResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -112,35 +88,26 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category category = findCategoryById(id);
 
-        try {
+        handleError(() -> {
             categoryRepository.deleteById(id);
-            logger.warn("Categoria removida: {}", category);
+            return null;
+        }, "Erro ao tentar excluir a categoria: ");
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar excluir a categoria: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar excluir a categoria: " + ex);
-        }
+        logger.warn("Categoria removida: {}", category);
     }
 
     @Transactional(readOnly = true)
     public Page<CategoryResponse> findCategoryByName(String name, Pageable pageable) {
 
-        try {
-            Page<Category> categoriesPage = categoryRepository.findCategoryByName(name, pageable);
-            return categoriesPage
-                    .map(category -> converter
-                    .toResponse(category, CategoryResponse.class));
-
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar buscar categoria pelo nome: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar buscar categoria pelo nome: " + ex);
-        }
+        return handleError(() -> categoryRepository.findCategoryByName(name, pageable),
+                "Erro ao tentar buscar categoria pelo nome: ")
+                .map(category -> converter.toResponse(category, CategoryResponse.class));
     }
 
     public Category findCategoryById(Long id) {
 
-        return categoryRepository
-                .findById(id)
+        return handleError(() -> categoryRepository.findById(id),
+                "Erro ao tentar encontrar a categoria pelo ID: ")
                 .orElseThrow(() -> {
                     logger.warn("Categoria não encontrado com o ID: {}", id);
                     return new NotFoundException("Categoria não encontrado com o ID: " + id + ".");

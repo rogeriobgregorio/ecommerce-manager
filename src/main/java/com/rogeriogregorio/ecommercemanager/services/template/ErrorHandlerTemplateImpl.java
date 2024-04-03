@@ -2,9 +2,9 @@ package com.rogeriogregorio.ecommercemanager.services.template;
 
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.services.ErrorHandlerTemplate;
-import jakarta.persistence.PersistenceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import java.util.function.Supplier;
@@ -20,7 +20,7 @@ public abstract class ErrorHandlerTemplateImpl implements ErrorHandlerTemplate {
         try {
             return transaction.get();
 
-        } catch (PersistenceException ex) {
+        } catch (DataAccessException ex) {
             throw new RepositoryException(message + ex);
         }
     }

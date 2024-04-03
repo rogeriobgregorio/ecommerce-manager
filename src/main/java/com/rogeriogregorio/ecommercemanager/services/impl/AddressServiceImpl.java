@@ -5,14 +5,11 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Address;
 import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
-import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.AddressRepository;
 import com.rogeriogregorio.ecommercemanager.services.AddressService;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
-import jakarta.persistence.PersistenceException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,12 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class AddressServiceImpl implements AddressService {
+public class AddressServiceImpl extends ErrorHandlerTemplateImpl implements AddressService {
 
     private final AddressRepository addressRepository;
     private final UserService userService;
     private final Converter converter;
-    private static final Logger logger = LogManager.getLogger(AddressServiceImpl.class);
 
     @Autowired
     public AddressServiceImpl(AddressRepository addressRepository,
@@ -40,23 +36,16 @@ public class AddressServiceImpl implements AddressService {
     @Transactional(readOnly = true)
     public Page<AddressResponse> findAllAddresses(Pageable pageable) {
 
-        try {
-            Page<Address> addressespage = addressRepository.findAll(pageable);
-            return addressespage
-                    .map(address -> converter
-                    .toResponse(address, AddressResponse.class));
-
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar buscar todos os endereços: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar buscar todas os endereços: " + ex);
-        }
+        return handleError(() -> addressRepository.findAll(pageable),
+                "Erro ao tentar buscar todos os endereços: ")
+                .map(address -> converter.toResponse(address, AddressResponse.class));
     }
 
     @Transactional(readOnly = true)
     public AddressResponse findAddressResponseById(Long id) {
 
-        return addressRepository
-                .findById(id)
+        return handleError(() -> addressRepository.findById(id),
+                "Erro ao tentar encontrar o endereço pelo ID: ")
                 .map(address -> converter.toResponse(address, AddressResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Endereço não encontrado com o ID: {}", id);
@@ -70,15 +59,11 @@ public class AddressServiceImpl implements AddressService {
         addressRequest.setId(null);
         Address address = buildAddress(addressRequest);
 
-        try {
-            addressRepository.save(address);
-            logger.info("Endereço criado: {}", address);
-            return converter.toResponse(address, AddressResponse.class);
+        handleError(() -> addressRepository.save(address),
+                "Erro ao tentar criar o endereço: ");
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar criar o endereço: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar criar o endereço: " + ex);
-        }
+        logger.info("Endereço criado: {}", address);
+        return converter.toResponse(address, AddressResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -87,15 +72,11 @@ public class AddressServiceImpl implements AddressService {
         findAddressById(addressRequest.getId());
         Address address = buildAddress(addressRequest);
 
-        try {
-            addressRepository.save(address);
-            logger.info("Endereço atualizado: {}", address);
-            return converter.toResponse(address, AddressResponse.class);
+        handleError(() -> addressRepository.save(address),
+                "Erro ao tentar atualizar o endereço: ");
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar atualizar o endereço: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar atualizar o endereço: " + ex);
-        }
+        logger.info("Endereço atualizado: {}", address);
+        return converter.toResponse(address, AddressResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -103,20 +84,18 @@ public class AddressServiceImpl implements AddressService {
 
         Address address = findAddressById(id);
 
-        try {
+        handleError(() -> {
             addressRepository.deleteById(id);
-            logger.warn("Endereço removido: {}", address);
+            return null;
+        }, "Erro ao tentar excluir o endereço: ");
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar excluir o endereço: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar excluir o endereço: " + ex);
-        }
+        logger.warn("Endereço removido: {}", address);
     }
 
     public Address findAddressById(Long id) {
 
-        return addressRepository
-                .findById(id)
+        return handleError(() -> addressRepository.findById(id),
+                "Erro ao tentar encontrar o endereço pelo ID: ")
                 .orElseThrow(() -> {
                     logger.warn("Endereço não encontrado com o ID: {}", id);
                     return new NotFoundException("Endereço não encontrado com o ID: " + id + ".");

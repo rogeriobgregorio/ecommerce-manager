@@ -6,15 +6,12 @@ import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
-import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.services.OrderStatusStrategy;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
-import jakarta.persistence.PersistenceException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,13 +23,12 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-public class OrderServiceImpl implements OrderService {
+public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final UserService userService;
     private final Converter converter;
     private final List<OrderStatusStrategy> validators;
-    private static final Logger logger = LogManager.getLogger(OrderServiceImpl.class);
 
     @Autowired
     public OrderServiceImpl(OrderRepository orderRepository,
@@ -49,16 +45,9 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public Page<OrderResponse> findAllOrders(Pageable pageable) {
 
-        try {
-            Page<Order> ordersPage = orderRepository.findAll(pageable);
-            return ordersPage
-                    .map(order -> converter
-                    .toResponse(order, OrderResponse.class));
-
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar buscar todos os pedidos: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar buscar todos os pedidos: " + ex);
-        }
+        return handleError(() -> orderRepository.findAll(pageable),
+                "Erro ao tentar buscar todos os pedidos: {}")
+                .map(order -> converter.toResponse(order, OrderResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -67,35 +56,29 @@ public class OrderServiceImpl implements OrderService {
         orderRequest.setId(null);
         Order order = buildOrder(orderRequest);
 
-        try {
-            orderRepository.save(order);
-            logger.info("Pedido criado: {}", order);
-            return converter.toResponse(order, OrderResponse.class);
+        handleError(() -> orderRepository.save(order),
+                "Erro ao tentar criar o pedido: ");
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar criar o pedido: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar criar o pedido: " + ex);
-        }
+        logger.info("Pedido criado: {}", order);
+        return converter.toResponse(order, OrderResponse.class);
     }
 
     @Transactional(readOnly = false)
     public void savePaidOrder(Order order) {
 
-        try {
+        handleError(() -> {
             orderRepository.save(order);
-            logger.info("Pedido pago salvo: {}", order);
+            return null;
+        }, "Erro ao tentar salvar o pedido pago: ");
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar salvar o pedido pago: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar salvar o pedido pago: " + ex);
-        }
+        logger.info("Pedido pago salvo: {}", order);
     }
 
     @Transactional(readOnly = true)
     public OrderResponse findOrderResponseById(Long id) {
 
-        return orderRepository
-                .findById(id)
+        return handleError(() -> orderRepository.findById(id),
+                "Erro ao tentar encontrar o pedido pelo ID: ")
                 .map(order -> converter.toResponse(order, OrderResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Pedido não encontrado com o ID: {}", id);
@@ -109,15 +92,12 @@ public class OrderServiceImpl implements OrderService {
         validateOrderStatusChange(orderRequest);
         Order order = buildOrder(orderRequest);
 
-        try {
-            orderRepository.save(order);
-            logger.info("Pedido atualizado: {}", order);
-            return converter.toResponse(order, OrderResponse.class);
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar atualizar o pedido: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar atualizar o pedido: " + ex);
-        }
+        handleError(() -> orderRepository.save(order),
+                "Erro ao tentar atualizar o pedido: ");
+
+        logger.info("Pedido atualizado: {}", order);
+        return converter.toResponse(order, OrderResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -125,35 +105,25 @@ public class OrderServiceImpl implements OrderService {
 
         validateOrderDeleteEligibility(id);
 
-        try {
+        handleError(() -> {
             orderRepository.deleteById(id);
-            logger.warn("Pedido removido: {}", id);
-
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar excluir o pedido: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar excluir o pedido: " + ex);
-        }
+            return null;
+        }, "Erro ao tentar excluir o pedido: ");
+        logger.warn("Pedido removido: {}", id);
     }
 
     @Transactional(readOnly = true)
     public Page<OrderResponse> findOrderByClientId(Long id, Pageable pageable) {
 
-        try {
-            Page<Order> ordersPage = orderRepository.findByClient_Id(id, pageable);
-            return ordersPage
-                    .map(order -> converter
-                    .toResponse(order, OrderResponse.class));
-
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar buscar pedidos pelo ID do cliente: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar buscar pedidos pelo ID do cliente: " + ex);
-        }
+        return handleError(() -> orderRepository.findByClient_Id(id, pageable),
+                "Erro ao tentar buscar pedidos pelo ID do cliente: ")
+                .map(order -> converter.toResponse(order, OrderResponse.class));
     }
 
     public Order findOrderById(Long id) {
 
-        return orderRepository
-                .findById(id)
+        return handleError(() -> orderRepository.findById(id),
+                "Erro ao tentar encontrar pedido pelo ID: ")
                 .orElseThrow(() -> {
                     logger.warn("Pedido não encontrado com o ID: {}", id);
                     return new NotFoundException("Pedido não encontrado com o ID: " + id + ".");

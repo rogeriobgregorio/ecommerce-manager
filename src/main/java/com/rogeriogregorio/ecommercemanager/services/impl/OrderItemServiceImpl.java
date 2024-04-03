@@ -7,16 +7,13 @@ import com.rogeriogregorio.ecommercemanager.entities.OrderItem;
 import com.rogeriogregorio.ecommercemanager.entities.Product;
 import com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
-import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderItemRepository;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.OrderItemService;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
-import jakarta.persistence.PersistenceException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,14 +24,13 @@ import java.math.BigDecimal;
 import java.util.Set;
 
 @Service
-public class OrderItemServiceImpl implements OrderItemService {
+public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements OrderItemService {
 
     private final OrderItemRepository orderItemRepository;
     private final InventoryItemService inventoryItemService;
     private final ProductService productService;
     private final OrderService orderService;
     private final Converter converter;
-    private static final Logger logger = LogManager.getLogger(OrderItemServiceImpl.class);
 
     @Autowired
     public OrderItemServiceImpl(OrderItemRepository orderItemRepository,
@@ -53,16 +49,9 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = true)
     public Page<OrderItemResponse> findAllOrderItems(Pageable pageable) {
 
-        try {
-            Page<OrderItem> orderItemsPage = orderItemRepository.findAll(pageable);
-            return orderItemsPage
-                    .map(orderItem -> converter
-                    .toResponse(orderItem, OrderItemResponse.class));
-
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar buscar todos os itens do pedido: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar buscar todos os itens do pedido: " + ex);
-        }
+        return handleError(() -> orderItemRepository.findAll(pageable),
+                "Erro ao tentar buscar todos os itens do pedido: ")
+                .map(orderItem -> converter.toResponse(orderItem, OrderItemResponse.class));
     }
 
     @Transactional(readOnly = true)
@@ -70,8 +59,8 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         OrderItemPK id = buildOrderItemPK(orderId, itemId);
 
-        return orderItemRepository
-                .findById(id)
+        return handleError(() -> orderItemRepository.findById(id),
+                "Erro ao tentar buscar o item do pedido pelo id")
                 .map(orderItem -> converter.toResponse(orderItem, OrderItemResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Itens não encontrado com o ID: {}", id);
@@ -84,15 +73,11 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         OrderItem orderItem = buildOrderItem(orderItemRequest);
 
-        try {
-            orderItemRepository.save(orderItem);
-            logger.info("Item do pedido criado: {}", orderItem);
-            return converter.toResponse(orderItem, OrderItemResponse.class);
+        handleError(() -> orderItemRepository.save(orderItem),
+                "Erro ao tentar criar item do pedido: ");
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar criar item do pedido: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar criar item do pedido: " + ex);
-        }
+        logger.info("Item do pedido criado: {}", orderItem);
+        return converter.toResponse(orderItem, OrderItemResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -100,15 +85,11 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         OrderItem orderItem = buildOrderItem(orderItemRequest);
 
-        try {
-            orderItemRepository.save(orderItem);
-            logger.info("Item do pedido atualizado: {}", orderItem);
-            return converter.toResponse(orderItem, OrderItemResponse.class);
+        handleError(() -> orderItemRepository.save(orderItem),
+                "Erro ao tentar atualizar o item do pedido: ");
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar atualizar o item do pedido: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar atualizar o item do pedido: " + ex);
-        }
+        logger.info("Item do pedido atualizado: {}", orderItem);
+        return converter.toResponse(orderItem, OrderItemResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -120,14 +101,12 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         OrderItemPK id = buildOrderItemPK(orderId, itemId);
 
-        try {
+        handleError(() -> {
             orderItemRepository.deleteById(id);
-            logger.warn("Item do pedido removido: {}", id.getProduct());
+            return null;
+        }, "Erro ao tentar excluir item do pedido: {}");
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar excluir item do pedido: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar excluir o item do pedido: " + ex);
-        }
+        logger.warn("Item do pedido removido: {}", id.getProduct());
     }
 
     public void validateOrderChangeEligibility(Order order) {

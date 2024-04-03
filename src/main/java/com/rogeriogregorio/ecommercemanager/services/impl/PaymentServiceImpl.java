@@ -6,13 +6,10 @@ import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.Payment;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
-import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.*;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
-import jakarta.persistence.PersistenceException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +20,7 @@ import java.time.Instant;
 import java.util.List;
 
 @Service
-public class PaymentServiceImpl implements PaymentService {
+public class PaymentServiceImpl extends ErrorHandlerTemplateImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final InventoryItemService inventoryItemService;
@@ -31,7 +28,6 @@ public class PaymentServiceImpl implements PaymentService {
     private final OrderService orderService;
     private final Converter converter;
     private final List<PaymentStrategy> validators;
-    private static final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
 
     @Autowired
     public PaymentServiceImpl(PaymentRepository paymentRepository,
@@ -52,16 +48,10 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional(readOnly = true)
     public Page<PaymentResponse> findAllPayments(Pageable pageable) {
 
-        try {
-            Page<Payment> paymentsPage = paymentRepository.findAll(pageable);
-            return paymentsPage
-                    .map(payment -> converter
-                    .toResponse(payment, PaymentResponse.class));
-
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar buscar pagamentos: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar buscar pagamentos: " + ex);
-        }
+        return handleError(() -> paymentRepository.findAll(pageable),
+                "Erro ao tentar buscar todos os pagamentos: ")
+                .map(payment -> converter
+                        .toResponse(payment, PaymentResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -70,23 +60,19 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRequest.setId(null);
         Payment payment = buildPayment(paymentRequest);
 
-        try {
-            paymentRepository.save(payment);
-            updateInventoryStock(payment);
-            logger.info("Pagamento criado: {}", payment);
-            return converter.toResponse(payment, PaymentResponse.class);
+        handleError(() -> paymentRepository.save(payment),
+                "Erro ao tentar criar o pagamento: ");
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar criar o pagamento: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar criar o pagamento: " + ex);
-        }
+        logger.info("Pagamento criado: {}", payment);
+        updateInventoryStock(payment);
+        return converter.toResponse(payment, PaymentResponse.class);
     }
 
     @Transactional(readOnly = true)
     public PaymentResponse findPaymentResponseById(Long id) {
 
-        return paymentRepository
-                .findById(id)
+        return handleError(() -> paymentRepository.findById(id),
+                "Erro ao tentar encontrar o pagamento pelo ID: ")
                 .map(payment -> converter.toResponse(payment, PaymentResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Pagamento não encontrado com o ID: {}", id);
@@ -99,20 +85,18 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment payment = findPaymentById(id);
 
-        try {
+        handleError(() -> {
             paymentRepository.deleteById(id);
-            logger.warn("Pagamento removido: {}", payment);
+            return null;
+        }, "Erro ao tentar excluir o pagamento: ");
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar excluir o pagamento: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar excluir o pagamento: " + ex);
-        }
+        logger.warn("Pagamento removido: {}", payment);
     }
 
     public Payment findPaymentById(Long id) {
 
-        return paymentRepository
-                .findById(id)
+        return handleError(() -> paymentRepository.findById(id),
+                "Erro ao tentar encontrar o pagamento pelo ID: {}")
                 .orElseThrow(() -> {
                     logger.warn("Pagamento não encontrado com o ID: {}", id);
                     return new NotFoundException("Pagamento não encontrado com o ID: " + id + ".");

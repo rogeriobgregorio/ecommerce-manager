@@ -12,10 +12,9 @@ import com.rogeriogregorio.ecommercemanager.repositories.InventoryItemRepository
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import jakarta.persistence.PersistenceException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,13 +24,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 
 @Service
-public class InventoryItemServiceImpl implements InventoryItemService {
+public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implements InventoryItemService {
 
     private final InventoryItemRepository inventoryItemRepository;
     private final StockMovementRepository stockMovementRepository;
     private final ProductService productService;
     private final Converter converter;
-    private static final Logger logger = LogManager.getLogger(InventoryItemServiceImpl.class);
 
     @Autowired
     public InventoryItemServiceImpl(InventoryItemRepository inventoryItemRepository,
@@ -48,16 +46,9 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Transactional(readOnly = true)
     public Page<InventoryItemResponse> findAllInventoryItems(Pageable pageable) {
 
-        try {
-            Page<InventoryItem> inventoryItemsPage = inventoryItemRepository.findAll(pageable);
-            return inventoryItemsPage
-                    .map(inventoryItem -> converter
-                    .toResponse(inventoryItem, InventoryItemResponse.class));
-
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar buscar todos os itens do inventário: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar buscar todos os itens do inventário: " + ex);
-        }
+        return handleError(() -> inventoryItemRepository.findAll(pageable),
+                "Erro ao tentar buscar todos os itens do inventário: ")
+                .map(inventoryItem -> converter.toResponse(inventoryItem, InventoryItemResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -66,23 +57,21 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         inventoryItemRequest.setId(null);
         InventoryItem inventoryItem = buildInventoryItem(inventoryItemRequest);
 
-        try {
-            inventoryItemRepository.save(inventoryItem);
-            updateStockMovementEntrance(inventoryItem);
-            logger.info("Item do inventário criado: {}", inventoryItem);
-            return converter.toResponse(inventoryItem, InventoryItemResponse.class);
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar criar o item do inventário: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar criar o item do inventário: " + ex);
-        }
+        handleError(() -> inventoryItemRepository.save(inventoryItem),
+                "Erro ao tentar criar o item do inventário: ");
+
+        updateStockMovementEntrance(inventoryItem);
+
+        logger.info("Item do inventário criado: {}", inventoryItem);
+        return converter.toResponse(inventoryItem, InventoryItemResponse.class);
     }
 
     @Transactional(readOnly = true)
     public InventoryItemResponse findInventoryItemResponseById(Long id) {
 
-        return inventoryItemRepository
-                .findById(id)
+        return handleError(() -> inventoryItemRepository.findById(id),
+                "Erro ao tentar encontrar o item do inventário pelo ID: ")
                 .map(inventoryItem -> converter.toResponse(inventoryItem, InventoryItemResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Item do inventário não encontrado com o ID: {}", id);
@@ -95,15 +84,11 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         InventoryItem inventoryItem = buildInventoryItem(inventoryItemRequest);
 
-        try {
-            inventoryItemRepository.save(inventoryItem);
-            logger.info("Item do inventário atualizado: {}", inventoryItem);
-            return converter.toResponse(inventoryItem, InventoryItemResponse.class);
+        handleError(() -> inventoryItemRepository.save(inventoryItem),
+                "Erro ao tentar atualizar o item do inventário: ");
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar atualizar o item do inventário: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar atualizar o item do inventário: " + ex);
-        }
+        logger.info("Item do inventário atualizado: {}", inventoryItem);
+        return converter.toResponse(inventoryItem, InventoryItemResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -111,20 +96,18 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         InventoryItem inventoryItem = findInventoryItemById(id);
 
-        try {
+        handleError(() -> {
             inventoryItemRepository.deleteById(id);
-            logger.warn("Item do inventário removido: {}", inventoryItem);
+            return null;
+        }, "Erro ao tentar excluir o Item do inventário: ");
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar excluir o Item do inventário: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar excluir o Item do inventário: " + ex);
-        }
+        logger.warn("Item do inventário removido: {}", inventoryItem);
     }
 
     public InventoryItem findInventoryItemById(Long id) {
 
-        return inventoryItemRepository
-                .findById(id)
+        return handleError(() -> inventoryItemRepository.findById(id),
+                "Erro ao tentar encontrar o item do inventário pelo ID: ")
                 .orElseThrow(() -> {
                     logger.warn("Item do inventário não encontrado com o ID: {}", id);
                     return new NotFoundException("Item do inventário não encontrado com o ID: " + id + ".");
@@ -133,8 +116,8 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
     public InventoryItem findInventoryItemByProduct(Product product) {
 
-        return inventoryItemRepository
-                .findByProduct(product)
+        return handleError(() -> inventoryItemRepository.findByProduct(product),
+                "Erro ao tentar encontrar o item do inventário: ")
                 .orElseThrow(() -> {
                     logger.warn("Item não encontrado no inventário: {}", product);
                     return new NotFoundException("Item não encontrado no inventário: " + product + ".");
@@ -143,14 +126,10 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
     public void saveInventoryItem(InventoryItem inventoryItem) {
 
-        try {
-            inventoryItemRepository.save(inventoryItem);
-            logger.info("Quantidade do item no inventário atualizada: {}", inventoryItem);
+        handleError(() -> inventoryItemRepository.save(inventoryItem),
+                "Erro ao tentar salvar o item do inventário: ");
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar salvar o item do inventário: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar salvar o item do inventário: " + ex.getMessage(), ex);
-        }
+        logger.info("Quantidade do item no inventário atualizada: {}", inventoryItem);
     }
 
     public void validateItemInventory(InventoryItemRequest inventoryItemRequest) {
@@ -169,13 +148,8 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
     public boolean isProductPresent(Long productId) {
 
-        try {
-            return inventoryItemRepository.findByProduct_Id(productId) != null;
-
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar verificar a presença do item no inventário: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar verificar a presença do item no inventário: " + ex);
-        }
+        return handleError(() -> inventoryItemRepository.findByProduct_Id(productId) != null,
+                "Erro ao tentar verificar a presença do item no inventário: ");
     }
 
     public boolean isListItemsAvailable(Order order) {
@@ -252,14 +226,10 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         int quantity = inventoryItem.getQuantityInStock();
         StockMovement stockMovement = new StockMovement(moment, inventoryItem, MovementType.ENTRANCE, quantity);
 
-        try {
-            stockMovementRepository.save(stockMovement);
-            logger.info("Movimentação do estoque criada: {}", stockMovement);
+        handleError(() -> stockMovementRepository.save(stockMovement),
+                "Erro ao tentar criar a movimentação do estoque: ");
 
-        } catch (PersistenceException ex) {
-            logger.error("Erro ao tentar criar a movimentação do estoque: {}", ex.getMessage(), ex);
-            throw new RepositoryException("Erro ao tentar criar a movimentação do estoque: " + ex);
-        }
+        logger.info("Movimentação do estoque criada: {}", stockMovement);
     }
 
     public InventoryItem buildInventoryItem(InventoryItemRequest inventoryItemRequest) {

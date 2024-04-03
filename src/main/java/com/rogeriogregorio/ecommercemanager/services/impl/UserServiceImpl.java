@@ -31,16 +31,16 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
     @Transactional(readOnly = true)
     public Page<UserResponse> findAllUsers(Pageable pageable) {
 
-        return handleError(() -> userRepository
-                .findAll(pageable), "Erro ao tentar buscar todos os usuários: ")
+        return handleError(() -> userRepository.findAll(pageable),
+                "Erro ao tentar buscar todos os usuários: ")
                 .map(user -> converter.toResponse(user, UserResponse.class));
     }
 
     @Transactional(readOnly = true)
     public UserResponse findUserResponseById(Long id) {
 
-        return handleError(() -> userRepository
-                .findById(id), "Erro ao tentar buscar o usuário pelo id: " + id)
+        return handleError(() -> userRepository.findById(id),
+                "Erro ao tentar buscar o usuário pelo id: " + id)
                 .map(user -> converter.toResponse(user, UserResponse.class))
                 .orElseThrow(() -> {
                     logger.warn("Usuário não encontrado com o ID: {}", id);
@@ -52,7 +52,7 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
     public UserResponse createUser(UserRequest userRequest) {
 
         userRequest.setId(null);
-        User user = converter.toEntity(userRequest, User.class);
+        User user = buildUser(userRequest);
 
         handleError(() -> userRepository.save(user),
                 "Erro ao tentar criar o usuário: ");
@@ -65,7 +65,7 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
     public UserResponse updateUser(UserRequest userRequest) {
 
         findUserById(userRequest.getId());
-        User user = converter.toEntity(userRequest, User.class);
+        User user = buildUser(userRequest);
 
         handleError(() -> userRepository.save(user),
                 "Erro ao tentar atualizar o usuário: ");
@@ -97,8 +97,8 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
 
     public User findUserById(Long id) {
 
-        return handleError(() -> userRepository
-                .findById(id), "Erro ao tentar buscar usuário pelo id: " + id)
+        return handleError(() -> userRepository.findById(id),
+                "Erro ao tentar buscar o usuário pelo id: " + id)
                 .orElseThrow(() -> {
                     logger.warn("Usuário não encontrado com o ID: {}", id);
                     return new NotFoundException("Usuário não encontrado com o ID: " + id + ".");
@@ -113,5 +113,10 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
         }, "Erro ao tentar atualizar o endereço do usuário: ");
 
         logger.info("Endereço do usuário atualizado: {}", user);
+    }
+
+    public User buildUser(UserRequest userRequest) {
+
+        return converter.toEntity(userRequest, User.class);
     }
 }
