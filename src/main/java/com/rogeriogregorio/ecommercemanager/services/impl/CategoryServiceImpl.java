@@ -46,8 +46,8 @@ public class CategoryServiceImpl extends ErrorHandlerTemplateImpl implements Cat
 
         handleError(() -> categoryRepository.save(category),
                 "Erro ao tentar criar a categoria: ");
-
         logger.info("Categoria criada: {}", category);
+
         return converter.toResponse(category, CategoryResponse.class);
     }
 
@@ -78,8 +78,8 @@ public class CategoryServiceImpl extends ErrorHandlerTemplateImpl implements Cat
 
         handleError(() -> categoryRepository.save(category),
                 "Erro ao tentar atualizar a categoria: ");
-
         logger.info("Categoria atualizada: {}", category);
+
         return converter.toResponse(category, CategoryResponse.class);
     }
 
@@ -92,7 +92,6 @@ public class CategoryServiceImpl extends ErrorHandlerTemplateImpl implements Cat
             categoryRepository.deleteById(id);
             return null;
         }, "Erro ao tentar excluir a categoria: ");
-
         logger.warn("Categoria removida: {}", category);
     }
 

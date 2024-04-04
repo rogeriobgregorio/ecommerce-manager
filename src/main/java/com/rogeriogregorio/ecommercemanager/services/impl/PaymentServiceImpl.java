@@ -62,8 +62,8 @@ public class PaymentServiceImpl extends ErrorHandlerTemplateImpl implements Paym
 
         handleError(() -> paymentRepository.save(payment),
                 "Erro ao tentar criar o pagamento: ");
-
         logger.info("Pagamento criado: {}", payment);
+
         updateInventoryStock(payment);
         return converter.toResponse(payment, PaymentResponse.class);
     }
@@ -89,7 +89,6 @@ public class PaymentServiceImpl extends ErrorHandlerTemplateImpl implements Paym
             paymentRepository.deleteById(id);
             return null;
         }, "Erro ao tentar excluir o pagamento: ");
-
         logger.warn("Pagamento removido: {}", payment);
     }
 

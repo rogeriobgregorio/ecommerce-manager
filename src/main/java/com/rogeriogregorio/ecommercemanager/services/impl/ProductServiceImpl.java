@@ -76,8 +76,8 @@ public class ProductServiceImpl extends ErrorHandlerTemplateImpl implements Prod
 
         handleError(() -> productRepository.save(product),
                 "Erro ao tentar atualizar o produto: {}");
-
         logger.info("produto atualizado: {}", product);
+
         return converter.toResponse(product, ProductResponse.class);
     }
 
@@ -90,7 +90,6 @@ public class ProductServiceImpl extends ErrorHandlerTemplateImpl implements Prod
             productRepository.deleteById(id);
             return null;
         }, "Erro ao tentar excluir o produto: ");
-
         logger.warn("Produto removido: {}", product);
     }
 

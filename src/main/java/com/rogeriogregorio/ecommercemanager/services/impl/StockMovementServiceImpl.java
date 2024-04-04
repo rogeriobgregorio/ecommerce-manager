@@ -52,8 +52,8 @@ public class StockMovementServiceImpl extends ErrorHandlerTemplateImpl implement
 
         handleError(() -> stockMovementRepository.save(stockMovement),
                 "Erro ao tentar criar a movimentação do estoque: {}");
-
         logger.info("Movimentação do estoque criada: {}", stockMovement);
+
         return converter.toResponse(stockMovement, StockMovementResponse.class);
     }
 
@@ -76,8 +76,8 @@ public class StockMovementServiceImpl extends ErrorHandlerTemplateImpl implement
 
         handleError(() -> stockMovementRepository.save(stockMovement),
                 "Erro ao tentar atualizar a movimentação do estoque: {}");
-
         logger.info("Movimentação do estoque atualizada: {}", stockMovement);
+
         return converter.toResponse(stockMovement, StockMovementResponse.class);
     }
 
@@ -90,7 +90,6 @@ public class StockMovementServiceImpl extends ErrorHandlerTemplateImpl implement
             stockMovementRepository.deleteById(id);
             return null;
         }, "Erro ao tentar excluir a movimentação do estoque: ");
-
         logger.info("Movimentação do estoque removida: {}", id);
     }
 
@@ -108,7 +107,6 @@ public class StockMovementServiceImpl extends ErrorHandlerTemplateImpl implement
 
         handleError(() -> stockMovementRepository.save(stockMovement),
                 "Erro ao tentar salvar a movimentação do estoque: ");
-
         logger.info("Movimentação do estoque salva: {}", stockMovement);
     }
 

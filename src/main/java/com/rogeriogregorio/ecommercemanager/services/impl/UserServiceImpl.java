@@ -56,8 +56,8 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
 
         handleError(() -> userRepository.save(user),
                 "Erro ao tentar criar o usuário: ");
-
         logger.info("Usuário criado: {}", user);
+
         return converter.toResponse(user, UserResponse.class);
     }
 
@@ -69,8 +69,8 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
 
         handleError(() -> userRepository.save(user),
                 "Erro ao tentar atualizar o usuário: ");
-
         logger.info("Usuário atualizado: {}", user);
+
         return converter.toResponse(user, UserResponse.class);
     }
 
@@ -83,7 +83,6 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
             userRepository.deleteById(id);
             return null;
         }, "Erro ao tentar excluir o usuário: ");
-
         logger.warn("Usuário removido: {}", user);
     }
 
@@ -111,7 +110,6 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
             userRepository.save(user);
             return null;
         }, "Erro ao tentar atualizar o endereço do usuário: ");
-
         logger.info("Endereço do usuário atualizado: {}", user);
     }
 

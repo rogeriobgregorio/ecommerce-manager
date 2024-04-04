@@ -61,8 +61,8 @@ public class AddressServiceImpl extends ErrorHandlerTemplateImpl implements Addr
 
         handleError(() -> addressRepository.save(address),
                 "Erro ao tentar criar o endereço: ");
-
         logger.info("Endereço criado: {}", address);
+
         return converter.toResponse(address, AddressResponse.class);
     }
 
@@ -74,8 +74,8 @@ public class AddressServiceImpl extends ErrorHandlerTemplateImpl implements Addr
 
         handleError(() -> addressRepository.save(address),
                 "Erro ao tentar atualizar o endereço: ");
-
         logger.info("Endereço atualizado: {}", address);
+
         return converter.toResponse(address, AddressResponse.class);
     }
 
@@ -88,7 +88,6 @@ public class AddressServiceImpl extends ErrorHandlerTemplateImpl implements Addr
             addressRepository.deleteById(id);
             return null;
         }, "Erro ao tentar excluir o endereço: ");
-
         logger.warn("Endereço removido: {}", address);
     }
 

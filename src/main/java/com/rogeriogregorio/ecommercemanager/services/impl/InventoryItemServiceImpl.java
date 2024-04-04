@@ -57,13 +57,11 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
         inventoryItemRequest.setId(null);
         InventoryItem inventoryItem = buildInventoryItem(inventoryItemRequest);
 
-
         handleError(() -> inventoryItemRepository.save(inventoryItem),
                 "Erro ao tentar criar o item do inventário: ");
+        logger.info("Item do inventário criado: {}", inventoryItem);
 
         updateStockMovementEntrance(inventoryItem);
-
-        logger.info("Item do inventário criado: {}", inventoryItem);
         return converter.toResponse(inventoryItem, InventoryItemResponse.class);
     }
 
@@ -86,8 +84,8 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
 
         handleError(() -> inventoryItemRepository.save(inventoryItem),
                 "Erro ao tentar atualizar o item do inventário: ");
-
         logger.info("Item do inventário atualizado: {}", inventoryItem);
+
         return converter.toResponse(inventoryItem, InventoryItemResponse.class);
     }
 
@@ -100,7 +98,6 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
             inventoryItemRepository.deleteById(id);
             return null;
         }, "Erro ao tentar excluir o Item do inventário: ");
-
         logger.warn("Item do inventário removido: {}", inventoryItem);
     }
 
@@ -128,7 +125,6 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
 
         handleError(() -> inventoryItemRepository.save(inventoryItem),
                 "Erro ao tentar salvar o item do inventário: ");
-
         logger.info("Quantidade do item no inventário atualizada: {}", inventoryItem);
     }
 
@@ -228,7 +224,6 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
 
         handleError(() -> stockMovementRepository.save(stockMovement),
                 "Erro ao tentar criar a movimentação do estoque: ");
-
         logger.info("Movimentação do estoque criada: {}", stockMovement);
     }
 

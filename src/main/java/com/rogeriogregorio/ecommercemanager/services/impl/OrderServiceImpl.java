@@ -58,8 +58,8 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
 
         handleError(() -> orderRepository.save(order),
                 "Erro ao tentar criar o pedido: ");
-
         logger.info("Pedido criado: {}", order);
+
         return converter.toResponse(order, OrderResponse.class);
     }
 
@@ -70,7 +70,6 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
             orderRepository.save(order);
             return null;
         }, "Erro ao tentar salvar o pedido pago: ");
-
         logger.info("Pedido pago salvo: {}", order);
     }
 
@@ -95,8 +94,8 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
 
         handleError(() -> orderRepository.save(order),
                 "Erro ao tentar atualizar o pedido: ");
-
         logger.info("Pedido atualizado: {}", order);
+
         return converter.toResponse(order, OrderResponse.class);
     }
 
