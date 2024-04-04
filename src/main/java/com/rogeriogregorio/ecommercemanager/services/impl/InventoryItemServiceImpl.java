@@ -7,14 +7,12 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.MovementType;
 import com.rogeriogregorio.ecommercemanager.entities.enums.StockStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.InsufficientQuantityInStockException;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
-import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.InventoryItemRepository;
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
-import jakarta.persistence.PersistenceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -71,10 +69,7 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
         return handleError(() -> inventoryItemRepository.findById(id),
                 "Erro ao tentar encontrar o item do inventário pelo ID: ")
                 .map(inventoryItem -> converter.toResponse(inventoryItem, InventoryItemResponse.class))
-                .orElseThrow(() -> {
-                    logger.warn("Item do inventário não encontrado com o ID: {}", id);
-                    return new NotFoundException("Item do inventário não encontrado com o ID: " + id + ".");
-                });
+                .orElseThrow(() -> new NotFoundException("Item do inventário não encontrado com o ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -105,20 +100,14 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
 
         return handleError(() -> inventoryItemRepository.findById(id),
                 "Erro ao tentar encontrar o item do inventário pelo ID: ")
-                .orElseThrow(() -> {
-                    logger.warn("Item do inventário não encontrado com o ID: {}", id);
-                    return new NotFoundException("Item do inventário não encontrado com o ID: " + id + ".");
-                });
+                .orElseThrow(() -> new NotFoundException("Item do inventário não encontrado com o ID: " + id + "."));
     }
 
     public InventoryItem findInventoryItemByProduct(Product product) {
 
         return handleError(() -> inventoryItemRepository.findByProduct(product),
                 "Erro ao tentar encontrar o item do inventário: ")
-                .orElseThrow(() -> {
-                    logger.warn("Item não encontrado no inventário: {}", product);
-                    return new NotFoundException("Item não encontrado no inventário: " + product + ".");
-                });
+                .orElseThrow(() -> new NotFoundException("Item não encontrado no inventário: " + product + "."));
     }
 
     public void saveInventoryItem(InventoryItem inventoryItem) {

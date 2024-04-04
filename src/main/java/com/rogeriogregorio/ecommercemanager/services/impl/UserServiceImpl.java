@@ -42,10 +42,7 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
         return handleError(() -> userRepository.findById(id),
                 "Erro ao tentar buscar o usuário pelo id: " + id)
                 .map(user -> converter.toResponse(user, UserResponse.class))
-                .orElseThrow(() -> {
-                    logger.warn("Usuário não encontrado com o ID: {}", id);
-                    return new NotFoundException("Usuário não encontrado com o ID: " + id + ".");
-                });
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado com o ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -98,10 +95,7 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
 
         return handleError(() -> userRepository.findById(id),
                 "Erro ao tentar buscar o usuário pelo id: " + id)
-                .orElseThrow(() -> {
-                    logger.warn("Usuário não encontrado com o ID: {}", id);
-                    return new NotFoundException("Usuário não encontrado com o ID: " + id + ".");
-                });
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado com o ID: " + id + "."));
     }
 
     public void saveUserAddress(User user) {

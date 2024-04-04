@@ -62,10 +62,7 @@ public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements Or
         return handleError(() -> orderItemRepository.findById(id),
                 "Erro ao tentar buscar o item do pedido pelo id")
                 .map(orderItem -> converter.toResponse(orderItem, OrderItemResponse.class))
-                .orElseThrow(() -> {
-                    logger.warn("Itens não encontrado com o ID: {}", id);
-                    return new NotFoundException("Itens não encontrado com o ID: " + id + ".");
-                });
+                .orElseThrow(() -> new NotFoundException("Itens não encontrado com o ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -75,8 +72,8 @@ public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements Or
 
         handleError(() -> orderItemRepository.save(orderItem),
                 "Erro ao tentar criar item do pedido: ");
-
         logger.info("Item do pedido criado: {}", orderItem);
+
         return converter.toResponse(orderItem, OrderItemResponse.class);
     }
 
@@ -87,8 +84,8 @@ public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements Or
 
         handleError(() -> orderItemRepository.save(orderItem),
                 "Erro ao tentar atualizar o item do pedido: ");
-
         logger.info("Item do pedido atualizado: {}", orderItem);
+
         return converter.toResponse(orderItem, OrderItemResponse.class);
     }
 
@@ -105,7 +102,6 @@ public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements Or
             orderItemRepository.deleteById(id);
             return null;
         }, "Erro ao tentar excluir item do pedido: {}");
-
         logger.warn("Item do pedido removido: {}", id.getProduct());
     }
 

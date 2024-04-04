@@ -18,6 +18,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,6 +56,8 @@ class AddressServiceImplTest {
     @DisplayName("findAllAddresses - Busca bem-sucedida retorna lista contendo um endereço")
     void findAllAddresses_SuccessfulSearch_ReturnsListResponse_OneAddresses() {
         // Arrange
+        Pageable pageable = PageRequest.of(0, 10);
+
         User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
 
         Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
@@ -63,17 +69,17 @@ class AddressServiceImplTest {
         List<AddressResponse> expectedResponses = Collections.singletonList(addressResponse);
 
         when(converter.toResponse(address, AddressResponse.class)).thenReturn(addressResponse);
-        when(addressRepository.findAll()).thenReturn(addressList);
+        when(addressRepository.findAll(pageable)).thenReturn(new PageImpl<>(addressList, pageable, addressList.size()));
 
         // Act
-        List<AddressResponse> actualResponse = addressService.findAllAddresses();
+        Page<AddressResponse> actualResponse = addressService.findAllAddresses(pageable);
 
         // Assert
-        assertEquals(expectedResponses.size(), actualResponse.size(), "Expected a list of responses with one address");
-        assertIterableEquals(expectedResponses, actualResponse, "Expected a list of responses with one address");
+        assertEquals(expectedResponses.size(), actualResponse.getContent().size(), "Expected a list of responses with one address");
+        assertIterableEquals(expectedResponses, actualResponse.getContent(), "Expected a list of responses with one address");
 
         verify(converter, times(1)).toResponse(address, AddressResponse.class);
-        verify(addressRepository, times(1)).findAll();
+        verify(addressRepository, times(1)).findAll(pageable);
     }
 
     @Test

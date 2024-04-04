@@ -15,7 +15,7 @@ public abstract class ErrorHandlerTemplateImpl implements ErrorHandlerTemplate {
     protected Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public <R> R handleError(Supplier<R> transaction, String message) {
+    public <T> T handleError(Supplier<T> transaction, String message) {
 
         try {
             return transaction.get();

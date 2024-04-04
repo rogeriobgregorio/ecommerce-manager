@@ -63,10 +63,7 @@ public class StockMovementServiceImpl extends ErrorHandlerTemplateImpl implement
         return handleError(() -> stockMovementRepository.findById(id),
                 "Erro ao tentar buscar a movimentação do estoque pelo id: " + id)
                 .map(stockMovement -> converter.toResponse(stockMovement, StockMovementResponse.class))
-                .orElseThrow(() -> {
-                    logger.warn("Movimentação do estoque não encontrado com o ID: {}", id);
-                    return new NotFoundException("Movimentação do estoque não encontrado com o ID: " + id + ".");
-                });
+                .orElseThrow(() -> new NotFoundException("Movimentação do estoque não encontrado com o ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -97,10 +94,7 @@ public class StockMovementServiceImpl extends ErrorHandlerTemplateImpl implement
 
         return handleError(() -> stockMovementRepository.findById(id),
                 "Erro ao tentar buscar movimentação do estoque pelo id: ")
-                .orElseThrow(() -> {
-                    logger.warn("Movimentação do estoque não encontrado com o ID: {}", id);
-                    return new NotFoundException("Movimentação do estoque não encontrado com o ID: " + id + ".");
-                });
+                .orElseThrow(() -> new NotFoundException("Movimentação do estoque não encontrado com o ID: " + id + "."));
     }
 
     public void saveStockMovement(StockMovement stockMovement) {

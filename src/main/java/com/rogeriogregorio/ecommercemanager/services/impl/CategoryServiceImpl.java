@@ -57,10 +57,7 @@ public class CategoryServiceImpl extends ErrorHandlerTemplateImpl implements Cat
         return handleError(() -> categoryRepository.findById(id),
                 "Erro ao tentar encontrar a categoria pelo ID: ")
                 .map(category -> converter.toResponse(category, CategoryResponse.class))
-                .orElseThrow(() -> {
-                    logger.warn("Categoria não encontrado com o ID: {}", id);
-                    return new NotFoundException("Categoria não encontrado com o ID: " + id + ".");
-                });
+                .orElseThrow(() -> new NotFoundException("Categoria não encontrado com o ID: " + id + "."));
     }
 
     @Transactional(readOnly = true)
@@ -107,10 +104,7 @@ public class CategoryServiceImpl extends ErrorHandlerTemplateImpl implements Cat
 
         return handleError(() -> categoryRepository.findById(id),
                 "Erro ao tentar encontrar a categoria pelo ID: ")
-                .orElseThrow(() -> {
-                    logger.warn("Categoria não encontrado com o ID: {}", id);
-                    return new NotFoundException("Categoria não encontrado com o ID: " + id + ".");
-                });
+                .orElseThrow(() -> new NotFoundException("Categoria não encontrado com o ID: " + id + "."));
     }
 
     public Category buildCategory(CategoryRequest categoryRequest) {

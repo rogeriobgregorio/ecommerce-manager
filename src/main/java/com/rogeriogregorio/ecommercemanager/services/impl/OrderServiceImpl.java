@@ -123,10 +123,7 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
 
         return handleError(() -> orderRepository.findById(id),
                 "Erro ao tentar encontrar pedido pelo ID: ")
-                .orElseThrow(() -> {
-                    logger.warn("Pedido não encontrado com o ID: {}", id);
-                    return new NotFoundException("Pedido não encontrado com o ID: " + id + ".");
-                });
+                .orElseThrow(() -> new NotFoundException("Pedido não encontrado com o ID: " + id + "."));
     }
 
     public void validateOrderStatusChange(OrderRequest orderRequest) {

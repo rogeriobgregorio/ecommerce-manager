@@ -51,8 +51,8 @@ public class ProductServiceImpl extends ErrorHandlerTemplateImpl implements Prod
 
         handleError(() -> productRepository.save(product),
                 "Erro ao tentar criar o produto: ");
-
         logger.info("Produto criado: {}", product);
+
         return converter.toResponse(product, ProductResponse.class);
     }
 
@@ -62,10 +62,7 @@ public class ProductServiceImpl extends ErrorHandlerTemplateImpl implements Prod
         return handleError(() -> productRepository.findById(id),
                 "Erro ao tentar criar o produto: ")
                 .map(product -> converter.toResponse(product, ProductResponse.class))
-                .orElseThrow(() -> {
-                    logger.warn("Produto não encontrado com o ID: {}", id);
-                    return new NotFoundException("Produto não encontrado com o ID: " + id + ".");
-                });
+                .orElseThrow(() -> new NotFoundException("Produto não encontrado com o ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -105,10 +102,7 @@ public class ProductServiceImpl extends ErrorHandlerTemplateImpl implements Prod
 
         return handleError(() -> productRepository.findById(id),
                 "Erro ao tentar buscar o produto pelo id: ")
-                .orElseThrow(() -> {
-                    logger.warn("Produto não encontrado com o ID: {}", id);
-                    return new NotFoundException("Produto não encontrado com o ID: " + id + ".");
-                });
+                .orElseThrow(() -> new NotFoundException("Produto não encontrado com o ID: " + id + "."));
     }
 
     public Product buildProduct(ProductRequest productRequest) {

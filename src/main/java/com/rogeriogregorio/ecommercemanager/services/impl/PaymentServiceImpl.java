@@ -50,8 +50,7 @@ public class PaymentServiceImpl extends ErrorHandlerTemplateImpl implements Paym
 
         return handleError(() -> paymentRepository.findAll(pageable),
                 "Erro ao tentar buscar todos os pagamentos: ")
-                .map(payment -> converter
-                        .toResponse(payment, PaymentResponse.class));
+                .map(payment -> converter.toResponse(payment, PaymentResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -74,10 +73,7 @@ public class PaymentServiceImpl extends ErrorHandlerTemplateImpl implements Paym
         return handleError(() -> paymentRepository.findById(id),
                 "Erro ao tentar encontrar o pagamento pelo ID: ")
                 .map(payment -> converter.toResponse(payment, PaymentResponse.class))
-                .orElseThrow(() -> {
-                    logger.warn("Pagamento não encontrado com o ID: {}", id);
-                    return new NotFoundException("Pagamento não encontrado com o ID: " + id + ".");
-                });
+                .orElseThrow(() -> new NotFoundException("Pagamento não encontrado com o ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -96,10 +92,7 @@ public class PaymentServiceImpl extends ErrorHandlerTemplateImpl implements Paym
 
         return handleError(() -> paymentRepository.findById(id),
                 "Erro ao tentar encontrar o pagamento pelo ID: {}")
-                .orElseThrow(() -> {
-                    logger.warn("Pagamento não encontrado com o ID: {}", id);
-                    return new NotFoundException("Pagamento não encontrado com o ID: " + id + ".");
-                });
+                .orElseThrow(() -> new NotFoundException("Pagamento não encontrado com o ID: " + id + "."));
     }
 
     public void validatePayment(Order order) {

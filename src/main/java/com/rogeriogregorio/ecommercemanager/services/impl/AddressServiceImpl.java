@@ -47,10 +47,7 @@ public class AddressServiceImpl extends ErrorHandlerTemplateImpl implements Addr
         return handleError(() -> addressRepository.findById(id),
                 "Erro ao tentar encontrar o endereço pelo ID: ")
                 .map(address -> converter.toResponse(address, AddressResponse.class))
-                .orElseThrow(() -> {
-                    logger.warn("Endereço não encontrado com o ID: {}", id);
-                    return new NotFoundException("Endereço não encontrado com o ID: " + id + ".");
-                });
+                .orElseThrow(() -> new NotFoundException("Endereço não encontrado com o ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -95,10 +92,7 @@ public class AddressServiceImpl extends ErrorHandlerTemplateImpl implements Addr
 
         return handleError(() -> addressRepository.findById(id),
                 "Erro ao tentar encontrar o endereço pelo ID: ")
-                .orElseThrow(() -> {
-                    logger.warn("Endereço não encontrado com o ID: {}", id);
-                    return new NotFoundException("Endereço não encontrado com o ID: " + id + ".");
-                });
+                .orElseThrow(() -> new NotFoundException("Endereço não encontrado com o ID: " + id + "."));
     }
 
     public Address buildAddress(AddressRequest addressRequest) {
