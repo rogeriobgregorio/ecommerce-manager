@@ -25,14 +25,14 @@ public class OrderItem implements Serializable {
     @EmbeddedId
     private OrderItemPK id = new OrderItemPK();
 
-    @NotNull(message = "A quantidade não pode ser nula")
-    @Min(value = 1, message = "A quantidade deve ser no mínimo 1")
+    @NotNull(message = "The quantity cannot be null.")
+    @Min(value = 1, message = "The quantity must be at least 1.")
     @Column(name = "quantity")
     private Integer quantity;
 
     @Column(name = "price")
-    @NotNull(message = "O preço não pode ser nulo")
-    @DecimalMin(value = "0.01", message = "O preço deve ser maior que 0")
+    @NotNull(message = "The price cannot be null.")
+    @DecimalMin(value = "0.01", message = "The price must be greater than 0.")
     private BigDecimal price;
 
     public OrderItem() {
@@ -106,6 +106,6 @@ public class OrderItem implements Serializable {
 
     @Override
     public String toString() {
-        return "[Item do pedido: id= " + id + ", quantity= " + quantity +", price= " + price +"]";
+        return "[Order Item: id= " + id + ", quantity= " + quantity +", price= " + price +"]";
     }
 }

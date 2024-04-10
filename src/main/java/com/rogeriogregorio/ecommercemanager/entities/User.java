@@ -27,24 +27,24 @@ public class User implements Serializable {
     private Long id;
 
     @Column(name = "name")
-    @NotBlank(message = "O nome não deve estar em branco")
-    @Pattern(regexp = "^[\\p{L}\\s.]+$", message = "O nome deve ter apenas letras e espaços.")
-    @Size(min = 5, max = 250, message = "O nome deve ter entre 5 e 250 caracteres.")
+    @NotBlank(message = "The name must not be blank.")
+    @Pattern(regexp = "^[\\p{L}\\s.]+$", message = "The name must contain only letters and spaces.")
+    @Size(min = 5, max = 250, message = "The name must have between 5 and 250 characters.")
     private String name;
 
     @Column(name = "email", unique = true)
-    @NotBlank(message = "O e-mail não deve estar em branco")
-    @Email(message = "Insira um endereço de e-mail válido. Exemplo: usuario@example.com")
+    @NotBlank(message = "The email must not be blank.")
+    @Email(message = "Please enter a valid email address. Example: user@example.com")
     private String email;
 
     @Column(name = "phone")
-    @NotBlank(message = "O telefone não deve estar em branco")
-    @Pattern(regexp = "\\d{8,11}$", message = "O telefone deve ter entre 8 e 11 números.")
+    @NotBlank(message = "The phone number must not be blank.")
+    @Pattern(regexp = "\\d{8,11}$", message = "The phone number must have between 8 and 11 digits.")
     private String phone;
 
     @Column(name = "password")
-    @NotBlank(message = "A senha não deve estar em branco")
-    @Size(min = 6, message = "A senha não deve ter menos de 6 caracteres.")
+    @NotBlank(message = "The password must not be blank.")
+    @Size(min = 6, message = "The password must have at least 6 characters.")
     private String password;
 
     @JsonIgnore
@@ -141,6 +141,6 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        return "[Usuário: id= " + id +", name= " + name + ", email= " + email + "]";
+        return "[User: id= " + id +", name= " + name + ", email= " + email + "]";
     }
 }

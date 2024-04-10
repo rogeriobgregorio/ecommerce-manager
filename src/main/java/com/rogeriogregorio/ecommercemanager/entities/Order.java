@@ -26,16 +26,16 @@ public class Order implements Serializable {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
     @Column(name = "moment")
-    @NotNull(message = "O momento do pedido não pode ser nulo")
+    @NotNull(message = "The order timestamp cannot be null.")
     private Instant moment;
 
     @Column(name = "order_status")
-    @NotNull(message = "O status do pedido não pode ser nulo")
+    @NotNull(message = "The order status cannot be null.")
     private Integer orderStatus;
 
     @ManyToOne
     @JoinColumn(name = "client_id")
-    @NotNull(message = "O cliente não pode ser nulo")
+    @NotNull(message = "The client cannot be null.")
     private User client;
 
     @OneToMany(mappedBy = "id.order")
@@ -83,7 +83,7 @@ public class Order implements Serializable {
     public void setOrderStatus(OrderStatus orderStatus) {
 
         if (orderStatus == null) {
-            throw new IllegalArgumentException("O status do pedido não pode ser nulo");
+            throw new IllegalArgumentException("The order status cannot be null.");
         }
 
         this.orderStatus = orderStatus.getCode();
@@ -134,6 +134,6 @@ public class Order implements Serializable {
 
     @Override
     public String toString() {
-        return "[Pedido: id= " + id + ", moment= " + moment + ", orderStatus= " + orderStatus + ", client= " + client + "]";
+        return "[Order: id= " + id + ", moment= " + moment + ", orderStatus= " + orderStatus + ", client= " + client + "]";
     }
 }

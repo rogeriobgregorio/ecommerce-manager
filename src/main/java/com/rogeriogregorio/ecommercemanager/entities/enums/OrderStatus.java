@@ -25,6 +25,6 @@ public enum OrderStatus {
                 return value;
             }
         }
-        throw new IllegalArgumentException("O código de status do pedido é inválido");
+        throw new IllegalArgumentException("The order status code is invalid");
     }
 }

@@ -60,7 +60,7 @@ public class StockMovementResponse implements Serializable {
     public void setMovementType(MovementType movementType) {
 
         if (movementType == null) {
-            throw new IllegalArgumentException("O status de movimentação do item do estoque não pode ser nulo");
+            throw new IllegalArgumentException("The stock item movement status cannot be null");
         }
 
         this.movementType = movementType.getCode();

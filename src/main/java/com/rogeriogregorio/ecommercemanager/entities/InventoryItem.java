@@ -24,17 +24,17 @@ public class InventoryItem implements Serializable {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @NotNull(message = "A quantidade em estoque não pode ser nula")
-    @PositiveOrZero(message = "A quantidade do estoque deve ser um número positivo ou zero")
+    @NotNull(message = "The quantity in stock cannot be null.")
+    @PositiveOrZero(message = "The stock quantity must be a positive number or zero.")
     @Column(name = "quantity_in_stock")
     private Integer quantityInStock;
 
-    @NotNull(message = "A quantidade vendida não pode ser nula")
-    @PositiveOrZero(message = "A quantidade vendida deve ser um número positivo ou zero")
+    @NotNull(message = "The quantity sold cannot be null.")
+    @PositiveOrZero(message = "The quantity sold must be a positive number or zero.")
     @Column(name = "quantity_sold")
     private Integer quantitySold;
 
-    @NotNull(message = "O status do item do inventário não pode ser nulo")
+    @NotNull(message = "The inventory item status cannot be null.")
     @Column(name = "stock_status")
     private Integer stockStatus;
 
@@ -102,7 +102,7 @@ public class InventoryItem implements Serializable {
     public void setStockStatus(StockStatus stockStatus) {
 
         if (stockStatus == null) {
-            throw new IllegalArgumentException("O status do item do estoque não pode ser nulo");
+            throw new IllegalArgumentException("The stock item status cannot be null");
         }
 
         this.stockStatus = stockStatus.getCode();
@@ -123,7 +123,7 @@ public class InventoryItem implements Serializable {
 
     @Override
     public String toString() {
-        return "[Item do inventário: id= " + id + ", product= " + product + ", quantityInStock= " +
+        return "[Inventory Item: id= " + id + ", product= " + product + ", quantityInStock= " +
                 quantityInStock + ", quantitySold= " + quantitySold + ", stockStatus= " + stockStatus + "]";
     }
 }

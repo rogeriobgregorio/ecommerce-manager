@@ -23,7 +23,7 @@ public class Payment implements Serializable {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
     @Column(name = "moment")
-    @NotNull(message = "O momento do pagamento não pode ser nulo")
+    @NotNull(message = "The payment timestamp cannot be null.")
     private Instant moment;
 
     @JsonIgnore
@@ -84,6 +84,6 @@ public class Payment implements Serializable {
 
     @Override
     public String toString() {
-        return "[Pagamento: id= " + id + ", moment= " + moment + ", order= " + order +"]";
+        return "[Payment: id= " + id + ", moment= " + moment + ", order= " + order +"]";
     }
 }

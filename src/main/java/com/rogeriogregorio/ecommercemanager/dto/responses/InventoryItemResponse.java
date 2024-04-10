@@ -67,7 +67,7 @@ public class InventoryItemResponse implements Serializable {
     public void setStockStatus(StockStatus stockStatus) {
 
         if (stockStatus == null) {
-            throw new IllegalArgumentException("O status do item do estoque não pode ser nulo");
+            throw new IllegalArgumentException("The stock item status cannot be null");
         }
 
         this.stockStatus = stockStatus.getCode();

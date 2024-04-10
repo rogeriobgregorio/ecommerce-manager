@@ -22,6 +22,6 @@ public enum MovementType {
                 return value;
             }
         }
-        throw new IllegalArgumentException("O código de movimentação do estoque é inválido");
+        throw new IllegalArgumentException("The stock movement code is invalid");
     }
 }

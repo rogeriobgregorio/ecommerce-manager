@@ -23,18 +23,18 @@ public class StockMovement implements Serializable {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
     @Column(name = "moment")
-    @NotNull(message = "O momento do pedido não pode ser nulo")
+    @NotNull(message = "The stock movement timestamp cannot be null.")
     private Instant moment;
 
     @ManyToOne
     @JoinColumn(name = "inventory_item_id")
     private InventoryItem inventoryItem;
 
-    @NotNull(message = "O tipo de movimentação não pode ser nulo")
+    @NotNull(message = "The movement type cannot be null.")
     @Column(name = "movement_type")
     private Integer movementType;
 
-    @NotNull(message = "A quantidade de itens movimentados não pode ser nula")
+    @NotNull(message = "The quantity of items moved cannot be null.")
     @Column(name = "quantity_moved")
     private Integer quantityMoved;
 
@@ -87,7 +87,7 @@ public class StockMovement implements Serializable {
     public void setMovementType(MovementType movementType) {
 
         if (movementType == null) {
-            throw new IllegalArgumentException("O status de movimentação do item do estoque não pode ser nulo");
+            throw new IllegalArgumentException("The stock item movement status cannot be null.");
         }
 
         this.movementType = movementType.getCode();
@@ -116,7 +116,7 @@ public class StockMovement implements Serializable {
 
     @Override
     public String toString() {
-        return "[Movimentação do estoque: id= " + id + ", moment= " + moment + ", inventoryItem= " + inventoryItem +
+        return "[Stock Movement: id= " + id + ", moment= " + moment + ", inventoryItem= " + inventoryItem +
                 ", movementType= " + movementType + ", quantityMoved= " + quantityMoved +"]";
     }
 }

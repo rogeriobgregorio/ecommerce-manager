@@ -22,29 +22,29 @@ public class Address implements Serializable {
     private Long id;
 
     @Column(name = "street")
-    @NotBlank(message = "O nome da rua não deve estar em branco")
-    @Size(max = 250, message = "O nome da rua deve ter entre 5 e 250 caracteres.")
+    @NotBlank(message = "The street name must not be blank.")
+    @Size(max = 250, message = "The street name must have between 5 and 250 characters.")
     private String street;
 
     @Column(name = "city")
-    @NotBlank(message = "O nome da cidade não deve estar em branco")
-    @Size(max = 250, message = "O nome da cidade deve ter entre 5 e 250 caracteres.")
+    @NotBlank(message = "The city name must not be blank.")
+    @Size(max = 250, message = "The city name must have between 5 and 250 characters.")
     private String city;
 
     @Column(name = "state")
-    @NotBlank(message = "O estado não deve estar em branco")
-    @Size(min = 2, max = 2, message = "O estado deve ter 2 caracteres")
-    @Pattern(regexp = "^\\p{L}+$", message = "O nome deve ter apenas letras.")
+    @NotBlank(message = "The state must not be blank.")
+    @Size(min = 2, max = 2, message = "The state must have 2 characters.")
+    @Pattern(regexp = "^\\p{L}+$", message = "The name must contain only letters.")
     private String state;
 
     @Column(name = "cep")
-    @NotBlank(message = "O CEP não deve estar em branco")
-    @Pattern(regexp = "\\d{5}-\\d{3}", message = "O CEP deve estar no formato 99999-999")
+    @NotBlank(message = "The CEP code must not be blank.")
+    @Pattern(regexp = "\\d{5}-\\d{3}", message = "The CEP code must be in the format 99999-999.")
     private String cep;
 
     @Column(name = "country")
-    @NotBlank(message = "O nome do país não deve estar em branco")
-    @Size(max = 250, message = "O nome do país deve ter entre 5 e 250 caracteres.")
+    @NotBlank(message = "The country name must not be blank.")
+    @Size(max = 250, message = "The country name must have between 5 and 250 characters.")
     private String country;
 
     @JsonIgnore
@@ -143,7 +143,7 @@ public class Address implements Serializable {
 
     @Override
     public String toString() {
-        return "[Endereço: id= " + id + ", street= " + street + ", city= " + city + ", " +
+        return "[Address: id= " + id + ", street= " + street + ", city= " + city + ", " +
                 "state= " + state +", cep= " + cep + ", country= " + country + "]";
     }
 }

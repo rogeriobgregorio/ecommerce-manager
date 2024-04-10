@@ -29,21 +29,21 @@ public class Product implements Serializable {
     private Long id;
 
     @Column(name = "name", unique = true)
-    @NotBlank(message = "O nome não deve estar em branco")
-    @Size(max = 250, message = "O nome deve ter no máximo 250 caracteres.")
+    @NotBlank(message = "The name must not be blank.")
+    @Size(max = 250, message = "The name must have a maximum of 250 characters.")
     private String name;
 
     @Column(name = "description", columnDefinition = "TEXT")
-    @NotBlank(message = "A descrição não deve estar em branco")
+    @NotBlank(message = "The description must not be blank.")
     private String description;
 
     @Column(name = "price")
-    @NotNull(message = "O preço não pode ser nulo")
-    @DecimalMin(value = "0.01", message = "O preço deve ser maior que 0")
+    @NotNull(message = "The price cannot be null.")
+    @DecimalMin(value = "0.01", message = "The price must be greater than zero.")
     private BigDecimal price;
 
     @Column(name = "img_url")
-    @URL(message = "A URL da imagem deve ser válida")
+    @URL(message = "\"The image URL must be valid.\"")
     private String imgUrl;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -142,6 +142,6 @@ public class Product implements Serializable {
 
     @Override
     public String toString() {
-        return "[Produto: id= " + id + ", name= " + name + ", description= " + description + ", price= " + price + ", imgUrl= " + imgUrl + "]";
+        return "[Product: id= " + id + ", name= " + name + ", description= " + description + ", price= " + price + ", imgUrl= " + imgUrl + "]";
     }
 }

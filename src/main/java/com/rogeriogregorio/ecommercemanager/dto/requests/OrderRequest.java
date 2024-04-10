@@ -42,7 +42,7 @@ public class OrderRequest implements Serializable {
     public void setOrderStatus(OrderStatus orderStatus) {
 
         if (orderStatus == null) {
-            throw new IllegalArgumentException("O status do pedido não pode ser nulo");
+            throw new IllegalArgumentException("The order status cannot be null");
         }
 
         this.orderStatus = orderStatus.getCode();

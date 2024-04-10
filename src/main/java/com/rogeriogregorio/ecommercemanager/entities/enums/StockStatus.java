@@ -23,6 +23,6 @@ public enum StockStatus {
                 return value;
             }
         }
-        throw new IllegalArgumentException("O código de status do estoque é inválido");
+        throw new IllegalArgumentException("The stock status code is invalid");
     }
 }
