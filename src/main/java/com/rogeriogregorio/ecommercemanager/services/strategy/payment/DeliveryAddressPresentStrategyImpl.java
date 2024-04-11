@@ -10,9 +10,9 @@ public class DeliveryAddressPresentStrategyImpl implements PaymentStrategy {
     @Override
     public void validate(Order order) {
 
-        boolean isDeliveryAddressEmpty = order.getClient().getAddress() == null;
+        boolean isDeliveryAddressNull = order.getClient().isAddressNull();
 
-        if (isDeliveryAddressEmpty) {
+        if (isDeliveryAddressNull) {
             throw new IllegalStateException("Unable to process payment: delivery address missing.");
         }
     }

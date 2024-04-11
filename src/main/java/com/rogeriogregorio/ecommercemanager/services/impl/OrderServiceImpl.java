@@ -88,7 +88,6 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
         validateOrderStatusChange(orderRequest);
         Order order = buildOrder(orderRequest);
 
-
         handleError(() -> orderRepository.save(order),
                 "Error while trying to update the order: ");
         logger.info("Order updated: {}", order);
@@ -136,8 +135,7 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
     public void validateOrderDeleteEligibility(Long id) {
 
         Order order = findOrderById(id);
-        String orderStatus = order.getOrderStatus().name();
-        boolean isOrderPaid = Set.of("PAID", "SHIPPED", "DELIVERED").contains(orderStatus);
+        boolean isOrderPaid = order.isOrderPaid();
 
         if (isOrderPaid) {
             throw new IllegalStateException("You cannot delete an order that has already been paid for.");

@@ -107,8 +107,7 @@ public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements Or
 
     public void validateOrderChangeEligibility(Order order) {
 
-        String orderStatus = order.getOrderStatus().name();
-        boolean isOrderPaid = Set.of("PAID", "SHIPPED", "DELIVERED").contains(orderStatus);
+        boolean isOrderPaid = order.isOrderPaid();
 
         if (isOrderPaid) {
             throw new IllegalStateException("It's not possible to modify the list of items: the order has already been paid for.");

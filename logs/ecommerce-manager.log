@@ -2075,3 +2075,138 @@ java.util.NoSuchElementException: No value present
 2024-04-09T17:43:14,815 WARN  org.springframework.beans.factory.support.DisposableBeanAdapter - Invocation of destroy method failed on bean with name 'inMemoryDatabaseShutdownExecutor': org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database is already closed (to disable automatic closing at VM shutdown, add ";DB_CLOSE_ON_EXIT=FALSE" to the db URL) [90121-224]
 2024-04-09T17:43:14,816 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
 2024-04-09T17:43:14,817 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2024-04-11T01:10:15,942 INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2024-04-11T01:10:15,978 INFO  com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - Starting ECommerceManagerApplication using Java 17.0.10 with PID 273138 (/home/rogerio/projetos/ecommerce-manager/target/classes started by rogerio in /home/rogerio/projetos/ecommerce-manager)
+2024-04-11T01:10:15,981 DEBUG com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - Running with Spring Boot v3.2.1, Spring v6.1.2
+2024-04-11T01:10:15,982 INFO  com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - The following 1 profile is active: "test"
+2024-04-11T01:10:16,025 INFO  org.springframework.boot.devtools.env.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-04-11T01:10:16,025 INFO  org.springframework.boot.devtools.env.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-04-11T01:10:16,657 INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-04-11T01:10:16,735 INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 69 ms. Found 9 JPA repository interfaces.
+2024-04-11T01:10:17,226 INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2024-04-11T01:10:17,234 INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2024-04-11T01:10:17,235 INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2024-04-11T01:10:17,236 INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.17]
+2024-04-11T01:10:17,278 INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2024-04-11T01:10:17,280 INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1252 ms
+2024-04-11T01:10:17,386 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2024-04-11T01:10:17,546 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
+2024-04-11T01:10:17,547 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2024-04-11T01:10:17,583 INFO  org.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-04-11T01:10:17,645 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.1.Final
+2024-04-11T01:10:17,678 INFO  org.hibernate.cache.internal.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2024-04-11T01:10:17,879 INFO  org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-04-11T01:10:17,922 WARN  org.hibernate.orm.deprecation - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-04-11T01:10:18,740 INFO  org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-04-11T01:10:18,794 INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-04-11T01:10:19,020 INFO  org.springframework.data.jpa.repository.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2024-04-11T01:10:19,945 INFO  org.springframework.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@79ac417a, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@7680dbd8, org.springframework.security.web.context.SecurityContextHolderFilter@54fb2c60, org.springframework.security.web.header.HeaderWriterFilter@489bd51d, org.springframework.web.filter.CorsFilter@1235cc1a, org.springframework.security.web.csrf.CsrfFilter@100c22e9, org.springframework.security.web.authentication.logout.LogoutFilter@6841cf94, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@1c1e67aa, org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@3c4f06d2, org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@6c65be59, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@1e522e31, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@6f4f3cac, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@346ebdda, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@7759953e, org.springframework.security.web.access.ExceptionTranslationFilter@3f187abc, org.springframework.security.web.access.intercept.AuthorizationFilter@52a03afd]
+2024-04-11T01:10:19,978 INFO  org.springframework.boot.devtools.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2024-04-11T01:10:19,988 INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2024-04-11T01:10:19,997 INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2024-04-11T01:10:20,004 INFO  com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - Started ECommerceManagerApplication in 4.411 seconds (process running for 5.109)
+2024-04-11T01:10:45,504 INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-04-11T01:10:45,513 WARN  org.springframework.beans.factory.support.DisposableBeanAdapter - Invocation of destroy method failed on bean with name 'inMemoryDatabaseShutdownExecutor': org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database is already closed (to disable automatic closing at VM shutdown, add ";DB_CLOSE_ON_EXIT=FALSE" to the db URL) [90121-224]
+2024-04-11T01:10:45,514 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2024-04-11T01:10:45,515 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2024-04-11T02:09:42,876 INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2024-04-11T02:09:42,967 INFO  com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - Starting ECommerceManagerApplication using Java 17.0.10 with PID 23708 (/home/rogerio/projetos/ecommerce-manager/target/classes started by rogerio in /home/rogerio/projetos/ecommerce-manager)
+2024-04-11T02:09:42,970 DEBUG com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - Running with Spring Boot v3.2.1, Spring v6.1.2
+2024-04-11T02:09:42,971 INFO  com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - The following 1 profile is active: "test"
+2024-04-11T02:09:43,025 INFO  org.springframework.boot.devtools.env.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-04-11T02:09:43,026 INFO  org.springframework.boot.devtools.env.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-04-11T02:09:43,660 INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-04-11T02:09:43,734 INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 65 ms. Found 9 JPA repository interfaces.
+2024-04-11T02:09:44,189 INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2024-04-11T02:09:44,197 INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2024-04-11T02:09:44,198 INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2024-04-11T02:09:44,198 INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.17]
+2024-04-11T02:09:44,233 INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2024-04-11T02:09:44,235 INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1207 ms
+2024-04-11T02:09:44,350 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2024-04-11T02:09:44,528 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
+2024-04-11T02:09:44,529 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2024-04-11T02:09:44,568 INFO  org.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-04-11T02:09:44,628 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.1.Final
+2024-04-11T02:09:44,662 INFO  org.hibernate.cache.internal.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2024-04-11T02:09:44,876 INFO  org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-04-11T02:09:44,932 WARN  org.hibernate.orm.deprecation - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-04-11T02:09:45,773 INFO  org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-04-11T02:09:45,826 INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-04-11T02:09:46,055 INFO  org.springframework.data.jpa.repository.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2024-04-11T02:09:46,998 INFO  org.springframework.boot.devtools.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2024-04-11T02:09:47,007 INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2024-04-11T02:09:47,016 INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2024-04-11T02:09:47,023 INFO  com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - Started ECommerceManagerApplication in 4.599 seconds (process running for 5.523)
+2024-04-11T02:09:56,385 INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-04-11T02:09:56,385 INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2024-04-11T02:09:56,386 INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2024-04-11T02:09:56,548 INFO  com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl - User created: [User: id= 1, name= Maria Brown, email= maria@gmail.com]
+2024-04-11T02:10:07,429 INFO  com.rogeriogregorio.ecommercemanager.services.impl.CategoryServiceImpl - Category created: [Category: id= 1, name= Computers]
+2024-04-11T02:10:13,320 INFO  com.rogeriogregorio.ecommercemanager.services.impl.OrderServiceImpl - Order created: [Order: id= 1, moment= 2024-04-11T02:10:13.289696741Z, orderStatus= 1, client= [User: id= 1, name= Maria Brown, email= maria@gmail.com]]
+2024-04-11T02:10:18,933 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException: Product not found with ID: 1.]
+2024-04-11T02:10:30,093 INFO  com.rogeriogregorio.ecommercemanager.services.impl.ProductServiceImpl - Product created: [Product: id= 1, name= MacBook2, description= Powerful and sleek laptop., price= 15000.0, imgUrl= https://example.com/macbook.jpg]
+2024-04-11T02:10:34,311 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException: Item not found in the inventory: [Product: id= 1, name= MacBook2, description= Powerful and sleek laptop., price= 15000.00, imgUrl= https://example.com/macbook.jpg].]
+2024-04-11T02:10:51,242 INFO  com.rogeriogregorio.ecommercemanager.services.impl.InventoryItemServiceImpl - Inventory item created: [Inventory Item: id= 1, product= [Product: id= 1, name= MacBook2, description= Powerful and sleek laptop., price= 15000.00, imgUrl= https://example.com/macbook.jpg], quantityInStock= 10, quantitySold= 0, stockStatus= 1]
+2024-04-11T02:10:51,244 INFO  com.rogeriogregorio.ecommercemanager.services.impl.InventoryItemServiceImpl - Inventory movement created: [Stock Movement: id= 1, moment= 2024-04-11T02:10:51.242590234Z, inventoryItem= [Inventory Item: id= 1, product= [Product: id= 1, name= MacBook2, description= Powerful and sleek laptop., price= 15000.00, imgUrl= https://example.com/macbook.jpg], quantityInStock= 10, quantitySold= 0, stockStatus= 1], movementType= 1, quantityMoved= 10]
+2024-04-11T02:10:56,049 INFO  com.rogeriogregorio.ecommercemanager.services.impl.OrderItemServiceImpl - Order item created: [Order Item: id= com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK@7c1, quantity= 10, price= 15000.00]
+2024-04-11T02:11:13,055 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [java.lang.IllegalStateException: Unable to process payment: delivery address missing.]
+2024-04-11T02:11:24,777 INFO  com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl - User's address updated: [User: id= 1, name= Maria Brown, email= maria@gmail.com]
+2024-04-11T02:11:24,779 INFO  com.rogeriogregorio.ecommercemanager.services.impl.AddressServiceImpl - Address created: [Address: id= 1, street= Rua ABC, 123, city= São Paulo, state= SP, cep= 01234-567, country= Brasil]
+2024-04-11T02:11:28,534 INFO  com.rogeriogregorio.ecommercemanager.services.impl.OrderServiceImpl - Paid order saved: [Order: id= 1, moment= 2024-04-11T02:10:13.289697Z, orderStatus= 2, client= [User: id= 1, name= Maria Brown, email= maria@gmail.com]]
+2024-04-11T02:11:28,535 INFO  com.rogeriogregorio.ecommercemanager.services.impl.PaymentServiceImpl - Payment created: [Payment: id= 1, moment= 2024-04-11T02:11:28.533077028Z, order= [Order: id= 1, moment= 2024-04-11T02:10:13.289697Z, orderStatus= 2, client= [User: id= 1, name= Maria Brown, email= maria@gmail.com]]]
+2024-04-11T02:11:28,539 INFO  com.rogeriogregorio.ecommercemanager.services.impl.InventoryItemServiceImpl - Inventory item quantity updated: [Inventory Item: id= 1, product= [Product: id= 1, name= MacBook2, description= Powerful and sleek laptop., price= 15000.00, imgUrl= https://example.com/macbook.jpg], quantityInStock= 0, quantitySold= 10, stockStatus= 2]
+2024-04-11T02:11:28,548 INFO  com.rogeriogregorio.ecommercemanager.services.impl.StockMovementServiceImpl - Inventory movement saved: [Stock Movement: id= 2, moment= 2024-04-11T02:11:28.547463228Z, inventoryItem= [Inventory Item: id= 1, product= [Product: id= 1, name= MacBook2, description= Powerful and sleek laptop., price= 15000.00, imgUrl= https://example.com/macbook.jpg], quantityInStock= 0, quantitySold= 10, stockStatus= 2], movementType= 2, quantityMoved= 10]
+2024-04-11T02:11:38,599 INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-04-11T02:11:38,610 WARN  org.springframework.beans.factory.support.DisposableBeanAdapter - Invocation of destroy method failed on bean with name 'inMemoryDatabaseShutdownExecutor': org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database is already closed (to disable automatic closing at VM shutdown, add ";DB_CLOSE_ON_EXIT=FALSE" to the db URL) [90121-224]
+2024-04-11T02:11:38,611 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2024-04-11T02:11:38,612 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2024-04-11T02:28:40,094 INFO  org.hibernate.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2024-04-11T02:28:40,135 INFO  com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - Starting ECommerceManagerApplication using Java 17.0.10 with PID 55589 (/home/rogerio/projetos/ecommerce-manager/target/classes started by rogerio in /home/rogerio/projetos/ecommerce-manager)
+2024-04-11T02:28:40,138 DEBUG com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - Running with Spring Boot v3.2.1, Spring v6.1.2
+2024-04-11T02:28:40,139 INFO  com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - The following 1 profile is active: "test"
+2024-04-11T02:28:40,185 INFO  org.springframework.boot.devtools.env.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-04-11T02:28:40,185 INFO  org.springframework.boot.devtools.env.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-04-11T02:28:40,821 INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-04-11T02:28:40,894 INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 67 ms. Found 9 JPA repository interfaces.
+2024-04-11T02:28:41,329 INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2024-04-11T02:28:41,337 INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2024-04-11T02:28:41,339 INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2024-04-11T02:28:41,340 INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.17]
+2024-04-11T02:28:41,376 INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2024-04-11T02:28:41,377 INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1189 ms
+2024-04-11T02:28:41,478 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2024-04-11T02:28:41,598 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
+2024-04-11T02:28:41,599 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2024-04-11T02:28:41,631 INFO  org.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-04-11T02:28:41,669 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.1.Final
+2024-04-11T02:28:41,693 INFO  org.hibernate.cache.internal.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2024-04-11T02:28:41,839 INFO  org.springframework.orm.jpa.persistenceunit.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-04-11T02:28:41,867 WARN  org.hibernate.orm.deprecation - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-04-11T02:28:42,623 INFO  org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-04-11T02:28:42,674 INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-04-11T02:28:42,897 INFO  org.springframework.data.jpa.repository.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2024-04-11T02:28:43,717 INFO  org.springframework.boot.devtools.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2024-04-11T02:28:43,728 INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2024-04-11T02:28:43,739 INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2024-04-11T02:28:43,749 INFO  com.rogeriogregorio.ecommercemanager.ECommerceManagerApplication - Started ECommerceManagerApplication in 4.009 seconds (process running for 4.72)
+2024-04-11T02:28:52,430 INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-04-11T02:28:52,431 INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2024-04-11T02:28:52,432 INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2024-04-11T02:28:52,562 INFO  com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl - User created: [User: id= 1, name= Maria Brown, email= maria@gmail.com]
+2024-04-11T02:28:57,344 INFO  com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl - User's address updated: [User: id= 1, name= Maria Brown, email= maria@gmail.com]
+2024-04-11T02:28:57,346 INFO  com.rogeriogregorio.ecommercemanager.services.impl.AddressServiceImpl - Address created: [Address: id= 1, street= Rua ABC, 123, city= São Paulo, state= SP, cep= 01234-567, country= Brasil]
+2024-04-11T02:29:03,978 INFO  com.rogeriogregorio.ecommercemanager.services.impl.ProductServiceImpl - Product created: [Product: id= 1, name= MacBook2, description= Powerful and sleek laptop., price= 15000.0, imgUrl= https://example.com/macbook.jpg]
+2024-04-11T02:29:09,059 INFO  com.rogeriogregorio.ecommercemanager.services.impl.InventoryItemServiceImpl - Inventory item created: [Inventory Item: id= 1, product= [Product: id= 1, name= MacBook2, description= Powerful and sleek laptop., price= 15000.00, imgUrl= https://example.com/macbook.jpg], quantityInStock= 10, quantitySold= 0, stockStatus= 1]
+2024-04-11T02:29:09,065 INFO  com.rogeriogregorio.ecommercemanager.services.impl.InventoryItemServiceImpl - Inventory movement created: [Stock Movement: id= 1, moment= 2024-04-11T02:29:09.060156559Z, inventoryItem= [Inventory Item: id= 1, product= [Product: id= 1, name= MacBook2, description= Powerful and sleek laptop., price= 15000.00, imgUrl= https://example.com/macbook.jpg], quantityInStock= 10, quantitySold= 0, stockStatus= 1], movementType= 1, quantityMoved= 10]
+2024-04-11T02:29:15,914 INFO  com.rogeriogregorio.ecommercemanager.services.impl.OrderServiceImpl - Order created: [Order: id= 1, moment= 2024-04-11T02:29:15.911444262Z, orderStatus= 1, client= [User: id= 1, name= Maria Brown, email= maria@gmail.com]]
+2024-04-11T02:29:26,521 INFO  com.rogeriogregorio.ecommercemanager.services.impl.OrderItemServiceImpl - Order item created: [Order Item: id= com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK@7c1, quantity= 10, price= 15000.00]
+2024-04-11T02:29:36,999 INFO  com.rogeriogregorio.ecommercemanager.services.impl.OrderServiceImpl - Paid order saved: [Order: id= 1, moment= 2024-04-11T02:29:15.911444Z, orderStatus= 2, client= [User: id= 1, name= Maria Brown, email= maria@gmail.com]]
+2024-04-11T02:29:37,000 INFO  com.rogeriogregorio.ecommercemanager.services.impl.PaymentServiceImpl - Payment created: [Payment: id= 1, moment= 2024-04-11T02:29:36.997990140Z, order= [Order: id= 1, moment= 2024-04-11T02:29:15.911444Z, orderStatus= 2, client= [User: id= 1, name= Maria Brown, email= maria@gmail.com]]]
+2024-04-11T02:29:37,004 INFO  com.rogeriogregorio.ecommercemanager.services.impl.InventoryItemServiceImpl - Inventory item quantity updated: [Inventory Item: id= 1, product= [Product: id= 1, name= MacBook2, description= Powerful and sleek laptop., price= 15000.00, imgUrl= https://example.com/macbook.jpg], quantityInStock= 0, quantitySold= 10, stockStatus= 2]
+2024-04-11T02:29:37,014 INFO  com.rogeriogregorio.ecommercemanager.services.impl.StockMovementServiceImpl - Inventory movement saved: [Stock Movement: id= 2, moment= 2024-04-11T02:29:37.013064839Z, inventoryItem= [Inventory Item: id= 1, product= [Product: id= 1, name= MacBook2, description= Powerful and sleek laptop., price= 15000.00, imgUrl= https://example.com/macbook.jpg], quantityInStock= 0, quantitySold= 10, stockStatus= 2], movementType= 2, quantityMoved= 10]
+2024-04-11T02:29:38,336 WARN  org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - Resolved [java.lang.IllegalStateException: Unable to process payment: the order is already paid.]
+2024-04-11T02:29:45,541 INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-04-11T02:29:45,550 WARN  org.springframework.beans.factory.support.DisposableBeanAdapter - Invocation of destroy method failed on bean with name 'inMemoryDatabaseShutdownExecutor': org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database is already closed (to disable automatic closing at VM shutdown, add ";DB_CLOSE_ON_EXIT=FALSE" to the db URL) [90121-224]
+2024-04-11T02:29:45,550 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2024-04-11T02:29:45,552 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

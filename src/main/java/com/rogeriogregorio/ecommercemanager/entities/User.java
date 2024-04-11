@@ -126,6 +126,10 @@ public class User implements Serializable {
         this.address = address;
     }
 
+    public boolean isAddressNull() {
+        return getAddress() == null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

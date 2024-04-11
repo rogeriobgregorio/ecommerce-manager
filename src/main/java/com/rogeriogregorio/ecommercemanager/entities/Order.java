@@ -119,6 +119,12 @@ public class Order implements Serializable {
         return total;
     }
 
+    public boolean isOrderPaid() {
+
+        String currentStatus = getOrderStatus().name();
+        return Set.of("PAID", "SHIPPED", "DELIVERED").contains(currentStatus);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

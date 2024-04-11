@@ -17,7 +17,6 @@ import java.util.List;
 public class AddressController {
 
     private final AddressService addressService;
-    // TODO adicionar log
 
     @Autowired
     public AddressController(AddressService addressService) {
