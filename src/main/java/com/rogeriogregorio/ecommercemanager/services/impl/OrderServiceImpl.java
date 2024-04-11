@@ -46,7 +46,7 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
     public Page<OrderResponse> findAllOrders(Pageable pageable) {
 
         return handleError(() -> orderRepository.findAll(pageable),
-                "Erro ao tentar buscar todos os pedidos: {}")
+                "Error while trying to fetch all orders: ")
                 .map(order -> converter.toResponse(order, OrderResponse.class));
     }
 
@@ -57,8 +57,8 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
         Order order = buildOrder(orderRequest);
 
         handleError(() -> orderRepository.save(order),
-                "Erro ao tentar criar o pedido: ");
-        logger.info("Pedido criado: {}", order);
+                "Error while trying to create the order: ");
+        logger.info("Order created: {}", order);
 
         return converter.toResponse(order, OrderResponse.class);
     }
@@ -69,20 +69,17 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
         handleError(() -> {
             orderRepository.save(order);
             return null;
-        }, "Erro ao tentar salvar o pedido pago: ");
-        logger.info("Pedido pago salvo: {}", order);
+        }, "Error while trying to save the paid order: ");
+        logger.info("Paid order saved: {}", order);
     }
 
     @Transactional(readOnly = true)
     public OrderResponse findOrderResponseById(Long id) {
 
         return handleError(() -> orderRepository.findById(id),
-                "Erro ao tentar encontrar o pedido pelo ID: ")
+                "Error while trying to find the order by ID: ")
                 .map(order -> converter.toResponse(order, OrderResponse.class))
-                .orElseThrow(() -> {
-                    logger.warn("Pedido não encontrado com o ID: {}", id);
-                    return new NotFoundException("Pedido não encontrado com o ID: " + id + ".");
-                });
+                .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -93,8 +90,8 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
 
 
         handleError(() -> orderRepository.save(order),
-                "Erro ao tentar atualizar o pedido: ");
-        logger.info("Pedido atualizado: {}", order);
+                "Error while trying to update the order: ");
+        logger.info("Order updated: {}", order);
 
         return converter.toResponse(order, OrderResponse.class);
     }
@@ -107,23 +104,23 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
         handleError(() -> {
             orderRepository.deleteById(id);
             return null;
-        }, "Erro ao tentar excluir o pedido: ");
-        logger.warn("Pedido removido: {}", id);
+        }, "Error while trying to delete the order: ");
+        logger.warn("Order removed: {}", id);
     }
 
     @Transactional(readOnly = true)
     public Page<OrderResponse> findOrderByClientId(Long id, Pageable pageable) {
 
         return handleError(() -> orderRepository.findByClient_Id(id, pageable),
-                "Erro ao tentar buscar pedidos pelo ID do cliente: ")
+                "Error while trying to fetch orders by customer ID: ")
                 .map(order -> converter.toResponse(order, OrderResponse.class));
     }
 
     public Order findOrderById(Long id) {
 
         return handleError(() -> orderRepository.findById(id),
-                "Erro ao tentar encontrar pedido pelo ID: ")
-                .orElseThrow(() -> new NotFoundException("Pedido não encontrado com o ID: " + id + "."));
+                "Error while trying to find order by ID: ")
+                .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + "."));
     }
 
     public void validateOrderStatusChange(OrderRequest orderRequest) {
@@ -143,7 +140,7 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
         boolean isOrderPaid = Set.of("PAID", "SHIPPED", "DELIVERED").contains(orderStatus);
 
         if (isOrderPaid) {
-            throw new IllegalStateException("Não é possível excluir um pedido que já foi pago.");
+            throw new IllegalStateException("You cannot delete an order that has already been paid for.");
         }
     }
 

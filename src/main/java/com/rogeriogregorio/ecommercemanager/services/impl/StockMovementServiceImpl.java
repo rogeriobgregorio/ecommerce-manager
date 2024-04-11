@@ -39,7 +39,7 @@ public class StockMovementServiceImpl extends ErrorHandlerTemplateImpl implement
     public Page<StockMovementResponse> findAllStockMovements(Pageable pageable) {
 
         return handleError(() -> stockMovementRepository.findAll(pageable),
-                "Erro ao tentar buscar todas as movimentações do estoque: ")
+                "Error while trying to fetch all inventory movements: ")
                 .map(stockMovement -> converter
                 .toResponse(stockMovement, StockMovementResponse.class));
     }
@@ -51,8 +51,8 @@ public class StockMovementServiceImpl extends ErrorHandlerTemplateImpl implement
         StockMovement stockMovement = buildStockMovement(stockMovementRequest);
 
         handleError(() -> stockMovementRepository.save(stockMovement),
-                "Erro ao tentar criar a movimentação do estoque: {}");
-        logger.info("Movimentação do estoque criada: {}", stockMovement);
+                "Error while trying to create the inventory movement:");
+        logger.info("Inventory movement created: {}", stockMovement);
 
         return converter.toResponse(stockMovement, StockMovementResponse.class);
     }
@@ -61,9 +61,9 @@ public class StockMovementServiceImpl extends ErrorHandlerTemplateImpl implement
     public StockMovementResponse findStockMovementResponseById(Long id) {
 
         return handleError(() -> stockMovementRepository.findById(id),
-                "Erro ao tentar buscar a movimentação do estoque pelo id: " + id)
+                "Error while trying to fetch inventory movement by ID: " + id)
                 .map(stockMovement -> converter.toResponse(stockMovement, StockMovementResponse.class))
-                .orElseThrow(() -> new NotFoundException("Movimentação do estoque não encontrado com o ID: " + id + "."));
+                .orElseThrow(() -> new NotFoundException("Inventory movement not found with ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -72,8 +72,8 @@ public class StockMovementServiceImpl extends ErrorHandlerTemplateImpl implement
         StockMovement stockMovement = buildStockMovement(stockMovementRequest);
 
         handleError(() -> stockMovementRepository.save(stockMovement),
-                "Erro ao tentar atualizar a movimentação do estoque: {}");
-        logger.info("Movimentação do estoque atualizada: {}", stockMovement);
+                "Error while trying to update inventory movement: ");
+        logger.info("Inventory movement updated: {}", stockMovement);
 
         return converter.toResponse(stockMovement, StockMovementResponse.class);
     }
@@ -86,22 +86,22 @@ public class StockMovementServiceImpl extends ErrorHandlerTemplateImpl implement
         handleError(() -> {
             stockMovementRepository.deleteById(id);
             return null;
-        }, "Erro ao tentar excluir a movimentação do estoque: ");
-        logger.info("Movimentação do estoque removida: {}", id);
+        }, "Error while trying to delete inventory movement: ");
+        logger.info("Inventory movement removed: {}", id);
     }
 
     public StockMovement findStockMovementById(Long id) {
 
         return handleError(() -> stockMovementRepository.findById(id),
-                "Erro ao tentar buscar movimentação do estoque pelo id: ")
-                .orElseThrow(() -> new NotFoundException("Movimentação do estoque não encontrado com o ID: " + id + "."));
+                "Error while trying to fetch inventory movement by ID: ")
+                .orElseThrow(() -> new NotFoundException("Inventory movement not found with ID: " + id + "."));
     }
 
     public void saveStockMovement(StockMovement stockMovement) {
 
         handleError(() -> stockMovementRepository.save(stockMovement),
-                "Erro ao tentar salvar a movimentação do estoque: ");
-        logger.info("Movimentação do estoque salva: {}", stockMovement);
+                "Error while trying to save inventory movement: ");
+        logger.info("Inventory movement saved: {}", stockMovement);
     }
 
     public void updateStockMovementExit(Order order) {

@@ -16,7 +16,7 @@ public class ShippedStrategyImpl implements OrderStatusStrategy {
         OrderStatus currentStatus = order.getOrderStatus();
 
         if (currentStatus == OrderStatus.SHIPPED && statusRequest != OrderStatus.DELIVERED) {
-            throw new IllegalStateException("Não é possível alterar o status de entrega: o pedido foi enviado para entrega.");
+            throw new IllegalStateException("Unable to change delivery status: the order has been dispatched for delivery.");
         }
     }
 }

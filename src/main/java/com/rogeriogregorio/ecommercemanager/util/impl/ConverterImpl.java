@@ -24,7 +24,7 @@ public class ConverterImpl implements Converter {
             return modelMapper.map(object, targetType);
 
         } catch (MappingException exception) {
-            throw new ConverterException("Erro ao tentar converter de response para entity: " + exception);
+            throw new ConverterException("Error while trying to convert from response to entity: " + exception);
         }
     }
 
@@ -35,7 +35,7 @@ public class ConverterImpl implements Converter {
             return modelMapper.map(object, targetType);
 
         } catch (MappingException exception) {
-            throw new ConverterException("Erro ao tentar converter de entity para response: " + exception);
+            throw new ConverterException("Error while trying to convert from entity to response: " + exception);
         }
     }
 }

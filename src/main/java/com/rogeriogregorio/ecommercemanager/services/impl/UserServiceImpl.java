@@ -32,7 +32,7 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
     public Page<UserResponse> findAllUsers(Pageable pageable) {
 
         return handleError(() -> userRepository.findAll(pageable),
-                "Erro ao tentar buscar todos os usuários: ")
+                "Error while trying to fetch all users: ")
                 .map(user -> converter.toResponse(user, UserResponse.class));
     }
 
@@ -40,9 +40,9 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
     public UserResponse findUserResponseById(Long id) {
 
         return handleError(() -> userRepository.findById(id),
-                "Erro ao tentar buscar o usuário pelo id: " + id)
+                "Error while trying to fetch the user by ID: " + id)
                 .map(user -> converter.toResponse(user, UserResponse.class))
-                .orElseThrow(() -> new NotFoundException("Usuário não encontrado com o ID: " + id + "."));
+                .orElseThrow(() -> new NotFoundException("User not found with ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -52,8 +52,8 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
         User user = buildUser(userRequest);
 
         handleError(() -> userRepository.save(user),
-                "Erro ao tentar criar o usuário: ");
-        logger.info("Usuário criado: {}", user);
+                "Error while trying to create the user: ");
+        logger.info("User created: {}", user);
 
         return converter.toResponse(user, UserResponse.class);
     }
@@ -65,8 +65,8 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
         User user = buildUser(userRequest);
 
         handleError(() -> userRepository.save(user),
-                "Erro ao tentar atualizar o usuário: ");
-        logger.info("Usuário atualizado: {}", user);
+                "Error while trying to update the user: ");
+        logger.info("User updated: {}", user);
 
         return converter.toResponse(user, UserResponse.class);
     }
@@ -79,23 +79,23 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
         handleError(() -> {
             userRepository.deleteById(id);
             return null;
-        }, "Erro ao tentar excluir o usuário: ");
-        logger.warn("Usuário removido: {}", user);
+        }, "Error while trying to delete the user: ");
+        logger.warn("User removed: {}", user);
     }
 
     @Transactional(readOnly = true)
     public Page<UserResponse> findUserByName(String name, Pageable pageable) {
 
         return handleError(() -> userRepository.findByName(name, pageable),
-                "Erro ao tentar buscar o usuário pelo nome: {}").
+                "Error while trying to fetch the user by name: ").
                 map(user -> converter.toResponse(user, UserResponse.class));
     }
 
     public User findUserById(Long id) {
 
         return handleError(() -> userRepository.findById(id),
-                "Erro ao tentar buscar o usuário pelo id: " + id)
-                .orElseThrow(() -> new NotFoundException("Usuário não encontrado com o ID: " + id + "."));
+                "Error while trying to fetch the user by ID: " + id)
+                .orElseThrow(() -> new NotFoundException("User not found with ID: " + id + "."));
     }
 
     public void saveUserAddress(User user) {
@@ -103,8 +103,8 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
         handleError(() -> {
             userRepository.save(user);
             return null;
-        }, "Erro ao tentar atualizar o endereço do usuário: ");
-        logger.info("Endereço do usuário atualizado: {}", user);
+        }, "Error while trying to update the user's address: ");
+        logger.info("User's address updated: {}", user);
     }
 
     public User buildUser(UserRequest userRequest) {

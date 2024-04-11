@@ -13,7 +13,7 @@ public class DeliveryAddressPresentStrategyImpl implements PaymentStrategy {
         boolean isDeliveryAddressEmpty = order.getClient().getAddress() == null;
 
         if (isDeliveryAddressEmpty) {
-            throw new IllegalStateException("Não foi possível processar o pagamento: endereço de entrega ausente.");
+            throw new IllegalStateException("Unable to process payment: delivery address missing.");
         }
     }
 }

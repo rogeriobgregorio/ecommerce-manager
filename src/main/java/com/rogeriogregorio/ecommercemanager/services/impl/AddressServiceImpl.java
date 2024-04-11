@@ -37,7 +37,7 @@ public class AddressServiceImpl extends ErrorHandlerTemplateImpl implements Addr
     public Page<AddressResponse> findAllAddresses(Pageable pageable) {
 
         return handleError(() -> addressRepository.findAll(pageable),
-                "Erro ao tentar buscar todos os endereços: ")
+                "Error while trying to fetch all addresses: ")
                 .map(address -> converter.toResponse(address, AddressResponse.class));
     }
 
@@ -45,9 +45,9 @@ public class AddressServiceImpl extends ErrorHandlerTemplateImpl implements Addr
     public AddressResponse findAddressResponseById(Long id) {
 
         return handleError(() -> addressRepository.findById(id),
-                "Erro ao tentar encontrar o endereço pelo ID: ")
+                "Error while trying to find the address by ID: ")
                 .map(address -> converter.toResponse(address, AddressResponse.class))
-                .orElseThrow(() -> new NotFoundException("Endereço não encontrado com o ID: " + id + "."));
+                .orElseThrow(() -> new NotFoundException("Address not found with ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -57,8 +57,8 @@ public class AddressServiceImpl extends ErrorHandlerTemplateImpl implements Addr
         Address address = buildAddress(addressRequest);
 
         handleError(() -> addressRepository.save(address),
-                "Erro ao tentar criar o endereço: ");
-        logger.info("Endereço criado: {}", address);
+                "Error while trying to create the address: ");
+        logger.info("Address created: {}", address);
 
         return converter.toResponse(address, AddressResponse.class);
     }
@@ -70,8 +70,8 @@ public class AddressServiceImpl extends ErrorHandlerTemplateImpl implements Addr
         Address address = buildAddress(addressRequest);
 
         handleError(() -> addressRepository.save(address),
-                "Erro ao tentar atualizar o endereço: ");
-        logger.info("Endereço atualizado: {}", address);
+                "Error while trying to update the address: ");
+        logger.info("Address updated: {}", address);
 
         return converter.toResponse(address, AddressResponse.class);
     }
@@ -84,15 +84,15 @@ public class AddressServiceImpl extends ErrorHandlerTemplateImpl implements Addr
         handleError(() -> {
             addressRepository.deleteById(id);
             return null;
-        }, "Erro ao tentar excluir o endereço: ");
-        logger.warn("Endereço removido: {}", address);
+        }, "Error while trying to delete the address: ");
+        logger.warn("Address removed: {}", address);
     }
 
     public Address findAddressById(Long id) {
 
         return handleError(() -> addressRepository.findById(id),
-                "Erro ao tentar encontrar o endereço pelo ID: ")
-                .orElseThrow(() -> new NotFoundException("Endereço não encontrado com o ID: " + id + "."));
+                "Error while trying to find the address by ID:")
+                .orElseThrow(() -> new NotFoundException("Address not found with ID: {}" + id + "."));
     }
 
     public Address buildAddress(AddressRequest addressRequest) {

@@ -50,7 +50,7 @@ public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements Or
     public Page<OrderItemResponse> findAllOrderItems(Pageable pageable) {
 
         return handleError(() -> orderItemRepository.findAll(pageable),
-                "Erro ao tentar buscar todos os itens do pedido: ")
+                "Error while trying to fetch all items of the order: ")
                 .map(orderItem -> converter.toResponse(orderItem, OrderItemResponse.class));
     }
 
@@ -60,9 +60,9 @@ public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements Or
         OrderItemPK id = buildOrderItemPK(orderId, itemId);
 
         return handleError(() -> orderItemRepository.findById(id),
-                "Erro ao tentar buscar o item do pedido pelo id")
+                "Error while trying to fetch the order item by ID: ")
                 .map(orderItem -> converter.toResponse(orderItem, OrderItemResponse.class))
-                .orElseThrow(() -> new NotFoundException("Itens não encontrado com o ID: " + id + "."));
+                .orElseThrow(() -> new NotFoundException("Item not found with ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -71,8 +71,8 @@ public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements Or
         OrderItem orderItem = buildOrderItem(orderItemRequest);
 
         handleError(() -> orderItemRepository.save(orderItem),
-                "Erro ao tentar criar item do pedido: ");
-        logger.info("Item do pedido criado: {}", orderItem);
+                "Error while trying to create order item: ");
+        logger.info("Order item created: {}", orderItem);
 
         return converter.toResponse(orderItem, OrderItemResponse.class);
     }
@@ -83,8 +83,8 @@ public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements Or
         OrderItem orderItem = buildOrderItem(orderItemRequest);
 
         handleError(() -> orderItemRepository.save(orderItem),
-                "Erro ao tentar atualizar o item do pedido: ");
-        logger.info("Item do pedido atualizado: {}", orderItem);
+                "Error while trying to update the order item: ");
+        logger.info("Order item updated: {}", orderItem);
 
         return converter.toResponse(orderItem, OrderItemResponse.class);
     }
@@ -101,8 +101,8 @@ public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements Or
         handleError(() -> {
             orderItemRepository.deleteById(id);
             return null;
-        }, "Erro ao tentar excluir item do pedido: {}");
-        logger.warn("Item do pedido removido: {}", id.getProduct());
+        }, "Error while trying to delete order item: ");
+        logger.warn("Order item removed: {}", id.getProduct());
     }
 
     public void validateOrderChangeEligibility(Order order) {
@@ -111,7 +111,7 @@ public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements Or
         boolean isOrderPaid = Set.of("PAID", "SHIPPED", "DELIVERED").contains(orderStatus);
 
         if (isOrderPaid) {
-            throw new IllegalStateException("Não é possível alterar a lista de itens: o pedido já foi pago.");
+            throw new IllegalStateException("It's not possible to modify the list of items: the order has already been paid for.");
         }
     }
 

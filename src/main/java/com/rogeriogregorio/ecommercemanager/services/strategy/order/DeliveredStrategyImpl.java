@@ -16,7 +16,7 @@ public class DeliveredStrategyImpl implements OrderStatusStrategy {
         OrderStatus currentStatus = order.getOrderStatus();
 
         if (currentStatus == OrderStatus.DELIVERED && statusRequest != OrderStatus.DELIVERED) {
-            throw new IllegalStateException("Não é possível alterar o status de entrega: o pedido está entregue.");
+            throw new IllegalStateException("Unable to change delivery status: the order is already delivered.");
         }
     }
 }

@@ -49,7 +49,7 @@ public class PaymentServiceImpl extends ErrorHandlerTemplateImpl implements Paym
     public Page<PaymentResponse> findAllPayments(Pageable pageable) {
 
         return handleError(() -> paymentRepository.findAll(pageable),
-                "Erro ao tentar buscar todos os pagamentos: ")
+                "Error while trying to fetch all payments: ")
                 .map(payment -> converter.toResponse(payment, PaymentResponse.class));
     }
 
@@ -60,8 +60,8 @@ public class PaymentServiceImpl extends ErrorHandlerTemplateImpl implements Paym
         Payment payment = buildPayment(paymentRequest);
 
         handleError(() -> paymentRepository.save(payment),
-                "Erro ao tentar criar o pagamento: ");
-        logger.info("Pagamento criado: {}", payment);
+                "Error while trying to create the payment: ");
+        logger.info("Payment created: {}", payment);
 
         updateInventoryStock(payment);
         return converter.toResponse(payment, PaymentResponse.class);
@@ -71,9 +71,9 @@ public class PaymentServiceImpl extends ErrorHandlerTemplateImpl implements Paym
     public PaymentResponse findPaymentResponseById(Long id) {
 
         return handleError(() -> paymentRepository.findById(id),
-                "Erro ao tentar encontrar o pagamento pelo ID: ")
+                "Error while trying to find the payment by ID: ")
                 .map(payment -> converter.toResponse(payment, PaymentResponse.class))
-                .orElseThrow(() -> new NotFoundException("Pagamento não encontrado com o ID: " + id + "."));
+                .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -84,15 +84,15 @@ public class PaymentServiceImpl extends ErrorHandlerTemplateImpl implements Paym
         handleError(() -> {
             paymentRepository.deleteById(id);
             return null;
-        }, "Erro ao tentar excluir o pagamento: ");
-        logger.warn("Pagamento removido: {}", payment);
+        }, "Error while trying to delete the payment: ");
+        logger.warn("Payment removed: {}", payment);
     }
 
     public Payment findPaymentById(Long id) {
 
         return handleError(() -> paymentRepository.findById(id),
-                "Erro ao tentar encontrar o pagamento pelo ID: {}")
-                .orElseThrow(() -> new NotFoundException("Pagamento não encontrado com o ID: " + id + "."));
+                "Error while trying to find the payment by ID:")
+                .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + "."));
     }
 
     public void validatePayment(Order order) {

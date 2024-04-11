@@ -45,7 +45,7 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
     public Page<InventoryItemResponse> findAllInventoryItems(Pageable pageable) {
 
         return handleError(() -> inventoryItemRepository.findAll(pageable),
-                "Erro ao tentar buscar todos os itens do inventário: ")
+                "Error while trying to fetch all inventory items: ")
                 .map(inventoryItem -> converter.toResponse(inventoryItem, InventoryItemResponse.class));
     }
 
@@ -56,8 +56,8 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
         InventoryItem inventoryItem = buildInventoryItem(inventoryItemRequest);
 
         handleError(() -> inventoryItemRepository.save(inventoryItem),
-                "Erro ao tentar criar o item do inventário: ");
-        logger.info("Item do inventário criado: {}", inventoryItem);
+                "Error while trying to create the inventory item: ");
+        logger.info("Inventory item created: {}", inventoryItem);
 
         updateStockMovementEntrance(inventoryItem);
         return converter.toResponse(inventoryItem, InventoryItemResponse.class);
@@ -67,9 +67,9 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
     public InventoryItemResponse findInventoryItemResponseById(Long id) {
 
         return handleError(() -> inventoryItemRepository.findById(id),
-                "Erro ao tentar encontrar o item do inventário pelo ID: ")
+                "Error while trying to find the inventory item by ID: ")
                 .map(inventoryItem -> converter.toResponse(inventoryItem, InventoryItemResponse.class))
-                .orElseThrow(() -> new NotFoundException("Item do inventário não encontrado com o ID: " + id + "."));
+                .orElseThrow(() -> new NotFoundException("Inventory item not found with ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -78,8 +78,8 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
         InventoryItem inventoryItem = buildInventoryItem(inventoryItemRequest);
 
         handleError(() -> inventoryItemRepository.save(inventoryItem),
-                "Erro ao tentar atualizar o item do inventário: ");
-        logger.info("Item do inventário atualizado: {}", inventoryItem);
+                "Error while trying to update the inventory item: ");
+        logger.info("Inventory item updated: {}", inventoryItem);
 
         return converter.toResponse(inventoryItem, InventoryItemResponse.class);
     }
@@ -92,29 +92,29 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
         handleError(() -> {
             inventoryItemRepository.deleteById(id);
             return null;
-        }, "Erro ao tentar excluir o Item do inventário: ");
-        logger.warn("Item do inventário removido: {}", inventoryItem);
+        }, "Error while trying to delete the inventory item: ");
+        logger.warn("Inventory item removed: {}", inventoryItem);
     }
 
     public InventoryItem findInventoryItemById(Long id) {
 
         return handleError(() -> inventoryItemRepository.findById(id),
-                "Erro ao tentar encontrar o item do inventário pelo ID: ")
-                .orElseThrow(() -> new NotFoundException("Item do inventário não encontrado com o ID: " + id + "."));
+                "Error while trying to find the inventory item by ID: ")
+                .orElseThrow(() -> new NotFoundException("Inventory item not found with ID: " + id + "."));
     }
 
     public InventoryItem findInventoryItemByProduct(Product product) {
 
         return handleError(() -> inventoryItemRepository.findByProduct(product),
-                "Erro ao tentar encontrar o item do inventário: ")
-                .orElseThrow(() -> new NotFoundException("Item não encontrado no inventário: " + product + "."));
+                "Error while trying to find the inventory item: ")
+                .orElseThrow(() -> new NotFoundException("Item not found in the inventory: " + product + "."));
     }
 
     public void saveInventoryItem(InventoryItem inventoryItem) {
 
         handleError(() -> inventoryItemRepository.save(inventoryItem),
-                "Erro ao tentar salvar o item do inventário: ");
-        logger.info("Quantidade do item no inventário atualizada: {}", inventoryItem);
+                "Error while trying to save the inventory item: ");
+        logger.info("Inventory item quantity updated: {}", inventoryItem);
     }
 
     public void validateItemInventory(InventoryItemRequest inventoryItemRequest) {
@@ -123,7 +123,7 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
         Long productId = inventoryItemRequest.getProductId();
 
         if (inventoryItemId == null && isProductPresent(productId)) {
-            throw new IllegalStateException("Não é possível incluir o item ao inventário: produto já adicionado.");
+            throw new IllegalStateException("Cannot add the item to the inventory: product already added.");
         }
 
         if (inventoryItemId != null) {
@@ -134,7 +134,7 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
     public boolean isProductPresent(Long productId) {
 
         return handleError(() -> inventoryItemRepository.findByProduct_Id(productId) != null,
-                "Erro ao tentar verificar a presença do item no inventário: ");
+                "Error while trying to check the presence of the item in the inventory: ");
     }
 
     public boolean isListItemsAvailable(Order order) {
@@ -145,17 +145,17 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
             StockStatus itemStatus = inventoryItem.getStockStatus();
 
             if (itemStatus == StockStatus.OUT_OF_STOCK) {
-                throw new InsufficientQuantityInStockException("O item " + product.getName() + " está esgotado.");
+                throw new InsufficientQuantityInStockException("The item " + product.getName() + " is out of stock.");
             }
 
             int quantityInStock = inventoryItem.getQuantityInStock();
             int quantityRequired = orderItem.getQuantity();
 
             if (quantityRequired > quantityInStock) {
-                throw new InsufficientQuantityInStockException("Quantidade de "
-                        + product.getName() + " em estoque insuficiente."
-                        + " Quantidade requerida: " + quantityRequired
-                        + ", quantidade em estoque: " + quantityInStock + "."
+                throw new InsufficientQuantityInStockException("Insufficient"
+                        + " quantity of " + product.getName() + " in stock."
+                        + " Required quantity: " + quantityRequired
+                        + ", available quantity: " + quantityInStock + "."
                 );
             }
         }
@@ -169,17 +169,17 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
         StockStatus itemStatus = inventoryItem.getStockStatus();
 
         if (itemStatus == StockStatus.OUT_OF_STOCK) {
-            throw new InsufficientQuantityInStockException("O item " + product.getName() + " está esgotado.");
+            throw new InsufficientQuantityInStockException("The item " + product.getName() + " is out of stock.");
         }
 
         int quantityRequired = orderItem.getQuantity();
         int quantityInStock = inventoryItem.getQuantityInStock();
 
         if (quantityRequired > quantityInStock) {
-            throw new InsufficientQuantityInStockException("Quantidade de "
-                    + product.getName() + " em estoque insuficiente."
-                    + " Quantidade requerida: " + quantityRequired
-                    + ", quantidade em estoque: " + quantityInStock + "."
+            throw new InsufficientQuantityInStockException("Insufficient"
+                    + " quantity of " + product.getName() + " in stock."
+                    + " Required quantity: " + quantityRequired
+                    + ", available quantity: " + quantityInStock + "."
             );
         }
         return true;
@@ -212,8 +212,8 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
         StockMovement stockMovement = new StockMovement(moment, inventoryItem, MovementType.ENTRANCE, quantity);
 
         handleError(() -> stockMovementRepository.save(stockMovement),
-                "Erro ao tentar criar a movimentação do estoque: ");
-        logger.info("Movimentação do estoque criada: {}", stockMovement);
+                "Error while trying to create the inventory movement: ");
+        logger.info("Inventory movement created: {}", stockMovement);
     }
 
     public InventoryItem buildInventoryItem(InventoryItemRequest inventoryItemRequest) {

@@ -16,7 +16,7 @@ public class WaitingPaymentStrategyImpl implements OrderStatusStrategy {
         OrderStatus statusRequest = orderRequest.getOrderStatus();
 
         if (currentStatus == OrderStatus.WAITING_PAYMENT && statusRequest != OrderStatus.CANCELED) {
-            throw new IllegalStateException("Não é possível alterar o status de entrega: o pedido está aguardando o pagamento.");
+            throw new IllegalStateException("Unable to change delivery status: the order is awaiting payment.");
         }
     }
 }

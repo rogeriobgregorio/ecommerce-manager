@@ -16,7 +16,7 @@ public class CanceledStrategyImpl implements OrderStatusStrategy {
         OrderStatus currentStatus = order.getOrderStatus();
 
         if (currentStatus == OrderStatus.CANCELED && statusRequest != OrderStatus.CANCELED) {
-            throw new IllegalStateException("Não é possível alterar o status de entrega: o pedido foi cancelado.");
+            throw new IllegalStateException("Unable to change delivery status: the order has been canceled.");
         }
     }
 }

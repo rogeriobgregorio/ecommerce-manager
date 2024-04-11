@@ -13,7 +13,7 @@ public class OrderItemsPresentStrategyImpl implements PaymentStrategy {
         boolean isOrderItemsEmpty = order.getItems().isEmpty();
 
         if (isOrderItemsEmpty) {
-            throw new IllegalStateException("Não foi possível processar" + " o pagamento: nenhum item no pedido.");
+            throw new IllegalStateException("Unable to process payment: no items in the order.");
         }
     }
 }

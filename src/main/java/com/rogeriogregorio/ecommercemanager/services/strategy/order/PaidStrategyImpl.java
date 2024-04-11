@@ -16,7 +16,7 @@ public class PaidStrategyImpl implements OrderStatusStrategy {
         OrderStatus currentStatus = order.getOrderStatus();
 
         if (currentStatus == OrderStatus.PAID && statusRequest != OrderStatus.SHIPPED) {
-            throw new IllegalStateException("Não é possível alterar o status de entrega: o pedido está pago e aguarda ser enviado.");
+            throw new IllegalStateException("Unable to change delivery status: the order is paid for and waiting to be dispatched.");
         }
     }
 }

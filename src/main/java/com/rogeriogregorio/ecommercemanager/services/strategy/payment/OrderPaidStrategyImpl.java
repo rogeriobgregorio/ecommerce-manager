@@ -16,7 +16,7 @@ public class OrderPaidStrategyImpl implements PaymentStrategy {
         boolean isOrderPaid = Set.of("PAID", "SHIPPED", "DELIVERED").contains(orderStatus);
 
         if (isOrderPaid) {
-            throw new IllegalStateException("Não foi possível processar o pagamento: o pedido já está pago.");
+            throw new IllegalStateException("Unable to process payment: the order is already paid.");
         }
     }
 }

@@ -39,7 +39,7 @@ public class ProductServiceImpl extends ErrorHandlerTemplateImpl implements Prod
     public Page<ProductResponse> findAllProducts(Pageable pageable) {
 
         return handleError(() -> productRepository.findAll(pageable),
-                "Erro ao tentar buscar todos os produtos: ")
+                "Error while trying to fetch all products: ")
                 .map(product -> converter.toResponse(product, ProductResponse.class));
     }
 
@@ -50,8 +50,8 @@ public class ProductServiceImpl extends ErrorHandlerTemplateImpl implements Prod
         Product product = buildProduct(productRequest);
 
         handleError(() -> productRepository.save(product),
-                "Erro ao tentar criar o produto: ");
-        logger.info("Produto criado: {}", product);
+                "Error while trying to create the product: ");
+        logger.info("Product created: {}", product);
 
         return converter.toResponse(product, ProductResponse.class);
     }
@@ -60,9 +60,9 @@ public class ProductServiceImpl extends ErrorHandlerTemplateImpl implements Prod
     public ProductResponse findProductResponseById(Long id) {
 
         return handleError(() -> productRepository.findById(id),
-                "Erro ao tentar criar o produto: ")
+                "Error while trying to create the product: ")
                 .map(product -> converter.toResponse(product, ProductResponse.class))
-                .orElseThrow(() -> new NotFoundException("Produto não encontrado com o ID: " + id + "."));
+                .orElseThrow(() -> new NotFoundException("Product not found with ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -72,8 +72,8 @@ public class ProductServiceImpl extends ErrorHandlerTemplateImpl implements Prod
         Product product = buildProduct(productRequest);
 
         handleError(() -> productRepository.save(product),
-                "Erro ao tentar atualizar o produto: {}");
-        logger.info("produto atualizado: {}", product);
+                "Error while trying to update the product: ");
+        logger.info("Product updated: {}", product);
 
         return converter.toResponse(product, ProductResponse.class);
     }
@@ -86,23 +86,23 @@ public class ProductServiceImpl extends ErrorHandlerTemplateImpl implements Prod
         handleError(() -> {
             productRepository.deleteById(id);
             return null;
-        }, "Erro ao tentar excluir o produto: ");
-        logger.warn("Produto removido: {}", product);
+        }, "Error while trying to delete the product: ");
+        logger.warn("Product removed: {}", product);
     }
 
     @Transactional(readOnly = true)
     public Page<ProductResponse> findProductByName(String name, Pageable pageable) {
 
         return handleError(() -> productRepository.findProductByName(name, pageable),
-                "Erro ao tentar buscar o produto pelo nome: ")
+                "Error while trying to fetch the product by name: ")
                 .map(product -> converter.toResponse(product, ProductResponse.class));
     }
 
     public Product findProductById(Long id) {
 
         return handleError(() -> productRepository.findById(id),
-                "Erro ao tentar buscar o produto pelo id: ")
-                .orElseThrow(() -> new NotFoundException("Produto não encontrado com o ID: " + id + "."));
+                "Error while trying to fetch the product by ID: ")
+                .orElseThrow(() -> new NotFoundException("Product not found with ID: " + id + "."));
     }
 
     public Product buildProduct(ProductRequest productRequest) {
