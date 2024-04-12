@@ -1,5 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.dto.requests;
 
+import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
+
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -13,23 +15,26 @@ public class UserRequest implements Serializable {
     private String email;
     private String phone;
     private String password;
+    private UserRole userRole;
 
     public UserRequest() {
     }
 
-    public UserRequest(String name, String email, String phone, String password) {
+    public UserRequest(String name, String email, String phone, String password, UserRole userRole) {
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.password = password;
+        this.userRole = userRole;
     }
 
-    public UserRequest(Long id, String name, String email, String phone, String password) {
+    public UserRequest(Long id, String name, String email, String phone, String password, UserRole userRole) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.password = password;
+        this.userRole = userRole;
     }
 
     public Long getId() {
@@ -70,5 +75,13 @@ public class UserRequest implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public UserRole getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(UserRole userRole) {
+        this.userRole = userRole;
     }
 }

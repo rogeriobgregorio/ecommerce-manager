@@ -2,9 +2,9 @@ package com.rogeriogregorio.ecommercemanager.entities.enums;
 
 public enum UserRole {
 
-    ADMIN("ROLE_ADMIN"),
-    MANAGER("ROLE_MANAGER"),
-    USER("ROLE_USER");
+    ADMIN("ADMIN"),
+    MANAGER("MANAGER"),
+    CLIENT("CLIENT");
 
     private String role;
 

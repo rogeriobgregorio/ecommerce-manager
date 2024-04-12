@@ -3,6 +3,7 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 import com.rogeriogregorio.ecommercemanager.dto.requests.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.User;
+import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
@@ -108,6 +109,13 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
     }
 
     public User buildUser(UserRequest userRequest) {
+
+        boolean isRoleEmpty = userRequest.getUserRole() == null;
+        boolean isIdEmpty = userRequest.getId() == null;
+
+        if (isRoleEmpty && isIdEmpty) {
+            userRequest.setUserRole(UserRole.CLIENT);
+        }
 
         return converter.toEntity(userRequest, User.class);
     }

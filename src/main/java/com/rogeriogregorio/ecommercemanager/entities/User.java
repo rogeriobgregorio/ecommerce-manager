@@ -1,23 +1,22 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Table(name = "tb_users", uniqueConstraints = {
         @UniqueConstraint(columnNames = "email", name = "unique_email_constraint")
 })
-public class User implements Serializable {
+public class User implements Serializable, UserDetails {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -55,22 +54,28 @@ public class User implements Serializable {
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     private Address address;
 
+    @Column(name = "role")
+    @NotNull(message = "The user role cannot be null.")
+    private UserRole userRole;
+
     public User() {
     }
 
-    public User(String name, String email, String phone, String password) {
+    public User(String name, String email, String phone, String password, UserRole userRole) {
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.password = password;
+        this.userRole = userRole;
     }
 
-    public User(Long id, String name, String email, String phone, String password) {
+    public User(Long id, String name, String email, String phone, String password, UserRole userRole) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.password = password;
+        this.userRole = userRole;
     }
 
     public Long getId() {
@@ -105,11 +110,6 @@ public class User implements Serializable {
         this.phone = phone;
     }
 
-    @JsonIgnore
-    public String getPassword() {
-        return password;
-    }
-
     public void setPassword(String password) {
         this.password = password;
     }
@@ -130,6 +130,58 @@ public class User implements Serializable {
         return getAddress() == null;
     }
 
+    public UserRole getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(UserRole userRole) {
+        this.userRole = userRole;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("CLIENT"));
+
+        if (this.userRole == UserRole.ADMIN) {
+            authorities.add(new SimpleGrantedAuthority("ADMIN"));
+            authorities.add(new SimpleGrantedAuthority("MANAGER"));
+        }
+
+        return authorities;
+    }
+
+    @JsonIgnore
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -145,6 +197,6 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        return "[User: id= " + id +", name= " + name + ", email= " + email + "]";
+        return "[User: id= " + id +", name= " + name + ", email= " + email + ", phone= " + phone + "]";
     }
 }
