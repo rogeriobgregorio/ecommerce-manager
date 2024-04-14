@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.controllers;
+package com.rogeriogregorio.ecommercemanager.security;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.LoginRequest;
 import com.rogeriogregorio.ecommercemanager.dto.requests.UserRequest;
@@ -6,7 +6,6 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.LoginResponse;
 import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
-import com.rogeriogregorio.ecommercemanager.services.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;

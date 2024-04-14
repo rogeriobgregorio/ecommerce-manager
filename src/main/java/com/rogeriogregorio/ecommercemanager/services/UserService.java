@@ -14,6 +14,8 @@ public interface UserService {
 
     UserResponse createUser(UserRequest userRequest);
 
+    UserResponse createAdminOrManagerUser(UserRequest userRequest);
+
     UserResponse findUserResponseById(Long id);
 
     User findUserById(Long id);

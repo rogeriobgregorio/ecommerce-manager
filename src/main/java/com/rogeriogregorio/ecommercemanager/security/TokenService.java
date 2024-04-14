@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.services;
+package com.rogeriogregorio.ecommercemanager.security;
 
 import com.rogeriogregorio.ecommercemanager.entities.User;
 import org.springframework.stereotype.Component;

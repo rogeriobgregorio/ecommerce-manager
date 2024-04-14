@@ -17,6 +17,7 @@ gerenciamento de usuários, endereços, produtos, categorias, itens de inventár
 ## Funcionalidades implementadas até o momento
 ### User
 
+- Login seguro com Spring Security e JWT.
 - Listar todos os usuários paginados.
 - Criar um novo usuário.
 - Encontrar um usuário pelo ID.

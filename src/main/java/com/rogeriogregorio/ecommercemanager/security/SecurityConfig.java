@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.config;
+package com.rogeriogregorio.ecommercemanager.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -30,22 +30,35 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
-        String path = "/api/**";
-        String admin = "ADMIN";
-
         return httpSecurity
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/v1/api/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/v1/api/auth/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, path).hasRole(admin)
-                        .requestMatchers(HttpMethod.PUT, path).hasRole(admin)
-                        .requestMatchers(HttpMethod.DELETE, path).hasRole(admin)
-                        .anyRequest().authenticated()
+                        .requestMatchers("/**").hasRole("ADMIN")
+                        .requestMatchers("/**").hasRole("MANAGER")
+                        .requestMatchers("/v1/api/users/role").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/v1/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/api/users").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.GET, "/v1/api/users/{id}").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.PUT, "/v1/api/users").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/api/users/{id}").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.POST, "/v1/api/addresses").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.PUT, "/v1/api/addresses").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/api/addresses/{id}").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.GET, "/v1/api/order-items").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.POST, "/v1/api/order-items").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.GET, "/v1/api/order-items/{id}").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.PUT, "/v1/api/order-items").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/api/order-items/{id}").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.POST, "/v1/api/orders").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.PUT, "/v1/api/orders").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.GET, "/v1/api/clients/{id}/orders").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.POST, "/v1/api/payments").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.GET, "/v1/api/products").hasRole("CLIENT")
+                        .requestMatchers(HttpMethod.GET, "/v1/api/products/search").hasRole("CLIENT")
                 )
                 .addFilterBefore(securityFilterConfig, UsernamePasswordAuthenticationFilter.class)
                 .build();

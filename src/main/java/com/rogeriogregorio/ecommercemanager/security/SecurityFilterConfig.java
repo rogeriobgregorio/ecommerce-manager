@@ -1,7 +1,6 @@
-package com.rogeriogregorio.ecommercemanager.config;
+package com.rogeriogregorio.ecommercemanager.security;
 
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
-import com.rogeriogregorio.ecommercemanager.services.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

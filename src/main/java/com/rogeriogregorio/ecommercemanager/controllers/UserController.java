@@ -39,6 +39,14 @@ public class UserController {
                 .body(userService.createUser(userRequest));
     }
 
+    @PostMapping(value = "/users/role")
+    public ResponseEntity<UserResponse> createAdminOrManagerUser(@Valid @RequestBody UserRequest userRequest) {
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(userService.createAdminOrManagerUser(userRequest));
+    }
+
     @GetMapping(value = "/users/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
 

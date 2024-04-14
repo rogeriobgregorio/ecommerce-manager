@@ -73,6 +73,20 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
     }
 
     @Transactional(readOnly = false)
+    public UserResponse createAdminOrManagerUser(UserRequest userRequest) {
+
+        findUserById(userRequest.getId());
+        User user = buildAdminOrManagerUser(userRequest);
+        String role = String.valueOf(user.getUserRole());
+
+        handleError(() -> userRepository.save(user),
+                "Error while trying to update the " + role + " user: ");
+        logger.info("User updated: {}", user);
+
+        return converter.toResponse(user, UserResponse.class);
+    }
+
+    @Transactional(readOnly = false)
     public void deleteUser(Long id) {
 
         User user = findUserById(id);
@@ -110,12 +124,12 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
 
     public User buildUser(UserRequest userRequest) {
 
-        boolean isRoleEmpty = userRequest.getUserRole() == null;
-        boolean isIdEmpty = userRequest.getId() == null;
+        userRequest.setUserRole(UserRole.CLIENT);
 
-        if (isRoleEmpty && isIdEmpty) {
-            userRequest.setUserRole(UserRole.CLIENT);
-        }
+        return converter.toEntity(userRequest, User.class);
+    }
+
+    public User buildAdminOrManagerUser(UserRequest userRequest) {
 
         return converter.toEntity(userRequest, User.class);
     }
