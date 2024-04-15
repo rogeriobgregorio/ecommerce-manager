@@ -21,7 +21,9 @@ public class SecurityFilterConfig extends OncePerRequestFilter {
     private final UserRepository userRepository;
 
     @Autowired
-    public SecurityFilterConfig(TokenService tokenService, UserRepository userRepository) {
+    public SecurityFilterConfig(TokenService tokenService,
+                                UserRepository userRepository) {
+
         this.tokenService = tokenService;
         this.userRepository = userRepository;
     }
@@ -29,7 +31,7 @@ public class SecurityFilterConfig extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        var token = recoverToken(request);
+        String token = recoverToken(request);
 
         if (token != null) {
             String emailLogin = tokenService.validateToken(token);

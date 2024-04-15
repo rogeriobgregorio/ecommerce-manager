@@ -1,5 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.security;
 
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityConfig extends ErrorHandlerTemplateImpl {
 
     private final SecurityFilterConfig securityFilterConfig;
 
@@ -40,7 +41,7 @@ public class SecurityConfig {
 //                        .requestMatchers("/**").hasRole("ADMIN")
 //                        .requestMatchers("/**").hasRole("MANAGER")
 //                        .requestMatchers("/v1/api/users/role").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/v1/api/auth/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/v1/api/auth/**").permitAll()
 //                        .requestMatchers(HttpMethod.POST, "/v1/api/users").hasRole("CLIENT")
 //                        .requestMatchers(HttpMethod.GET, "/v1/api/users/{id}").hasRole("CLIENT")
 //                        .requestMatchers(HttpMethod.PUT, "/v1/api/users").hasRole("CLIENT")
@@ -59,6 +60,7 @@ public class SecurityConfig {
 //                        .requestMatchers(HttpMethod.POST, "/v1/api/payments").hasRole("CLIENT")
 //                        .requestMatchers(HttpMethod.GET, "/v1/api/products").hasRole("CLIENT")
 //                        .requestMatchers(HttpMethod.GET, "/v1/api/products/search").hasRole("CLIENT")
+                                .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilterConfig, UsernamePasswordAuthenticationFilter.class)
                 .build();
@@ -66,6 +68,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+
         return authenticationConfiguration.getAuthenticationManager();
     }
 

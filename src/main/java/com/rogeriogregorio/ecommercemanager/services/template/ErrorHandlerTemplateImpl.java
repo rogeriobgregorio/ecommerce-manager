@@ -1,11 +1,16 @@
 package com.rogeriogregorio.ecommercemanager.services.template;
 
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.rogeriogregorio.ecommercemanager.exceptions.JWTException;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.services.ErrorHandlerTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.TransactionException;
 
 import java.util.function.Supplier;
 
@@ -20,8 +25,14 @@ public abstract class ErrorHandlerTemplateImpl implements ErrorHandlerTemplate {
         try {
             return transaction.get();
 
-        } catch (DataAccessException ex) {
+        } catch (TransactionException ex) {
             throw new RepositoryException(message + ex);
+
+        } catch (UsernameNotFoundException ex) {
+            throw new NotFoundException(message + ex);
+
+        } catch (JWTCreationException | JWTVerificationException ex) {
+            throw new JWTException(message + ex);
         }
     }
 }

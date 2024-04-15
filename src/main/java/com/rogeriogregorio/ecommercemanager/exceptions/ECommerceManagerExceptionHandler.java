@@ -1,5 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.exceptions;
 
+import com.auth0.jwt.exceptions.JWTCreationException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -141,6 +142,22 @@ public class ECommerceManagerExceptionHandler {
         StandardError error = new StandardError(HttpStatus.METHOD_NOT_ALLOWED,
                 "HttpRequestMethodNotSupportedException: method not supported for this endpoint", ex.getMessage());
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(error);
+    }
+
+    @ExceptionHandler(JWTException.class)
+    public ResponseEntity<StandardError> handleJWTException(JWTException ex) {
+
+        StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR,
+                "JWTException: an error occurred while trying to execute a JWT class method", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<StandardError> handleUnexpectedException(Exception ex) {
+
+        StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR,
+                "Exception: An unexpected error occurred", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

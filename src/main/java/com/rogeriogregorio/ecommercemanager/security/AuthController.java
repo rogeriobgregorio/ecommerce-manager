@@ -3,14 +3,15 @@ package com.rogeriogregorio.ecommercemanager.security;
 import com.rogeriogregorio.ecommercemanager.dto.requests.LoginRequest;
 import com.rogeriogregorio.ecommercemanager.dto.requests.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.LoginResponse;
+import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.User;
-import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
-import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
+import com.rogeriogregorio.ecommercemanager.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,18 +19,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/v1/api/auth")
-public class AuthenticationController {
+public class AuthController {
 
     private final AuthenticationManager authenticationManager;
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     private final TokenService tokenService;
 
     @Autowired
-    public AuthenticationController(AuthenticationManager authenticationManager, UserRepository userRepository, TokenService tokenService) {
+    public AuthController(AuthenticationManager authenticationManager,
+                          UserService userService, TokenService tokenService) {
+
         this.authenticationManager = authenticationManager;
-        this.userRepository = userRepository;
+        this.userService = userService;
         this.tokenService = tokenService;
     }
 
@@ -48,17 +51,10 @@ public class AuthenticationController {
     }
 
     @PostMapping(value = "/register")
-    public ResponseEntity<?> register(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRequest userRequest) {
 
-        if(userRepository.findByEmail(userRequest.getEmail()) != null)
-            return ResponseEntity.badRequest().build();
-
-        String encryptedPassword = new BCryptPasswordEncoder().encode(userRequest.getPassword());
-        if (userRequest.getUserRole() == null) userRequest.setUserRole(UserRole.CLIENT);
-        User user = new User(userRequest.getName(), userRequest.getEmail(), userRequest.getPhone(), encryptedPassword, userRequest.getUserRole());
-
-        userRepository.save(user);
-
-        return ResponseEntity.ok().build();
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(userService.createUser(userRequest));
     }
 }
