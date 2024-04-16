@@ -1,8 +1,9 @@
-package com.rogeriogregorio.ecommercemanager.security;
+package com.rogeriogregorio.ecommercemanager.security.impl;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.rogeriogregorio.ecommercemanager.entities.User;
+import com.rogeriogregorio.ecommercemanager.security.TokenService;
 import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

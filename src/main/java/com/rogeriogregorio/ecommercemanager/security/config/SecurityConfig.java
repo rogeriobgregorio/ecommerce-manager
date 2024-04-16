@@ -1,6 +1,5 @@
-package com.rogeriogregorio.ecommercemanager.security;
+package com.rogeriogregorio.ecommercemanager.security.config;
 
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends ErrorHandlerTemplateImpl {
+public class SecurityConfig {
 
     private final SecurityFilterConfig securityFilterConfig;
 

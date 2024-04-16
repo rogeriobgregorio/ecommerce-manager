@@ -1,8 +1,9 @@
-package com.rogeriogregorio.ecommercemanager.security;
+package com.rogeriogregorio.ecommercemanager.security.impl;
 
 import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
+import com.rogeriogregorio.ecommercemanager.security.AuthorizationService;
 import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
