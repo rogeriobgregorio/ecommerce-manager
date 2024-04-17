@@ -142,11 +142,11 @@ public class User implements Serializable, UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("CLIENT"));
+        authorities.add(new SimpleGrantedAuthority("ROLE_CLIENT"));
 
         if (this.userRole == UserRole.ADMIN) {
-            authorities.add(new SimpleGrantedAuthority("ADMIN"));
-            authorities.add(new SimpleGrantedAuthority("MANAGER"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_MANAGER"));
         }
 
         return authorities;
