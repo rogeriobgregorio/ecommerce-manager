@@ -19,26 +19,26 @@ public class TokenServiceImpl extends ErrorHandlerTemplateImpl implements TokenS
 
     public String generateToken(User user) {
 
-            Algorithm algorithm = Algorithm.HMAC256(secretKey);
+        Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
-            return handleError(() -> JWT
-                    .create()
-                    .withIssuer("ecommerce-manager")
-                    .withSubject(user.getEmail())
-                    .withExpiresAt(generateExpirationDate())
-                    .sign(algorithm), "Error generating token");
+        return handleError(() -> JWT
+                .create()
+                .withIssuer("ecommerce-manager")
+                .withSubject(user.getEmail())
+                .withExpiresAt(generateExpirationDate())
+                .sign(algorithm), "Error generating token");
     }
 
     public String validateToken(String token) {
 
-            Algorithm algorithm = Algorithm.HMAC256(secretKey);
+        Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
-            return handleError(() -> JWT
-                    .require(algorithm)
-                    .withIssuer("ecommerce-manager")
-                    .build()
-                    .verify(token)
-                    .getSubject(), "Error validating token");
+        return handleError(() -> JWT
+                .require(algorithm)
+                .withIssuer("ecommerce-manager")
+                .build()
+                .verify(token)
+                .getSubject(), "Error validating token");
     }
 
     private Instant generateExpirationDate() {

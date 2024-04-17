@@ -18,55 +18,55 @@ gerenciamento de usuários, endereços, produtos, categorias, itens de inventár
 
 | Descrição                                | Método HTTP | Endpoint                               | Autorizações            |
 |------------------------------------------|-------------|----------------------------------------|-------------------------|
-| Login de autenticação                    | POST        | /v1/api/authentication/login           | NÃO REQUER AUTENTICAÇÃO |
-| Registro de usuário                      | POST        | /v1/api/registration/register          | NÃO REQUER AUTENTICAÇÃO |
-| Listar endereços                         | GET         | /v1/api/addresses                      | ADM, MANAGER            |
-| Adicionar endereço                       | POST        | /v1/api/addresses                      | ADM, MANAGER, CLIENTE   |
-| Atualizar endereço                       | PUT         | /v1/api/addresses                      | ADM, MANAGER, CLIENTE   |
-| Excluir endereço                         | DELETE      | /v1/api/addresses/{id}                 | ADM, MANAGER, CLIENTE   |
-| Detalhes de um endereço específico       | GET         | /v1/api/addresses/{id}                 | ADM, MANAGER, CLIENTE   |
-| Listar categorias                        | GET         | /v1/api/categories                     | ADM, MANAGER, CLIENTE   | 
-| Adicionar categoria                      | POST        | /v1/api/categories                     | ADM, MANAGER            |
-| Atualizar categoria                      | PUT         | /v1/api/categories                     | ADM, MANAGER            |
-| Excluir categoria                        | DELETE      | /v1/api/categories/{id}                | ADM                     |
-| Detalhes de uma categoria específica     | GET         | /v1/api/categories/{id}                | ADM, MANAGER, CLIENTE   |
-| Pesquisar categoria por nome             | GET         | /v1/api/categories/search?name={name}  | ADM, MANAGER, CLIENTE   |
-| Listar itens de inventário               | GET         | /v1/api/inventory-items                | ADM, MANAGER            |
-| Adicionar item de inventário             | POST        | /v1/api/inventory-items                | ADM, MANAGER            |
-| Atualizar item de inventário             | PUT         | /v1/api/inventory-items                | ADM, MANAGER            |
-| Excluir item de inventário               | DELETE      | /v1/api/inventory-items/{id}           | ADM                     |
-| Detalhes de um item de inventário        | GET         | /v1/api/inventory-items/{id}           | ADM, MANAGER            |
-| Listar pedidos                           | GET         | /v1/api/orders                         | ADM, MANAGER            |
-| Adicionar pedido                         | POST        | /v1/api/orders                         | ADM, MANAGER, CLIENTE   |
-| Atualizar pedido                         | PUT         | /v1/api/orders                         | ADM, MANAGER, CLIENTE   |
-| Excluir pedido                           | DELETE      | /v1/api/orders/{id}                    | ADM, MANAGER, CLIENTE   |
-| Detalhes de um pedido específico         | GET         | /v1/api/orders/{id}                    | ADM, MANAGER            |
-| Listar pedidos de um cliente             | GET         | /v1/api/clients/{id}/orders            | ADM, MANAGER, CLIENTE   |
-| Listar itens de pedido                   | GET         | /v1/api/order-items                    | ADM, MANAGER, CLIENTE   |
-| Adicionar item de pedido                 | POST        | /v1/api/order-items                    | ADM, MANAGER, CLIENTE   |
-| Atualizar item de pedido                 | PUT         | /v1/api/order-items                    | ADM, MANAGER, CLIENTE   |
-| Excluir item de pedido                   | DELETE      | /v1/api/order-items/{id}               | ADM, MANAGER, CLIENTE   |
-| Detalhes de um item de pedido específico | GET         | /v1/api/order-items/{orderId}/{itemId} | ADM, MANAGER, CLIENTE   |
-| Listar pagamentos                        | GET         | /v1/api/payments                       | ADM, MANAGER            |
-| Adicionar pagamento                      | POST        | /v1/api/payments                       | ADM, MANAGER, CLIENTE   |
-| Excluir pagamento                        | DELETE      | /v1/api/payments/{id}                  | ADM                     |
-| Detalhes de um pagamento específico      | GET         | /v1/api/payments/{id}                  | ADM, MANAGER            |
-| Listar produtos                          | GET         | /v1/api/products                       | ADM, MANAGER, CLIENTE   |
-| Adicionar produto                        | POST        | /v1/api/products                       | ADM, MANAGER            |
-| Atualizar produto                        | PUT         | /v1/api/products                       | ADM, MANAGER            |
-| Excluir produto                          | DELETE      | /v1/api/products/{id}                  | ADM                     |
-| Detalhes de um produto específico        | GET         | /v1/api/products/{id}                  | ADM, MANAGER, CLIENTE   |
-| Pesquisar produto por nome               | GET         | /v1/api/products/search?name={name}    | ADM, MANAGER, CLIENTE   |
-| Listar movimentações de estoque          | GET         | /v1/api/stock-movements                | ADM, MANAGER            |
-| Adicionar movimentação de estoque        | POST        | /v1/api/stock-movements                | ADM, MANAGER            |
-| Atualizar movimentação de estoque        | PUT         | /v1/api/stock-movements                | ADM, MANAGER            |
-| Excluir movimentação de estoque          | DELETE      | /v1/api/stock-movements                | ADM                     |
-| Detalhes de uma movimentação de estoque  | GET         | /v1/api/stock-movements/{id}           | ADM, MANAGER            |
-| Listar usuários                          | GET         | /v1/api/users                          | ADM, MANAGER            |
-| Adicionar usuário                        | POST        | /v1/api/users                          | ADM, MANAGER, CLIENTE   |
-| Atualizar usuário                        | PUT         | /v1/api/users                          | ADM, MANAGER, CLIENTE   |
-| Excluir usuário                          | DELETE      | /v1/api/users/{id}                     | ADM, MANAGER, CLIENTE   |
-| Detalhes de um usuário específico        | GET         | /v1/api/users/{id}                     | ADM, MANAGER, CLIENTE   |
-| Pesquisar usuário por nome               | GET         | /v1/api/users/search?name={name}       | ADM, MANAGER            |
-| Adicionar função de usuário              | POST        | /v1/api/users/roles                    | ADM                     |
+| Login de autenticação                    | POST        | /api/v1/login                          | NÃO REQUER AUTENTICAÇÃO |
+| Registro de usuário                      | POST        | /api/v1/register                       | NÃO REQUER AUTENTICAÇÃO |
+| Listar endereços                         | GET         | /api/v1/addresses                      | ADMIN, MANAGER          |
+| Adicionar endereço                       | POST        | /api/v1/addresses                      | ADMIN, MANAGER, CLIENT  |
+| Atualizar endereço                       | PUT         | /api/v1/addresses                      | ADMIN, MANAGER, CLIENT  |
+| Excluir endereço                         | DELETE      | /api/v1/addresses/{id}                 | ADMIN, MANAGER, CLIENT  |
+| Detalhes de um endereço específico       | GET         | /api/v1/addresses/{id}                 | ADMIN, MANAGER, CLIENT  |
+| Listar categorias                        | GET         | /api/v1/categories                     | ADMIN, MANAGER, CLIENT  | 
+| Adicionar categoria                      | POST        | /api/v1/categories                     | ADMIN, MANAGER          |
+| Atualizar categoria                      | PUT         | /api/v1/categories                     | ADMIN, MANAGER          |
+| Excluir categoria                        | DELETE      | /api/v1/categories/{id}                | ADMIN                   |
+| Detalhes de uma categoria específica     | GET         | /api/v1/categories/{id}                | ADMIN, MANAGER, CLIENT  |
+| Pesquisar categoria por nome             | GET         | /api/v1/categories/search?name={name}  | ADMIN, MANAGER, CLIENT  |
+| Listar itens de inventário               | GET         | /api/v1/inventory-items                | ADMIN, MANAGER          |
+| Adicionar item de inventário             | POST        | /api/v1/inventory-items                | ADMIN, MANAGER          |
+| Atualizar item de inventário             | PUT         | /api/v1/inventory-items                | ADMIN, MANAGER          |
+| Excluir item de inventário               | DELETE      | /api/v1/inventory-items/{id}           | ADMIN                   |
+| Detalhes de um item de inventário        | GET         | /api/v1/inventory-items/{id}           | ADMIN, MANAGER          |
+| Listar pedidos                           | GET         | /api/v1/orders                         | ADMIN, MANAGER          |
+| Adicionar pedido                         | POST        | /api/v1/orders                         | ADMIN, MANAGER, CLIENT  |
+| Atualizar pedido                         | PUT         | /api/v1/orders                         | ADMIN, MANAGER, CLIENT  |
+| Excluir pedido                           | DELETE      | /api/v1/orders/{id}                    | ADMIN, MANAGER, CLIENT  |
+| Detalhes de um pedido específico         | GET         | /api/v1/orders/{id}                    | ADMIN, MANAGER          |
+| Listar pedidos de um CLIENT              | GET         | /api/v1/clients/{id}/orders            | ADMIN, MANAGER, CLIENT  |
+| Listar itens de pedido                   | GET         | /api/v1/order-items                    | ADMIN, MANAGER, CLIENT  |
+| Adicionar item de pedido                 | POST        | /api/v1/order-items                    | ADMIN, MANAGER, CLIENT  |
+| Atualizar item de pedido                 | PUT         | /api/v1/order-items                    | ADMIN, MANAGER, CLIENT  |
+| Excluir item de pedido                   | DELETE      | /api/v1/order-items/{id}               | ADMIN, MANAGER, CLIENT  |
+| Detalhes de um item de pedido específico | GET         | /api/v1/order-items/{orderId}/{itemId} | ADMIN, MANAGER, CLIENT  |
+| Listar pagamentos                        | GET         | /api/v1/payments                       | ADMIN, MANAGER          |
+| Adicionar pagamento                      | POST        | /api/v1/payments                       | ADMIN, MANAGER, CLIENT  |
+| Excluir pagamento                        | DELETE      | /api/v1/payments/{id}                  | ADMIN                   |
+| Detalhes de um pagamento específico      | GET         | /api/v1/payments/{id}                  | ADMIN, MANAGER          |
+| Listar produtos                          | GET         | /api/v1/products                       | ADMIN, MANAGER, CLIENT  |
+| Adicionar produto                        | POST        | /api/v1/products                       | ADMIN, MANAGER          |
+| Atualizar produto                        | PUT         | /api/v1/products                       | ADMIN, MANAGER          |
+| Excluir produto                          | DELETE      | /api/v1/products/{id}                  | ADMIN                   |
+| Detalhes de um produto específico        | GET         | /api/v1/products/{id}                  | ADMIN, MANAGER, CLIENT  |
+| Pesquisar produto por nome               | GET         | /api/v1/products/search?name={name}    | ADMIN, MANAGER, CLIENT  |
+| Listar movimentações de estoque          | GET         | /api/v1/stock-movements                | ADMIN, MANAGER          |
+| Adicionar movimentação de estoque        | POST        | /api/v1/stock-movements                | ADMIN, MANAGER          |
+| Atualizar movimentação de estoque        | PUT         | /api/v1/stock-movements                | ADMIN, MANAGER          |
+| Excluir movimentação de estoque          | DELETE      | /api/v1/stock-movements                | ADMIN                   |
+| Detalhes de uma movimentação de estoque  | GET         | /api/v1/stock-movements/{id}           | ADMIN, MANAGER          |
+| Listar usuários                          | GET         | /api/v1/users                          | ADMIN, MANAGER          |
+| Adicionar usuário                        | POST        | /api/v1/users                          | ADMIN, MANAGER, CLIENT  |
+| Atualizar usuário                        | PUT         | /api/v1/users                          | ADMIN, MANAGER, CLIENT  |
+| Excluir usuário                          | DELETE      | /api/v1/users/{id}                     | ADMIN, MANAGER, CLIENT  |
+| Detalhes de um usuário específico        | GET         | /api/v1/users/{id}                     | ADMIN, MANAGER, CLIENT  |
+| Pesquisar usuário por nome               | GET         | /api/v1/users/search?name={name}       | ADMIN, MANAGER          |
+| Adicionar função de usuário              | POST        | /api/v1/users/roles                    | ADMIN                   |
 
