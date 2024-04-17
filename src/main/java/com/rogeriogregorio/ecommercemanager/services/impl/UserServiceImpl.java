@@ -123,19 +123,25 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
         logger.info("User's address updated: {}", user);
     }
 
+    public String encodePassword(UserRequest userRequest) {
+
+        String userPassword = userRequest.getPassword();
+        return new BCryptPasswordEncoder().encode(userPassword);
+    }
+
     public User buildUser(UserRequest userRequest) {
 
         userRequest.setUserRole(UserRole.CLIENT);
-        String encryptedPassword = new BCryptPasswordEncoder().encode(userRequest.getPassword());
-        userRequest.setPassword(encryptedPassword);
+        String encodedPassword = encodePassword(userRequest);
+        userRequest.setPassword(encodedPassword);
 
         return converter.toEntity(userRequest, User.class);
     }
 
     public User buildAdminOrManagerUser(UserRequest userRequest) {
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(userRequest.getPassword());
-        userRequest.setPassword(encryptedPassword);
+        String encodedPassword = encodePassword(userRequest);
+        userRequest.setPassword(encodedPassword);
 
         return converter.toEntity(userRequest, User.class);
     }

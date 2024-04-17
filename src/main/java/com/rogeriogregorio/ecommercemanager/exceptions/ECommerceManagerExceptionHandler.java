@@ -1,6 +1,5 @@
 package com.rogeriogregorio.ecommercemanager.exceptions;
 
-import com.auth0.jwt.exceptions.JWTCreationException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;

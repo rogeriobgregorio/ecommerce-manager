@@ -26,17 +26,18 @@ public class AuthorizationServiceImpl extends ErrorHandlerTemplateImpl implement
     }
 
     @Override
-    public UserDetails loadUserByUsername(String emailLogin) {
+    public UserDetails loadUserByUsername(String email) {
 
-        return handleError(() -> userRepository.findByEmail(emailLogin),
-                "User not found by login email: " + emailLogin);
+        return handleError(() -> userRepository.findByEmail(email),
+                "User not found by login email: " + email);
     }
 
     @PostConstruct
-    private void createAdminUser() {
+    private void createDefaultAdminUser() {
 
         String encryptedPassword = new BCryptPasswordEncoder().encode(secretPassword);
-        User adminUser = new User("ADMIN", "admin@email.com", "00000000", encryptedPassword, UserRole.ADMIN);
-        userRepository.save(adminUser);
+        User adminUser = new User("Admin", "admin@email.com", "00000000", encryptedPassword, UserRole.ADMIN);
+        handleError(() -> userRepository.save(adminUser),
+                "An error occurred while creating the default admin user");
     }
 }
