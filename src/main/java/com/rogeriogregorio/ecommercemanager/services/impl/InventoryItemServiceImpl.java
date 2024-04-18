@@ -5,7 +5,7 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.InventoryItemResponse;
 import com.rogeriogregorio.ecommercemanager.entities.*;
 import com.rogeriogregorio.ecommercemanager.entities.enums.MovementType;
 import com.rogeriogregorio.ecommercemanager.entities.enums.StockStatus;
-import com.rogeriogregorio.ecommercemanager.exceptions.InsufficientQuantityInStockException;
+import com.rogeriogregorio.ecommercemanager.exceptions.InsufficientStockException;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.InventoryItemRepository;
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
@@ -145,14 +145,14 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
             StockStatus itemStatus = inventoryItem.getStockStatus();
 
             if (itemStatus == StockStatus.OUT_OF_STOCK) {
-                throw new InsufficientQuantityInStockException("The item " + product.getName() + " is out of stock.");
+                throw new InsufficientStockException("The item " + product.getName() + " is out of stock.");
             }
 
             int quantityInStock = inventoryItem.getQuantityInStock();
             int quantityRequired = orderItem.getQuantity();
 
             if (quantityRequired > quantityInStock) {
-                throw new InsufficientQuantityInStockException("Insufficient"
+                throw new InsufficientStockException("Insufficient"
                         + " quantity of " + product.getName() + " in stock."
                         + " Required quantity: " + quantityRequired
                         + ", available quantity: " + quantityInStock + "."
@@ -169,14 +169,14 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
         StockStatus itemStatus = inventoryItem.getStockStatus();
 
         if (itemStatus == StockStatus.OUT_OF_STOCK) {
-            throw new InsufficientQuantityInStockException("The item " + product.getName() + " is out of stock.");
+            throw new InsufficientStockException("The item " + product.getName() + " is out of stock.");
         }
 
         int quantityRequired = orderItem.getQuantity();
         int quantityInStock = inventoryItem.getQuantityInStock();
 
         if (quantityRequired > quantityInStock) {
-            throw new InsufficientQuantityInStockException("Insufficient"
+            throw new InsufficientStockException("Insufficient"
                     + " quantity of " + product.getName() + " in stock."
                     + " Required quantity: " + quantityRequired
                     + ", available quantity: " + quantityInStock + "."

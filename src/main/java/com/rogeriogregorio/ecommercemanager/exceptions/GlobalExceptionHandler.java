@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
-public class ECommerceManagerExceptionHandler {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<StandardError> handleNoResourceFoundException(NoResourceFoundException ex) {
@@ -92,8 +92,8 @@ public class ECommerceManagerExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    @ExceptionHandler(InsufficientQuantityInStockException.class)
-    public ResponseEntity<StandardError> handleInsufficientQuantityInStock(InsufficientQuantityInStockException ex) {
+    @ExceptionHandler(InsufficientStockException.class)
+    public ResponseEntity<StandardError> handleInsufficientQuantityInStock(InsufficientStockException ex) {
 
         StandardError error = new StandardError(HttpStatus.BAD_REQUEST,
                 "InsufficientQuantityInStock: insufficient stock quantity", ex.getMessage());
@@ -151,12 +151,12 @@ public class ECommerceManagerExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<StandardError> handleUnexpectedException(Exception ex) {
+    @ExceptionHandler(PasswordException.class)
+    public ResponseEntity<StandardError> handlePasswordException(PasswordException ex) {
 
-        StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR,
-                "Exception: An unexpected error occurred", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        StandardError error = new StandardError(HttpStatus.BAD_REQUEST,
+                "PasswordException: the password does not comply with the security protocol", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

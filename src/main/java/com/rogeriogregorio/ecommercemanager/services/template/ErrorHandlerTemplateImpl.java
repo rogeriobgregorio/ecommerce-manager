@@ -26,13 +26,14 @@ public abstract class ErrorHandlerTemplateImpl implements ErrorHandlerTemplate {
             return transaction.get();
 
         } catch (TransactionException ex) {
-            throw new RepositoryException(message + ex);
+            throw new RepositoryException(message, ex);
 
         } catch (UsernameNotFoundException ex) {
-            throw new NotFoundException(message + ex);
+            throw new NotFoundException(message, ex);
 
-        } catch (JWTCreationException | JWTVerificationException ex) {
-            throw new JWTException(message + ex);
+        } catch (JWTVerificationException | JWTCreationException ex) {
+            throw new JWTException(message, ex);
         }
+
     }
 }

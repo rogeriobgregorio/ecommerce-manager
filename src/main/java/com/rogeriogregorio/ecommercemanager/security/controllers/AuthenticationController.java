@@ -3,6 +3,7 @@ package com.rogeriogregorio.ecommercemanager.security.controllers;
 import com.rogeriogregorio.ecommercemanager.dto.requests.LoginRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.LoginResponse;
 import com.rogeriogregorio.ecommercemanager.security.AuthenticationService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class AuthenticationController {
     }
 
     @PostMapping(value = "/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)

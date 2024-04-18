@@ -5,7 +5,9 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
+import com.rogeriogregorio.ecommercemanager.exceptions.PasswordException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
+import com.rogeriogregorio.ecommercemanager.services.PasswordStrategy;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -16,17 +18,22 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final List<PasswordStrategy> validators;
     private final Converter converter;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
-                           Converter converter) {
+                           List<PasswordStrategy> validators, Converter converter) {
 
         this.userRepository = userRepository;
+        this.validators = validators;
         this.converter = converter;
     }
 
@@ -123,6 +130,21 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
         logger.info("User's address updated: {}", user);
     }
 
+    public boolean validate(String password) {
+
+        List<String> failures = new ArrayList<>();
+
+        for (PasswordStrategy strategy : validators) {
+            if (!strategy.validate(password)) {
+                failures.add(strategy.getErrorMessage());
+            }
+        }
+
+        if (failures.isEmpty()) return true;
+
+        throw new PasswordException(failures.toString());
+    }
+
     public String encodePassword(UserRequest userRequest) {
 
         String userPassword = userRequest.getPassword();
@@ -132,6 +154,7 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
     public User buildUser(UserRequest userRequest) {
 
         userRequest.setUserRole(UserRole.CLIENT);
+        validate(userRequest.getPassword());
         String encodedPassword = encodePassword(userRequest);
         userRequest.setPassword(encodedPassword);
 
@@ -140,6 +163,7 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
 
     public User buildAdminOrManagerUser(UserRequest userRequest) {
 
+        validate(userRequest.getPassword());
         String encodedPassword = encodePassword(userRequest);
         userRequest.setPassword(encodedPassword);
 

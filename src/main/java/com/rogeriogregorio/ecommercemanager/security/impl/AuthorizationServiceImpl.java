@@ -29,7 +29,7 @@ public class AuthorizationServiceImpl extends ErrorHandlerTemplateImpl implement
     public UserDetails loadUserByUsername(String email) {
 
         return handleError(() -> userRepository.findByEmail(email),
-                "User not found by login email: " + email);
+                "Error while trying to fetch the user by login email: " + email);
     }
 
     @PostConstruct

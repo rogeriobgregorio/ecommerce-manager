@@ -43,7 +43,7 @@ class UserServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        userService = new UserServiceImpl(userRepository, converter);
+        userService = new UserServiceImpl(userRepository, passwordValidator, converter);
     }
 
     @Test

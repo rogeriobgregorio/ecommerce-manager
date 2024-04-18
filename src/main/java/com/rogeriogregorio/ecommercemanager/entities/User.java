@@ -43,7 +43,6 @@ public class User implements Serializable, UserDetails {
 
     @Column(name = "password")
     @NotBlank(message = "The password must not be blank.")
-    @Size(min = 6, message = "The password must have at least 6 characters.")
     private String password;
 
     @JsonIgnore
