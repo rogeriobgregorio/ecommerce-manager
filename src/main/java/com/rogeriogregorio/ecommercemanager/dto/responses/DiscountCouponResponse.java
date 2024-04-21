@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 
 public class DiscountCouponResponse implements Serializable {
 
@@ -69,14 +70,24 @@ public class DiscountCouponResponse implements Serializable {
     }
 
     public boolean isValid() {
+
         Instant now = Instant.now();
+
         return now.isAfter(validFrom) && now.isBefore(validUntil);
     }
 
-    public Duration getRemainingValidityTime() {
+    public String getRemainingValidityTime() {
+
         Instant now = Instant.now();
         boolean isExpired = now.isAfter(validUntil);
 
-        return isExpired ? Duration.ZERO : Duration.between(now, validUntil);
+        long days = Duration.between(now, validUntil).toDays();
+        long hours = Duration.between(now, validUntil).toHoursPart();
+        long minutes = Duration.between(now, validUntil).toMinutesPart();
+
+        String expiredMessage = "The coupon has expired.";
+        String remainingTime = String.format("%d days, %d hours, %d minutes", days, hours, minutes);
+
+        return isExpired ? expiredMessage : remainingTime;
     }
 }

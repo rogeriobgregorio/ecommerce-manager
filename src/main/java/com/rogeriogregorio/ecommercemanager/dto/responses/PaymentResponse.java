@@ -5,6 +5,7 @@ import com.rogeriogregorio.ecommercemanager.entities.Order;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Instant;
 
 public class PaymentResponse implements Serializable {
@@ -14,7 +15,6 @@ public class PaymentResponse implements Serializable {
 
     private Long id;
     private Instant moment;
-    @JsonIgnore
     private Order order;
 
     public PaymentResponse() {
@@ -42,11 +42,19 @@ public class PaymentResponse implements Serializable {
         this.moment = moment;
     }
 
+    @JsonIgnore
     public Order getOrder() {
         return order;
     }
 
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    public String getAmountPaid() {
+
+        BigDecimal amountPaid = order.getTotalWithDiscount();
+
+        return "Amount paid: " + amountPaid + ".";
     }
 }

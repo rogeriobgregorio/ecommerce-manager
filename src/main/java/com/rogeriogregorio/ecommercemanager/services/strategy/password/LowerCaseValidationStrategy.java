@@ -9,10 +9,11 @@ import java.util.regex.Pattern;
 public class LowerCaseValidationStrategy implements PasswordStrategy {
 
     public boolean validate(String password) {
+
         return Pattern.matches(".*[a-z].*", password);
     }
 
-    public String getErrorMessage() {
-        return "The password must have at least one lowercase letter.";
+    public String getRequirement() {
+        return "one lowercase letter";
     }
 }

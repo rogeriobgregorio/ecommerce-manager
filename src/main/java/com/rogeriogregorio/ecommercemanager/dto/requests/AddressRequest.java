@@ -19,7 +19,9 @@ public class AddressRequest implements Serializable {
     public AddressRequest() {
     }
 
-    public AddressRequest(String street, String city, String state, String cep, String country, Long userId) {
+    public AddressRequest(String street, String city, String state,
+                          String cep, String country, Long userId) {
+
         this.street = street;
         this.city = city;
         this.state = state;
@@ -28,7 +30,9 @@ public class AddressRequest implements Serializable {
         this.userId = userId;
     }
 
-    public AddressRequest(Long id, String street, String city, String state, String cep, String country, Long userId) {
+    public AddressRequest(Long id, String street, String city, String state,
+                          String cep, String country, Long userId) {
+
         this.id = id;
         this.street = street;
         this.city = city;

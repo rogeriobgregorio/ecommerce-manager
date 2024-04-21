@@ -1,13 +1,42 @@
 # E-Commerce Manager
 [![Status](https://img.shields.io/badge/Status-Em&nbsp;Desenvolvimento-yellow.svg)](https://github.com/seu-usuario/seu-projeto)
 
-O E-Commerce Manager é uma API REST robusta para gestão de E-Commerce. Construída em Java e Ecossistema Spring, prioriza código limpo e implementação de 
-princípios SOLID, além de Design Patterns para criar um software flexível, escalável e de fácil manutenção. </br>
+O **E-Commerce Manager** é uma API REST robusta para gestão de E-Commerce. Construída em Java e Ecossistema Spring, 
+prioriza código limpo e implementação de princípios SOLID, além de Design Patterns para criar um software flexível, 
+escalável e de fácil manutenção. 
 Utiliza tecnologias como JPA, Hibernate, JWT, JUnit, Mockito e log4j2 para garantir a qualidade e eficiência do sistema.
 
-## Problema a ser solucionado
-Este software visa resolver desafios relacionados à gestão de e-commerce, fornecendo funcionalidades essenciais para:
-gerenciamento de usuários, endereços, produtos, categorias, itens de inventário, itens de pedido, pedidos, pagamentos e movimentações de estoque.
+## Problema a ser solucionado:
+
+Este software visa resolver desafios relacionados à gestão de e-commerce, fornecendo funcionalidades essenciais para gerenciamento de:
+
+**Cadastro de Usuários e Administradores:**
+   - Cadastro de administradores
+   - Cadastro de usuários
+   - Login seguro
+
+**Gestão de Produtos e Inventário:**
+   - Cadastro de categorias para os produtos
+   - Cadastro dos itens de inventário
+   - Cadastro de produtos
+
+**Gestão de Pedidos e Pagamentos:**
+   - Itens de pedido
+   - Pagamentos
+   - Pedidos
+
+**Gestão de Promoções e Descontos:**
+   - Desconto em produtos
+   - Cupons de desconto
+
+**Gestão de Entrega e Estoque:**
+   - Cadastro dos endereços de entrega
+   - Movimentações de estoque
+
+**Comunicação e Feedback:**
+   - Feedback dos usuários acerca dos produtos
+   - Notificações
+
 
 ## Modelo Conceitual
 

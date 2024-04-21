@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
 public class LengthValidationStrategy implements PasswordStrategy {
 
     public boolean validate(String password) {
-        return password != null && password.length() >= 8;
+        return password.length() >= 8;
     }
 
-    public String getErrorMessage() {
-        return "The password must have at least 8 characters.";
+    public String getRequirement() {
+        return "eight characters";
     }
 }

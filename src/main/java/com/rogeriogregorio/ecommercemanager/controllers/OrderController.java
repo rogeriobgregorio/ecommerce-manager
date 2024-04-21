@@ -55,6 +55,14 @@ public class OrderController {
                 .body(orderService.updateOrder(orderRequest));
     }
 
+    @PutMapping(value = "/orders/status")
+    public ResponseEntity<OrderResponse> updateOrderStatus(@Valid @RequestBody OrderRequest orderRequest) {
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(orderService.updateOrderStatus(orderRequest));
+    }
+
     @DeleteMapping(value = "/orders/{id}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
 

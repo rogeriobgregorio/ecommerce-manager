@@ -137,7 +137,7 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
                 "Error while trying to check the presence of the item in the inventory: ");
     }
 
-    public boolean isListItemsAvailable(Order order) {
+    public void isListItemsAvailable(Order order) {
 
         for (OrderItem orderItem : order.getItems()) {
             Product product = orderItem.getProduct();
@@ -159,10 +159,9 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
                 );
             }
         }
-        return true;
     }
 
-    public boolean isItemAvailable(OrderItem orderItem) {
+    public void isItemAvailable(OrderItem orderItem) {
 
         Product product = orderItem.getProduct();
         InventoryItem inventoryItem = findInventoryItemByProduct(product);
@@ -182,7 +181,6 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
                     + ", available quantity: " + quantityInStock + "."
             );
         }
-        return true;
     }
 
     public void updateInventoryItemQuantity(Order order) {

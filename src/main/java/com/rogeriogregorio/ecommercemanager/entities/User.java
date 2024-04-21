@@ -125,10 +125,12 @@ public class User implements Serializable, UserDetails {
         this.address = address;
     }
 
+    @JsonIgnore
     public boolean isAddressNull() {
         return getAddress() == null;
     }
 
+    @JsonIgnore
     public UserRole getUserRole() {
         return userRole;
     }
@@ -137,6 +139,7 @@ public class User implements Serializable, UserDetails {
         this.userRole = userRole;
     }
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
@@ -156,26 +159,31 @@ public class User implements Serializable, UserDetails {
         return password;
     }
 
+    @JsonIgnore
     @Override
     public String getUsername() {
         return this.email;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isEnabled() {
         return true;

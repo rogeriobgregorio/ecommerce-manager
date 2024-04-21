@@ -12,7 +12,7 @@ public class UpperCaseValidationStrategy implements PasswordStrategy {
         return Pattern.matches(".*[A-Z].*", password);
     }
 
-    public String getErrorMessage() {
-        return "The password must have at least one uppercase letter.";
+    public String getRequirement() {
+        return "one uppercase letter";
     }
 }

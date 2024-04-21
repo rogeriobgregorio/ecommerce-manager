@@ -2,11 +2,13 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
+import com.rogeriogregorio.ecommercemanager.entities.DiscountCoupon;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
+import com.rogeriogregorio.ecommercemanager.services.DiscountCouponService;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.services.OrderStatusStrategy;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
@@ -26,17 +28,20 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
 
     private final OrderRepository orderRepository;
     private final UserService userService;
+    private final DiscountCouponService discountCouponService;
     private final Converter converter;
     private final List<OrderStatusStrategy> validators;
 
     @Autowired
     public OrderServiceImpl(OrderRepository orderRepository,
                             UserService userService,
+                            DiscountCouponService discountCouponService,
                             Converter converter,
                             List<OrderStatusStrategy> validators) {
 
         this.orderRepository = orderRepository;
         this.userService = userService;
+        this.discountCouponService = discountCouponService;
         this.converter = converter;
         this.validators = validators;
     }
@@ -52,8 +57,7 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
     @Transactional(readOnly = false)
     public OrderResponse createOrder(OrderRequest orderRequest) {
 
-        orderRequest.setId(null);
-        Order order = buildOrder(orderRequest);
+        Order order = buildCreateOrder(orderRequest);
 
         handleError(() -> orderRepository.save(order),
                 "Error while trying to create the order: ");
@@ -84,8 +88,19 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
     @Transactional(readOnly = false)
     public OrderResponse updateOrder(OrderRequest orderRequest) {
 
-        validateOrderStatusChange(orderRequest);
-        Order order = buildOrder(orderRequest);
+        Order order = buildUpdateOrder(orderRequest);
+
+        handleError(() -> orderRepository.save(order),
+                "Error while trying to update the order: ");
+        logger.info("Order updated: {}", order);
+
+        return converter.toResponse(order, OrderResponse.class);
+    }
+
+    @Transactional(readOnly = false)
+    public OrderResponse updateOrderStatus(OrderRequest orderRequest) {
+
+        Order order = buildUpdateOrderStatus(orderRequest);
 
         handleError(() -> orderRepository.save(order),
                 "Error while trying to update the order: ");
@@ -121,13 +136,10 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
                 .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + "."));
     }
 
-    public void validateOrderStatusChange(OrderRequest orderRequest) {
-
-        Long orderId = orderRequest.getId();
-        Order order = findOrderById(orderId);
+    public void validateOrderStatusChange(OrderRequest orderRequest, Order order) {
 
         for (OrderStatusStrategy validator : validators) {
-            validator.validate(order, orderRequest);
+            validator.validate(orderRequest, order);
         }
     }
 
@@ -141,13 +153,55 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
         }
     }
 
-    public Order buildOrder(OrderRequest orderRequest) {
+    public void validateDiscountCoupon(DiscountCoupon discountCoupon) {
+
+        if (discountCoupon == null) return;
+
+        boolean isDiscountCouponValid = discountCoupon.isValid();
+
+        if (!isDiscountCouponValid) {
+            throw new IllegalStateException("The discount coupon is not within its validity period.");
+        }
+    }
+
+    public Order buildUpdateOrderStatus(OrderRequest orderRequest) {
+
+        Long orderId = orderRequest.getId();
+        Order order = findOrderById(orderId);
+        Instant instant = Instant.now();
+        OrderStatus orderStatus = orderRequest.getOrderStatus();
+        User user = order.getClient();
+        DiscountCoupon discountCoupon = order.getDiscountCoupon();
+
+        validateOrderStatusChange(orderRequest, order);
+
+        return new Order(orderId, instant, orderStatus, user, discountCoupon);
+    }
+
+    public Order buildCreateOrder(OrderRequest orderRequest) {
+
+        orderRequest.setId(null);
+        Instant instant = Instant.now();
+        OrderStatus orderStatus = OrderStatus.WAITING_PAYMENT;
+        User client = userService.findUserById(orderRequest.getClientId());
+
+        return new Order(instant, orderStatus, client);
+    }
+
+    public Order buildUpdateOrder(OrderRequest orderRequest) {
 
         Long orderId = orderRequest.getId();
         Instant instant = Instant.now();
-        OrderStatus orderStatus = (orderId == null) ? OrderStatus.WAITING_PAYMENT : orderRequest.getOrderStatus();
-        User client = userService.findUserById(orderRequest.getClientId());
 
-        return new Order(orderId, instant, orderStatus, client);
+        boolean orderStatusRequest = orderRequest.getOrderStatus() == OrderStatus.CANCELED;
+        OrderStatus orderStatus = orderStatusRequest ? OrderStatus.CANCELED : OrderStatus.WAITING_PAYMENT;
+
+        User user = userService.findUserById(orderRequest.getClientId());
+        String code = orderRequest.getDiscountCouponCode();
+        DiscountCoupon discountCoupon = discountCouponService.findDiscountCouponByCode(code);
+
+        validateDiscountCoupon(discountCoupon);
+
+        return new Order(orderId, instant, orderStatus, user, discountCoupon);
     }
 }

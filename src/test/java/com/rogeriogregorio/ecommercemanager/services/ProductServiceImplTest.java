@@ -373,7 +373,7 @@ class ProductServiceImplTest {
         ProductResponse productResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
         List<ProductResponse> expectedResponses = Collections.singletonList(productResponse);
 
-        when(productRepository.findProductByName(eq(productName))).thenReturn(productList);
+        when(productRepository.findByName(eq(productName))).thenReturn(productList);
         when(converter.toResponse(eq(product), eq(ProductResponse.class))).thenReturn(productResponse);
 
         // Act
@@ -384,7 +384,7 @@ class ProductServiceImplTest {
         assertEquals(expectedResponses, actualResponses, "Size of ProductResponses should match size of ProductEntities");
         assertEquals(productName, actualResponses.get(0).getName(), "Names should match");
 
-        verify(productRepository, times(1)).findProductByName(eq(productName));
+        verify(productRepository, times(1)).findByName(eq(productName));
         verify(converter, times(1)).toResponse(eq(product), eq(ProductResponse.class));
     }
 
@@ -407,7 +407,7 @@ class ProductServiceImplTest {
             when(converter.toResponse(eq(product), eq(ProductResponse.class))).thenReturn(productResponse);
         }
 
-        when(productRepository.findProductByName(eq(productName))).thenReturn(productList);
+        when(productRepository.findByName(eq(productName))).thenReturn(productList);
 
         // Act
         List<ProductResponse> actualResponses = productService.findProductByName("Playstation 5");
@@ -416,7 +416,7 @@ class ProductServiceImplTest {
         assertNotNull(actualResponses, "ProductResponses should not be null");
         assertEquals(expectedResponses, actualResponses, "Size of ProductResponses should match size of ProductEntities");
 
-        verify(productRepository, times(1)).findProductByName(eq(productName));
+        verify(productRepository, times(1)).findByName(eq(productName));
         verify(converter, times(10)).toResponse(any(Product.class), eq(ProductResponse.class));
     }
 
@@ -426,7 +426,7 @@ class ProductServiceImplTest {
         // Arrange
         String productName = "Erro";
 
-        when(productRepository.findProductByName(productName)).thenThrow(PersistenceException.class);
+        when(productRepository.findByName(productName)).thenThrow(PersistenceException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> productService.findProductByName("Erro"), "Expected RepositoryException for repository error");

@@ -93,7 +93,7 @@ public class ProductServiceImpl extends ErrorHandlerTemplateImpl implements Prod
     @Transactional(readOnly = true)
     public Page<ProductResponse> findProductByName(String name, Pageable pageable) {
 
-        return handleError(() -> productRepository.findProductByName(name, pageable),
+        return handleError(() -> productRepository.findByName(name, pageable),
                 "Error while trying to fetch the product by name: ")
                 .map(product -> converter.toResponse(product, ProductResponse.class));
     }

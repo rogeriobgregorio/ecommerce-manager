@@ -57,7 +57,7 @@ public class CategoryServiceImpl extends ErrorHandlerTemplateImpl implements Cat
         return handleError(() -> categoryRepository.findById(id),
                 "Error while trying to find the category by ID: ")
                 .map(category -> converter.toResponse(category, CategoryResponse.class))
-                .orElseThrow(() -> new NotFoundException("Category not found with ID: {}" + id + "."));
+                .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + "."));
     }
 
     @Transactional(readOnly = true)
@@ -95,7 +95,7 @@ public class CategoryServiceImpl extends ErrorHandlerTemplateImpl implements Cat
     @Transactional(readOnly = true)
     public Page<CategoryResponse> findCategoryByName(String name, Pageable pageable) {
 
-        return handleError(() -> categoryRepository.findCategoryByName(name, pageable),
+        return handleError(() -> categoryRepository.findByName(name, pageable),
                 "Error while trying to fetch category by name: ")
                 .map(category -> converter.toResponse(category, CategoryResponse.class));
     }
@@ -103,7 +103,7 @@ public class CategoryServiceImpl extends ErrorHandlerTemplateImpl implements Cat
     public Category findCategoryById(Long id) {
 
         return handleError(() -> categoryRepository.findById(id),
-                "Error while trying to find the category by ID:")
+                "Error while trying to find the category by ID: ")
                 .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + "."));
     }
 

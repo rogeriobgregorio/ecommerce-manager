@@ -3,14 +3,16 @@ package com.rogeriogregorio.ecommercemanager.services.strategy.order;
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
+import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.services.OrderStatusStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DeliveredStrategyImpl implements OrderStatusStrategy {
+public class DeliveredStatusStrategyImpl implements OrderStatusStrategy {
 
     @Override
-    public void validate(Order order, OrderRequest orderRequest) {
+    public void validate(OrderRequest orderRequest, Order order) {
 
         OrderStatus statusRequest = orderRequest.getOrderStatus();
         OrderStatus currentStatus = order.getOrderStatus();

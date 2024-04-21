@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Objects;
@@ -41,6 +42,10 @@ public class Order implements Serializable {
     @OneToMany(mappedBy = "id.order")
     private Set<OrderItem> items = new HashSet<>();
 
+    @ManyToOne
+    @JoinColumn(name = "discount_coupon_id")
+    private DiscountCoupon discountCoupon;
+
     @OneToOne(mappedBy = "order", cascade = CascadeType.REMOVE)
     private Payment payment;
 
@@ -48,16 +53,28 @@ public class Order implements Serializable {
     }
 
     public Order(Instant moment, OrderStatus orderStatus, User client) {
+
         this.moment = moment;
         setOrderStatus(orderStatus);
         this.client = client;
     }
 
-    public Order(Long id, Instant moment, OrderStatus orderStatus, User client) {
+    public Order(Long id, Instant moment, OrderStatus orderStatus,
+                 User client, DiscountCoupon discountCoupon) {
+
         this.id = id;
         this.moment = moment;
         setOrderStatus(orderStatus);
         this.client = client;
+        this.discountCoupon = discountCoupon;
+    }
+
+    public Order(Long id, Instant moment, User client, DiscountCoupon discountCoupon) {
+
+        this.id = id;
+        this.moment = moment;
+        this.client = client;
+        this.discountCoupon = discountCoupon;
     }
 
     public Long getId() {
@@ -97,6 +114,14 @@ public class Order implements Serializable {
         this.client = client;
     }
 
+    public DiscountCoupon getDiscountCoupon() {
+        return discountCoupon;
+    }
+
+    public void setDiscountCoupon(DiscountCoupon discountCoupon) {
+        this.discountCoupon = discountCoupon;
+    }
+
     public Payment getPayment() {
         return payment;
     }
@@ -119,10 +144,28 @@ public class Order implements Serializable {
         return total;
     }
 
+    public BigDecimal getTotalWithDiscount() {
+
+        BigDecimal total = getTotal();
+
+        if (isDiscountCouponPresent()) {
+            BigDecimal discount = discountCoupon.getDiscount();
+            BigDecimal discountPercentage = discount.divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
+            BigDecimal discountValue = total.multiply(discountPercentage);
+            total = total.subtract(discountValue);
+        }
+
+        return total.setScale(2, RoundingMode.HALF_UP);
+    }
+
     public boolean isOrderPaid() {
 
         String currentStatus = getOrderStatus().name();
         return Set.of("PAID", "SHIPPED", "DELIVERED").contains(currentStatus);
+    }
+
+    public boolean isDiscountCouponPresent() {
+        return discountCoupon != null;
     }
 
     @Override
@@ -140,6 +183,7 @@ public class Order implements Serializable {
 
     @Override
     public String toString() {
-        return "[Order: id= " + id + ", moment= " + moment + ", orderStatus= " + orderStatus + ", client= " + client + "]";
+        return "[Order: id= " + id + ", moment= " + moment + ", orderStatus= " + orderStatus
+                + ", client= " + client + ", discount coupon= " + discountCoupon + "]";
     }
 }

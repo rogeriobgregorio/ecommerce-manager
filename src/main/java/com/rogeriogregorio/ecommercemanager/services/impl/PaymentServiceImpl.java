@@ -95,12 +95,6 @@ public class PaymentServiceImpl extends ErrorHandlerTemplateImpl implements Paym
                 .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + "."));
     }
 
-    public void validatePayment(Order order) {
-        for (PaymentStrategy validator : validators) {
-            validator.validate(order);
-        }
-    }
-
     public void updateInventoryStock(Payment payment) {
 
         Order orderPaid = payment.getOrder();
@@ -108,14 +102,19 @@ public class PaymentServiceImpl extends ErrorHandlerTemplateImpl implements Paym
         stockMovementService.updateStockMovementExit(orderPaid);
     }
 
+    public void validateOrder(Order order) {
+        for (PaymentStrategy validator : validators) {
+            validator.validate(order);
+        }
+    }
+
     public Payment buildPayment(PaymentRequest paymentRequest) {
 
         Long orderId = paymentRequest.getOrderId();
+
         Order orderToBePaid = orderService.findOrderById(orderId);
 
-        validatePayment(orderToBePaid);
-
-        inventoryItemService.isListItemsAvailable(orderToBePaid);
+        validateOrder(orderToBePaid);
 
         Payment payment = new Payment(Instant.now(), orderToBePaid);
 

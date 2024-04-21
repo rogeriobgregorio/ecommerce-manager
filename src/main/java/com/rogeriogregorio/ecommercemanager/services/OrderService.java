@@ -22,6 +22,8 @@ public interface OrderService {
 
     OrderResponse updateOrder(OrderRequest orderRequest);
 
+    OrderResponse updateOrderStatus(OrderRequest orderRequest);
+
     void deleteOrder(Long id);
 
     Page<OrderResponse> findOrderByClientId(Long id, Pageable pageable);

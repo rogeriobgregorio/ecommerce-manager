@@ -3,6 +3,7 @@ package com.rogeriogregorio.ecommercemanager.dto.responses;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rogeriogregorio.ecommercemanager.entities.Address;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
+import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -18,8 +19,6 @@ public class UserResponse implements Serializable {
     private String name;
     private String email;
     private String phone;
-    @JsonIgnore
-    private List<Order> orders = new ArrayList<>();
     private Address address;
 
     public UserResponse() {
@@ -62,14 +61,6 @@ public class UserResponse implements Serializable {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public List<Order> getOrders() {
-        return orders;
-    }
-
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
     }
 
     public Address getAddress() {

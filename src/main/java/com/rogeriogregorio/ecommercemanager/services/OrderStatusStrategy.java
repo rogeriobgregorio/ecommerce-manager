@@ -6,5 +6,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public interface OrderStatusStrategy {
-    void validate(Order order, OrderRequest orderRequest);
+
+    void validate(OrderRequest orderRequest, Order order);
 }

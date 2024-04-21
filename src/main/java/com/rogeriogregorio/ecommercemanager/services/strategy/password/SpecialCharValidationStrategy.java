@@ -12,7 +12,7 @@ public class SpecialCharValidationStrategy implements PasswordStrategy {
         return Pattern.matches(".*\\W.*", password);
     }
 
-    public String getErrorMessage() {
-        return "The password must have at least one special character.";
+    public String getRequirement() {
+        return "one special character";
     }
 }

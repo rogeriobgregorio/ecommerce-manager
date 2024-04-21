@@ -3,6 +3,7 @@ package com.rogeriogregorio.ecommercemanager.dto.requests;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 
 public class DiscountCouponRequest implements Serializable {

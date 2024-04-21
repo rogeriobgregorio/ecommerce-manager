@@ -20,7 +20,9 @@ public class UserRequest implements Serializable {
     public UserRequest() {
     }
 
-    public UserRequest(String name, String email, String phone, String password, UserRole userRole) {
+    public UserRequest(String name, String email,
+                       String phone, String password, UserRole userRole) {
+
         this.name = name;
         this.email = email;
         this.phone = phone;
@@ -28,7 +30,9 @@ public class UserRequest implements Serializable {
         this.userRole = userRole;
     }
 
-    public UserRequest(Long id, String name, String email, String phone, String password, UserRole userRole) {
+    public UserRequest(Long id, String name, String email,
+                       String phone, String password, UserRole userRole) {
+
         this.id = id;
         this.name = name;
         this.email = email;

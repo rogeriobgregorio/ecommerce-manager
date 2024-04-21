@@ -39,12 +39,6 @@ public class Payment implements Serializable {
         this.order = order;
     }
 
-    public Payment(Long id, Instant moment, Order order) {
-        this.id = id;
-        this.moment = moment;
-        this.order = order;
-    }
-
     public Long getId() {
         return id;
     }
@@ -84,6 +78,7 @@ public class Payment implements Serializable {
 
     @Override
     public String toString() {
-        return "[Payment: id= " + id + ", moment= " + moment + ", order= " + order +"]";
+        return "[Payment: id= " + id + ", moment= "
+                + moment + ", order= " + order + "]";
     }
 }

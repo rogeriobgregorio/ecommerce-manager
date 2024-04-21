@@ -18,13 +18,17 @@ public class StockMovementRequest implements Serializable {
     public StockMovementRequest() {
     }
 
-    public StockMovementRequest(Long inventoryItemId, MovementType movementType, Integer quantityMoved) {
+    public StockMovementRequest(Long inventoryItemId,
+                                MovementType movementType, Integer quantityMoved) {
+
         this.inventoryItemId = inventoryItemId;
         setMovementType(movementType);
         this.quantityMoved = quantityMoved;
     }
 
-    public StockMovementRequest(Long id, Long inventoryItemId, MovementType movementType, Integer quantityMoved) {
+    public StockMovementRequest(Long id, Long inventoryItemId,
+                                MovementType movementType, Integer quantityMoved) {
+
         this.id = id;
         this.inventoryItemId = inventoryItemId;
         setMovementType(movementType);

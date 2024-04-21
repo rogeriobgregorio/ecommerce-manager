@@ -1,7 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
+
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -10,10 +10,10 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "tb_discount_coupons", uniqueConstraints = {
@@ -46,10 +46,6 @@ public class DiscountCoupon implements Serializable {
     @Column(name = "valid_until")
     @NotNull(message = "The coupon's expiration date cannot be null")
     private Instant validUntil;
-
-    @JsonIgnore
-    @ManyToMany(mappedBy = "discountCoupon")
-    private Set<Product> payments = new HashSet<>();
 
     public DiscountCoupon() {
     }
@@ -109,8 +105,26 @@ public class DiscountCoupon implements Serializable {
         this.validUntil = validUntil;
     }
 
-    public Set<Product> getPayments() {
-        return payments;
+    public boolean isValid() {
+
+        Instant now = Instant.now();
+
+        return now.isAfter(validFrom) && now.isBefore(validUntil);
+    }
+
+    public String getRemainingValidityTime() {
+
+        Instant now = Instant.now();
+        boolean isExpired = now.isAfter(validUntil);
+
+        long days = Duration.between(now, validUntil).toDays();
+        long hours = Duration.between(now, validUntil).toHoursPart();
+        long minutes = Duration.between(now, validUntil).toMinutesPart();
+
+        String expiredMessage = "The coupon has expired.";
+        String remainingTime = String.format("%d days, %d hours, %d minutes", days, hours, minutes);
+
+        return isExpired ? expiredMessage : remainingTime;
     }
 
     @Override
@@ -128,7 +142,7 @@ public class DiscountCoupon implements Serializable {
 
     @Override
     public String toString() {
-        return "[DiscountCoupon: id= " + id + ", code= " + code + ", discount= " + discount
+        return "[DiscountCouponRepository: id= " + id + ", code= " + code + ", discount= " + discount
                 + ", validFrom=" + validFrom + ", validUntil=" + validUntil + "]";
     }
 }

@@ -85,10 +85,9 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
 
         findUserById(userRequest.getId());
         User user = buildAdminOrManagerUser(userRequest);
-        String role = String.valueOf(user.getUserRole());
 
         handleError(() -> userRepository.save(user),
-                "Error while trying to update the " + role + " user: ");
+                "Error trying to update user role: ");
         logger.info("User updated: {}", user);
 
         return converter.toResponse(user, UserResponse.class);
@@ -130,19 +129,19 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
         logger.info("User's address updated: {}", user);
     }
 
-    public boolean validate(String password) {
+    public void validatePassword(String password) {
 
         List<String> failures = new ArrayList<>();
 
         for (PasswordStrategy strategy : validators) {
             if (!strategy.validate(password)) {
-                failures.add(strategy.getErrorMessage());
+                failures.add(strategy.getRequirement());
             }
         }
 
-        if (failures.isEmpty()) return true;
-
-        throw new PasswordException(failures.toString());
+        if (!failures.isEmpty()) {
+            throw new PasswordException("The password must have at least: " + failures + ".");
+        }
     }
 
     public String encodePassword(UserRequest userRequest) {
@@ -154,7 +153,7 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
     public User buildUser(UserRequest userRequest) {
 
         userRequest.setUserRole(UserRole.CLIENT);
-        validate(userRequest.getPassword());
+        validatePassword(userRequest.getPassword());
         String encodedPassword = encodePassword(userRequest);
         userRequest.setPassword(encodedPassword);
 
@@ -163,7 +162,7 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
 
     public User buildAdminOrManagerUser(UserRequest userRequest) {
 
-        validate(userRequest.getPassword());
+        validatePassword(userRequest.getPassword());
         String encodedPassword = encodePassword(userRequest);
         userRequest.setPassword(encodedPassword);
 

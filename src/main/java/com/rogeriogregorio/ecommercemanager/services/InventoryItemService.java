@@ -27,9 +27,9 @@ public interface InventoryItemService {
 
     InventoryItem findInventoryItemByProduct(Product product);
 
-    boolean isListItemsAvailable(Order order);
+    void isListItemsAvailable(Order order);
 
     void updateInventoryItemQuantity(Order order);
 
-    boolean isItemAvailable(OrderItem orderItem);
+    void isItemAvailable(OrderItem orderItem);
 }

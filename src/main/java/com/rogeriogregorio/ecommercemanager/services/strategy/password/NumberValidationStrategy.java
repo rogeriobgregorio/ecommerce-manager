@@ -12,7 +12,7 @@ public class NumberValidationStrategy implements PasswordStrategy {
         return Pattern.matches(".*\\d.*", password);
     }
 
-    public String getErrorMessage() {
-        return "The password must have at least one number.";
+    public String getRequirement() {
+        return "one number";
     }
 }
