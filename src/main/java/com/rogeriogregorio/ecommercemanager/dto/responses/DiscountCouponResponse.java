@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.format.DateTimeFormatter;
 
 public class DiscountCouponResponse implements Serializable {
 

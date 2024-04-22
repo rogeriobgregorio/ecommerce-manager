@@ -1,14 +1,9 @@
 package com.rogeriogregorio.ecommercemanager.dto.responses;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rogeriogregorio.ecommercemanager.entities.Address;
-import com.rogeriogregorio.ecommercemanager.entities.Order;
-import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class UserResponse implements Serializable {
 
