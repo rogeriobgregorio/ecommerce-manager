@@ -8,7 +8,6 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.AddressRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.AddressServiceImpl;
-import com.rogeriogregorio.ecommercemanager.util.Converter;
 import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -49,7 +48,7 @@ class AddressServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        addressService = new AddressServiceImpl(addressRepository, userService, converter);
+        addressService = new AddressServiceImpl(addressRepository, userService, errorHandler, converter);
     }
 
     @Test

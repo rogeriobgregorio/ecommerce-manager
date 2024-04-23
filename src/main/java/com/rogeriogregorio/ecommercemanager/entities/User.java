@@ -130,7 +130,6 @@ public class User implements Serializable, UserDetails {
         return getAddress() == null;
     }
 
-    @JsonIgnore
     public UserRole getUserRole() {
         return userRole;
     }
@@ -148,6 +147,10 @@ public class User implements Serializable, UserDetails {
 
         if (this.userRole == UserRole.ADMIN) {
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_MANAGER"));
+        }
+
+        if (this.userRole == UserRole.MANAGER) {
             authorities.add(new SimpleGrantedAuthority("ROLE_MANAGER"));
         }
 

@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.security.controllers;
+package com.rogeriogregorio.ecommercemanager.controllers;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.LoginRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.LoginResponse;

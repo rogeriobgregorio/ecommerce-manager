@@ -143,11 +143,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(error);
     }
 
-    @ExceptionHandler(JWTException.class)
-    public ResponseEntity<StandardError> handleJWTException(JWTException ex) {
+    @ExceptionHandler(TokenException.class)
+    public ResponseEntity<StandardError> handleJWTException(TokenException ex) {
 
         StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR,
-                "JWTException: an error occurred while trying to execute a JWT class method", ex.getMessage());
+                "TokenException: an error occurred while trying to execute a JWT class method", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 

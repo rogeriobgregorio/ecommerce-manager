@@ -6,8 +6,10 @@ import com.rogeriogregorio.ecommercemanager.entities.Category;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.CategoryRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
+import com.rogeriogregorio.ecommercemanager.services.ErrorHandlerTemplate;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,23 +19,26 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class CategoryServiceImpl extends ErrorHandlerTemplateImpl implements CategoryService {
+public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final ErrorHandlerTemplate errorHandler;
     private final Converter converter;
+    private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public CategoryServiceImpl(CategoryRepository categoryRepository,
-                               Converter converter) {
+                               ErrorHandlerTemplate errorHandler, Converter converter) {
 
         this.categoryRepository = categoryRepository;
+        this.errorHandler = errorHandler;
         this.converter = converter;
     }
 
     @Transactional(readOnly = true)
     public Page<CategoryResponse> findAllCategories(Pageable pageable) {
 
-        return handleError(() -> categoryRepository.findAll(pageable),
+        return errorHandler.catchException(() -> categoryRepository.findAll(pageable),
                 "Error while trying to fetch all categories: ")
                 .map(category -> converter.toResponse(category, CategoryResponse.class));
     }
@@ -44,7 +49,7 @@ public class CategoryServiceImpl extends ErrorHandlerTemplateImpl implements Cat
         categoryRequest.setId(null);
         Category category = buildCategory(categoryRequest);
 
-        handleError(() -> categoryRepository.save(category),
+        errorHandler.catchException(() -> categoryRepository.save(category),
                 "Error while trying to create the category: ");
         logger.info("Category created: {}", category);
 
@@ -54,7 +59,7 @@ public class CategoryServiceImpl extends ErrorHandlerTemplateImpl implements Cat
     @Transactional(readOnly = true)
     public CategoryResponse findCategoryResponseById(Long id) {
 
-        return handleError(() -> categoryRepository.findById(id),
+        return errorHandler.catchException(() -> categoryRepository.findById(id),
                 "Error while trying to find the category by ID: ")
                 .map(category -> converter.toResponse(category, CategoryResponse.class))
                 .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + "."));
@@ -63,7 +68,7 @@ public class CategoryServiceImpl extends ErrorHandlerTemplateImpl implements Cat
     @Transactional(readOnly = true)
     public List<Category> findAllCategoriesByIds(List<Long> id) {
 
-        return handleError(() -> categoryRepository.findAllById(id),
+        return errorHandler.catchException(() -> categoryRepository.findAllById(id),
                 "Error while trying to fetch all categories by ID: ");
     }
 
@@ -73,7 +78,7 @@ public class CategoryServiceImpl extends ErrorHandlerTemplateImpl implements Cat
         findCategoryById(categoryRequest.getId());
         Category category = buildCategory(categoryRequest);
 
-        handleError(() -> categoryRepository.save(category),
+        errorHandler.catchException(() -> categoryRepository.save(category),
                 "Error while trying to update the category: ");
         logger.info("Category updated: {}", category);
 
@@ -85,7 +90,7 @@ public class CategoryServiceImpl extends ErrorHandlerTemplateImpl implements Cat
 
         Category category = findCategoryById(id);
 
-        handleError(() -> {
+        errorHandler.catchException(() -> {
             categoryRepository.deleteById(id);
             return null;
         }, "Error while trying to delete the category: ");
@@ -95,19 +100,19 @@ public class CategoryServiceImpl extends ErrorHandlerTemplateImpl implements Cat
     @Transactional(readOnly = true)
     public Page<CategoryResponse> findCategoryByName(String name, Pageable pageable) {
 
-        return handleError(() -> categoryRepository.findByName(name, pageable),
+        return errorHandler.catchException(() -> categoryRepository.findByName(name, pageable),
                 "Error while trying to fetch category by name: ")
                 .map(category -> converter.toResponse(category, CategoryResponse.class));
     }
 
-    public Category findCategoryById(Long id) {
+    private Category findCategoryById(Long id) {
 
-        return handleError(() -> categoryRepository.findById(id),
+        return errorHandler.catchException(() -> categoryRepository.findById(id),
                 "Error while trying to find the category by ID: ")
                 .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + "."));
     }
 
-    public Category buildCategory(CategoryRequest categoryRequest) {
+    private Category buildCategory(CategoryRequest categoryRequest) {
 
         Long id = categoryRequest.getId();
         String name = categoryRequest.getName();

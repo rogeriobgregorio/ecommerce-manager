@@ -2,16 +2,16 @@ package com.rogeriogregorio.ecommercemanager.exceptions;
 
 import java.io.Serial;
 
-public class JWTException extends RuntimeException {
+public class TokenException extends RuntimeException {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public JWTException(String message) {
+    public TokenException(String message) {
         super(message);
     }
 
-    public JWTException(String message, Throwable cause) {
+    public TokenException(String message, Throwable cause) {
         super(message, cause);
     }
 }

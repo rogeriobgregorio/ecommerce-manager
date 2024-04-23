@@ -31,13 +31,22 @@ public class UserRequest implements Serializable {
     }
 
     public UserRequest(Long id, String name, String email,
-                       String phone, String password, UserRole userRole) {
+                       String phone, String password) {
 
         this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.password = password;
+    }
+
+    public UserRequest(Long id, String name, String email,
+                       String phone, UserRole userRole) {
+
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
         this.userRole = userRole;
     }
 

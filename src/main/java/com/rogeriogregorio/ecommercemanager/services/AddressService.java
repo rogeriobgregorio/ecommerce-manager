@@ -2,7 +2,6 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.AddressRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
-import com.rogeriogregorio.ecommercemanager.entities.Address;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -15,8 +14,6 @@ public interface AddressService {
     AddressResponse createAddress(AddressRequest addressRequest);
 
     AddressResponse findAddressResponseById(Long id);
-
-    Address findAddressById(Long id);
 
     AddressResponse updateAddress(AddressRequest addressRequest);
 

@@ -18,8 +18,6 @@ public interface CategoryService {
 
     CategoryResponse findCategoryResponseById(Long id);
 
-    Category findCategoryById(Long id);
-
     List<Category> findAllCategoriesByIds(List<Long> id);
 
     CategoryResponse updateCategory(CategoryRequest categoryRequest);

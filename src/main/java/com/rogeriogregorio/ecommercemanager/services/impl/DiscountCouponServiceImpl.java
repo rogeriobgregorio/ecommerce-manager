@@ -6,8 +6,10 @@ import com.rogeriogregorio.ecommercemanager.entities.DiscountCoupon;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.DiscountCouponRepository;
 import com.rogeriogregorio.ecommercemanager.services.DiscountCouponService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
+import com.rogeriogregorio.ecommercemanager.services.ErrorHandlerTemplate;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,21 +19,26 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 
 @Service
-public class DiscountCouponServiceImpl extends ErrorHandlerTemplateImpl implements DiscountCouponService {
+public class DiscountCouponServiceImpl implements DiscountCouponService {
 
     private final DiscountCouponRepository discountCouponRepository;
+    private final ErrorHandlerTemplate errorHandler;
     private final Converter converter;
+    private final Logger logger = LogManager.getLogger();
 
     @Autowired
-    public DiscountCouponServiceImpl(DiscountCouponRepository discountCouponRepository, Converter converter) {
+    public DiscountCouponServiceImpl(DiscountCouponRepository discountCouponRepository,
+                                     ErrorHandlerTemplate errorHandler, Converter converter) {
+
         this.discountCouponRepository = discountCouponRepository;
+        this.errorHandler = errorHandler;
         this.converter = converter;
     }
 
     @Transactional(readOnly = true)
     public Page<DiscountCouponResponse> findAllDiscountCoupons(Pageable pageable) {
 
-        return handleError(() -> discountCouponRepository.findAll(pageable),
+        return errorHandler.catchException(() -> discountCouponRepository.findAll(pageable),
                 "Error while trying to fetch all discount coupons: ")
                 .map(discountCoupon -> converter.toResponse(discountCoupon, DiscountCouponResponse.class));
     }
@@ -42,7 +49,7 @@ public class DiscountCouponServiceImpl extends ErrorHandlerTemplateImpl implemen
         discountCouponRequest.setId(null);
         DiscountCoupon discountCoupon = buildDiscountCoupon(discountCouponRequest);
 
-        handleError(() -> discountCouponRepository.save(discountCoupon),
+        errorHandler.catchException(() -> discountCouponRepository.save(discountCoupon),
                 "Error while trying to create the discount coupon: ");
         logger.info("Discount coupon created: {}", discountCoupon);
 
@@ -52,7 +59,7 @@ public class DiscountCouponServiceImpl extends ErrorHandlerTemplateImpl implemen
     @Transactional(readOnly = true)
     public DiscountCouponResponse findDiscountCouponResponseById(Long id) {
 
-        return handleError(() -> discountCouponRepository.findById(id),
+        return errorHandler.catchException(() -> discountCouponRepository.findById(id),
                 "Error while trying to find the discount coupon by ID: ")
                 .map(discountCoupon -> converter.toResponse(discountCoupon, DiscountCouponResponse.class))
                 .orElseThrow(() -> new NotFoundException("Discount coupon not found with ID: " + id + "."));
@@ -64,7 +71,7 @@ public class DiscountCouponServiceImpl extends ErrorHandlerTemplateImpl implemen
         findDiscountCouponById(discountCouponRequest.getId());
         DiscountCoupon discountCoupon = buildDiscountCoupon(discountCouponRequest);
 
-        handleError(() -> discountCouponRepository.save(discountCoupon),
+        errorHandler.catchException(() -> discountCouponRepository.save(discountCoupon),
                 "Error while trying to update the discount coupon: ");
         logger.info("Discount Coupon updated: {}", discountCoupon);
 
@@ -76,7 +83,7 @@ public class DiscountCouponServiceImpl extends ErrorHandlerTemplateImpl implemen
 
         DiscountCoupon discountCoupon = findDiscountCouponById(id);
 
-        handleError(() -> {
+        errorHandler.catchException(() -> {
             discountCouponRepository.deleteById(id);
             return null;
         }, "Error while trying to delete the discount coupon: ");
@@ -86,19 +93,20 @@ public class DiscountCouponServiceImpl extends ErrorHandlerTemplateImpl implemen
     @Transactional(readOnly = true)
     public DiscountCoupon findDiscountCouponByCode(String code) {
 
-        return handleError(() -> discountCouponRepository.findByCode(code),
+        return errorHandler.catchException(() -> discountCouponRepository.findByCode(code),
                 "Error while trying to fetch discount coupon by code: ")
                 .orElseThrow(() -> new NotFoundException("Discount coupon not found with code: " + code + "."));
     }
 
-    public DiscountCoupon findDiscountCouponById(Long id) {
+    private DiscountCoupon findDiscountCouponById(Long id) {
 
-        return handleError(() -> discountCouponRepository.findById(id),
+        return errorHandler.catchException(() -> discountCouponRepository.findById(id),
                 "Error while trying to find the discount coupon by ID: ")
                 .orElseThrow(() -> new NotFoundException("Discount coupon not found with ID: " + id + "."));
     }
 
     private void validateCouponDates(DiscountCouponRequest discountCouponRequest) {
+
         Instant validFrom = discountCouponRequest.getValidFrom();
         Instant validUntil = discountCouponRequest.getValidUntil();
         boolean isValidDate = validFrom.isBefore(validUntil);
@@ -108,7 +116,7 @@ public class DiscountCouponServiceImpl extends ErrorHandlerTemplateImpl implemen
         }
     }
 
-    public DiscountCoupon buildDiscountCoupon(DiscountCouponRequest discountCouponRequest) {
+    private DiscountCoupon buildDiscountCoupon(DiscountCouponRequest discountCouponRequest) {
 
         validateCouponDates(discountCouponRequest);
 

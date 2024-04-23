@@ -1,6 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.dto.responses;
 
 import com.rogeriogregorio.ecommercemanager.entities.Address;
+import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -15,15 +16,20 @@ public class UserResponse implements Serializable {
     private String email;
     private String phone;
     private Address address;
+    private UserRole userRole;
 
     public UserResponse() {
     }
 
-    public UserResponse(Long id, String name, String email, String phone) {
+    public UserResponse(Long id, String name, String email,
+                        String phone, Address address, UserRole userRole) {
+
         this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
+        this.address = address;
+        this.userRole = userRole;
     }
 
     public Long getId() {
@@ -64,5 +70,13 @@ public class UserResponse implements Serializable {
 
     public void setAddress(Address address) {
         this.address = address;
+    }
+
+    public UserRole getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(UserRole userRole) {
+        this.userRole = userRole;
     }
 }

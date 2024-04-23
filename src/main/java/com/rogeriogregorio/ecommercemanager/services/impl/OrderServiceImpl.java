@@ -8,12 +8,10 @@ import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
-import com.rogeriogregorio.ecommercemanager.services.DiscountCouponService;
-import com.rogeriogregorio.ecommercemanager.services.OrderService;
-import com.rogeriogregorio.ecommercemanager.services.OrderStatusStrategy;
-import com.rogeriogregorio.ecommercemanager.services.UserService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
+import com.rogeriogregorio.ecommercemanager.services.*;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,32 +22,34 @@ import java.time.Instant;
 import java.util.List;
 
 @Service
-public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderService {
+public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final UserService userService;
     private final DiscountCouponService discountCouponService;
-    private final Converter converter;
     private final List<OrderStatusStrategy> validators;
+    private final ErrorHandlerTemplate errorHandler;
+    private final Converter converter;
+    private final Logger logger = LogManager.getLogger();
 
     @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository,
-                            UserService userService,
+    public OrderServiceImpl(OrderRepository orderRepository, UserService userService,
                             DiscountCouponService discountCouponService,
-                            Converter converter,
-                            List<OrderStatusStrategy> validators) {
+                            List<OrderStatusStrategy> validators,
+                            ErrorHandlerTemplate errorHandler, Converter converter) {
 
         this.orderRepository = orderRepository;
         this.userService = userService;
         this.discountCouponService = discountCouponService;
-        this.converter = converter;
         this.validators = validators;
+        this.errorHandler = errorHandler;
+        this.converter = converter;
     }
 
     @Transactional(readOnly = true)
     public Page<OrderResponse> findAllOrders(Pageable pageable) {
 
-        return handleError(() -> orderRepository.findAll(pageable),
+        return errorHandler.catchException(() -> orderRepository.findAll(pageable),
                 "Error while trying to fetch all orders: ")
                 .map(order -> converter.toResponse(order, OrderResponse.class));
     }
@@ -59,7 +59,7 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
 
         Order order = buildCreateOrder(orderRequest);
 
-        handleError(() -> orderRepository.save(order),
+        errorHandler.catchException(() -> orderRepository.save(order),
                 "Error while trying to create the order: ");
         logger.info("Order created: {}", order);
 
@@ -69,7 +69,7 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
     @Transactional(readOnly = false)
     public void savePaidOrder(Order order) {
 
-        handleError(() -> {
+        errorHandler.catchException(() -> {
             orderRepository.save(order);
             return null;
         }, "Error while trying to save the paid order: ");
@@ -79,7 +79,7 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
     @Transactional(readOnly = true)
     public OrderResponse findOrderResponseById(Long id) {
 
-        return handleError(() -> orderRepository.findById(id),
+        return errorHandler.catchException(() -> orderRepository.findById(id),
                 "Error while trying to find the order by ID: ")
                 .map(order -> converter.toResponse(order, OrderResponse.class))
                 .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + "."));
@@ -88,9 +88,10 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
     @Transactional(readOnly = false)
     public OrderResponse updateOrder(OrderRequest orderRequest) {
 
+        findOrderById(orderRequest.getId());
         Order order = buildUpdateOrder(orderRequest);
 
-        handleError(() -> orderRepository.save(order),
+        errorHandler.catchException(() -> orderRepository.save(order),
                 "Error while trying to update the order: ");
         logger.info("Order updated: {}", order);
 
@@ -102,7 +103,7 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
 
         Order order = buildUpdateOrderStatus(orderRequest);
 
-        handleError(() -> orderRepository.save(order),
+        errorHandler.catchException(() -> orderRepository.save(order),
                 "Error while trying to update the order: ");
         logger.info("Order updated: {}", order);
 
@@ -112,40 +113,40 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
     @Transactional(readOnly = false)
     public void deleteOrder(Long id) {
 
-        validateOrderDeleteEligibility(id);
+        Order order = findOrderById(id);
+        validateOrderDeleteEligibility(order);
 
-        handleError(() -> {
+        errorHandler.catchException(() -> {
             orderRepository.deleteById(id);
             return null;
         }, "Error while trying to delete the order: ");
-        logger.warn("Order removed: {}", id);
+        logger.warn("Order removed: {}", order);
     }
 
     @Transactional(readOnly = true)
     public Page<OrderResponse> findOrderByClientId(Long id, Pageable pageable) {
 
-        return handleError(() -> orderRepository.findByClient_Id(id, pageable),
+        return errorHandler.catchException(() -> orderRepository.findByClient_Id(id, pageable),
                 "Error while trying to fetch orders by customer ID: ")
                 .map(order -> converter.toResponse(order, OrderResponse.class));
     }
 
     public Order findOrderById(Long id) {
 
-        return handleError(() -> orderRepository.findById(id),
+        return errorHandler.catchException(() -> orderRepository.findById(id),
                 "Error while trying to find order by ID: ")
                 .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + "."));
     }
 
-    public void validateOrderStatusChange(OrderRequest orderRequest, Order order) {
+    private void validateOrderStatusChange(OrderRequest orderRequest, Order order) {
 
         for (OrderStatusStrategy validator : validators) {
             validator.validate(orderRequest, order);
         }
     }
 
-    public void validateOrderDeleteEligibility(Long id) {
+    private void validateOrderDeleteEligibility(Order order) {
 
-        Order order = findOrderById(id);
         boolean isOrderPaid = order.isOrderPaid();
 
         if (isOrderPaid) {
@@ -153,32 +154,21 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
         }
     }
 
-    public void validateDiscountCoupon(DiscountCoupon discountCoupon) {
+    private DiscountCoupon validateDiscountCoupon(String code) {
 
-        if (discountCoupon == null) return;
+        if (code == null) return null;
 
+        DiscountCoupon discountCoupon = discountCouponService.findDiscountCouponByCode(code);
         boolean isDiscountCouponValid = discountCoupon.isValid();
 
         if (!isDiscountCouponValid) {
             throw new IllegalStateException("The discount coupon is not within its validity period.");
         }
+
+        return discountCoupon;
     }
 
-    public Order buildUpdateOrderStatus(OrderRequest orderRequest) {
-
-        Long orderId = orderRequest.getId();
-        Order order = findOrderById(orderId);
-        Instant instant = Instant.now();
-        OrderStatus orderStatus = orderRequest.getOrderStatus();
-        User user = order.getClient();
-        DiscountCoupon discountCoupon = order.getDiscountCoupon();
-
-        validateOrderStatusChange(orderRequest, order);
-
-        return new Order(orderId, instant, orderStatus, user, discountCoupon);
-    }
-
-    public Order buildCreateOrder(OrderRequest orderRequest) {
+    private Order buildCreateOrder(OrderRequest orderRequest) {
 
         orderRequest.setId(null);
         Instant instant = Instant.now();
@@ -188,20 +178,33 @@ public class OrderServiceImpl extends ErrorHandlerTemplateImpl implements OrderS
         return new Order(instant, orderStatus, client);
     }
 
-    public Order buildUpdateOrder(OrderRequest orderRequest) {
+    private Order buildUpdateOrder(OrderRequest orderRequest) {
 
-        Long orderId = orderRequest.getId();
-        Instant instant = Instant.now();
+        Order order = findOrderById(orderRequest.getId());
+        order.setMoment(Instant.now());
 
-        boolean orderStatusRequest = orderRequest.getOrderStatus() == OrderStatus.CANCELED;
-        OrderStatus orderStatus = orderStatusRequest ? OrderStatus.CANCELED : OrderStatus.WAITING_PAYMENT;
+        boolean isOrderStatusRequestCanceled = orderRequest.getOrderStatus() == OrderStatus.CANCELED;
+        OrderStatus orderStatus = isOrderStatusRequestCanceled ? OrderStatus.CANCELED : OrderStatus.WAITING_PAYMENT;
 
-        User user = userService.findUserById(orderRequest.getClientId());
+        order.setOrderStatus(orderStatus);
+
         String code = orderRequest.getDiscountCouponCode();
-        DiscountCoupon discountCoupon = discountCouponService.findDiscountCouponByCode(code);
+        DiscountCoupon discountCoupon = validateDiscountCoupon(code);
 
-        validateDiscountCoupon(discountCoupon);
+        order.setDiscountCoupon(discountCoupon);
 
-        return new Order(orderId, instant, orderStatus, user, discountCoupon);
+        return order;
+    }
+
+    private Order buildUpdateOrderStatus(OrderRequest orderRequest) {
+
+        Order order = findOrderById(orderRequest.getId());
+
+        validateOrderStatusChange(orderRequest, order);
+
+        order.setMoment(Instant.now());
+        order.setOrderStatus(orderRequest.getOrderStatus());
+
+        return order;
     }
 }

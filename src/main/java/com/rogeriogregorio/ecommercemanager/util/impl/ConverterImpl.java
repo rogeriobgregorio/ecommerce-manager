@@ -1,8 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.util.impl;
 
-import com.rogeriogregorio.ecommercemanager.exceptions.ConverterException;
+import com.rogeriogregorio.ecommercemanager.services.ErrorHandlerTemplate;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
-import org.modelmapper.MappingException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -10,32 +9,24 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConverterImpl implements Converter {
 
-    private final ModelMapper modelMapper;
+    private final ModelMapper mapper;
+    private final ErrorHandlerTemplate handler;
 
     @Autowired
-    public ConverterImpl(ModelMapper modelMapper) {
-        this.modelMapper = modelMapper;
+    public ConverterImpl(ModelMapper mapper, ErrorHandlerTemplate handler) {
+        this.mapper = mapper;
+        this.handler = handler;
     }
 
-    @Override
-    public <E, R> E toEntity(R object, Class<E> targetType) {
+    public <E, R> E toEntity(R response, Class<E> entity) {
 
-        try {
-            return modelMapper.map(object, targetType);
-
-        } catch (MappingException exception) {
-            throw new ConverterException("Error while trying to convert from response to entity: " + exception);
-        }
+        return handler.catchException(() -> mapper.map(response, entity),
+                "Error while trying to convert from response to entity: ");
     }
 
-    @Override
-    public <E, R> R toResponse(E object, Class<R> targetType) {
+    public <E, R> R toResponse(E entity, Class<R> response) {
 
-        try {
-            return modelMapper.map(object, targetType);
-
-        } catch (MappingException exception) {
-            throw new ConverterException("Error while trying to convert from entity to response: " + exception);
-        }
+        return handler.catchException(() -> mapper.map(entity, response),
+                "Error while trying to convert from entity to response: ");
     }
 }

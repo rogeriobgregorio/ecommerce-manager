@@ -52,7 +52,8 @@ public class Order implements Serializable {
     public Order() {
     }
 
-    public Order(Instant moment, OrderStatus orderStatus, User client) {
+    public Order(Instant moment, OrderStatus
+            orderStatus, User client) {
 
         this.moment = moment;
         setOrderStatus(orderStatus);
@@ -69,7 +70,8 @@ public class Order implements Serializable {
         this.discountCoupon = discountCoupon;
     }
 
-    public Order(Long id, Instant moment, User client, DiscountCoupon discountCoupon) {
+    public Order(Long id, Instant moment,
+                 User client, DiscountCoupon discountCoupon) {
 
         this.id = id;
         this.moment = moment;

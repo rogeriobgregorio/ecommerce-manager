@@ -7,5 +7,5 @@ import java.util.function.Supplier;
 @Component
 public interface ErrorHandlerTemplate {
 
-    <R> R handleError(Supplier<R> transaction, String message);
+    <T> T catchException(Supplier<T> method, String errorMessage);
 }

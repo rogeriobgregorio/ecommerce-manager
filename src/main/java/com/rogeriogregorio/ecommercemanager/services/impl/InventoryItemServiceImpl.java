@@ -9,10 +9,12 @@ import com.rogeriogregorio.ecommercemanager.exceptions.InsufficientStockExceptio
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.InventoryItemRepository;
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
+import com.rogeriogregorio.ecommercemanager.services.ErrorHandlerTemplate;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,30 +24,33 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 
 @Service
-public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implements InventoryItemService {
+public class InventoryItemServiceImpl implements InventoryItemService {
 
     private final InventoryItemRepository inventoryItemRepository;
     private final StockMovementRepository stockMovementRepository;
     private final ProductService productService;
+    private final ErrorHandlerTemplate errorHandler;
     private final Converter converter;
+    private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public InventoryItemServiceImpl(InventoryItemRepository inventoryItemRepository,
                                     StockMovementRepository stockMovementRepository,
                                     ProductService productService,
-                                    Converter converter) {
+                                    ErrorHandlerTemplate errorHandler, Converter converter) {
 
         this.inventoryItemRepository = inventoryItemRepository;
         this.stockMovementRepository = stockMovementRepository;
         this.productService = productService;
+        this.errorHandler = errorHandler;
         this.converter = converter;
     }
 
     @Transactional(readOnly = true)
     public Page<InventoryItemResponse> findAllInventoryItems(Pageable pageable) {
 
-        return handleError(() -> inventoryItemRepository.findAll(pageable),
-                "Error while trying to fetch all inventory items: ")
+        return errorHandler.catchException(() -> inventoryItemRepository.findAll(pageable),
+                        "Error while trying to fetch all inventory items: ")
                 .map(inventoryItem -> converter.toResponse(inventoryItem, InventoryItemResponse.class));
     }
 
@@ -55,7 +60,7 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
         inventoryItemRequest.setId(null);
         InventoryItem inventoryItem = buildInventoryItem(inventoryItemRequest);
 
-        handleError(() -> inventoryItemRepository.save(inventoryItem),
+        errorHandler.catchException(() -> inventoryItemRepository.save(inventoryItem),
                 "Error while trying to create the inventory item: ");
         logger.info("Inventory item created: {}", inventoryItem);
 
@@ -66,8 +71,8 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
     @Transactional(readOnly = true)
     public InventoryItemResponse findInventoryItemResponseById(Long id) {
 
-        return handleError(() -> inventoryItemRepository.findById(id),
-                "Error while trying to find the inventory item by ID: ")
+        return errorHandler.catchException(() -> inventoryItemRepository.findById(id),
+                        "Error while trying to find the inventory item by ID: ")
                 .map(inventoryItem -> converter.toResponse(inventoryItem, InventoryItemResponse.class))
                 .orElseThrow(() -> new NotFoundException("Inventory item not found with ID: " + id + "."));
     }
@@ -77,7 +82,7 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
 
         InventoryItem inventoryItem = buildInventoryItem(inventoryItemRequest);
 
-        handleError(() -> inventoryItemRepository.save(inventoryItem),
+        errorHandler.catchException(() -> inventoryItemRepository.save(inventoryItem),
                 "Error while trying to update the inventory item: ");
         logger.info("Inventory item updated: {}", inventoryItem);
 
@@ -89,7 +94,7 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
 
         InventoryItem inventoryItem = findInventoryItemById(id);
 
-        handleError(() -> {
+        errorHandler.catchException(() -> {
             inventoryItemRepository.deleteById(id);
             return null;
         }, "Error while trying to delete the inventory item: ");
@@ -98,43 +103,16 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
 
     public InventoryItem findInventoryItemById(Long id) {
 
-        return handleError(() -> inventoryItemRepository.findById(id),
-                "Error while trying to find the inventory item by ID: ")
+        return errorHandler.catchException(() -> inventoryItemRepository.findById(id),
+                        "Error while trying to find the inventory item by ID: ")
                 .orElseThrow(() -> new NotFoundException("Inventory item not found with ID: " + id + "."));
     }
 
     public InventoryItem findInventoryItemByProduct(Product product) {
 
-        return handleError(() -> inventoryItemRepository.findByProduct(product),
-                "Error while trying to find the inventory item: ")
+        return errorHandler.catchException(() -> inventoryItemRepository.findByProduct(product),
+                        "Error while trying to find the inventory item: ")
                 .orElseThrow(() -> new NotFoundException("Item not found in the inventory: " + product + "."));
-    }
-
-    public void saveInventoryItem(InventoryItem inventoryItem) {
-
-        handleError(() -> inventoryItemRepository.save(inventoryItem),
-                "Error while trying to save the inventory item: ");
-        logger.info("Inventory item quantity updated: {}", inventoryItem);
-    }
-
-    public void validateItemInventory(InventoryItemRequest inventoryItemRequest) {
-
-        Long inventoryItemId = inventoryItemRequest.getId();
-        Long productId = inventoryItemRequest.getProductId();
-
-        if (inventoryItemId == null && isProductPresent(productId)) {
-            throw new IllegalStateException("Cannot add the item to the inventory: product already added.");
-        }
-
-        if (inventoryItemId != null) {
-            findInventoryItemById(inventoryItemId);
-        }
-    }
-
-    public boolean isProductPresent(Long productId) {
-
-        return handleError(() -> inventoryItemRepository.findByProduct_Id(productId) != null,
-                "Error while trying to check the presence of the item in the inventory: ");
     }
 
     public void isListItemsAvailable(Order order) {
@@ -142,9 +120,9 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
         for (OrderItem orderItem : order.getItems()) {
             Product product = orderItem.getProduct();
             InventoryItem inventoryItem = findInventoryItemByProduct(product);
-            StockStatus itemStatus = inventoryItem.getStockStatus();
+            StockStatus inventoryItemStatus = inventoryItem.getStockStatus();
 
-            if (itemStatus == StockStatus.OUT_OF_STOCK) {
+            if (inventoryItemStatus == StockStatus.OUT_OF_STOCK) {
                 throw new InsufficientStockException("The item " + product.getName() + " is out of stock.");
             }
 
@@ -165,9 +143,9 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
 
         Product product = orderItem.getProduct();
         InventoryItem inventoryItem = findInventoryItemByProduct(product);
-        StockStatus itemStatus = inventoryItem.getStockStatus();
+        StockStatus inventoryItemStatus = inventoryItem.getStockStatus();
 
-        if (itemStatus == StockStatus.OUT_OF_STOCK) {
+        if (inventoryItemStatus == StockStatus.OUT_OF_STOCK) {
             throw new InsufficientStockException("The item " + product.getName() + " is out of stock.");
         }
 
@@ -203,25 +181,54 @@ public class InventoryItemServiceImpl extends ErrorHandlerTemplateImpl implement
         }
     }
 
-    public void updateStockMovementEntrance(InventoryItem inventoryItem) {
+    private Product validateItemInventory(Long inventoryItemId, Long productId) {
+
+        Product product = productService.findProductById(productId);
+        boolean isInventoryIdNull = inventoryItemId == null;
+        boolean isProductInInventory = findInventoryItemByProductId(productId);
+
+        if (isInventoryIdNull && isProductInInventory) {
+            throw new IllegalStateException("Cannot add the item to the inventory: product already added.");
+        }
+
+        if (!isInventoryIdNull) {
+            findInventoryItemById(inventoryItemId);
+        }
+
+        return product;
+    }
+
+    private boolean findInventoryItemByProductId(Long productId) {
+
+        return errorHandler.catchException(() -> inventoryItemRepository.existsByProduct_Id(productId),
+                "Error while trying to check the presence of the item in the inventory: ");
+    }
+
+    private void saveInventoryItem(InventoryItem inventoryItem) {
+
+        errorHandler.catchException(() -> inventoryItemRepository.save(inventoryItem),
+                "Error while trying to save the inventory item: ");
+        logger.info("Inventory item quantity updated: {}", inventoryItem);
+    }
+
+    private void updateStockMovementEntrance(InventoryItem inventoryItem) {
 
         Instant moment = Instant.now();
         int quantity = inventoryItem.getQuantityInStock();
         StockMovement stockMovement = new StockMovement(moment, inventoryItem, MovementType.ENTRANCE, quantity);
 
-        handleError(() -> stockMovementRepository.save(stockMovement),
+        errorHandler.catchException(() -> stockMovementRepository.save(stockMovement),
                 "Error while trying to create the inventory movement: ");
         logger.info("Inventory movement created: {}", stockMovement);
     }
 
-    public InventoryItem buildInventoryItem(InventoryItemRequest inventoryItemRequest) {
+    private InventoryItem buildInventoryItem(InventoryItemRequest inventoryItemRequest) {
 
         Long productId = inventoryItemRequest.getProductId();
-        Product product = productService.findProductById(productId);
-
-        validateItemInventory(inventoryItemRequest);
-
         Long id = inventoryItemRequest.getId();
+
+        Product product = validateItemInventory(id, productId);
+
         Integer quantityInStock = inventoryItemRequest.getQuantityInStock();
         StockStatus stockStatus = inventoryItemRequest.getStockStatus();
 

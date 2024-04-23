@@ -8,8 +8,9 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.*;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,35 +21,37 @@ import java.time.Instant;
 import java.util.List;
 
 @Service
-public class PaymentServiceImpl extends ErrorHandlerTemplateImpl implements PaymentService {
+public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final InventoryItemService inventoryItemService;
     private final StockMovementService stockMovementService;
     private final OrderService orderService;
-    private final Converter converter;
     private final List<PaymentStrategy> validators;
+    private final ErrorHandlerTemplate errorHandler;
+    private final Converter converter;
+    private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public PaymentServiceImpl(PaymentRepository paymentRepository,
                               InventoryItemService inventoryItemService,
                               StockMovementService stockMovementService,
                               OrderService orderService,
-                              Converter converter,
-                              List<PaymentStrategy> validators) {
+                              List<PaymentStrategy> validators, ErrorHandlerTemplate errorHandler, Converter converter) {
 
         this.paymentRepository = paymentRepository;
         this.inventoryItemService = inventoryItemService;
         this.stockMovementService = stockMovementService;
         this.orderService = orderService;
-        this.converter = converter;
         this.validators = validators;
+        this.errorHandler = errorHandler;
+        this.converter = converter;
     }
 
     @Transactional(readOnly = true)
     public Page<PaymentResponse> findAllPayments(Pageable pageable) {
 
-        return handleError(() -> paymentRepository.findAll(pageable),
+        return errorHandler.catchException(() -> paymentRepository.findAll(pageable),
                 "Error while trying to fetch all payments: ")
                 .map(payment -> converter.toResponse(payment, PaymentResponse.class));
     }
@@ -59,7 +62,7 @@ public class PaymentServiceImpl extends ErrorHandlerTemplateImpl implements Paym
         paymentRequest.setId(null);
         Payment payment = buildPayment(paymentRequest);
 
-        handleError(() -> paymentRepository.save(payment),
+        errorHandler.catchException(() -> paymentRepository.save(payment),
                 "Error while trying to create the payment: ");
         logger.info("Payment created: {}", payment);
 
@@ -70,7 +73,7 @@ public class PaymentServiceImpl extends ErrorHandlerTemplateImpl implements Paym
     @Transactional(readOnly = true)
     public PaymentResponse findPaymentResponseById(Long id) {
 
-        return handleError(() -> paymentRepository.findById(id),
+        return errorHandler.catchException(() -> paymentRepository.findById(id),
                 "Error while trying to find the payment by ID: ")
                 .map(payment -> converter.toResponse(payment, PaymentResponse.class))
                 .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + "."));
@@ -81,34 +84,34 @@ public class PaymentServiceImpl extends ErrorHandlerTemplateImpl implements Paym
 
         Payment payment = findPaymentById(id);
 
-        handleError(() -> {
+        errorHandler.catchException(() -> {
             paymentRepository.deleteById(id);
             return null;
         }, "Error while trying to delete the payment: ");
         logger.warn("Payment removed: {}", payment);
     }
 
-    public Payment findPaymentById(Long id) {
+    private Payment findPaymentById(Long id) {
 
-        return handleError(() -> paymentRepository.findById(id),
+        return errorHandler.catchException(() -> paymentRepository.findById(id),
                 "Error while trying to find the payment by ID:")
                 .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + "."));
     }
 
-    public void updateInventoryStock(Payment payment) {
+    private void validateOrder(Order order) {
+        for (PaymentStrategy validator : validators) {
+            validator.validate(order);
+        }
+    }
+
+    private void updateInventoryStock(Payment payment) {
 
         Order orderPaid = payment.getOrder();
         inventoryItemService.updateInventoryItemQuantity(orderPaid);
         stockMovementService.updateStockMovementExit(orderPaid);
     }
 
-    public void validateOrder(Order order) {
-        for (PaymentStrategy validator : validators) {
-            validator.validate(order);
-        }
-    }
-
-    public Payment buildPayment(PaymentRequest paymentRequest) {
+    private Payment buildPayment(PaymentRequest paymentRequest) {
 
         Long orderId = paymentRequest.getOrderId();
 

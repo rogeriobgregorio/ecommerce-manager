@@ -8,12 +8,10 @@ import com.rogeriogregorio.ecommercemanager.entities.Product;
 import com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderItemRepository;
-import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
-import com.rogeriogregorio.ecommercemanager.services.OrderItemService;
-import com.rogeriogregorio.ecommercemanager.services.OrderService;
-import com.rogeriogregorio.ecommercemanager.services.ProductService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
+import com.rogeriogregorio.ecommercemanager.services.*;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,32 +21,35 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 
 @Service
-public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements OrderItemService {
+public class OrderItemServiceImpl implements OrderItemService {
 
     private final OrderItemRepository orderItemRepository;
     private final InventoryItemService inventoryItemService;
     private final ProductService productService;
     private final OrderService orderService;
+    private final ErrorHandlerTemplate errorHandler;
     private final Converter converter;
+    private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public OrderItemServiceImpl(OrderItemRepository orderItemRepository,
                                 InventoryItemService inventoryItemService,
                                 ProductService productService,
                                 OrderService orderService,
-                                Converter converter) {
+                                ErrorHandlerTemplate errorHandler, Converter converter) {
 
         this.orderItemRepository = orderItemRepository;
         this.inventoryItemService = inventoryItemService;
         this.productService = productService;
         this.orderService = orderService;
+        this.errorHandler = errorHandler;
         this.converter = converter;
     }
 
     @Transactional(readOnly = true)
     public Page<OrderItemResponse> findAllOrderItems(Pageable pageable) {
 
-        return handleError(() -> orderItemRepository.findAll(pageable),
+        return errorHandler.catchException(() -> orderItemRepository.findAll(pageable),
                 "Error while trying to fetch all items of the order: ")
                 .map(orderItem -> converter.toResponse(orderItem, OrderItemResponse.class));
     }
@@ -58,7 +59,7 @@ public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements Or
 
         OrderItemPK id = buildOrderItemPK(orderId, itemId);
 
-        return handleError(() -> orderItemRepository.findById(id),
+        return errorHandler.catchException(() -> orderItemRepository.findById(id),
                 "Error while trying to fetch the order item by ID: ")
                 .map(orderItem -> converter.toResponse(orderItem, OrderItemResponse.class))
                 .orElseThrow(() -> new NotFoundException("Item not found with ID: " + id + "."));
@@ -69,7 +70,7 @@ public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements Or
 
         OrderItem orderItem = buildOrderItem(orderItemRequest);
 
-        handleError(() -> orderItemRepository.save(orderItem),
+        errorHandler.catchException(() -> orderItemRepository.save(orderItem),
                 "Error while trying to create order item: ");
         logger.info("Order item created: {}", orderItem);
 
@@ -81,7 +82,7 @@ public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements Or
 
         OrderItem orderItem = buildOrderItem(orderItemRequest);
 
-        handleError(() -> orderItemRepository.save(orderItem),
+        errorHandler.catchException(() -> orderItemRepository.save(orderItem),
                 "Error while trying to update the order item: ");
         logger.info("Order item updated: {}", orderItem);
 
@@ -97,14 +98,14 @@ public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements Or
 
         OrderItemPK id = buildOrderItemPK(orderId, itemId);
 
-        handleError(() -> {
+        errorHandler.catchException(() -> {
             orderItemRepository.deleteById(id);
             return null;
         }, "Error while trying to delete order item: ");
         logger.warn("Order item removed: {}", id.getProduct());
     }
 
-    public void validateOrderChangeEligibility(Order order) {
+    private void validateOrderChangeEligibility(Order order) {
 
         boolean isOrderPaid = order.isOrderPaid();
 
@@ -113,7 +114,7 @@ public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements Or
         }
     }
 
-    public OrderItemPK buildOrderItemPK(Long orderId, Long itemId) {
+    private OrderItemPK buildOrderItemPK(Long orderId, Long itemId) {
 
         Order order = orderService.findOrderById(orderId);
         Product product = productService.findProductById(itemId);
@@ -125,7 +126,7 @@ public class OrderItemServiceImpl extends ErrorHandlerTemplateImpl implements Or
         return id;
     }
 
-    public OrderItem buildOrderItem(OrderItemRequest orderItemRequest) {
+    private OrderItem buildOrderItem(OrderItemRequest orderItemRequest) {
 
         Long orderId = orderItemRequest.getOrderId();
         Order order = orderService.findOrderById(orderId);

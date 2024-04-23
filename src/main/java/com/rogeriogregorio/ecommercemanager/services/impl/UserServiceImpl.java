@@ -7,10 +7,12 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.PasswordException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
+import com.rogeriogregorio.ecommercemanager.services.ErrorHandlerTemplate;
 import com.rogeriogregorio.ecommercemanager.services.PasswordStrategy;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplateImpl;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,25 +24,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserService {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final List<PasswordStrategy> validators;
+    private final ErrorHandlerTemplate errorHandler;
     private final Converter converter;
+    private final Logger logger = LogManager.getLogger();
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository,
-                           List<PasswordStrategy> validators, Converter converter) {
+    public UserServiceImpl(UserRepository userRepository, List<PasswordStrategy> validators,
+                           ErrorHandlerTemplate errorHandler, Converter converter) {
 
         this.userRepository = userRepository;
         this.validators = validators;
+        this.errorHandler = errorHandler;
         this.converter = converter;
     }
 
     @Transactional(readOnly = true)
     public Page<UserResponse> findAllUsers(Pageable pageable) {
 
-        return handleError(() -> userRepository.findAll(pageable),
+        return errorHandler.catchException(() -> userRepository.findAll(pageable),
                 "Error while trying to fetch all users: ")
                 .map(user -> converter.toResponse(user, UserResponse.class));
     }
@@ -48,7 +53,7 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
     @Transactional(readOnly = true)
     public UserResponse findUserResponseById(Long id) {
 
-        return handleError(() -> userRepository.findById(id),
+        return errorHandler.catchException(() -> userRepository.findById(id),
                 "Error while trying to fetch the user by ID: " + id)
                 .map(user -> converter.toResponse(user, UserResponse.class))
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id + "."));
@@ -60,7 +65,7 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
         userRequest.setId(null);
         User user = buildUser(userRequest);
 
-        handleError(() -> userRepository.save(user),
+        errorHandler.catchException(() -> userRepository.save(user),
                 "Error while trying to create the user: ");
         logger.info("User created: {}", user);
 
@@ -73,7 +78,7 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
         findUserById(userRequest.getId());
         User user = buildUser(userRequest);
 
-        handleError(() -> userRepository.save(user),
+        errorHandler.catchException(() -> userRepository.save(user),
                 "Error while trying to update the user: ");
         logger.info("User updated: {}", user);
 
@@ -83,10 +88,9 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
     @Transactional(readOnly = false)
     public UserResponse createAdminOrManagerUser(UserRequest userRequest) {
 
-        findUserById(userRequest.getId());
         User user = buildAdminOrManagerUser(userRequest);
 
-        handleError(() -> userRepository.save(user),
+        errorHandler.catchException(() -> userRepository.save(user),
                 "Error trying to update user role: ");
         logger.info("User updated: {}", user);
 
@@ -98,7 +102,7 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
 
         User user = findUserById(id);
 
-        handleError(() -> {
+        errorHandler.catchException(() -> {
             userRepository.deleteById(id);
             return null;
         }, "Error while trying to delete the user: ");
@@ -108,28 +112,34 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
     @Transactional(readOnly = true)
     public Page<UserResponse> findUserByName(String name, Pageable pageable) {
 
-        return handleError(() -> userRepository.findByName(name, pageable),
+        return errorHandler.catchException(() -> userRepository.findByName(name, pageable),
                 "Error while trying to fetch the user by name: ").
                 map(user -> converter.toResponse(user, UserResponse.class));
     }
 
     public User findUserById(Long id) {
 
-        return handleError(() -> userRepository.findById(id),
+        return errorHandler.catchException(() -> userRepository.findById(id),
                 "Error while trying to fetch the user by ID: " + id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id + "."));
     }
 
     public void saveUserAddress(User user) {
 
-        handleError(() -> {
+        errorHandler.catchException(() -> {
             userRepository.save(user);
             return null;
         }, "Error while trying to update the user's address: ");
         logger.info("User's address updated: {}", user);
     }
 
-    public void validatePassword(String password) {
+    private String encodePassword(UserRequest userRequest) {
+
+        String userPassword = userRequest.getPassword();
+        return new BCryptPasswordEncoder().encode(userPassword);
+    }
+
+    private void validatePassword(String password) {
 
         List<String> failures = new ArrayList<>();
 
@@ -144,13 +154,7 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
         }
     }
 
-    public String encodePassword(UserRequest userRequest) {
-
-        String userPassword = userRequest.getPassword();
-        return new BCryptPasswordEncoder().encode(userPassword);
-    }
-
-    public User buildUser(UserRequest userRequest) {
+    private User buildUser(UserRequest userRequest) {
 
         userRequest.setUserRole(UserRole.CLIENT);
         validatePassword(userRequest.getPassword());
@@ -160,12 +164,11 @@ public class UserServiceImpl extends ErrorHandlerTemplateImpl implements UserSer
         return converter.toEntity(userRequest, User.class);
     }
 
-    public User buildAdminOrManagerUser(UserRequest userRequest) {
+    private User buildAdminOrManagerUser(UserRequest userRequest) {
 
-        validatePassword(userRequest.getPassword());
-        String encodedPassword = encodePassword(userRequest);
-        userRequest.setPassword(encodedPassword);
+        User user = findUserById(userRequest.getId());
+        user.setUserRole(userRequest.getUserRole());
 
-        return converter.toEntity(userRequest, User.class);
+        return user;
     }
 }
