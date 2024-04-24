@@ -92,9 +92,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = false)
     public void deleteOrderItem(Long orderId, Long itemId) {
 
-        Order order = orderService.findOrderById(orderId);
-
-        validateOrderChangeEligibility(order);
+        validateOrderChangeEligibility(orderId);
 
         OrderItemPK id = buildOrderItemPK(orderId, itemId);
 
@@ -105,13 +103,16 @@ public class OrderItemServiceImpl implements OrderItemService {
         logger.warn("Order item removed: {}", id.getProduct());
     }
 
-    private void validateOrderChangeEligibility(Order order) {
+    private Order validateOrderChangeEligibility(Long orderId) {
 
+        Order order = orderService.findOrderById(orderId);
         boolean isOrderPaid = order.isOrderPaid();
 
         if (isOrderPaid) {
             throw new IllegalStateException("It's not possible to modify the list of items: the order has already been paid for.");
         }
+
+        return order;
     }
 
     private OrderItemPK buildOrderItemPK(Long orderId, Long itemId) {
@@ -128,13 +129,8 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     private OrderItem buildOrderItem(OrderItemRequest orderItemRequest) {
 
-        Long orderId = orderItemRequest.getOrderId();
-        Order order = orderService.findOrderById(orderId);
-
-        validateOrderChangeEligibility(order);
-
-        Long productId = orderItemRequest.getProductId();
-        Product product = productService.findProductById(productId);
+        Order order = validateOrderChangeEligibility(orderItemRequest.getOrderId());
+        Product product = productService.findProductById(orderItemRequest.getProductId());
         int quantity = orderItemRequest.getQuantity();
         BigDecimal price = product.getPrice();
         OrderItem orderItem = new OrderItem(order, product, quantity, price);

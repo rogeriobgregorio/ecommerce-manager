@@ -27,7 +27,6 @@ public class Category implements Serializable {
 
     @Column(name = "name", unique = true)
     @NotBlank(message = "The name must not be blank.")
-    @Pattern(regexp = "^[\\p{L}\\s.]+$", message = "The name must contain only letters and spaces.")
     @Size(min = 5, max = 250, message = "The name must have between 5 and 250 characters.")
     private String name;
 
@@ -82,6 +81,7 @@ public class Category implements Serializable {
 
     @Override
     public String toString() {
-        return "[Category: id= " + id +", name= " + name + "]";
+        return "[Category: id= " + id
+                +", name= " + name + "]";
     }
 }

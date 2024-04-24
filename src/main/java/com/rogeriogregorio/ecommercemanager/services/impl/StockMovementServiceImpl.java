@@ -73,6 +73,7 @@ public class StockMovementServiceImpl implements StockMovementService {
     @Transactional(readOnly = false)
     public StockMovementResponse updateStockMovement(StockMovementRequest stockMovementRequest) {
 
+        findStockMovementById(stockMovementRequest.getId());
         StockMovement stockMovement = buildStockMovement(stockMovementRequest);
 
         errorHandler.catchException(() -> stockMovementRepository.save(stockMovement),

@@ -58,7 +58,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     public InventoryItemResponse createInventoryItem(InventoryItemRequest inventoryItemRequest) {
 
         inventoryItemRequest.setId(null);
-        InventoryItem inventoryItem = buildInventoryItem(inventoryItemRequest);
+        InventoryItem inventoryItem = buildCreateInventoryItem(inventoryItemRequest);
 
         errorHandler.catchException(() -> inventoryItemRepository.save(inventoryItem),
                 "Error while trying to create the inventory item: ");
@@ -80,7 +80,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Transactional(readOnly = false)
     public InventoryItemResponse updateInventoryItem(InventoryItemRequest inventoryItemRequest) {
 
-        InventoryItem inventoryItem = buildInventoryItem(inventoryItemRequest);
+        InventoryItem inventoryItem = buildUpdateInventoryItem(inventoryItemRequest);
 
         errorHandler.catchException(() -> inventoryItemRepository.save(inventoryItem),
                 "Error while trying to update the inventory item: ");
@@ -181,24 +181,19 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         }
     }
 
-    private Product validateItemInventory(Long inventoryItemId, Long productId) {
+    private Product validateItemInventory(InventoryItemRequest inventoryItemRequest) {
 
+        Long productId = inventoryItemRequest.getProductId();
         Product product = productService.findProductById(productId);
-        boolean isInventoryIdNull = inventoryItemId == null;
-        boolean isProductInInventory = findInventoryItemByProductId(productId);
 
-        if (isInventoryIdNull && isProductInInventory) {
+        if (isProductInInventory(productId)) {
             throw new IllegalStateException("Cannot add the item to the inventory: product already added.");
-        }
-
-        if (!isInventoryIdNull) {
-            findInventoryItemById(inventoryItemId);
         }
 
         return product;
     }
 
-    private boolean findInventoryItemByProductId(Long productId) {
+    private boolean isProductInInventory(Long productId) {
 
         return errorHandler.catchException(() -> inventoryItemRepository.existsByProduct_Id(productId),
                 "Error while trying to check the presence of the item in the inventory: ");
@@ -222,16 +217,21 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         logger.info("Inventory movement created: {}", stockMovement);
     }
 
-    private InventoryItem buildInventoryItem(InventoryItemRequest inventoryItemRequest) {
+    private InventoryItem buildCreateInventoryItem(InventoryItemRequest inventoryItemRequest) {
 
-        Long productId = inventoryItemRequest.getProductId();
-        Long id = inventoryItemRequest.getId();
-
-        Product product = validateItemInventory(id, productId);
-
+        Product product = validateItemInventory(inventoryItemRequest);
         Integer quantityInStock = inventoryItemRequest.getQuantityInStock();
         StockStatus stockStatus = inventoryItemRequest.getStockStatus();
 
-        return new InventoryItem(id, product, quantityInStock, 0, stockStatus);
+        return new InventoryItem(product, quantityInStock, 0, stockStatus);
+    }
+
+    private InventoryItem buildUpdateInventoryItem(InventoryItemRequest inventoryItemRequest) {
+
+        InventoryItem inventoryItem = findInventoryItemById(inventoryItemRequest.getId());
+        inventoryItem.setStockStatus(inventoryItemRequest.getStockStatus());
+        inventoryItem.setQuantityInStock(inventoryItemRequest.getQuantityInStock());
+
+        return inventoryItem;
     }
 }

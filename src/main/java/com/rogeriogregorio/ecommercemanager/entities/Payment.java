@@ -78,7 +78,8 @@ public class Payment implements Serializable {
 
     @Override
     public String toString() {
-        return "[Payment: id= " + id + ", moment= "
-                + moment + ", order= " + order + "]";
+        return "[Payment: id= " + id
+                + ", moment= " + moment
+                + ", order= " + order + "]";
     }
 }

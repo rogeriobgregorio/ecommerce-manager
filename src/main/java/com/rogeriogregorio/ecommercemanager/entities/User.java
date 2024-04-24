@@ -207,6 +207,10 @@ public class User implements Serializable, UserDetails {
 
     @Override
     public String toString() {
-        return "[User: id= " + id +", name= " + name + ", email= " + email + ", phone= " + phone + ", Role= " + userRole + "]";
+        return "[User: id= " + id
+                +", name= " + name
+                + ", email= " + email
+                + ", phone= " + phone
+                + ", Role= " + userRole + "]";
     }
 }

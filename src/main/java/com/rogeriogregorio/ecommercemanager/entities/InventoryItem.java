@@ -41,17 +41,17 @@ public class InventoryItem implements Serializable {
     public InventoryItem() {
     }
 
-    public InventoryItem(Long id, Product product, Integer quantityInStock, StockStatus stockStatus) {
-        this.id = id;
-        this.product = product;
-        this.quantityInStock = quantityInStock;
-        setStockStatus(stockStatus);
-    }
-
     public InventoryItem(Product product, Integer quantityInStock, Integer quantitySold, StockStatus stockStatus) {
         this.product = product;
         this.quantityInStock = quantityInStock;
         this.quantitySold = quantitySold;
+        setStockStatus(stockStatus);
+    }
+
+    public InventoryItem(Long id, Product product, Integer quantityInStock, StockStatus stockStatus) {
+        this.id = id;
+        this.product = product;
+        this.quantityInStock = quantityInStock;
         setStockStatus(stockStatus);
     }
 
@@ -123,7 +123,10 @@ public class InventoryItem implements Serializable {
 
     @Override
     public String toString() {
-        return "[Inventory Item: id= " + id + ", product= " + product + ", quantityInStock= " +
-                quantityInStock + ", quantitySold= " + quantitySold + ", stockStatus= " + stockStatus + "]";
+        return "[Inventory Item: id= " + id
+                + ", product= " + product
+                + ", quantityInStock= " + quantityInStock
+                + ", quantitySold= " + quantitySold
+                + ", stockStatus= " + stockStatus + "]";
     }
 }

@@ -106,6 +106,8 @@ public class OrderItem implements Serializable {
 
     @Override
     public String toString() {
-        return "[Order Item: id= " + id + ", quantity= " + quantity +", price= " + price +"]";
+        return "[Order Item: id= " + id
+                + ", quantity= " + quantity
+                +", price= " + price +"]";
     }
 }

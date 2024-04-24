@@ -141,7 +141,10 @@ public class DiscountCoupon implements Serializable {
 
     @Override
     public String toString() {
-        return "[DiscountCouponRepository: id= " + id + ", code= " + code + ", discount= " + discount
-                + ", validFrom=" + validFrom + ", validUntil=" + validUntil + "]";
+        return "[DiscountCoupon: id= " + id
+                + ", code= " + code
+                + ", discount= " + discount
+                + ", validFrom=" + validFrom
+                + ", validUntil=" + validUntil + "]";
     }
 }

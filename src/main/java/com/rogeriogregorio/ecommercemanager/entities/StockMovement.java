@@ -120,7 +120,10 @@ public class StockMovement implements Serializable {
 
     @Override
     public String toString() {
-        return "[Stock Movement: id= " + id + ", moment= " + moment + ", inventoryItem= " + inventoryItem +
-                ", movementType= " + movementType + ", quantityMoved= " + quantityMoved +"]";
+        return "[Stock Movement: id= " + id
+                + ", moment= " + moment
+                + ", inventoryItem= " + inventoryItem
+                + ", movementType= " + movementType
+                + ", quantityMoved= " + quantityMoved +"]";
     }
 }

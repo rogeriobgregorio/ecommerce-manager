@@ -143,7 +143,11 @@ public class Address implements Serializable {
 
     @Override
     public String toString() {
-        return "[Address: id= " + id + ", street= " + street + ", city= " + city + ", " +
-                "state= " + state +", cep= " + cep + ", country= " + country + "]";
+        return "[Address: id= " + id
+                + ", street= " + street
+                + ", city= " + city
+                + ", state= " + state
+                +", cep= " + cep
+                + ", country= " + country + "]";
     }
 }

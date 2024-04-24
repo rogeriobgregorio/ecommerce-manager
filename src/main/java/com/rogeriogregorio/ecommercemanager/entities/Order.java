@@ -185,7 +185,10 @@ public class Order implements Serializable {
 
     @Override
     public String toString() {
-        return "[Order: id= " + id + ", moment= " + moment + ", orderStatus= " + orderStatus
-                + ", client= " + client + ", discount coupon= " + discountCoupon + "]";
+        return "[Order: id= " + id
+                + ", moment= " + moment
+                + ", orderStatus= " + orderStatus
+                + ", client= " + client
+                + ", discount coupon= " + discountCoupon + "]";
     }
 }
