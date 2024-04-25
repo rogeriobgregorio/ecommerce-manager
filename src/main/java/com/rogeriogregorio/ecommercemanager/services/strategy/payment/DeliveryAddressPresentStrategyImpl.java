@@ -1,7 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.services.strategy.payment;
 
 import com.rogeriogregorio.ecommercemanager.entities.Order;
-import com.rogeriogregorio.ecommercemanager.services.PaymentStrategy;
+import com.rogeriogregorio.ecommercemanager.services.strategy.PaymentStrategy;
 import org.springframework.stereotype.Component;
 
 @Component

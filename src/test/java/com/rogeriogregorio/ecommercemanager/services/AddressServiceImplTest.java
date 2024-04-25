@@ -197,7 +197,7 @@ class AddressServiceImplTest {
         when(converter.toResponse(address, AddressResponse.class)).thenReturn(expectedResponse);
 
         // Act
-        AddressResponse actualResponse = addressService.findAddressResponseById(1L);
+        AddressResponse actualResponse = addressService.findAddressById(1L);
 
         // Assert
         assertNotNull(actualResponse, "AddressResponse should not be null");
@@ -214,7 +214,7 @@ class AddressServiceImplTest {
         when(addressRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Assert and Assert
-        assertThrows(NotFoundException.class, () -> addressService.findAddressResponseById(1L), "Expected NotFoundException for non-existent address");
+        assertThrows(NotFoundException.class, () -> addressService.findAddressById(1L), "Expected NotFoundException for non-existent address");
 
         verify(addressRepository, times(1)).findById(1L);
     }

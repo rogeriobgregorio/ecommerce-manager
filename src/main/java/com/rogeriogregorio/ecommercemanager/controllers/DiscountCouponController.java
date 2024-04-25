@@ -44,7 +44,7 @@ public class DiscountCouponController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(discountCouponService.findDiscountCouponResponseById(id));
+                .body(discountCouponService.findDiscountCouponById(id));
     }
 
     @PutMapping(value = "/discount-coupons")

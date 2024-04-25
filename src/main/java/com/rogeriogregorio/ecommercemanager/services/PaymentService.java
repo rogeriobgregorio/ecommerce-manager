@@ -13,7 +13,7 @@ public interface PaymentService {
 
     PaymentResponse createPayment(PaymentRequest paymentRequest);
 
-    PaymentResponse findPaymentResponseById(Long id);
+    PaymentResponse findPaymentById(Long id);
 
     void deletePayment(Long id);
 }

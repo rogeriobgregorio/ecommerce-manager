@@ -44,7 +44,7 @@ public class CategoryController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(categoryService.findCategoryResponseById(id));
+                .body(categoryService.findCategoryById(id));
     }
 
     @PutMapping(value = "/categories")

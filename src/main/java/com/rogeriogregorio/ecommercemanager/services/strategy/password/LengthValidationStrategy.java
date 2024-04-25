@@ -1,6 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.services.strategy.password;
 
-import com.rogeriogregorio.ecommercemanager.services.PasswordStrategy;
+import com.rogeriogregorio.ecommercemanager.services.strategy.PasswordStrategy;
 import org.springframework.stereotype.Component;
 
 @Component

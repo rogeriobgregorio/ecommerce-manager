@@ -9,6 +9,8 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.services.*;
+import com.rogeriogregorio.ecommercemanager.services.strategy.OrderStrategy;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,7 +29,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final UserService userService;
     private final DiscountCouponService discountCouponService;
-    private final List<OrderStatusStrategy> validators;
+    private final List<OrderStrategy> validators;
     private final ErrorHandlerTemplate errorHandler;
     private final Converter converter;
     private final Logger logger = LogManager.getLogger();
@@ -35,7 +37,7 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     public OrderServiceImpl(OrderRepository orderRepository, UserService userService,
                             DiscountCouponService discountCouponService,
-                            List<OrderStatusStrategy> validators,
+                            List<OrderStrategy> validators,
                             ErrorHandlerTemplate errorHandler, Converter converter) {
 
         this.orderRepository = orderRepository;
@@ -88,7 +90,6 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public OrderResponse updateOrder(OrderRequest orderRequest) {
 
-        findOrderById(orderRequest.getId());
         Order order = buildUpdateOrder(orderRequest);
 
         errorHandler.catchException(() -> orderRepository.save(order),
@@ -140,7 +141,7 @@ public class OrderServiceImpl implements OrderService {
 
     private void validateOrderStatusChange(OrderRequest orderRequest, Order order) {
 
-        for (OrderStatusStrategy validator : validators) {
+        for (OrderStrategy validator : validators) {
             validator.validate(orderRequest, order);
         }
     }
@@ -183,10 +184,9 @@ public class OrderServiceImpl implements OrderService {
         Order order = findOrderById(orderRequest.getId());
         order.setMoment(Instant.now());
 
-        boolean isOrderStatusRequestCanceled = orderRequest.getOrderStatus() == OrderStatus.CANCELED;
-        OrderStatus orderStatus = isOrderStatusRequestCanceled ? OrderStatus.CANCELED : OrderStatus.WAITING_PAYMENT;
-
-        order.setOrderStatus(orderStatus);
+        if (orderRequest.getOrderStatus() == OrderStatus.CANCELED) {
+            order.setOrderStatus(orderRequest.getOrderStatus());
+        }
 
         String code = orderRequest.getDiscountCouponCode();
         DiscountCoupon discountCoupon = validateDiscountCoupon(code);

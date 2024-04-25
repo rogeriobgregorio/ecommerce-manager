@@ -6,7 +6,7 @@ import com.rogeriogregorio.ecommercemanager.entities.Category;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.CategoryRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
-import com.rogeriogregorio.ecommercemanager.services.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,7 +39,7 @@ public class CategoryServiceImpl implements CategoryService {
     public Page<CategoryResponse> findAllCategories(Pageable pageable) {
 
         return errorHandler.catchException(() -> categoryRepository.findAll(pageable),
-                "Error while trying to fetch all categories: ")
+                        "Error while trying to fetch all categories: ")
                 .map(category -> converter.toResponse(category, CategoryResponse.class));
     }
 
@@ -57,10 +57,10 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public CategoryResponse findCategoryResponseById(Long id) {
+    public CategoryResponse findCategoryById(Long id) {
 
         return errorHandler.catchException(() -> categoryRepository.findById(id),
-                "Error while trying to find the category by ID: ")
+                        "Error while trying to find the category by ID: ")
                 .map(category -> converter.toResponse(category, CategoryResponse.class))
                 .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + "."));
     }
@@ -75,7 +75,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = false)
     public CategoryResponse updateCategory(CategoryRequest categoryRequest) {
 
-        findCategoryById(categoryRequest.getId());
+        isCategoryExists(categoryRequest.getId());
         Category category = buildCategory(categoryRequest);
 
         errorHandler.catchException(() -> categoryRepository.save(category),
@@ -88,28 +88,31 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = false)
     public void deleteCategory(Long id) {
 
-        Category category = findCategoryById(id);
+        isCategoryExists(id);
 
         errorHandler.catchException(() -> {
             categoryRepository.deleteById(id);
             return null;
         }, "Error while trying to delete the category: ");
-        logger.warn("Category removed: {}", category);
+        logger.warn("Category removed with ID: {}", id);
     }
 
     @Transactional(readOnly = true)
     public Page<CategoryResponse> findCategoryByName(String name, Pageable pageable) {
 
         return errorHandler.catchException(() -> categoryRepository.findByName(name, pageable),
-                "Error while trying to fetch category by name: ")
+                        "Error while trying to fetch category by name: ")
                 .map(category -> converter.toResponse(category, CategoryResponse.class));
     }
 
-    private Category findCategoryById(Long id) {
+    private void isCategoryExists(Long id) {
 
-        return errorHandler.catchException(() -> categoryRepository.findById(id),
-                "Error while trying to find the category by ID: ")
-                .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + "."));
+        boolean isCategoryExists = errorHandler.catchException(() -> categoryRepository.existsById(id),
+                "Error while trying to check the presence of the category: ");
+
+        if (!isCategoryExists) {
+            throw new NotFoundException("Category not found with ID: " + id + ".");
+        }
     }
 
     private Category buildCategory(CategoryRequest categoryRequest) {

@@ -14,7 +14,7 @@ public interface StockMovementService {
 
     StockMovementResponse createStockMovement(StockMovementRequest stockMovementRequest);
 
-    StockMovementResponse findStockMovementResponseById(Long id);
+    StockMovementResponse findStockMovementById(Long id);
 
     StockMovementResponse updateStockMovement(StockMovementRequest stockMovementRequest);
 

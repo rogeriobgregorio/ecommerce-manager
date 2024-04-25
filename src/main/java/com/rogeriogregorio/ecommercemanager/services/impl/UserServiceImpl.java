@@ -7,8 +7,8 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.PasswordException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
-import com.rogeriogregorio.ecommercemanager.services.ErrorHandlerTemplate;
-import com.rogeriogregorio.ecommercemanager.services.PasswordStrategy;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.strategy.PasswordStrategy;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
         return errorHandler.catchException(() -> userRepository.findById(id),
                 "Error while trying to fetch the user by ID: " + id)
                 .map(user -> converter.toResponse(user, UserResponse.class))
-                .orElseThrow(() -> new NotFoundException("User not found with ID: " + id + "."));
+                .orElseThrow(() -> new NotFoundException("User response not found with ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = false)
     public UserResponse updateUser(UserRequest userRequest) {
 
-        findUserById(userRequest.getId());
+        isUserExists(userRequest.getId());
         User user = buildUser(userRequest);
 
         errorHandler.catchException(() -> userRepository.save(user),
@@ -100,13 +100,13 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = false)
     public void deleteUser(Long id) {
 
-        User user = findUserById(id);
+        isUserExists(id);
 
         errorHandler.catchException(() -> {
             userRepository.deleteById(id);
             return null;
         }, "Error while trying to delete the user: ");
-        logger.warn("User removed: {}", user);
+        logger.warn("User removed: {}", id);
     }
 
     @Transactional(readOnly = true)
@@ -122,6 +122,16 @@ public class UserServiceImpl implements UserService {
         return errorHandler.catchException(() -> userRepository.findById(id),
                 "Error while trying to fetch the user by ID: " + id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id + "."));
+    }
+
+    private void isUserExists(Long id) {
+
+        boolean isUserExists = errorHandler.catchException(() -> userRepository.existsById(id),
+                "Error while trying to check the presence of the user: ");
+
+        if (!isUserExists) {
+            throw new NotFoundException("User not found with ID: " + id + ".");
+        }
     }
 
     public void saveUserAddress(User user) {

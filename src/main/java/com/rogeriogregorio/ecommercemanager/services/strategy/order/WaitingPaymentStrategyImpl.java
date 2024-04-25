@@ -3,11 +3,11 @@ package com.rogeriogregorio.ecommercemanager.services.strategy.order;
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderRequest;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
-import com.rogeriogregorio.ecommercemanager.services.OrderStatusStrategy;
+import com.rogeriogregorio.ecommercemanager.services.strategy.OrderStrategy;
 import org.springframework.stereotype.Component;
 
 @Component
-public class WaitingPaymentStatusStrategyImpl implements OrderStatusStrategy {
+public class WaitingPaymentStrategyImpl implements OrderStrategy {
 
     @Override
     public void validate(OrderRequest orderRequest, Order order) {

@@ -9,6 +9,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.PaymentServiceImpl;
+import com.rogeriogregorio.ecommercemanager.services.strategy.PaymentStrategy;
 import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -236,7 +237,7 @@ class PaymentServiceImplTest {
         when(paymentRepository.findById(1L)).thenReturn(Optional.of(payment));
 
         // Act
-        PaymentResponse actualResponse = paymentService.findPaymentResponseById(1L);
+        PaymentResponse actualResponse = paymentService.findPaymentById(1L);
 
         // Assert
         assertNotNull(actualResponse, "paymentResponse should not be null");
@@ -253,7 +254,7 @@ class PaymentServiceImplTest {
         when(paymentRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(NotFoundException.class, () -> paymentService.findPaymentResponseById(1L));
+        assertThrows(NotFoundException.class, () -> paymentService.findPaymentById(1L));
 
         verify(paymentRepository, times(1)).findById(1L);
     }

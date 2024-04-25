@@ -174,7 +174,7 @@ class CategoryServiceImplTest {
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
 
         // Act
-        CategoryResponse actualResponse = categoryService.findCategoryResponseById(1L);
+        CategoryResponse actualResponse = categoryService.findCategoryById(1L);
 
         // Assert
         assertNotNull(actualResponse, "categoryResponse should not be null");
@@ -191,7 +191,7 @@ class CategoryServiceImplTest {
         when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(NotFoundException.class, () -> categoryService.findCategoryResponseById(1L), "Expected NotFoundException for non-existent category");
+        assertThrows(NotFoundException.class, () -> categoryService.findCategoryById(1L), "Expected NotFoundException for non-existent category");
 
         verify(categoryRepository, times(1)).findById(1L);
     }

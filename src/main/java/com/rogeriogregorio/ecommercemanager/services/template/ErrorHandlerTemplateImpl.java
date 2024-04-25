@@ -6,7 +6,6 @@ import com.rogeriogregorio.ecommercemanager.exceptions.ConverterException;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.exceptions.TokenException;
-import com.rogeriogregorio.ecommercemanager.services.ErrorHandlerTemplate;
 import org.modelmapper.MappingException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;

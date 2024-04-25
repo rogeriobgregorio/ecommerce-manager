@@ -6,7 +6,7 @@ import com.rogeriogregorio.ecommercemanager.entities.*;
 import com.rogeriogregorio.ecommercemanager.entities.enums.MovementType;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
-import com.rogeriogregorio.ecommercemanager.services.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.StockMovementService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -62,7 +62,7 @@ public class StockMovementServiceImpl implements StockMovementService {
     }
 
     @Transactional(readOnly = true)
-    public StockMovementResponse findStockMovementResponseById(Long id) {
+    public StockMovementResponse findStockMovementById(Long id) {
 
         return errorHandler.catchException(() -> stockMovementRepository.findById(id),
                 "Error while trying to fetch inventory movement by ID: " + id)
@@ -73,7 +73,7 @@ public class StockMovementServiceImpl implements StockMovementService {
     @Transactional(readOnly = false)
     public StockMovementResponse updateStockMovement(StockMovementRequest stockMovementRequest) {
 
-        findStockMovementById(stockMovementRequest.getId());
+        isStockMovementExists(stockMovementRequest.getId());
         StockMovement stockMovement = buildStockMovement(stockMovementRequest);
 
         errorHandler.catchException(() -> stockMovementRepository.save(stockMovement),
@@ -86,20 +86,23 @@ public class StockMovementServiceImpl implements StockMovementService {
     @Transactional(readOnly = false)
     public void deleteStockMovement(Long id) {
 
-        StockMovement stockMovement = findStockMovementById(id);
+        isStockMovementExists(id);
 
         errorHandler.catchException(() -> {
             stockMovementRepository.deleteById(id);
             return null;
         }, "Error while trying to delete inventory movement: ");
-        logger.info("Inventory movement removed: {}", stockMovement);
+        logger.info("Inventory movement removed: {}", id);
     }
 
-    private StockMovement findStockMovementById(Long id) {
+    private void isStockMovementExists(Long id) {
 
-        return errorHandler.catchException(() -> stockMovementRepository.findById(id),
-                "Error while trying to fetch inventory movement by ID: ")
-                .orElseThrow(() -> new NotFoundException("Inventory movement not found with ID: " + id + "."));
+        boolean isStockMovementExists = errorHandler.catchException(() -> stockMovementRepository.existsById(id),
+                "Error while trying to check the presence of the stock movement: ");
+
+        if (!isStockMovementExists) {
+            throw new NotFoundException("Stock Movement not found with ID: " + id + ".");
+        }
     }
 
     public void updateStockMovementExit(Order order) {

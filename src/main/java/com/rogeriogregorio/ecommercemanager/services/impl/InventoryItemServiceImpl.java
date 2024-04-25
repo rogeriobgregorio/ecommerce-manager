@@ -9,7 +9,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.InsufficientStockExceptio
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.InventoryItemRepository;
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
-import com.rogeriogregorio.ecommercemanager.services.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -74,7 +74,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         return errorHandler.catchException(() -> inventoryItemRepository.findById(id),
                         "Error while trying to find the inventory item by ID: ")
                 .map(inventoryItem -> converter.toResponse(inventoryItem, InventoryItemResponse.class))
-                .orElseThrow(() -> new NotFoundException("Inventory item not found with ID: " + id + "."));
+                .orElseThrow(() -> new NotFoundException("Inventory item response not found with ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -92,13 +92,13 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Transactional(readOnly = false)
     public void deleteInventoryItem(Long id) {
 
-        InventoryItem inventoryItem = findInventoryItemById(id);
+        isInventoryItemExists(id);
 
         errorHandler.catchException(() -> {
             inventoryItemRepository.deleteById(id);
             return null;
         }, "Error while trying to delete the inventory item: ");
-        logger.warn("Inventory item removed: {}", inventoryItem);
+        logger.warn("Inventory item removed: {}", id);
     }
 
     public InventoryItem findInventoryItemById(Long id) {
@@ -186,17 +186,29 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         Long productId = inventoryItemRequest.getProductId();
         Product product = productService.findProductById(productId);
 
-        if (isProductInInventory(productId)) {
-            throw new IllegalStateException("Cannot add the item to the inventory: product already added.");
-        }
+        isProductInInventory(product);
 
         return product;
     }
 
-    private boolean isProductInInventory(Long productId) {
+    private void isProductInInventory(Product product) {
 
-        return errorHandler.catchException(() -> inventoryItemRepository.existsByProduct_Id(productId),
+        boolean isProductInInventory = errorHandler.catchException(() -> inventoryItemRepository.existsByProduct(product),
                 "Error while trying to check the presence of the item in the inventory: ");
+
+        if (isProductInInventory) {
+            throw new IllegalStateException("Cannot add the item to the inventory: product already added.");
+        }
+    }
+
+    private void isInventoryItemExists(Long id) {
+
+        boolean isInventoryItemExists = errorHandler.catchException(() -> inventoryItemRepository.existsById(id),
+                "Error while trying to check the presence of the inventory item: ");
+
+        if (!isInventoryItemExists) {
+            throw new NotFoundException("Inventory item not found with ID: " + id + ".");
+        }
     }
 
     private void saveInventoryItem(InventoryItem inventoryItem) {

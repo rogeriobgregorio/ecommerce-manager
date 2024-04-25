@@ -7,7 +7,7 @@ import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.AddressRepository;
 import com.rogeriogregorio.ecommercemanager.services.AddressService;
-import com.rogeriogregorio.ecommercemanager.services.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
@@ -41,15 +41,15 @@ public class AddressServiceImpl implements AddressService {
     public Page<AddressResponse> findAllAddresses(Pageable pageable) {
 
         return errorHandler.catchException(() -> addressRepository.findAll(pageable),
-                "Error while trying to fetch all addresses: ")
+                        "Error while trying to fetch all addresses: ")
                 .map(address -> converter.toResponse(address, AddressResponse.class));
     }
 
     @Transactional(readOnly = true)
-    public AddressResponse findAddressResponseById(Long id) {
+    public AddressResponse findAddressById(Long id) {
 
         return errorHandler.catchException(() -> addressRepository.findById(id),
-                "Error while trying to find the address by ID: ")
+                        "Error while trying to find the address by ID: ")
                 .map(address -> converter.toResponse(address, AddressResponse.class))
                 .orElseThrow(() -> new NotFoundException("Address not found with ID: " + id + "."));
     }
@@ -70,7 +70,7 @@ public class AddressServiceImpl implements AddressService {
     @Transactional(readOnly = false)
     public AddressResponse updateAddress(AddressRequest addressRequest) {
 
-        findAddressById(addressRequest.getId());
+        isAddressExists(addressRequest.getId());
         Address address = buildAddress(addressRequest);
 
         errorHandler.catchException(() -> addressRepository.save(address),
@@ -83,20 +83,23 @@ public class AddressServiceImpl implements AddressService {
     @Transactional(readOnly = false)
     public void deleteAddress(Long id) {
 
-        Address address = findAddressById(id);
+        isAddressExists(id);
 
         errorHandler.catchException(() -> {
             addressRepository.deleteById(id);
             return null;
         }, "Error while trying to delete the address: ");
-        logger.warn("Address removed: {}", address);
+        logger.warn("Address removed with ID: {}", id);
     }
 
-    private Address findAddressById(Long id) {
+    private void isAddressExists(Long id) {
 
-        return errorHandler.catchException(() -> addressRepository.findById(id),
-                "Error while trying to find the address by ID:")
-                .orElseThrow(() -> new NotFoundException("Address not found with ID: {}" + id + "."));
+        boolean isAddressExists = errorHandler.catchException(() -> addressRepository.existsById(id),
+                "Error while trying to check the presence of the address: ");
+
+        if (!isAddressExists) {
+            throw new NotFoundException("Address not found with ID: " + id + ".");
+        }
     }
 
     private Address buildAddress(AddressRequest addressRequest) {

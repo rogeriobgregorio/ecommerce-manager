@@ -44,7 +44,7 @@ public class PaymentController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(paymentService.findPaymentResponseById(id));
+                .body(paymentService.findPaymentById(id));
     }
 
     @DeleteMapping(value = "/payments/{id}")

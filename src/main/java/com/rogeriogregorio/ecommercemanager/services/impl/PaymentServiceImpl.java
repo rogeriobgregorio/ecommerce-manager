@@ -8,6 +8,8 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.*;
+import com.rogeriogregorio.ecommercemanager.services.strategy.PaymentStrategy;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,7 +54,7 @@ public class PaymentServiceImpl implements PaymentService {
     public Page<PaymentResponse> findAllPayments(Pageable pageable) {
 
         return errorHandler.catchException(() -> paymentRepository.findAll(pageable),
-                "Error while trying to fetch all payments: ")
+                        "Error while trying to fetch all payments: ")
                 .map(payment -> converter.toResponse(payment, PaymentResponse.class));
     }
 
@@ -71,10 +73,10 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Transactional(readOnly = true)
-    public PaymentResponse findPaymentResponseById(Long id) {
+    public PaymentResponse findPaymentById(Long id) {
 
         return errorHandler.catchException(() -> paymentRepository.findById(id),
-                "Error while trying to find the payment by ID: ")
+                        "Error while trying to find the payment by ID: ")
                 .map(payment -> converter.toResponse(payment, PaymentResponse.class))
                 .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + "."));
     }
@@ -82,20 +84,23 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional(readOnly = false)
     public void deletePayment(Long id) {
 
-        Payment payment = findPaymentById(id);
+        isPaymentExists(id);
 
         errorHandler.catchException(() -> {
             paymentRepository.deleteById(id);
             return null;
         }, "Error while trying to delete the payment: ");
-        logger.warn("Payment removed: {}", payment);
+        logger.warn("Payment removed: {}", id);
     }
 
-    private Payment findPaymentById(Long id) {
+    private void isPaymentExists(Long id) {
 
-        return errorHandler.catchException(() -> paymentRepository.findById(id),
-                "Error while trying to find the payment by ID:")
-                .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + "."));
+        boolean isPaymentExists = errorHandler.catchException(() -> paymentRepository.existsById(id),
+                "Error while trying to check the presence of the payment:");
+
+        if (!isPaymentExists) {
+            throw new NotFoundException("Payment not found with ID: " + id + ".");
+        }
     }
 
     private void validateOrder(Order order) {

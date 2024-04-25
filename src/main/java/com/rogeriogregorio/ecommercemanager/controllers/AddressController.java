@@ -44,7 +44,7 @@ public class AddressController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(addressService.findAddressResponseById(id));
+                .body(addressService.findAddressById(id));
     }
 
     @PutMapping(value = "/addresses")

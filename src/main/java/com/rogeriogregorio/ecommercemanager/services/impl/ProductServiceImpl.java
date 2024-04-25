@@ -7,7 +7,7 @@ import com.rogeriogregorio.ecommercemanager.entities.Product;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
-import com.rogeriogregorio.ecommercemanager.services.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
@@ -67,13 +67,13 @@ public class ProductServiceImpl implements ProductService {
         return errorHandler.catchException(() -> productRepository.findById(id),
                 "Error while trying to create the product: ")
                 .map(product -> converter.toResponse(product, ProductResponse.class))
-                .orElseThrow(() -> new NotFoundException("Product not found with ID: " + id + "."));
+                .orElseThrow(() -> new NotFoundException("Product response not found with ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
     public ProductResponse updateProduct(ProductRequest productRequest) {
 
-        findProductById(productRequest.getId());
+        isProductExists(productRequest.getId());
         Product product = buildProduct(productRequest);
 
         errorHandler.catchException(() -> productRepository.save(product),
@@ -86,13 +86,13 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = false)
     public void deleteProduct(Long id) {
 
-        Product product = findProductById(id);
+        isProductExists(id);
 
         errorHandler.catchException(() -> {
             productRepository.deleteById(id);
             return null;
         }, "Error while trying to delete the product: ");
-        logger.warn("Product removed: {}", product);
+        logger.warn("Product removed: {}", id);
     }
 
     @Transactional(readOnly = true)
@@ -108,6 +108,16 @@ public class ProductServiceImpl implements ProductService {
         return errorHandler.catchException(() -> productRepository.findById(id),
                 "Error while trying to fetch the product by ID: ")
                 .orElseThrow(() -> new NotFoundException("Product not found with ID: " + id + "."));
+    }
+
+    private void isProductExists(Long id) {
+
+        boolean isProductExists = errorHandler.catchException(() -> productRepository.existsById(id),
+                "Error while trying to check the presence of the product: ");
+
+        if (!isProductExists) {
+            throw new NotFoundException("Product not found with ID: " + id + ".");
+        }
     }
 
     private Product buildProduct(ProductRequest productRequest) {

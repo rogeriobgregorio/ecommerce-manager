@@ -9,6 +9,7 @@ import com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderItemRepository;
 import com.rogeriogregorio.ecommercemanager.services.*;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -106,9 +107,8 @@ public class OrderItemServiceImpl implements OrderItemService {
     private Order validateOrderChangeEligibility(Long orderId) {
 
         Order order = orderService.findOrderById(orderId);
-        boolean isOrderPaid = order.isOrderPaid();
 
-        if (isOrderPaid) {
+        if (order.isOrderPaid()) {
             throw new IllegalStateException("It's not possible to modify the list of items: the order has already been paid for.");
         }
 

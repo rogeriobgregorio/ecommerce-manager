@@ -14,7 +14,7 @@ public interface DiscountCouponService {
 
     DiscountCouponResponse createDiscountCoupon(DiscountCouponRequest discountCouponRequest);
 
-    DiscountCouponResponse findDiscountCouponResponseById(Long id);
+    DiscountCouponResponse findDiscountCouponById(Long id);
 
     DiscountCouponResponse updateDiscountCoupon(DiscountCouponRequest discountCouponRequest);
 

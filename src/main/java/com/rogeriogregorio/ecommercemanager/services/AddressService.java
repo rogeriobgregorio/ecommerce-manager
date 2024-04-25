@@ -13,7 +13,7 @@ public interface AddressService {
 
     AddressResponse createAddress(AddressRequest addressRequest);
 
-    AddressResponse findAddressResponseById(Long id);
+    AddressResponse findAddressById(Long id);
 
     AddressResponse updateAddress(AddressRequest addressRequest);
 
