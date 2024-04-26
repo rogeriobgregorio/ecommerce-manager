@@ -2,6 +2,8 @@ package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -25,6 +27,7 @@ public class Notification implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
     @Column(name = "valid_from")
     @NotNull(message = "The notification's validity start date cannot be null")
+    @FutureOrPresent(message = "The notification's validity start date must not be earlier than today's date")
     private Instant validFrom;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")

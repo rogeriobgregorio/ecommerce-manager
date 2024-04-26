@@ -3,9 +3,7 @@ package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -39,6 +37,7 @@ public class DiscountCoupon implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
     @Column(name = "valid_from")
     @NotNull(message = "The coupon's validity start date cannot be null")
+    @FutureOrPresent(message = "The coupon's validity start date must not be earlier than today's date")
     private Instant validFrom;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
