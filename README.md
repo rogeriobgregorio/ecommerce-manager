@@ -105,3 +105,8 @@ gerenciamento de:
 | Detalhes de um cupom de desconto específico | GET         | /api/v1/discount-coupons{id}           | ADMIN, MANAGER, CLIENT |
 | Atualizar cupom de desconto                 | PUT         | /api/v1/discount-coupons               | ADMIN, MANAGER         |
 | Excluir cupom de desconto                   | DELETE      | /api/v1/discount-coupons{id}           | ADMIN, MANAGER         |
+| Listar notificações                         | GET         | /api/v1/notifications                  | ADMIN, MANAGER, CLIENT |
+| Adicionar notificação                       | POST        | /api/v1/notifications                  | ADMIN, MANAGER, CLIENT |
+| Atualizar notificação                       | PUT         | /api/v1/notifications                  | ADMIN, MANAGER, CLIENT |
+| Excluir notificação                         | DELETE      | /api/v1/notifications/{id}             | ADMIN, MANAGER, CLIENT |
+| Detalhes de uma notificação específica      | GET         | /api/v1/notifications/{id}             | ADMIN, MANAGER, CLIENT |
