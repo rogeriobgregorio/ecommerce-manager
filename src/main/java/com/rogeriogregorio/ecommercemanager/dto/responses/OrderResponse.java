@@ -110,7 +110,7 @@ public class OrderResponse implements Serializable {
         return total;
     }
 
-    public BigDecimal getTotalWithDiscount() {
+    public BigDecimal getTotalWithDiscountCoupon() {
 
         BigDecimal total = getTotal();
 

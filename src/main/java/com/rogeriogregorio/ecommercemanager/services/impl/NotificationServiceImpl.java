@@ -1,10 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.services.impl;
 
-import com.rogeriogregorio.ecommercemanager.dto.requests.DiscountCouponRequest;
 import com.rogeriogregorio.ecommercemanager.dto.requests.NotificationRequest;
-import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.NotificationResponse;
-import com.rogeriogregorio.ecommercemanager.entities.Address;
 import com.rogeriogregorio.ecommercemanager.entities.Notification;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.NotificationRepository;
@@ -16,9 +13,11 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
+@Service
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;

@@ -146,11 +146,11 @@ public class Order implements Serializable {
         return total;
     }
 
-    public BigDecimal getTotalWithDiscount() {
+    public BigDecimal getTotalWithDiscountCoupon() {
 
         BigDecimal total = getTotal();
 
-        if (isDiscountCouponPresent()) {
+        if (isDiscountCouponPresent() && discountCoupon.isValid()) {
             BigDecimal discount = discountCoupon.getDiscount();
             BigDecimal discountPercentage = discount.divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
             BigDecimal discountValue = total.multiply(discountPercentage);

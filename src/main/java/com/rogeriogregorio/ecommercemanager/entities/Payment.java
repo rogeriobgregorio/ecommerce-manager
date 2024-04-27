@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -61,6 +62,13 @@ public class Payment implements Serializable {
 
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    public String getAmountPaid() {
+
+        BigDecimal amountPaid = order.getTotalWithDiscountCoupon();
+
+        return "Amount paid: " + amountPaid + ".";
     }
 
     @Override

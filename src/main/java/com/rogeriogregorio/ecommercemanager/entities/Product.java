@@ -11,6 +11,7 @@ import org.hibernate.validator.constraints.URL;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -46,6 +47,10 @@ public class Product implements Serializable {
     @URL(message = "\"The image URL must be valid.\"")
     private String imgUrl;
 
+    @ManyToOne
+    @JoinColumn(name = "product_discount_id")
+    private ProductDiscount productDiscount;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "tb_product_category",
             joinColumns = @JoinColumn(name = "product_id"),
@@ -65,12 +70,13 @@ public class Product implements Serializable {
         this.imgUrl = imgUrl;
     }
 
-    public Product(Long id, String name, String description, Double price, String imgUrl) {
+    public Product(Long id, String name, String description, Double price, String imgUrl, ProductDiscount productDiscount) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = BigDecimal.valueOf(price);
         this.imgUrl = imgUrl;
+        this.productDiscount = productDiscount;
     }
 
     public Long getId() {
@@ -115,6 +121,24 @@ public class Product implements Serializable {
 
     public Set<Category> getCategories() {
         return categories;
+    }
+
+    public boolean isDiscountPresent() {
+        return productDiscount != null;
+    }
+
+    public BigDecimal getPriceWithDiscount() {
+
+        BigDecimal productPrice = getPrice();
+
+        if (isDiscountPresent() && productDiscount.isValid()) {
+            BigDecimal discount = productDiscount.getDiscount();
+            BigDecimal discountPercentage = discount.divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
+            BigDecimal discountValue = productPrice.multiply(discountPercentage);
+            productPrice = productPrice.subtract(discountValue);
+        }
+
+        return productPrice.setScale(2, RoundingMode.HALF_UP);
     }
 
     @JsonIgnore

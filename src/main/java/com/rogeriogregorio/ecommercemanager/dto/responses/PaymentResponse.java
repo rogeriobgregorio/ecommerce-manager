@@ -53,7 +53,7 @@ public class PaymentResponse implements Serializable {
 
     public String getAmountPaid() {
 
-        BigDecimal amountPaid = order.getTotalWithDiscount();
+        BigDecimal amountPaid = order.getTotalWithDiscountCoupon();
 
         return "Amount paid: " + amountPaid + ".";
     }

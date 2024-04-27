@@ -132,7 +132,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         Order order = validateOrderChangeEligibility(orderItemRequest.getOrderId());
         Product product = productService.findProductById(orderItemRequest.getProductId());
         int quantity = orderItemRequest.getQuantity();
-        BigDecimal price = product.getPrice();
+        BigDecimal price = product.isDiscountPresent() ? product.getPriceWithDiscount() : product.getPrice();
         OrderItem orderItem = new OrderItem(order, product, quantity, price);
 
         inventoryItemService.isItemAvailable(orderItem);
