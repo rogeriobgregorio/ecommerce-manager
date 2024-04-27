@@ -6,25 +6,34 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 
-public class DiscountCouponResponse implements Serializable {
+public class ProductDiscountResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     private Long id;
-    private String code;
+    private String name;
     private BigDecimal discount;
     private Instant validFrom;
     private Instant validUntil;
 
-    public DiscountCouponResponse() {
+    public ProductDiscountResponse() {
     }
 
-    public DiscountCouponResponse(Long id, String code, BigDecimal discount,
-                                  Instant validFrom, Instant validUntil) {
+    public ProductDiscountResponse(String name, BigDecimal discount,
+                                   Instant validFrom, Instant validUntil) {
+
+        this.name = name;
+        this.discount = discount;
+        this.validFrom = validFrom;
+        this.validUntil = validUntil;
+    }
+
+    public ProductDiscountResponse(Long id, String name, BigDecimal discount,
+                                   Instant validFrom, Instant validUntil) {
 
         this.id = id;
-        this.code = code;
+        this.name = name;
         this.discount = discount;
         this.validFrom = validFrom;
         this.validUntil = validUntil;
@@ -38,12 +47,12 @@ public class DiscountCouponResponse implements Serializable {
         this.id = id;
     }
 
-    public String getCode() {
-        return code;
+    public String getName() {
+        return name;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public BigDecimal getDiscount() {
@@ -86,7 +95,7 @@ public class DiscountCouponResponse implements Serializable {
         long hours = Duration.between(now, validUntil).toHoursPart();
         long minutes = Duration.between(now, validUntil).toMinutesPart();
 
-        String expiredMessage = "The coupon has expired.";
+        String expiredMessage = "The discount has expired.";
         String remainingTime = String.format("%d days, %d hours, %d minutes", days, hours, minutes);
 
         return isExpired ? expiredMessage : remainingTime;
