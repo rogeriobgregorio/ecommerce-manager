@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rogeriogregorio.ecommercemanager.entities.Category;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.OrderItem;
+import com.rogeriogregorio.ecommercemanager.entities.ProductDiscount;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,18 +23,21 @@ public class ProductResponse implements Serializable {
     private String description;
     private BigDecimal price;
     private String imgUrl;
+    private ProductDiscount productDiscount;
     private Set<Category> categories = new HashSet<>();
     private Set<OrderItem> items = new HashSet<>();
 
     public ProductResponse() {
     }
 
-    public ProductResponse(Long id, String name, String description, Double price, String imgUrl) {
+    public ProductResponse(Long id, String name, String description, Double price,
+                           String imgUrl, ProductDiscount productDiscount) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = BigDecimal.valueOf(price);
         this.imgUrl = imgUrl;
+        this.productDiscount = productDiscount;
     }
 
     public Long getId() {
@@ -79,8 +84,34 @@ public class ProductResponse implements Serializable {
         return categories;
     }
 
+    public ProductDiscount getProductDiscount() {
+        return productDiscount;
+    }
+
+    public void setProductDiscount(ProductDiscount productDiscount) {
+        this.productDiscount = productDiscount;
+    }
+
     public void setCategories(Set<Category> categories) {
         this.categories = categories;
+    }
+
+    public boolean isDiscountPresent() {
+        return productDiscount != null;
+    }
+
+    public BigDecimal getPriceWithDiscount() {
+
+        BigDecimal productPrice = getPrice();
+
+        if (isDiscountPresent() && productDiscount.isValid()) {
+            BigDecimal discount = productDiscount.getDiscount();
+            BigDecimal discountPercentage = discount.divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
+            BigDecimal discountValue = productPrice.multiply(discountPercentage);
+            productPrice = productPrice.subtract(discountValue);
+        }
+
+        return productPrice.setScale(2, RoundingMode.HALF_UP);
     }
 
     @JsonIgnore

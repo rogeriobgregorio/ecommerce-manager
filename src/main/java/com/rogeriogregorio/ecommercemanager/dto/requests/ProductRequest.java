@@ -15,13 +15,15 @@ public class ProductRequest implements Serializable {
     private String description;
     private BigDecimal price;
     private String imgUrl;
+    private Long discountId;
     private List<Long> categoryIdList;
 
     public ProductRequest() {
     }
 
-    public ProductRequest(String name, String description,
-                          Double price, String imgUrl, List<Long> categoryIdList) {
+    public ProductRequest(String name, String description, Double price,
+                          String imgUrl,  List<Long> categoryIdList) {
+
         this.name = name;
         this.description = description;
         this.price = BigDecimal.valueOf(price);
@@ -29,13 +31,15 @@ public class ProductRequest implements Serializable {
         this.categoryIdList = categoryIdList;
     }
 
-    public ProductRequest(Long id, String name, String description,
-                          Double price, String imgUrl, List<Long> categoryIdList) {
+    public ProductRequest(Long id, String name, String description, Double price,
+                          String imgUrl, Long discountId, List<Long> categoryIdList) {
+
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = BigDecimal.valueOf(price);
         this.imgUrl = imgUrl;
+        this.discountId = discountId;
         this.categoryIdList = categoryIdList;
     }
 
@@ -77,6 +81,14 @@ public class ProductRequest implements Serializable {
 
     public void setImgUrl(String imgUrl) {
         this.imgUrl = imgUrl;
+    }
+
+    public Long getDiscountId() {
+        return discountId;
+    }
+
+    public void setDiscountId(Long discountId) {
+        this.discountId = discountId;
     }
 
     public List<Long> getCategoryIdList() {

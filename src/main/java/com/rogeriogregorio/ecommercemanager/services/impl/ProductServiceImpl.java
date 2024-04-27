@@ -4,9 +4,11 @@ import com.rogeriogregorio.ecommercemanager.dto.requests.ProductRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Category;
 import com.rogeriogregorio.ecommercemanager.entities.Product;
+import com.rogeriogregorio.ecommercemanager.entities.ProductDiscount;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
+import com.rogeriogregorio.ecommercemanager.services.ProductDiscountService;
 import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -25,6 +27,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
+    private final ProductDiscountService productDiscountService;
     private final ErrorHandlerTemplate errorHandler;
     private final Converter converter;
     private final Logger logger = LogManager.getLogger();
@@ -32,10 +35,12 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     public ProductServiceImpl(ProductRepository productRepository,
                               CategoryService categoryService,
+                              ProductDiscountService productDiscountService,
                               ErrorHandlerTemplate errorHandler, Converter converter) {
 
         this.productRepository = productRepository;
         this.categoryService = categoryService;
+        this.productDiscountService = productDiscountService;
         this.errorHandler = errorHandler;
         this.converter = converter;
     }
@@ -124,9 +129,12 @@ public class ProductServiceImpl implements ProductService {
 
         List<Long> categoryIdList = productRequest.getCategoryIdList();
         List<Category> categoryList = categoryService.findAllCategoriesByIds(categoryIdList);
+        Long discountId = productRequest.getId();
+        ProductDiscount discount = productDiscountService.findProductDiscountById(discountId);
 
         Product product = converter.toEntity(productRequest, Product.class);
         product.getCategories().addAll(categoryList);
+        product.setProductDiscount(discount);
 
         return product;
     }

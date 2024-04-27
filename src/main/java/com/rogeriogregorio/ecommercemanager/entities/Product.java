@@ -63,14 +63,18 @@ public class Product implements Serializable {
     public Product() {
     }
 
-    public Product(String name, String description, Double price, String imgUrl) {
+    public Product(String name, String description,
+                   Double price, String imgUrl) {
+
         this.name = name;
         this.description = description;
         this.price = BigDecimal.valueOf(price);
         this.imgUrl = imgUrl;
     }
 
-    public Product(Long id, String name, String description, Double price, String imgUrl, ProductDiscount productDiscount) {
+    public Product(Long id, String name, String description, Double price,
+                   String imgUrl, ProductDiscount productDiscount) {
+
         this.id = id;
         this.name = name;
         this.description = description;
@@ -121,6 +125,14 @@ public class Product implements Serializable {
 
     public Set<Category> getCategories() {
         return categories;
+    }
+
+    public ProductDiscount getProductDiscount() {
+        return productDiscount;
+    }
+
+    public void setProductDiscount(ProductDiscount productDiscount) {
+        this.productDiscount = productDiscount;
     }
 
     public boolean isDiscountPresent() {
