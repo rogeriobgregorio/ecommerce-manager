@@ -37,7 +37,6 @@ public class DiscountCoupon implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
     @Column(name = "valid_from")
     @NotNull(message = "The coupon's validity start date cannot be null")
-    @FutureOrPresent(message = "The coupon's validity start date must not be earlier than today's date")
     private Instant validFrom;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")

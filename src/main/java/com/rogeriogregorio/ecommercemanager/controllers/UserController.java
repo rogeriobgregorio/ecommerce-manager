@@ -39,7 +39,7 @@ public class UserController {
                 .body(userService.createUser(userRequest));
     }
 
-    @PostMapping(value = "/users/roles")
+    @PatchMapping(value = "/users/roles")
     public ResponseEntity<UserResponse> createAdminOrManagerUser(@Valid @RequestBody UserRequest userRequest) {
 
         return ResponseEntity

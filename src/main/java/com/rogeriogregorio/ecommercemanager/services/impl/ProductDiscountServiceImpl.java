@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
@@ -34,6 +35,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
         this.converter = converter;
     }
 
+    @Transactional(readOnly = true)
     public Page<ProductDiscountResponse> findAllProductDiscounts(Pageable pageable) {
 
         return errorHandler.catchException(() -> productDiscountRepository.findAll(pageable),
@@ -41,6 +43,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
                 .map(productDiscount -> converter.toResponse(productDiscount, ProductDiscountResponse.class));
     }
 
+    @Transactional(readOnly = false)
     public ProductDiscountResponse createProductDiscount(ProductDiscountRequest productDiscountRequest) {
 
         productDiscountRequest.setId(null);
@@ -53,6 +56,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
         return converter.toResponse(productDiscount, ProductDiscountResponse.class);
     }
 
+    @Transactional(readOnly = true)
     public ProductDiscountResponse findProductDiscountResponseById(Long id) {
 
         return errorHandler.catchException(() -> productDiscountRepository.findById(id),
@@ -61,6 +65,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
                 .orElseThrow(() -> new NotFoundException("Product discount response not found with ID: " + id + "."));
     }
 
+    @Transactional(readOnly = false)
     public ProductDiscountResponse updateProductDiscount(ProductDiscountRequest productDiscountRequest) {
 
         isProductDiscountExists(productDiscountRequest.getId());
@@ -73,6 +78,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
         return converter.toResponse(productDiscount, ProductDiscountResponse.class);
     }
 
+    @Transactional(readOnly = false)
     public void deleteProductDiscount(Long id) {
 
         isProductDiscountExists(id);

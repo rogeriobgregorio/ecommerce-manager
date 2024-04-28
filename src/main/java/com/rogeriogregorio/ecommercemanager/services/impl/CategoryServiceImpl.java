@@ -117,9 +117,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     private Category buildCategory(CategoryRequest categoryRequest) {
 
-        Long id = categoryRequest.getId();
-        String name = categoryRequest.getName();
-
-        return new Category(id, name);
+        return converter.toEntity(categoryRequest, Category.class);
     }
 }

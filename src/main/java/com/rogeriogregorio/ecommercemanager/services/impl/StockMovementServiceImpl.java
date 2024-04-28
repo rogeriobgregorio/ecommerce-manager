@@ -117,6 +117,7 @@ public class StockMovementServiceImpl implements StockMovementService {
             StockMovement stockMovement = new StockMovement(moment, inventoryItem, MovementType.EXIT, outputQuantity);
 
             saveStockMovement(stockMovement);
+            logger.info("Inventory movement exit: {}", stockMovement);
         }
     }
 
@@ -124,13 +125,13 @@ public class StockMovementServiceImpl implements StockMovementService {
 
         errorHandler.catchException(() -> stockMovementRepository.save(stockMovement),
                 "Error while trying to save inventory movement: ");
-        logger.info("Inventory movement saved: {}", stockMovement);
     }
 
     private StockMovement buildStockMovement(StockMovementRequest stockMovementRequest) {
 
         Long id = stockMovementRequest.getId();
-        InventoryItem inventoryItem = inventoryItemService.findInventoryItemById(id);
+        Long inventoryItemId = stockMovementRequest.getInventoryItemId();
+        InventoryItem inventoryItem = inventoryItemService.findInventoryItemById(inventoryItemId);
         Instant moment = Instant.now();
         MovementType movementType = stockMovementRequest.getMovementType();
         int quantityMoved = stockMovementRequest.getQuantityMoved();

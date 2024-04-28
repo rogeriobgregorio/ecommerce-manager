@@ -18,15 +18,15 @@ public class ConverterImpl implements Converter {
         this.handler = handler;
     }
 
-    public <E, R> E toEntity(R response, Class<E> entity) {
+    public <E, R> E toEntity(R object, Class<E> entity) {
 
-        return handler.catchException(() -> mapper.map(response, entity),
+        return handler.catchException(() -> mapper.map(object, entity),
                 "Error while trying to convert from response to entity: ");
     }
 
-    public <E, R> R toResponse(E entity, Class<R> response) {
+    public <E, R> R toResponse(E object, Class<R> response) {
 
-        return handler.catchException(() -> mapper.map(entity, response),
+        return handler.catchException(() -> mapper.map(object, response),
                 "Error while trying to convert from entity to response: ");
     }
 }

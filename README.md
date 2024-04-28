@@ -69,7 +69,7 @@ gerenciamento de:
 | Listar pedidos                                 | GET         | /api/v1/orders                         | ADMIN, MANAGER         |
 | Adicionar pedido                               | POST        | /api/v1/orders                         | ADMIN, MANAGER, CLIENT |
 | Atualizar pedido                               | PUT         | /api/v1/orders                         | ADMIN, MANAGER, CLIENT |
-| Atualizar apenas status do pedido              | PUT         | /api/v1/orders/status                  | ADMIN, MANAGER         |
+| Atualizar apenas status do pedido              | PATCH       | /api/v1/orders/status                  | ADMIN, MANAGER         |
 | Excluir pedido                                 | DELETE      | /api/v1/orders/{id}                    | ADMIN, MANAGER, CLIENT |
 | Detalhes de um pedido específico               | GET         | /api/v1/orders/{id}                    | ADMIN, MANAGER         |
 | Listar pedidos de um CLIENT                    | GET         | /api/v1/clients/{id}/orders            | ADMIN, MANAGER, CLIENT |
@@ -99,7 +99,7 @@ gerenciamento de:
 | Excluir usuário                                | DELETE      | /api/v1/users/{id}                     | ADMIN, MANAGER, CLIENT |
 | Detalhes de um usuário específico              | GET         | /api/v1/users/{id}                     | ADMIN, MANAGER, CLIENT |
 | Pesquisar usuário por nome                     | GET         | /api/v1/users/search?name={name}       | ADMIN, MANAGER         |
-| Adicionar função de usuário                    | POST        | /api/v1/users/roles                    | ADMIN                  |
+| Adicionar função de usuário                    | PATCH       | /api/v1/users/roles                    | ADMIN                  |
 | Listar cupons de desconto                      | GET         | /api/v1/discount-coupons               | ADMIN, MANAGER, CLIENT |
 | Criar cupom de desconto                        | POST        | /api/v1/discount-coupons               | ADMIN, MANAGER         |
 | Detalhes de um cupom de desconto específico    | GET         | /api/v1/discount-coupons{id}           | ADMIN, MANAGER, CLIENT |

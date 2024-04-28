@@ -49,6 +49,9 @@ public class User implements Serializable, UserDetails {
     @OneToMany(mappedBy = "client")
     private List<Order> orders = new ArrayList<>();
 
+    @OneToMany(mappedBy = "id.user")
+    private Set<ProductReview> reviews = new HashSet<>();
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     private Address address;
@@ -136,6 +139,16 @@ public class User implements Serializable, UserDetails {
 
     public void setUserRole(UserRole userRole) {
         this.userRole = userRole;
+    }
+
+    @JsonIgnore
+    public Set<Product> getProducts() {
+
+        Set<Product> product = new HashSet<>();
+        for (ProductReview productReview : reviews) {
+            product.add(productReview.getProduct());
+        }
+        return product;
     }
 
     @JsonIgnore

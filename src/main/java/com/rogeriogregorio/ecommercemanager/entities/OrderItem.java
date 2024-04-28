@@ -38,15 +38,8 @@ public class OrderItem implements Serializable {
     public OrderItem() {
     }
 
-    public OrderItem(Order order, Product product, Integer quantity, Double price) {
-
-        id.setOrder(order);
-        id.setProduct(product);
-        this.quantity = quantity;
-        this.price = BigDecimal.valueOf(price);
-    }
-
-    public OrderItem(Order order, Product product, Integer quantity, BigDecimal price) {
+    public OrderItem(Order order, Product product,
+                     Integer quantity, BigDecimal price) {
 
         id.setOrder(order);
         id.setProduct(product);
@@ -83,8 +76,8 @@ public class OrderItem implements Serializable {
         return price;
     }
 
-    public void setPrice(Double price) {
-        this.price = BigDecimal.valueOf(price);
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
     public BigDecimal getSubTotal() {

@@ -55,7 +55,7 @@ public class OrderController {
                 .body(orderService.updateOrder(orderRequest));
     }
 
-    @PutMapping(value = "/orders/status")
+    @PatchMapping(value = "/orders/status")
     public ResponseEntity<OrderResponse> updateOrderStatus(@Valid @RequestBody OrderRequest orderRequest) {
 
         return ResponseEntity

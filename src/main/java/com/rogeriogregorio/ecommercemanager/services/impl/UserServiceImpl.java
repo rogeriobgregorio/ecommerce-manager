@@ -143,13 +143,12 @@ public class UserServiceImpl implements UserService {
         logger.info("User's address updated: {}", user);
     }
 
-    private String encodePassword(UserRequest userRequest) {
+    private String encodePassword(String password) {
 
-        String userPassword = userRequest.getPassword();
-        return new BCryptPasswordEncoder().encode(userPassword);
+        return new BCryptPasswordEncoder().encode(password);
     }
 
-    private void validatePassword(String password) {
+    private String validatePassword(String password) {
 
         List<String> failures = new ArrayList<>();
 
@@ -162,13 +161,15 @@ public class UserServiceImpl implements UserService {
         if (!failures.isEmpty()) {
             throw new PasswordException("The password must have at least: " + failures + ".");
         }
+
+        return password;
     }
 
     private User buildUser(UserRequest userRequest) {
 
         userRequest.setUserRole(UserRole.CLIENT);
-        validatePassword(userRequest.getPassword());
-        String encodedPassword = encodePassword(userRequest);
+        String password = validatePassword(userRequest.getPassword());
+        String encodedPassword = encodePassword(password);
         userRequest.setPassword(encodedPassword);
 
         return converter.toEntity(userRequest, User.class);

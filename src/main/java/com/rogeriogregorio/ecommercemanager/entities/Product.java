@@ -60,25 +60,28 @@ public class Product implements Serializable {
     @OneToMany(mappedBy = "id.product")
     private Set<OrderItem> items = new HashSet<>();
 
+    @OneToMany(mappedBy = "id.product")
+    private Set<ProductReview> reviews = new HashSet<>();
+
     public Product() {
     }
 
     public Product(String name, String description,
-                   Double price, String imgUrl) {
+                   BigDecimal price, String imgUrl) {
 
         this.name = name;
         this.description = description;
-        this.price = BigDecimal.valueOf(price);
+        this.price = price;
         this.imgUrl = imgUrl;
     }
 
-    public Product(Long id, String name, String description, Double price,
+    public Product(Long id, String name, String description, BigDecimal price,
                    String imgUrl, ProductDiscount productDiscount) {
 
         this.id = id;
         this.name = name;
         this.description = description;
-        this.price = BigDecimal.valueOf(price);
+        this.price = price;
         this.imgUrl = imgUrl;
         this.productDiscount = productDiscount;
     }
@@ -111,8 +114,8 @@ public class Product implements Serializable {
         return price;
     }
 
-    public void setPrice(Double price) {
-        this.price = BigDecimal.valueOf(price);
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
     public String getImgUrl() {
@@ -151,6 +154,10 @@ public class Product implements Serializable {
         }
 
         return productPrice.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public Set<ProductReview> getReviews() {
+        return reviews;
     }
 
     @JsonIgnore

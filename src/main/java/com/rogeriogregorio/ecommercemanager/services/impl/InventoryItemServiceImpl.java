@@ -226,7 +226,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         errorHandler.catchException(() -> stockMovementRepository.save(stockMovement),
                 "Error while trying to create the inventory movement: ");
-        logger.info("Inventory movement created: {}", stockMovement);
+        logger.info("Inventory movement entrance: {}", stockMovement);
     }
 
     private InventoryItem buildCreateInventoryItem(InventoryItemRequest inventoryItemRequest) {

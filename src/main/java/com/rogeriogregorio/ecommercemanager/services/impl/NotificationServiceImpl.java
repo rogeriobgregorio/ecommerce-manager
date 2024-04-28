@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 
@@ -34,6 +35,7 @@ public class NotificationServiceImpl implements NotificationService {
         this.converter = converter;
     }
 
+    @Transactional(readOnly = true)
     public Page<NotificationResponse> findAllNotifications(Pageable pageable) {
 
         return errorHandler.catchException(() -> notificationRepository.findAll(pageable),
@@ -41,6 +43,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .map(notification -> converter.toResponse(notification, NotificationResponse.class));
     }
 
+    @Transactional(readOnly = false)
     public NotificationResponse createNotification(NotificationRequest notificationRequest) {
 
         notificationRequest.setId(null);
@@ -53,6 +56,7 @@ public class NotificationServiceImpl implements NotificationService {
         return converter.toResponse(notification, NotificationResponse.class);
     }
 
+    @Transactional(readOnly = true)
     public NotificationResponse findNotificationById(Long id) {
 
         return errorHandler.catchException(() -> notificationRepository.findById(id),
@@ -61,6 +65,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .orElseThrow(() -> new NotFoundException("Notification not found with ID: " + id + "."));
     }
 
+    @Transactional(readOnly = false)
     public NotificationResponse updateNotification(NotificationRequest notificationRequest) {
 
         isNotificationExists(notificationRequest.getId());
@@ -73,6 +78,7 @@ public class NotificationServiceImpl implements NotificationService {
         return converter.toResponse(notification, NotificationResponse.class);
     }
 
+    @Transactional(readOnly = false)
     public void deleteNotification(Long id) {
 
         isNotificationExists(id);

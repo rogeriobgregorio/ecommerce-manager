@@ -30,12 +30,12 @@ public class ProductResponse implements Serializable {
     public ProductResponse() {
     }
 
-    public ProductResponse(Long id, String name, String description, Double price,
+    public ProductResponse(Long id, String name, String description, BigDecimal price,
                            String imgUrl, ProductDiscount productDiscount) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.price = BigDecimal.valueOf(price);
+        this.price = price;
         this.imgUrl = imgUrl;
         this.productDiscount = productDiscount;
     }
@@ -68,8 +68,8 @@ public class ProductResponse implements Serializable {
         return price;
     }
 
-    public void setPrice(Double price) {
-        this.price = BigDecimal.valueOf(price);
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
     public String getImgUrl() {
