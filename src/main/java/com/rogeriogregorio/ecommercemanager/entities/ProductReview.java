@@ -2,7 +2,7 @@ package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.rogeriogregorio.ecommercemanager.entities.primarykey.ProductReviewPK;
+import com.rogeriogregorio.ecommercemanager.entities.primarykeys.ProductReviewPK;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -107,7 +107,7 @@ public class ProductReview implements Serializable {
 
     @Override
     public String toString() {
-        return "[ProductReview: id= " + id
+        return "[ProductReviewRequest: id= " + id
                 + ", rating= " + rating
                 + ", comment= " + comment
                 + ", moment= " + moment + "]";

@@ -9,24 +9,24 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConverterImpl implements Converter {
 
-    private final ModelMapper mapper;
-    private final ErrorHandlerTemplate handler;
+    private final ModelMapper modelMapper;
+    private final ErrorHandlerTemplate errorHandler;
 
     @Autowired
-    public ConverterImpl(ModelMapper mapper, ErrorHandlerTemplate handler) {
-        this.mapper = mapper;
-        this.handler = handler;
+    public ConverterImpl(ModelMapper modelMapper, ErrorHandlerTemplate errorHandler) {
+        this.modelMapper = modelMapper;
+        this.errorHandler = errorHandler;
     }
 
     public <E, R> E toEntity(R object, Class<E> entity) {
 
-        return handler.catchException(() -> mapper.map(object, entity),
+        return errorHandler.catchException(() -> modelMapper.map(object, entity),
                 "Error while trying to convert from response to entity: ");
     }
 
     public <E, R> R toResponse(E object, Class<R> response) {
 
-        return handler.catchException(() -> mapper.map(object, response),
+        return errorHandler.catchException(() -> modelMapper.map(object, response),
                 "Error while trying to convert from entity to response: ");
     }
 }

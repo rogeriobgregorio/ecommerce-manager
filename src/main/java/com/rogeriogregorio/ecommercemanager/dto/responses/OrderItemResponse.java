@@ -3,7 +3,7 @@ package com.rogeriogregorio.ecommercemanager.dto.responses;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.Product;
-import com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK;
+import com.rogeriogregorio.ecommercemanager.entities.primarykeys.OrderItemPK;
 
 import java.io.Serial;
 import java.io.Serializable;

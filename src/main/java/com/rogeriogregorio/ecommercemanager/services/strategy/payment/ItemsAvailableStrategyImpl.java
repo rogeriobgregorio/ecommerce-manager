@@ -7,12 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ItemsAvailable implements PaymentStrategy {
+public class ItemsAvailableStrategyImpl implements PaymentStrategy {
 
     private final InventoryItemService inventoryItemService;
 
     @Autowired
-    public ItemsAvailable(InventoryItemService inventoryItemService) {
+    public ItemsAvailableStrategyImpl(InventoryItemService inventoryItemService) {
         this.inventoryItemService = inventoryItemService;
     }
 

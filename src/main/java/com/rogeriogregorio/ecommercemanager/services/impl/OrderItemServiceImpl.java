@@ -5,7 +5,7 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.OrderItemResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.OrderItem;
 import com.rogeriogregorio.ecommercemanager.entities.Product;
-import com.rogeriogregorio.ecommercemanager.entities.primarykey.OrderItemPK;
+import com.rogeriogregorio.ecommercemanager.entities.primarykeys.OrderItemPK;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderItemRepository;
 import com.rogeriogregorio.ecommercemanager.services.*;
