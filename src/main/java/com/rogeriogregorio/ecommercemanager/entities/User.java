@@ -1,6 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -141,14 +142,27 @@ public class User implements Serializable, UserDetails {
         this.userRole = userRole;
     }
 
+    @Transient
     @JsonIgnore
-    public Set<Product> getProducts() {
+    public Set<Product> getPurchasedProducts() {
+        Set<Product> purchasedProducts = new HashSet<>();
 
-        Set<Product> product = new HashSet<>();
-        for (ProductReview productReview : reviews) {
-            product.add(productReview.getProduct());
+        for (Order order : orders) {
+
+            if (order.getOrderStatus() == OrderStatus.DELIVERED) {
+
+                for (OrderItem orderItem : order.getItems()) {
+                    purchasedProducts.add(orderItem.getProduct());
+                }
+            }
         }
-        return product;
+
+        return purchasedProducts;
+    }
+
+    @JsonIgnore
+    public Set<ProductReview> getProductReviews() {
+        return reviews;
     }
 
     @JsonIgnore
