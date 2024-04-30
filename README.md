@@ -13,7 +13,7 @@ gerenciamento de:
 
 **Cadastro de Usuários e Administradores:**
    - Cadastro de administradores
-   - Cadastro de usuários
+   - Cadastro de clientes
    - Login seguro
 
 **Gestão de Produtos e Inventário:**
@@ -28,15 +28,15 @@ gerenciamento de:
 
 **Gestão de Promoções e Descontos:**
    - Desconto em produtos
-   - Cupons de desconto
+   - Cupons de desconto para pedidos
 
 **Gestão de Entrega e Estoque:**
    - Cadastro dos endereços de entrega
-   - Movimentações de estoque
+   - Movimentações de entrada e saída do estoque
 
-**Comunicação e Feedback:**
-   - Feedback dos usuários acerca dos produtos
-   - Notificações
+**Comunicação e Review:**
+   - Review dos clientes acerca dos produtos
+   - Notificações de anúncios dos administradores
 
 
 ## Modelo Conceitual
