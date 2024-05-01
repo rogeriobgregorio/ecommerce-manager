@@ -32,7 +32,8 @@ public class AddressController {
     }
 
     @PostMapping(value = "/addresses")
-    public ResponseEntity<AddressResponse> createAddress(@Valid @RequestBody AddressRequest addressRequest) {
+    public ResponseEntity<AddressResponse> postAddress(
+            @Valid @RequestBody AddressRequest addressRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -48,7 +49,8 @@ public class AddressController {
     }
 
     @PutMapping(value = "/addresses")
-    public ResponseEntity<AddressResponse> updateAddress(@Valid @RequestBody AddressRequest addressRequest) {
+    public ResponseEntity<AddressResponse> putAddress(
+            @Valid @RequestBody AddressRequest addressRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)

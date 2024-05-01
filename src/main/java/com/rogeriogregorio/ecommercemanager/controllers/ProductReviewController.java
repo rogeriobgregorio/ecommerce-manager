@@ -32,7 +32,7 @@ public class ProductReviewController {
     }
 
     @PostMapping(value = "/product-reviews")
-    public ResponseEntity<ProductReviewResponse> createProductReview(
+    public ResponseEntity<ProductReviewResponse> postProductReview(
             @Valid @RequestBody ProductReviewRequest productReviewRequest) {
 
         return ResponseEntity
@@ -50,7 +50,7 @@ public class ProductReviewController {
     }
 
     @PutMapping(value = "/product-reviews")
-    public ResponseEntity<ProductReviewResponse> updateProductReview(
+    public ResponseEntity<ProductReviewResponse> putProductReview(
             @Valid @RequestBody ProductReviewRequest productReviewRequest) {
 
         return ResponseEntity

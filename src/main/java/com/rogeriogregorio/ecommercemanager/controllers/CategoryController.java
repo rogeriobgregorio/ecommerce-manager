@@ -32,7 +32,8 @@ public class CategoryController {
     }
 
     @PostMapping(value = "/categories")
-    public ResponseEntity<CategoryResponse> createCategory(@Valid @RequestBody CategoryRequest categoryRequest) {
+    public ResponseEntity<CategoryResponse> postCategory(
+            @Valid @RequestBody CategoryRequest categoryRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -48,7 +49,8 @@ public class CategoryController {
     }
 
     @PutMapping(value = "/categories")
-    public ResponseEntity<CategoryResponse> updateCategory(@Valid @RequestBody CategoryRequest categoryRequest) {
+    public ResponseEntity<CategoryResponse> putCategory(
+            @Valid @RequestBody CategoryRequest categoryRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)

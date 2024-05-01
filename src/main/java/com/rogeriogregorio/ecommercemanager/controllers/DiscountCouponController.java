@@ -32,7 +32,8 @@ public class DiscountCouponController {
     }
 
     @PostMapping(value = "/discount-coupons")
-    public ResponseEntity<DiscountCouponResponse> createDiscountCoupon(@Valid @RequestBody DiscountCouponRequest discountCouponRequest) {
+    public ResponseEntity<DiscountCouponResponse> postDiscountCoupon(
+            @Valid @RequestBody DiscountCouponRequest discountCouponRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -48,7 +49,8 @@ public class DiscountCouponController {
     }
 
     @PutMapping(value = "/discount-coupons")
-    public ResponseEntity<DiscountCouponResponse> updateDiscountCoupon(@Valid @RequestBody DiscountCouponRequest discountCouponRequest) {
+    public ResponseEntity<DiscountCouponResponse> putDiscountCoupon(
+            @Valid @RequestBody DiscountCouponRequest discountCouponRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)

@@ -32,7 +32,8 @@ public class ProductController {
     }
 
     @PostMapping(value = "/products")
-    public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductRequest productRequest) {
+    public ResponseEntity<ProductResponse> postProduct(
+            @Valid @RequestBody ProductRequest productRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -48,7 +49,8 @@ public class ProductController {
     }
 
     @PutMapping(value = "/products")
-    public ResponseEntity<ProductResponse> updateProduct(@Valid @RequestBody ProductRequest productRequest) {
+    public ResponseEntity<ProductResponse> putProduct(
+            @Valid @RequestBody ProductRequest productRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)

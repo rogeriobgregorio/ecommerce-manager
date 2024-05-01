@@ -119,9 +119,7 @@ public class PaymentServiceImpl implements PaymentService {
     private Payment buildPayment(PaymentRequest paymentRequest) {
 
         Long orderId = paymentRequest.getOrderId();
-
         Order orderToBePaid = orderService.findOrderById(orderId);
-
         validateOrder(orderToBePaid);
 
         Payment payment = new Payment(Instant.now(), orderToBePaid);

@@ -9,9 +9,9 @@ import com.rogeriogregorio.ecommercemanager.exceptions.InsufficientStockExceptio
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.InventoryItemRepository;
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -181,24 +181,19 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         }
     }
 
-    private Product validateItemInventory(InventoryItemRequest inventoryItemRequest) {
+    private Product validateProductForInventory(InventoryItemRequest inventoryItemRequest) {
 
         Long productId = inventoryItemRequest.getProductId();
         Product product = productService.findProductById(productId);
 
-        isProductInInventory(product);
-
-        return product;
-    }
-
-    private void isProductInInventory(Product product) {
-
-        boolean isProductInInventory = errorHandler.catchException(() -> inventoryItemRepository.existsByProduct(product),
+        boolean isItemAlreadyAdded = errorHandler.catchException(() -> inventoryItemRepository.existsByProduct(product),
                 "Error while trying to check the presence of the item in the inventory: ");
 
-        if (isProductInInventory) {
-            throw new IllegalStateException("Cannot add the item to the inventory: product already added.");
+        if (isItemAlreadyAdded) {
+            throw new IllegalStateException("Cannot add the item to the inventory: item already added.");
         }
+
+        return product;
     }
 
     private void isInventoryItemExists(Long id) {
@@ -231,7 +226,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
     private InventoryItem buildCreateInventoryItem(InventoryItemRequest inventoryItemRequest) {
 
-        Product product = validateItemInventory(inventoryItemRequest);
+        Product product = validateProductForInventory(inventoryItemRequest);
         Integer quantityInStock = inventoryItemRequest.getQuantityInStock();
         StockStatus stockStatus = inventoryItemRequest.getStockStatus();
 

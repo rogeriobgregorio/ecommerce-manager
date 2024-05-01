@@ -32,7 +32,8 @@ public class NotificationController {
     }
 
     @PostMapping(value = "/notifications")
-    public ResponseEntity<NotificationResponse> createNotification(@Valid @RequestBody NotificationRequest notificationRequest) {
+    public ResponseEntity<NotificationResponse> postNotification(
+            @Valid @RequestBody NotificationRequest notificationRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -48,7 +49,8 @@ public class NotificationController {
     }
 
     @PutMapping(value = "/notifications")
-    public ResponseEntity<NotificationResponse> updateNotification(@Valid @RequestBody NotificationRequest notificationRequest) {
+    public ResponseEntity<NotificationResponse> putNotification(
+            @Valid @RequestBody NotificationRequest notificationRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)

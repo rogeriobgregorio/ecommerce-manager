@@ -32,7 +32,8 @@ public class StockMovementController {
     }
 
     @PostMapping(value = "/stock-movements")
-    public ResponseEntity<StockMovementResponse> createStockMovement(@Valid @RequestBody StockMovementRequest stockMovementRequest) {
+    public ResponseEntity<StockMovementResponse> postStockMovement(
+            @Valid @RequestBody StockMovementRequest stockMovementRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -48,7 +49,8 @@ public class StockMovementController {
     }
 
     @PutMapping(value = "/stock-movements")
-    public ResponseEntity<StockMovementResponse> updateStockMovement(@Valid @RequestBody StockMovementRequest stockMovementRequest) {
+    public ResponseEntity<StockMovementResponse> putStockMovement(
+            @Valid @RequestBody StockMovementRequest stockMovementRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)

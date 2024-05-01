@@ -32,7 +32,8 @@ public class OrderController {
     }
 
     @PostMapping(value = "/orders")
-    public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody OrderRequest orderRequest) {
+    public ResponseEntity<OrderResponse> postOrder(
+            @Valid @RequestBody OrderRequest orderRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -48,7 +49,8 @@ public class OrderController {
     }
 
     @PutMapping(value = "/orders")
-    public ResponseEntity<OrderResponse> updateOrder(@Valid @RequestBody OrderRequest orderRequest) {
+    public ResponseEntity<OrderResponse> putOrder(
+            @Valid @RequestBody OrderRequest orderRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -56,7 +58,8 @@ public class OrderController {
     }
 
     @PatchMapping(value = "/orders/status")
-    public ResponseEntity<OrderResponse> updateOrderStatus(@Valid @RequestBody OrderRequest orderRequest) {
+    public ResponseEntity<OrderResponse> patchOrderStatus(
+            @Valid @RequestBody OrderRequest orderRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)

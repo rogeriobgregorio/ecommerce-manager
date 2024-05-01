@@ -32,7 +32,8 @@ public class UserController {
     }
 
     @PostMapping(value = "/users")
-    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest) {
+    public ResponseEntity<UserResponse> postUser(
+            @Valid @RequestBody UserRequest userRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -40,7 +41,8 @@ public class UserController {
     }
 
     @PatchMapping(value = "/users/roles")
-    public ResponseEntity<UserResponse> createAdminOrManagerUser(@Valid @RequestBody UserRequest userRequest) {
+    public ResponseEntity<UserResponse> patchAdminOrManagerUser(
+            @Valid @RequestBody UserRequest userRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -56,7 +58,8 @@ public class UserController {
     }
 
     @PutMapping(value = "/users")
-    public ResponseEntity<UserResponse> updateUser(@Valid @RequestBody UserRequest userRequest) {
+    public ResponseEntity<UserResponse> putUser(
+            @Valid @RequestBody UserRequest userRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)

@@ -32,7 +32,8 @@ public class InventoryItemController {
     }
 
     @PostMapping(value = "/inventory-items")
-    public ResponseEntity<InventoryItemResponse> createInventoryItem(@Valid @RequestBody InventoryItemRequest inventoryItemRequest) {
+    public ResponseEntity<InventoryItemResponse> postInventoryItem(
+            @Valid @RequestBody InventoryItemRequest inventoryItemRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -48,7 +49,8 @@ public class InventoryItemController {
     }
 
     @PutMapping(value = "/inventory-items")
-    public ResponseEntity<InventoryItemResponse> updateInventoryItem(@Valid @RequestBody InventoryItemRequest inventoryItemRequest) {
+    public ResponseEntity<InventoryItemResponse> putInventoryItem(
+            @Valid @RequestBody InventoryItemRequest inventoryItemRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)

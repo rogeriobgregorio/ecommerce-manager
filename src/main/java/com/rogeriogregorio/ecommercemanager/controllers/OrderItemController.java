@@ -32,7 +32,8 @@ public class OrderItemController {
     }
 
     @PostMapping(value = "/order-items")
-    public ResponseEntity<OrderItemResponse> createOrderItem(@Valid @RequestBody OrderItemRequest orderItemRequest) {
+    public ResponseEntity<OrderItemResponse> postOrderItem(
+            @Valid @RequestBody OrderItemRequest orderItemRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -40,7 +41,8 @@ public class OrderItemController {
     }
 
     @GetMapping(value = "/order-items/{orderId}/{itemId}")
-    public ResponseEntity<OrderItemResponse> getOrderItemById(@PathVariable Long orderId, @PathVariable Long itemId) {
+    public ResponseEntity<OrderItemResponse> getOrderItemById(
+            @PathVariable Long orderId, @PathVariable Long itemId) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -48,7 +50,8 @@ public class OrderItemController {
     }
 
     @PutMapping(value = "/order-items")
-    public ResponseEntity<OrderItemResponse> updateOrderItem(@Valid @RequestBody OrderItemRequest orderItemRequest) {
+    public ResponseEntity<OrderItemResponse> putOrderItem(
+            @Valid @RequestBody OrderItemRequest orderItemRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -56,7 +59,8 @@ public class OrderItemController {
     }
 
     @DeleteMapping(value = "/order-items/{orderId}/{itemId}")
-    public ResponseEntity<Void> deleteOrderItem(@PathVariable Long orderId, @PathVariable Long itemId) {
+    public ResponseEntity<Void> deleteOrderItem(
+            @PathVariable Long orderId, @PathVariable Long itemId) {
 
         orderItemService.deleteOrderItem(orderId, itemId);
 
