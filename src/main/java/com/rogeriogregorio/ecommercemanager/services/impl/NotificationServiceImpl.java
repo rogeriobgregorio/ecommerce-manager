@@ -6,7 +6,7 @@ import com.rogeriogregorio.ecommercemanager.entities.Notification;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.NotificationRepository;
 import com.rogeriogregorio.ecommercemanager.services.NotificationService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,13 +22,13 @@ import java.time.Instant;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final ErrorHandlerTemplate errorHandler;
+    private final ErrorHandler errorHandler;
     private final Converter converter;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public NotificationServiceImpl(NotificationRepository notificationRepository,
-                                   ErrorHandlerTemplate errorHandler, Converter converter) {
+                                   ErrorHandler errorHandler, Converter converter) {
 
         this.notificationRepository = notificationRepository;
         this.errorHandler = errorHandler;

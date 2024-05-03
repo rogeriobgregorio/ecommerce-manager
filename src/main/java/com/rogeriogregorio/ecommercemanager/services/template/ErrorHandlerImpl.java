@@ -14,7 +14,7 @@ import org.springframework.transaction.TransactionException;
 import java.util.function.Supplier;
 
 @Component
-public class ErrorHandlerTemplateImpl implements ErrorHandlerTemplate {
+public class ErrorHandlerImpl implements ErrorHandler {
 
     @Override
     public <T> T catchException(Supplier<T> method, String errorMessage) {

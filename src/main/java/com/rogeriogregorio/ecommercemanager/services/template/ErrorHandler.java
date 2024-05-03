@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import java.util.function.Supplier;
 
 @Component
-public interface ErrorHandlerTemplate {
+public interface ErrorHandler {
 
     <T> T catchException(Supplier<T> method, String errorMessage);
 }

@@ -6,7 +6,7 @@ import com.rogeriogregorio.ecommercemanager.entities.ProductDiscount;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductDiscountRepository;
 import com.rogeriogregorio.ecommercemanager.services.ProductDiscountService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,13 +22,13 @@ import java.time.Instant;
 public class ProductDiscountServiceImpl implements ProductDiscountService {
 
     private final ProductDiscountRepository productDiscountRepository;
-    private final ErrorHandlerTemplate errorHandler;
+    private final ErrorHandler errorHandler;
     private final Converter converter;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public ProductDiscountServiceImpl(ProductDiscountRepository productDiscountRepository,
-                                      ErrorHandlerTemplate errorHandler, Converter converter) {
+                                      ErrorHandler errorHandler, Converter converter) {
 
         this.productDiscountRepository = productDiscountRepository;
         this.errorHandler = errorHandler;

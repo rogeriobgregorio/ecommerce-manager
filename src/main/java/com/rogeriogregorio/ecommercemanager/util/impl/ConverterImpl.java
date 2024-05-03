@@ -1,6 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.util.impl;
 
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 public class ConverterImpl implements Converter {
 
     private final ModelMapper modelMapper;
-    private final ErrorHandlerTemplate errorHandler;
+    private final ErrorHandler errorHandler;
 
     @Autowired
-    public ConverterImpl(ModelMapper modelMapper, ErrorHandlerTemplate errorHandler) {
+    public ConverterImpl(ModelMapper modelMapper, ErrorHandler errorHandler) {
         this.modelMapper = modelMapper;
         this.errorHandler = errorHandler;
     }

@@ -11,7 +11,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.ProductReviewRepository
 import com.rogeriogregorio.ecommercemanager.services.ProductReviewService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -31,14 +30,14 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     private final ProductReviewRepository productReviewRepository;
     private final ProductService productService;
     private final UserService userService;
-    private final ErrorHandlerTemplate errorHandler;
+    private final ErrorHandler errorHandler;
     private final Converter converter;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public ProductReviewServiceImpl(ProductReviewRepository productReviewRepository,
                                     ProductService productService, UserService userService,
-                                    ErrorHandlerTemplate errorHandler, Converter converter) {
+                                    ErrorHandler errorHandler, Converter converter) {
 
         this.productReviewRepository = productReviewRepository;
         this.productService = productService;

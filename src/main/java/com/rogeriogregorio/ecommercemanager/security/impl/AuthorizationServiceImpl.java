@@ -4,7 +4,7 @@ import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.security.AuthorizationService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,10 +18,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Value("${api.security.password.secret}")
     private String secretPassword;
     private final UserRepository userRepository;
-    private final ErrorHandlerTemplate handler;
+    private final ErrorHandler handler;
 
     @Autowired
-    public AuthorizationServiceImpl(UserRepository userRepository, ErrorHandlerTemplate handler) {
+    public AuthorizationServiceImpl(UserRepository userRepository, ErrorHandler handler) {
         this.userRepository = userRepository;
         this.handler = handler;
     }

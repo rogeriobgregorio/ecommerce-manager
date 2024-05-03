@@ -10,7 +10,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.services.*;
 import com.rogeriogregorio.ecommercemanager.services.strategy.OrderStrategy;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,7 +30,7 @@ public class OrderServiceImpl implements OrderService {
     private final UserService userService;
     private final DiscountCouponService discountCouponService;
     private final List<OrderStrategy> validators;
-    private final ErrorHandlerTemplate errorHandler;
+    private final ErrorHandler errorHandler;
     private final Converter converter;
     private final Logger logger = LogManager.getLogger();
 
@@ -38,7 +38,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderServiceImpl(OrderRepository orderRepository, UserService userService,
                             DiscountCouponService discountCouponService,
                             List<OrderStrategy> validators,
-                            ErrorHandlerTemplate errorHandler, Converter converter) {
+                            ErrorHandler errorHandler, Converter converter) {
 
         this.orderRepository = orderRepository;
         this.userService = userService;

@@ -10,7 +10,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.ProductRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import com.rogeriogregorio.ecommercemanager.services.ProductDiscountService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +28,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
     private final ProductDiscountService productDiscountService;
-    private final ErrorHandlerTemplate errorHandler;
+    private final ErrorHandler errorHandler;
     private final Converter converter;
     private final Logger logger = LogManager.getLogger();
 
@@ -36,7 +36,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductServiceImpl(ProductRepository productRepository,
                               CategoryService categoryService,
                               ProductDiscountService productDiscountService,
-                              ErrorHandlerTemplate errorHandler, Converter converter) {
+                              ErrorHandler errorHandler, Converter converter) {
 
         this.productRepository = productRepository;
         this.categoryService = categoryService;

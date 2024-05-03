@@ -9,7 +9,7 @@ import com.rogeriogregorio.ecommercemanager.entities.primarykeys.OrderItemPK;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderItemRepository;
 import com.rogeriogregorio.ecommercemanager.services.*;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +28,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     private final InventoryItemService inventoryItemService;
     private final ProductService productService;
     private final OrderService orderService;
-    private final ErrorHandlerTemplate errorHandler;
+    private final ErrorHandler errorHandler;
     private final Converter converter;
     private final Logger logger = LogManager.getLogger();
 
@@ -37,7 +37,7 @@ public class OrderItemServiceImpl implements OrderItemService {
                                 InventoryItemService inventoryItemService,
                                 ProductService productService,
                                 OrderService orderService,
-                                ErrorHandlerTemplate errorHandler, Converter converter) {
+                                ErrorHandler errorHandler, Converter converter) {
 
         this.orderItemRepository = orderItemRepository;
         this.inventoryItemService = inventoryItemService;

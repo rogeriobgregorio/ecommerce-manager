@@ -6,7 +6,7 @@ import com.rogeriogregorio.ecommercemanager.entities.*;
 import com.rogeriogregorio.ecommercemanager.entities.enums.MovementType;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.StockMovementService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -25,14 +25,14 @@ public class StockMovementServiceImpl implements StockMovementService {
 
     private final StockMovementRepository stockMovementRepository;
     private final InventoryItemService inventoryItemService;
-    private final ErrorHandlerTemplate errorHandler;
+    private final ErrorHandler errorHandler;
     private final Converter converter;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public StockMovementServiceImpl(StockMovementRepository stockMovementRepository,
                                     InventoryItemService inventoryItemService,
-                                    ErrorHandlerTemplate errorHandler, Converter converter) {
+                                    ErrorHandler errorHandler, Converter converter) {
 
         this.stockMovementRepository = stockMovementRepository;
         this.inventoryItemService = inventoryItemService;

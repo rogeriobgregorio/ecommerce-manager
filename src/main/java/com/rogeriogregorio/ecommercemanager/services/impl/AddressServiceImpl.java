@@ -7,7 +7,7 @@ import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.AddressRepository;
 import com.rogeriogregorio.ecommercemanager.services.AddressService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
@@ -23,13 +23,13 @@ public class AddressServiceImpl implements AddressService {
 
     private final AddressRepository addressRepository;
     private final UserService userService;
-    private final ErrorHandlerTemplate errorHandler;
+    private final ErrorHandler errorHandler;
     private final Converter converter;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public AddressServiceImpl(AddressRepository addressRepository, UserService userService,
-                              ErrorHandlerTemplate errorHandler, Converter converter) {
+                              ErrorHandler errorHandler, Converter converter) {
 
         this.addressRepository = addressRepository;
         this.userService = userService;

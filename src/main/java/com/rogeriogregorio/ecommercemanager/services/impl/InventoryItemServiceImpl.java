@@ -11,7 +11,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.InventoryItemRepository
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +29,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     private final InventoryItemRepository inventoryItemRepository;
     private final StockMovementRepository stockMovementRepository;
     private final ProductService productService;
-    private final ErrorHandlerTemplate errorHandler;
+    private final ErrorHandler errorHandler;
     private final Converter converter;
     private final Logger logger = LogManager.getLogger();
 
@@ -37,7 +37,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     public InventoryItemServiceImpl(InventoryItemRepository inventoryItemRepository,
                                     StockMovementRepository stockMovementRepository,
                                     ProductService productService,
-                                    ErrorHandlerTemplate errorHandler, Converter converter) {
+                                    ErrorHandler errorHandler, Converter converter) {
 
         this.inventoryItemRepository = inventoryItemRepository;
         this.stockMovementRepository = stockMovementRepository;

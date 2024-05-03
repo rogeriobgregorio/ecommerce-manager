@@ -6,7 +6,7 @@ import com.rogeriogregorio.ecommercemanager.entities.DiscountCoupon;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.DiscountCouponRepository;
 import com.rogeriogregorio.ecommercemanager.services.DiscountCouponService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,13 +22,13 @@ import java.time.Instant;
 public class DiscountCouponServiceImpl implements DiscountCouponService {
 
     private final DiscountCouponRepository discountCouponRepository;
-    private final ErrorHandlerTemplate errorHandler;
+    private final ErrorHandler errorHandler;
     private final Converter converter;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public DiscountCouponServiceImpl(DiscountCouponRepository discountCouponRepository,
-                                     ErrorHandlerTemplate errorHandler, Converter converter) {
+                                     ErrorHandler errorHandler, Converter converter) {
 
         this.discountCouponRepository = discountCouponRepository;
         this.errorHandler = errorHandler;

@@ -9,7 +9,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.*;
 import com.rogeriogregorio.ecommercemanager.services.strategy.PaymentStrategy;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,7 +30,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final StockMovementService stockMovementService;
     private final OrderService orderService;
     private final List<PaymentStrategy> validators;
-    private final ErrorHandlerTemplate errorHandler;
+    private final ErrorHandler errorHandler;
     private final Converter converter;
     private final Logger logger = LogManager.getLogger();
 
@@ -39,7 +39,7 @@ public class PaymentServiceImpl implements PaymentService {
                               InventoryItemService inventoryItemService,
                               StockMovementService stockMovementService,
                               OrderService orderService,
-                              List<PaymentStrategy> validators, ErrorHandlerTemplate errorHandler, Converter converter) {
+                              List<PaymentStrategy> validators, ErrorHandler errorHandler, Converter converter) {
 
         this.paymentRepository = paymentRepository;
         this.inventoryItemService = inventoryItemService;

@@ -7,7 +7,7 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.PasswordException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandlerTemplate;
+import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.services.strategy.PasswordStrategy;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
@@ -28,13 +28,13 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final List<PasswordStrategy> validators;
-    private final ErrorHandlerTemplate errorHandler;
+    private final ErrorHandler errorHandler;
     private final Converter converter;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, List<PasswordStrategy> validators,
-                           ErrorHandlerTemplate errorHandler, Converter converter) {
+                           ErrorHandler errorHandler, Converter converter) {
 
         this.userRepository = userRepository;
         this.validators = validators;
