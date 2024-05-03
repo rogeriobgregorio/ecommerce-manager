@@ -59,26 +59,30 @@ public class User implements Serializable, UserDetails {
 
     @Column(name = "role")
     @NotNull(message = "The user role cannot be null.")
-    private UserRole userRole;
+    private UserRole role;
 
     public User() {
     }
 
-    public User(String name, String email, String phone, String password, UserRole userRole) {
+    public User(String name, String email, String phone,
+                String password, UserRole role) {
+
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.password = password;
-        this.userRole = userRole;
+        this.role = role;
     }
 
-    public User(Long id, String name, String email, String phone, String password, UserRole userRole) {
+    public User(Long id, String name, String email, String phone,
+                String password, UserRole role) {
+
         this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.password = password;
-        this.userRole = userRole;
+        this.role = role;
     }
 
     public Long getId() {
@@ -134,17 +138,18 @@ public class User implements Serializable, UserDetails {
         return getAddress() == null;
     }
 
-    public UserRole getUserRole() {
-        return userRole;
+    public UserRole getRole() {
+        return role;
     }
 
-    public void setUserRole(UserRole userRole) {
-        this.userRole = userRole;
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 
     @Transient
     @JsonIgnore
     public Set<Product> getPurchasedProducts() {
+
         Set<Product> purchasedProducts = new HashSet<>();
 
         for (Order order : orders) {
@@ -170,15 +175,15 @@ public class User implements Serializable, UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
         List<GrantedAuthority> authorities = new ArrayList<>();
+
         authorities.add(new SimpleGrantedAuthority("ROLE_CLIENT"));
 
-        if (this.userRole == UserRole.ADMIN) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        if (this.role == UserRole.MANAGER || this.role == UserRole.ADMIN) {
             authorities.add(new SimpleGrantedAuthority("ROLE_MANAGER"));
         }
 
-        if (this.userRole == UserRole.MANAGER) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_MANAGER"));
+        if (this.role == UserRole.ADMIN) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         }
 
         return authorities;
@@ -238,6 +243,6 @@ public class User implements Serializable, UserDetails {
                 +", name= " + name
                 + ", email= " + email
                 + ", phone= " + phone
-                + ", Role= " + userRole + "]";
+                + ", Role= " + role + "]";
     }
 }

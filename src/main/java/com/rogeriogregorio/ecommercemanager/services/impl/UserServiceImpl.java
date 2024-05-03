@@ -172,7 +172,7 @@ public class UserServiceImpl implements UserService {
     private User buildAdminOrManagerUser(UserRequest userRequest) {
 
         User user = findUserById(userRequest.getId());
-        user.setUserRole(userRequest.getUserRole());
+        user.setRole(userRequest.getUserRole());
 
         return user;
     }

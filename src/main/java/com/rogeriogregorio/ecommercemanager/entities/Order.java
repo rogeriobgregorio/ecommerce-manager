@@ -44,7 +44,7 @@ public class Order implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "discount_coupon_id")
-    private DiscountCoupon discountCoupon;
+    private DiscountCoupon coupon;
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.REMOVE)
     private Payment payment;
@@ -61,22 +61,22 @@ public class Order implements Serializable {
     }
 
     public Order(Long id, Instant moment, OrderStatus orderStatus,
-                 User client, DiscountCoupon discountCoupon) {
+                 User client, DiscountCoupon coupon) {
 
         this.id = id;
         this.moment = moment;
         setOrderStatus(orderStatus);
         this.client = client;
-        this.discountCoupon = discountCoupon;
+        this.coupon = coupon;
     }
 
     public Order(Long id, Instant moment,
-                 User client, DiscountCoupon discountCoupon) {
+                 User client, DiscountCoupon coupon) {
 
         this.id = id;
         this.moment = moment;
         this.client = client;
-        this.discountCoupon = discountCoupon;
+        this.coupon = coupon;
     }
 
     public Long getId() {
@@ -116,12 +116,12 @@ public class Order implements Serializable {
         this.client = client;
     }
 
-    public DiscountCoupon getDiscountCoupon() {
-        return discountCoupon;
+    public DiscountCoupon getCoupon() {
+        return coupon;
     }
 
-    public void setDiscountCoupon(DiscountCoupon discountCoupon) {
-        this.discountCoupon = discountCoupon;
+    public void setCoupon(DiscountCoupon coupon) {
+        this.coupon = coupon;
     }
 
     public Payment getPayment() {
@@ -150,8 +150,8 @@ public class Order implements Serializable {
 
         BigDecimal total = getTotal();
 
-        if (isDiscountCouponPresent() && discountCoupon.isValid()) {
-            BigDecimal discount = discountCoupon.getDiscount();
+        if (isDiscountCouponPresent() && coupon.isValid()) {
+            BigDecimal discount = coupon.getDiscount();
             BigDecimal discountPercentage = discount.divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
             BigDecimal discountValue = total.multiply(discountPercentage);
             total = total.subtract(discountValue);
@@ -167,7 +167,7 @@ public class Order implements Serializable {
     }
 
     public boolean isDiscountCouponPresent() {
-        return discountCoupon != null;
+        return coupon != null;
     }
 
     @Override
@@ -189,6 +189,6 @@ public class Order implements Serializable {
                 + ", moment= " + moment
                 + ", orderStatus= " + orderStatus
                 + ", client= " + client
-                + ", discount coupon= " + discountCoupon + "]";
+                + ", discount coupon= " + coupon + "]";
     }
 }

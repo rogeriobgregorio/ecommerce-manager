@@ -191,7 +191,7 @@ public class OrderServiceImpl implements OrderService {
         String code = orderRequest.getDiscountCouponCode();
         DiscountCoupon discountCoupon = validateDiscountCoupon(code);
 
-        order.setDiscountCoupon(discountCoupon);
+        order.setCoupon(discountCoupon);
 
         return order;
     }
