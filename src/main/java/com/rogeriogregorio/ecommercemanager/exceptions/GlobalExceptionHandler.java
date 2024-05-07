@@ -80,7 +80,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<StandardError> handleRepositoryException(RepositoryException ex) {
 
         StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR,
-                "RepositoryException: error when trying to access the repository", ex.getMessage());
+                "RepositoryException: an error occurred while trying to access the repository", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
@@ -156,6 +156,14 @@ public class GlobalExceptionHandler {
 
         StandardError error = new StandardError(HttpStatus.BAD_REQUEST,
                 "PasswordException: the password does not comply with the security protocol", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(MailException.class)
+    public ResponseEntity<StandardError> handleMailException(MailException ex) {
+
+        StandardError error = new StandardError(HttpStatus.BAD_REQUEST,
+                "MailException: an error occurred in the mail service", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 

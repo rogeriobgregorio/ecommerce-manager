@@ -61,6 +61,9 @@ public class User implements Serializable, UserDetails {
     @NotNull(message = "The user role cannot be null.")
     private UserRole role;
 
+    @Column(name = "enable")
+    private boolean enabled = false;
+
     public User() {
     }
 
@@ -146,6 +149,10 @@ public class User implements Serializable, UserDetails {
         this.role = role;
     }
 
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     @Transient
     @JsonIgnore
     public Set<Product> getPurchasedProducts() {
@@ -218,10 +225,9 @@ public class User implements Serializable, UserDetails {
         return true;
     }
 
-    @JsonIgnore
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.enabled;
     }
 
     @Override

@@ -12,19 +12,19 @@ Este software visa resolver desafios relacionados à gestão de e-commerce, forn
 gerenciamento de:
 
 **Cadastro de Usuários e Administradores:**
-   - Cadastro de administradores
-   - Cadastro de clientes
    - Login seguro
+   - Cadastro de clientes
+   - Cadastro de administradores
 
 **Gestão de Produtos e Inventário:**
-   - Cadastro de categorias para os produtos
-   - Cadastro dos itens de inventário
    - Cadastro de produtos
+   - Cadastro dos itens de inventário
+   - Cadastro de categorias para os produtos
 
 **Gestão de Pedidos e Pagamentos:**
-   - Itens de pedido
-   - Pagamentos
    - Pedidos
+   - Pagamentos
+   - Itens de pedido
 
 **Gestão de Promoções e Descontos:**
    - Desconto em produtos
@@ -35,6 +35,7 @@ gerenciamento de:
    - Movimentações de entrada e saída do estoque
 
 **Comunicação e Review:**
+   - Envio de emails aos clientes
    - Review dos clientes acerca dos produtos
    - Notificações de anúncios dos administradores
 
