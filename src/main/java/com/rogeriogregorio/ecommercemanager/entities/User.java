@@ -62,7 +62,7 @@ public class User implements Serializable, UserDetails {
     private UserRole role;
 
     @Column(name = "enable")
-    private boolean enabled = false;
+    private boolean enabled;
 
     public User() {
     }

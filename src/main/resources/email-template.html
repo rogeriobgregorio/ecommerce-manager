@@ -96,17 +96,17 @@
     <p>Olá, #{name}</p>
     <p>Para ativar sua conta, clique no botão abaixo:</p>
     <!--[if mso]>
-    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="#{URL}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="15%" stroke="f" fillcolor="#007bff">
+    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="http://localhost:8080/api/v1/products/search?token=#{token}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="15%" stroke="f" fillcolor="#007bff">
         <v:textbox inset="0px,0px,0px,0px">
             <center style="color:#ffffff;font-family:'Roboto', sans-serif;font-size:16px;">Ativar Conta</center>
         </v:textbox>
     </v:roundrect>
     <![endif]-->
     <!--[if !mso]><!-->
-    <a href="#{URL}" class="btn">Ativar Conta</a>
+    <a href="http://localhost:8080/api/v1/products/search?token=#{token}" class="btn">Ativar Conta</a>
     <!--<![endif]-->
     <p>Ou copie e cole o seguinte link em seu navegador:</p>
-    <p><a href="#{URL}">#{URL}</a></p>
+    <p><a href="http://localhost:8080/api/v1/products/search?token=#{token}">#{token}</a></p>
     <p>Se você não solicitou esta ativação, por favor, desconsidere este e-mail.</p>
     <p class="footer">Por favor, não responda a este e-mail. Obrigado!</p>
 </div>

@@ -7,9 +7,9 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.PasswordException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
+import com.rogeriogregorio.ecommercemanager.services.MailService;
 import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.services.strategy.PasswordStrategy;
-import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,19 +24,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements com.rogeriogregorio.ecommercemanager.services.UserService {
 
     private final UserRepository userRepository;
+    private final MailService mailService;
     private final List<PasswordStrategy> validators;
     private final ErrorHandler errorHandler;
     private final Converter converter;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, List<PasswordStrategy> validators,
+    public UserServiceImpl(UserRepository userRepository, MailService mailService,
+                           List<PasswordStrategy> validators,
                            ErrorHandler errorHandler, Converter converter) {
 
         this.userRepository = userRepository;
+        this.mailService = mailService;
         this.validators = validators;
         this.errorHandler = errorHandler;
         this.converter = converter;
@@ -69,6 +72,7 @@ public class UserServiceImpl implements UserService {
                 "Error while trying to create the user: ");
         logger.info("User created: {}", user);
 
+        mailService.sendAccountActivationEmail(user);
         return converter.toResponse(user, UserResponse.class);
     }
 
@@ -141,6 +145,15 @@ public class UserServiceImpl implements UserService {
             return null;
         }, "Error while trying to update the user's address: ");
         logger.info("User's address updated: {}", user);
+    }
+
+    public void saveVerifiedEmail(User user) {
+
+        errorHandler.catchException(() -> {
+            userRepository.save(user);
+            return null;
+        }, "Error while trying to save the user's verified email: " + user);
+        logger.info("saved user's verified email: {}", user);
     }
 
     private String validatePassword(String password) {

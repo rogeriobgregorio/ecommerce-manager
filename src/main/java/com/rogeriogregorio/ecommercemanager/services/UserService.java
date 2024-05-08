@@ -27,4 +27,6 @@ public interface UserService {
     Page<UserResponse> findUserByName(String name, Pageable pageable);
 
     void saveUserAddress(User user);
+
+    void saveVerifiedEmail(User user);
 }
