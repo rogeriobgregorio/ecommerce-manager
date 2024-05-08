@@ -5,6 +5,7 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.UUID;
 
 public class UserResponse implements Serializable {
 
@@ -17,6 +18,7 @@ public class UserResponse implements Serializable {
     private String phone;
     private Address address;
     private UserRole userRole;
+    private boolean emailEnabled;
 
     public UserResponse() {
     }
@@ -78,5 +80,13 @@ public class UserResponse implements Serializable {
 
     public void setUserRole(UserRole userRole) {
         this.userRole = userRole;
+    }
+
+    public void setEmailEnabled(boolean emailEnabled) {
+        this.emailEnabled = emailEnabled;
+    }
+
+    public boolean getEmailEnable() {
+        return emailEnabled;
     }
 }

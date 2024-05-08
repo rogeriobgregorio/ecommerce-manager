@@ -7,12 +7,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 public interface UserService {
 
     Page<UserResponse> findAllUsers(Pageable pageable);
 
-    UserResponse createUser(UserRequest userRequest);
+    UserResponse registerUser(UserRequest userRequest);
 
     UserResponse createAdminOrManagerUser(UserRequest userRequest);
 
@@ -27,6 +29,4 @@ public interface UserService {
     Page<UserResponse> findUserByName(String name, Pageable pageable);
 
     void saveUserAddress(User user);
-
-    void saveVerifiedEmail(User user);
 }

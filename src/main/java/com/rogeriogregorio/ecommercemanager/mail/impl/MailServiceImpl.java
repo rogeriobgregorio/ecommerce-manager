@@ -1,15 +1,17 @@
-package com.rogeriogregorio.ecommercemanager.services.impl;
+package com.rogeriogregorio.ecommercemanager.mail.impl;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.exceptions.MailException;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.TokenException;
+import com.rogeriogregorio.ecommercemanager.mail.MailService;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
-import com.rogeriogregorio.ecommercemanager.services.MailService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
+import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 @Service
 public class MailServiceImpl implements MailService {
@@ -45,7 +48,7 @@ public class MailServiceImpl implements MailService {
         this.converter = converter;
     }
 
-    public void sendAccountActivationEmail(User user) {
+    public void sendVerificationEmail(User user) {
 
         try {
             String token = generateEmailVerificationToken(user);
@@ -54,11 +57,11 @@ public class MailServiceImpl implements MailService {
             MimeMessageHelper messageHelper = new MimeMessageHelper(message, true);
 
             messageHelper.setFrom("ecommercemanager@mailservice.com");
-            messageHelper.setSubject("Please activate your account");
+            messageHelper.setSubject("Email Verification Process");
             messageHelper.setTo(user.getEmail());
 
-            String emailTemplate = getAccountActivationEmailTemplate();
-            emailTemplate = emailTemplate.replace("#{nome}", user.getName());
+            String emailTemplate = getVerificationEmailTemplate();
+            emailTemplate = emailTemplate.replace("#{name}", user.getName());
             emailTemplate = emailTemplate.replace("#{token}", token);
 
             messageHelper.setText(emailTemplate, true);
@@ -70,14 +73,14 @@ public class MailServiceImpl implements MailService {
         }
     }
 
-    private String getAccountActivationEmailTemplate() {
+    private String getVerificationEmailTemplate() {
 
         try {
-            ClassPathResource pathResource = new ClassPathResource("email-template.html");
+            ClassPathResource pathResource = new ClassPathResource("verification-email-template.html");
             return new String(pathResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
 
         } catch (IOException ex) {
-            throw new MailException("Error when trying to get account activation email template: ", ex);
+            throw new MailException("Error while trying to get verification email template: ", ex);
         }
     }
 
@@ -93,14 +96,14 @@ public class MailServiceImpl implements MailService {
                         .create()
                         .withIssuer(ISSUER_NAME)
                         .withSubject(user.getEmail())
-                        .withClaim("userId", user.getId())
+                        .withClaim("userId", String.valueOf(user.getId()))
                         .withClaim("userEmail", user.getEmail())
                         .withExpiresAt(generateExpirationDate())
                         .sign(algorithm),
-                "Error generating email verification token");
+                "Error while trying to generate email verification token");
     }
 
-    public void validateEmailVerificationToken(String token) {
+    public UserResponse validateEmailVerificationToken(String token) {
 
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
@@ -109,28 +112,39 @@ public class MailServiceImpl implements MailService {
                         .withIssuer(ISSUER_NAME)
                         .build()
                         .verify(token),
-                "An error occurred when trying to validate the email validation token");
+                "Error while trying to validate the email validation token");
 
-
-        Long userIdFromToken = decodedJWT.getClaim("userId").asLong();
-        User user = converter.toEntity(userRepository.findById(userIdFromToken), User.class);
+        String userIdFromToken = decodedJWT.getClaim("userId").asString();
+        User user = findUserByIdFromToken(userIdFromToken);
 
         String userEmailFromToken = decodedJWT.getClaim("userEmail").asString();
         if (!userEmailFromToken.equals(user.getEmail())) {
-            throw new TokenException("");
+            throw new NotFoundException("The user with the token email was not found");
         }
 
         Instant expirationDate = decodedJWT.getExpiresAt().toInstant();
-        if (!expirationDate.isBefore(Instant.now())) {
-            throw new TokenException("The token has expired");
+        if (expirationDate.isBefore(Instant.now())) {
+            throw new TokenException("Email verification token has expired");
         }
 
-        markEmailAsVerified(user);
+        saveEmailAsEnabled(user);
+        UserResponse userWithEmailEnable = converter.toResponse(user, UserResponse.class);
+        userWithEmailEnable.setEmailEnabled(true);
+
+        return userWithEmailEnable;
     }
 
-    private void markEmailAsVerified(User user) {
+    private User findUserByIdFromToken(String userIdFromToken) {
 
-        user.setEnabled(true);
-        userRepository.save(user);
+        return errorHandler.catchException(() -> userRepository.findById(Long.valueOf(userIdFromToken)),
+                        "Error while trying to search for user by token ID: " + userIdFromToken)
+                .orElseThrow(() -> new NotFoundException("The user with the token ID was not found"));
+    }
+
+    private void saveEmailAsEnabled(User user) {
+
+        user.setEmailEnabled(true);
+        errorHandler.catchException(() -> userRepository.save(user),
+                "Error while trying to save verified email");
     }
 }

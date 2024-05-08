@@ -2,6 +2,7 @@ package com.rogeriogregorio.ecommercemanager.dto.requests;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.UUID;
 
 public class AddressRequest implements Serializable {
 

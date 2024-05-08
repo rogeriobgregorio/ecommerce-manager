@@ -6,7 +6,7 @@ import com.rogeriogregorio.ecommercemanager.entities.*;
 import com.rogeriogregorio.ecommercemanager.entities.enums.MovementType;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.StockMovementService;
 import com.rogeriogregorio.ecommercemanager.util.Converter;

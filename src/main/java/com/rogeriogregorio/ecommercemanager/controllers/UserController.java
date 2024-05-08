@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/api/v1")
@@ -37,7 +38,7 @@ public class UserController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(userService.createUser(userRequest));
+                .body(userService.registerUser(userRequest));
     }
 
     @PatchMapping(value = "/users/roles")

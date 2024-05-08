@@ -144,7 +144,7 @@ class UserServiceImplTest {
         when(userRepository.save(user)).thenReturn(user);
 
         // Act
-        UserResponse actualResponse = userService.createUser(userRequest);
+        UserResponse actualResponse = userService.registerUser(userRequest);
 
         // Assert
         assertNotNull(actualResponse, "UserResponse should not be null");
@@ -166,7 +166,7 @@ class UserServiceImplTest {
         when(userRepository.save(user)).thenThrow(PersistenceException.class);
 
         // Act and Assert
-        assertThrows(RepositoryException.class, () -> userService.createUser(userRequest), "Expected DataIntegrityException due to duplicate email");
+        assertThrows(RepositoryException.class, () -> userService.registerUser(userRequest), "Expected DataIntegrityException due to duplicate email");
 
         verify(converter, times(1)).toEntity(userRequest, User.class);
         verify(userRepository, times(1)).save(user);
@@ -183,7 +183,7 @@ class UserServiceImplTest {
         when(userRepository.save(user)).thenThrow(PersistenceException.class);
 
         // Act and Assert
-        assertThrows(RepositoryException.class, () -> userService.createUser(userRequest), "Expected RepositoryException due to a PersistenceException");
+        assertThrows(RepositoryException.class, () -> userService.registerUser(userRequest), "Expected RepositoryException due to a PersistenceException");
 
         verify(converter, times(1)).toEntity(userRequest, User.class);
         verify(userRepository, times(1)).save(user);

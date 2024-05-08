@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Size;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Table(name = "tb_addresses")
@@ -19,6 +20,7 @@ public class Address implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "street")
@@ -55,7 +57,9 @@ public class Address implements Serializable {
     public Address() {
     }
 
-    public Address(String street, String city, String state, String cep, String country) {
+    public Address(String street, String city,
+                   String state, String cep, String country) {
+
         this.street = street;
         this.city = city;
         this.state = state;
@@ -63,7 +67,9 @@ public class Address implements Serializable {
         this.country = country;
     }
 
-    public Address(Long id, String street, String city, String state, String cep, String country) {
+    public Address(Long id, String street, String city,
+                   String state, String cep, String country) {
+
         this.id = id;
         this.street = street;
         this.city = city;

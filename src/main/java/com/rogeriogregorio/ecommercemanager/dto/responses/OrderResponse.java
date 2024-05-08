@@ -32,6 +32,7 @@ public class OrderResponse implements Serializable {
 
     public OrderResponse(Long id, Instant moment, OrderStatus orderStatus,
                          User client, DiscountCoupon discountCoupon) {
+
         this.id = id;
         this.moment = moment;
         setOrderStatus(orderStatus);

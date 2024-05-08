@@ -5,6 +5,7 @@ import com.rogeriogregorio.ecommercemanager.entities.User;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.UUID;
 
 public class AddressResponse implements Serializable {
 
@@ -23,7 +24,9 @@ public class AddressResponse implements Serializable {
     public AddressResponse() {
     }
 
-    public AddressResponse(Long id, String street, String city, String state, String cep, String country) {
+    public AddressResponse(Long id, String street, String city,
+                           String state, String cep, String country) {
+
         this.id = id;
         this.street = street;
         this.city = city;

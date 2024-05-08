@@ -1,6 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.util.impl;
 
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

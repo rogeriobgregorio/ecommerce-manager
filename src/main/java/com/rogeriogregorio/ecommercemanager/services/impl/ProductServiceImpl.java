@@ -10,7 +10,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.ProductRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import com.rogeriogregorio.ecommercemanager.services.ProductDiscountService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

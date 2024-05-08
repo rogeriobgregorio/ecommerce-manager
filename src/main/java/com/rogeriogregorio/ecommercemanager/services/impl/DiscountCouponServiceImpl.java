@@ -6,7 +6,7 @@ import com.rogeriogregorio.ecommercemanager.entities.DiscountCoupon;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.DiscountCouponRepository;
 import com.rogeriogregorio.ecommercemanager.services.DiscountCouponService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

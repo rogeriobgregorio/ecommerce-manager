@@ -10,7 +10,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.services.*;
 import com.rogeriogregorio.ecommercemanager.services.strategy.OrderStrategy;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

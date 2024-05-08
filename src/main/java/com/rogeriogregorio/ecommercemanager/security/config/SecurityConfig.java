@@ -37,8 +37,9 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/api/v1/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/authentication").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/email-verification/search").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/addresses").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/addresses").hasAnyRole("ADMIN", "MANAGER", "CLIENT")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/addresses").hasAnyRole("ADMIN", "MANAGER", "CLIENT")

@@ -24,6 +24,7 @@ public class User implements Serializable, UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "name")
@@ -61,8 +62,8 @@ public class User implements Serializable, UserDetails {
     @NotNull(message = "The user role cannot be null.")
     private UserRole role;
 
-    @Column(name = "enable")
-    private boolean enabled;
+    @Column(name = "email_enable")
+    private boolean emailEnabled;
 
     public User() {
     }
@@ -149,8 +150,12 @@ public class User implements Serializable, UserDetails {
         this.role = role;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public void setEmailEnabled(boolean emailEnabled) {
+        this.emailEnabled = emailEnabled;
+    }
+
+    public boolean getEmailEnable() {
+        return emailEnabled;
     }
 
     @Transient
@@ -225,9 +230,10 @@ public class User implements Serializable, UserDetails {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isEnabled() {
-        return this.enabled;
+        return true;
     }
 
     @Override

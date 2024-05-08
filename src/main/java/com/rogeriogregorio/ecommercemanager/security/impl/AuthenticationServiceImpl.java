@@ -38,7 +38,5 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String token = tokenService.generateAuthenticationToken((User) authenticate.getPrincipal());
 
         return new LoginResponse(token);
-
-
     }
 }

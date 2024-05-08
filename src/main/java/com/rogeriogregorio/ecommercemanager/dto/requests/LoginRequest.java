@@ -1,7 +1,5 @@
 package com.rogeriogregorio.ecommercemanager.dto.requests;
 
-import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
-
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -12,15 +10,13 @@ public class LoginRequest implements Serializable {
 
     private String email;
     private String password;
-    private UserRole userRole;
 
     public LoginRequest() {
     }
 
-    public LoginRequest(String email, String password, UserRole userRole) {
+    public LoginRequest(String email, String password) {
         this.email = email;
         this.password = password;
-        this.userRole = userRole;
     }
 
     public String getEmail() {
@@ -37,13 +33,5 @@ public class LoginRequest implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public UserRole getUserRole() {
-        return userRole;
-    }
-
-    public void setUserRole(UserRole userRole) {
-        this.userRole = userRole;
     }
 }

@@ -4,7 +4,7 @@ import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.security.AuthorizationService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.services.template;
+package com.rogeriogregorio.ecommercemanager.util.impl;
 
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
@@ -6,7 +6,9 @@ import com.rogeriogregorio.ecommercemanager.exceptions.ConverterException;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.exceptions.TokenException;
+import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import org.modelmapper.MappingException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionException;
@@ -22,7 +24,7 @@ public class ErrorHandlerImpl implements ErrorHandler {
         try {
             return method.get();
 
-        } catch (TransactionException ex) {
+        } catch (TransactionException | DataAccessException ex) {
             throw new RepositoryException(errorMessage, ex);
 
         } catch (UsernameNotFoundException ex) {

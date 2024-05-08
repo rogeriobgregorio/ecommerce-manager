@@ -6,11 +6,12 @@ import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.PasswordException;
+import com.rogeriogregorio.ecommercemanager.mail.MailService;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
-import com.rogeriogregorio.ecommercemanager.services.MailService;
-import com.rogeriogregorio.ecommercemanager.services.template.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.services.strategy.PasswordStrategy;
 import com.rogeriogregorio.ecommercemanager.util.Converter;
+import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class UserServiceImpl implements com.rogeriogregorio.ecommercemanager.services.UserService {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final MailService mailService;
@@ -34,8 +35,8 @@ public class UserServiceImpl implements com.rogeriogregorio.ecommercemanager.ser
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, MailService mailService,
-                           List<PasswordStrategy> validators,
+    public UserServiceImpl(UserRepository userRepository,
+                           MailService mailService, List<PasswordStrategy> validators,
                            ErrorHandler errorHandler, Converter converter) {
 
         this.userRepository = userRepository;
@@ -63,16 +64,16 @@ public class UserServiceImpl implements com.rogeriogregorio.ecommercemanager.ser
     }
 
     @Transactional(readOnly = false)
-    public UserResponse createUser(UserRequest userRequest) {
+    public UserResponse registerUser(UserRequest userRequest) {
 
         userRequest.setId(null);
         User user = buildUser(userRequest);
 
         errorHandler.catchException(() -> userRepository.save(user),
-                "Error while trying to create the user: ");
-        logger.info("User created: {}", user);
+                "Error while trying to register the user: ");
+        logger.info("User registered: {}", user);
 
-        mailService.sendAccountActivationEmail(user);
+        mailService.sendVerificationEmail(user);
         return converter.toResponse(user, UserResponse.class);
     }
 
@@ -96,7 +97,7 @@ public class UserServiceImpl implements com.rogeriogregorio.ecommercemanager.ser
 
         errorHandler.catchException(() -> userRepository.save(user),
                 "Error trying to update user role: ");
-        logger.info("User updated: {}", user);
+        logger.info("User role updated: {}", user);
 
         return converter.toResponse(user, UserResponse.class);
     }
@@ -145,15 +146,6 @@ public class UserServiceImpl implements com.rogeriogregorio.ecommercemanager.ser
             return null;
         }, "Error while trying to update the user's address: ");
         logger.info("User's address updated: {}", user);
-    }
-
-    public void saveVerifiedEmail(User user) {
-
-        errorHandler.catchException(() -> {
-            userRepository.save(user);
-            return null;
-        }, "Error while trying to save the user's verified email: " + user);
-        logger.info("saved user's verified email: {}", user);
     }
 
     private String validatePassword(String password) {

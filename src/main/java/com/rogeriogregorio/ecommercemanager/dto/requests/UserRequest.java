@@ -4,6 +4,7 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.UUID;
 
 public class UserRequest implements Serializable {
 
