@@ -150,12 +150,12 @@ public class User implements Serializable, UserDetails {
         this.role = role;
     }
 
-    public void setEmailEnabled(boolean emailEnabled) {
-        this.emailEnabled = emailEnabled;
+    public boolean isEmailEnabled() {
+        return emailEnabled;
     }
 
-    public boolean getEmailEnable() {
-        return emailEnabled;
+    public void setEmailEnabled(boolean emailEnabled) {
+        this.emailEnabled = emailEnabled;
     }
 
     @Transient

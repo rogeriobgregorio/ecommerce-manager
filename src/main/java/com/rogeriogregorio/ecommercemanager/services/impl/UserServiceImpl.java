@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -73,7 +74,8 @@ public class UserServiceImpl implements UserService {
                 "Error while trying to register the user: ");
         logger.info("User registered: {}", user);
 
-        mailService.sendVerificationEmail(user);
+        CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user));
+
         return converter.toResponse(user, UserResponse.class);
     }
 

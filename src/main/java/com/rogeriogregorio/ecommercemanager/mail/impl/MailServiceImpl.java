@@ -20,12 +20,12 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.UUID;
 
 @Service
 public class MailServiceImpl implements MailService {
@@ -103,6 +103,7 @@ public class MailServiceImpl implements MailService {
                 "Error while trying to generate email verification token");
     }
 
+    @Transactional(readOnly = false)
     public UserResponse validateEmailVerificationToken(String token) {
 
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
@@ -128,10 +129,8 @@ public class MailServiceImpl implements MailService {
         }
 
         saveEmailAsEnabled(user);
-        UserResponse userWithEmailEnable = converter.toResponse(user, UserResponse.class);
-        userWithEmailEnable.setEmailEnabled(true);
 
-        return userWithEmailEnable;
+        return converter.toResponse(user, UserResponse.class);
     }
 
     private User findUserByIdFromToken(String userIdFromToken) {
