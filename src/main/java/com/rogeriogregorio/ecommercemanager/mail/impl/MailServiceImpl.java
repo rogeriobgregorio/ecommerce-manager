@@ -10,7 +10,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.TokenException;
 import com.rogeriogregorio.ecommercemanager.mail.MailService;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
-import com.rogeriogregorio.ecommercemanager.util.Converter;
+import com.rogeriogregorio.ecommercemanager.util.Mapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -36,17 +36,22 @@ public class MailServiceImpl implements MailService {
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
     private final ErrorHandler errorHandler;
-    private final Converter converter;
+    private final Mapper mapper;
     private static final String ISSUER_NAME = "ecommerce-manager";
 
     @Autowired
     public MailServiceImpl(JavaMailSender mailSender, UserRepository userRepository,
-                           ErrorHandler errorHandler, Converter converter) {
+                           ErrorHandler errorHandler, Mapper mapper) {
 
         this.mailSender = mailSender;
         this.userRepository = userRepository;
         this.errorHandler = errorHandler;
-        this.converter = converter;
+        this.mapper = mapper;
+    }
+
+    private Instant generateExpirationDate() {
+
+        return Instant.now().plus(2, ChronoUnit.HOURS);
     }
 
     public void sendVerificationEmail(User user) {
@@ -83,10 +88,6 @@ public class MailServiceImpl implements MailService {
         } catch (IOException ex) {
             throw new MailException("Error while trying to get verification email template: ", ex);
         }
-    }
-
-    private Instant generateExpirationDate() {
-        return Instant.now().plus(2, ChronoUnit.HOURS);
     }
 
     public String generateEmailVerificationToken(User user) {
@@ -130,8 +131,7 @@ public class MailServiceImpl implements MailService {
         }
 
         saveEmailAsEnabled(user);
-
-        return converter.toResponse(user, UserResponse.class);
+        return mapper.toResponse(user, UserResponse.class);
     }
 
     private User findUserByIdFromToken(String userIdFromToken) {

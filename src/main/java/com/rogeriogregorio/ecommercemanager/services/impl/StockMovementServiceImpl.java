@@ -9,7 +9,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.StockMovementService;
-import com.rogeriogregorio.ecommercemanager.util.Converter;
+import com.rogeriogregorio.ecommercemanager.util.Mapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,18 +26,18 @@ public class StockMovementServiceImpl implements StockMovementService {
     private final StockMovementRepository stockMovementRepository;
     private final InventoryItemService inventoryItemService;
     private final ErrorHandler errorHandler;
-    private final Converter converter;
+    private final Mapper mapper;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public StockMovementServiceImpl(StockMovementRepository stockMovementRepository,
                                     InventoryItemService inventoryItemService,
-                                    ErrorHandler errorHandler, Converter converter) {
+                                    ErrorHandler errorHandler, Mapper mapper) {
 
         this.stockMovementRepository = stockMovementRepository;
         this.inventoryItemService = inventoryItemService;
         this.errorHandler = errorHandler;
-        this.converter = converter;
+        this.mapper = mapper;
     }
 
     @Transactional(readOnly = true)
@@ -45,7 +45,7 @@ public class StockMovementServiceImpl implements StockMovementService {
 
         return errorHandler.catchException(() -> stockMovementRepository.findAll(pageable),
                 "Error while trying to fetch all inventory movements: ")
-                .map(stockMovement -> converter.toResponse(stockMovement, StockMovementResponse.class));
+                .map(stockMovement -> mapper.toResponse(stockMovement, StockMovementResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -58,7 +58,7 @@ public class StockMovementServiceImpl implements StockMovementService {
                 "Error while trying to create the inventory movement:");
         logger.info("Inventory movement created: {}", stockMovement);
 
-        return converter.toResponse(stockMovement, StockMovementResponse.class);
+        return mapper.toResponse(stockMovement, StockMovementResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -66,7 +66,7 @@ public class StockMovementServiceImpl implements StockMovementService {
 
         return errorHandler.catchException(() -> stockMovementRepository.findById(id),
                 "Error while trying to fetch inventory movement by ID: " + id)
-                .map(stockMovement -> converter.toResponse(stockMovement, StockMovementResponse.class))
+                .map(stockMovement -> mapper.toResponse(stockMovement, StockMovementResponse.class))
                 .orElseThrow(() -> new NotFoundException("Inventory movement not found with ID: " + id + "."));
     }
 
@@ -80,7 +80,7 @@ public class StockMovementServiceImpl implements StockMovementService {
                 "Error while trying to update inventory movement: ");
         logger.info("Inventory movement updated: {}", stockMovement);
 
-        return converter.toResponse(stockMovement, StockMovementResponse.class);
+        return mapper.toResponse(stockMovement, StockMovementResponse.class);
     }
 
     @Transactional(readOnly = false)

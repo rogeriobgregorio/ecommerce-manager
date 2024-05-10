@@ -34,12 +34,13 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     @PostConstruct
-    private void createDefaultAdminUser() {
+    private void createDefaultAdmin() {
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(secretPassword);
-        User adminUser = new User("Admin", "admin@email.com", "11912345678", encryptedPassword, UserRole.ADMIN);
+        String password = new BCryptPasswordEncoder().encode(secretPassword);
 
-        handler.catchException(() -> userRepository.save(adminUser),
+        User admin = new User("Admin", "admin@email.com", "11912345678", password, UserRole.ADMIN);
+
+        handler.catchException(() -> userRepository.save(admin),
                 "An error occurred while creating the default admin user");
     }
 }

@@ -102,17 +102,17 @@
     <p>Olá, #{name}</p>
     <p>Para verificar seu e-mail, clique no botão abaixo:</p>
     <!--[if mso]>
-    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="http://localhost:8080/api/v1/email-verification/search?token=#{token}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="15%" stroke="f" fillcolor="#007bff">
+    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="http://localhost:8080/api/v1/validate-email/search?token=#{token}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="15%" stroke="f" fillcolor="#007bff">
         <v:textbox inset="0px,0px,0px,0px">
             <center style="color:#ffffff;font-family:'Roboto', sans-serif;font-size:16px;">Verificar E-mail</center>
         </v:textbox>
     </v:roundrect>
     <![endif]-->
     <!--[if !mso]><!-->
-    <a href="http://localhost:8080/api/v1/email-verification/search?token=#{token}" class="btn">Verificar E-mail</a>
+    <a href="http://localhost:8080/api/v1/validate-email/search?token=#{token}" class="btn">Verificar E-mail</a>
     <!--<![endif]-->
     <p>Ou copie e cole o seguinte link em seu navegador:</p>
-    <p class="url"><a href="http://localhost:8080/api/v1/email-verification/search?token=#{token}">http://localhost:8080/api/v1/email-verification/search?token=#{token}</a></p>
+    <p class="url"><a href="http://localhost:8080/api/v1/validate-email/search?token=#{token}">http://localhost:8080/api/v1/validate-email/search?token=#{token}</a></p>
     <p>Se você não solicitou esta verificação, por favor, desconsidere este e-mail.</p>
     <p class="footer">Por favor, não responda a este e-mail. Obrigado!</p>
 </div>

@@ -11,7 +11,7 @@ import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import com.rogeriogregorio.ecommercemanager.services.ProductDiscountService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
-import com.rogeriogregorio.ecommercemanager.util.Converter;
+import com.rogeriogregorio.ecommercemanager.util.Mapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,20 +29,20 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryService categoryService;
     private final ProductDiscountService productDiscountService;
     private final ErrorHandler errorHandler;
-    private final Converter converter;
+    private final Mapper mapper;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public ProductServiceImpl(ProductRepository productRepository,
                               CategoryService categoryService,
                               ProductDiscountService productDiscountService,
-                              ErrorHandler errorHandler, Converter converter) {
+                              ErrorHandler errorHandler, Mapper mapper) {
 
         this.productRepository = productRepository;
         this.categoryService = categoryService;
         this.productDiscountService = productDiscountService;
         this.errorHandler = errorHandler;
-        this.converter = converter;
+        this.mapper = mapper;
     }
 
     @Transactional(readOnly = true)
@@ -50,7 +50,7 @@ public class ProductServiceImpl implements ProductService {
 
         return errorHandler.catchException(() -> productRepository.findAll(pageable),
                         "Error while trying to fetch all products: ")
-                .map(product -> converter.toResponse(product, ProductResponse.class));
+                .map(product -> mapper.toResponse(product, ProductResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -63,7 +63,7 @@ public class ProductServiceImpl implements ProductService {
                 "Error while trying to create the product: ");
         logger.info("Product created: {}", product);
 
-        return converter.toResponse(product, ProductResponse.class);
+        return mapper.toResponse(product, ProductResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -71,7 +71,7 @@ public class ProductServiceImpl implements ProductService {
 
         return errorHandler.catchException(() -> productRepository.findById(id),
                         "Error while trying to create the product: ")
-                .map(product -> converter.toResponse(product, ProductResponse.class))
+                .map(product -> mapper.toResponse(product, ProductResponse.class))
                 .orElseThrow(() -> new NotFoundException("Product response not found with ID: " + id + "."));
     }
 
@@ -84,7 +84,7 @@ public class ProductServiceImpl implements ProductService {
                 "Error while trying to update the product: ");
         logger.info("Product updated: {}", product);
 
-        return converter.toResponse(product, ProductResponse.class);
+        return mapper.toResponse(product, ProductResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -104,7 +104,7 @@ public class ProductServiceImpl implements ProductService {
 
         return errorHandler.catchException(() -> productRepository.findByName(name, pageable),
                         "Error while trying to fetch the product by name: ")
-                .map(product -> converter.toResponse(product, ProductResponse.class));
+                .map(product -> mapper.toResponse(product, ProductResponse.class));
     }
 
     public Product findProductById(Long id) {
@@ -126,7 +126,7 @@ public class ProductServiceImpl implements ProductService {
 
     private Product buildCreateProduct(ProductRequest productRequest) {
 
-        Product product = converter.toEntity(productRequest, Product.class);
+        Product product = mapper.toEntity(productRequest, Product.class);
 
         List<Long> categoryIdList = productRequest.getCategoryIdList();
         List<Category> categoryList = categoryService.findAllCategoriesByIds(categoryIdList);
@@ -139,7 +139,7 @@ public class ProductServiceImpl implements ProductService {
     private Product buildUpdateProduct(ProductRequest productRequest) {
 
         isProductExists(productRequest.getId());
-        Product product = converter.toEntity(productRequest, Product.class);
+        Product product = mapper.toEntity(productRequest, Product.class);
 
         Long discountId = productRequest.getDiscountId();
         ProductDiscount discount = null;

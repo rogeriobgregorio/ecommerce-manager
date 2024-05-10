@@ -10,7 +10,7 @@ import com.rogeriogregorio.ecommercemanager.mail.MailService;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.services.strategy.PasswordStrategy;
-import com.rogeriogregorio.ecommercemanager.util.Converter;
+import com.rogeriogregorio.ecommercemanager.util.Mapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,19 +33,19 @@ public class UserServiceImpl implements UserService {
     private final MailService mailService;
     private final List<PasswordStrategy> validators;
     private final ErrorHandler errorHandler;
-    private final Converter converter;
+    private final Mapper mapper;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
                            MailService mailService, List<PasswordStrategy> validators,
-                           ErrorHandler errorHandler, Converter converter) {
+                           ErrorHandler errorHandler, Mapper mapper) {
 
         this.userRepository = userRepository;
         this.mailService = mailService;
         this.validators = validators;
         this.errorHandler = errorHandler;
-        this.converter = converter;
+        this.mapper = mapper;
     }
 
     @Transactional(readOnly = true)
@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
 
         return errorHandler.catchException(() -> userRepository.findAll(pageable),
                 "Error while trying to fetch all users: ")
-                .map(user -> converter.toResponse(user, UserResponse.class));
+                .map(user -> mapper.toResponse(user, UserResponse.class));
     }
 
     @Transactional(readOnly = true)
@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
 
         return errorHandler.catchException(() -> userRepository.findById(id),
                 "Error while trying to fetch the user by ID: " + id)
-                .map(user -> converter.toResponse(user, UserResponse.class))
+                .map(user -> mapper.toResponse(user, UserResponse.class))
                 .orElseThrow(() -> new NotFoundException("User response not found with ID: " + id + "."));
     }
 
@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse registerUser(UserRequest userRequest) {
 
         userRequest.setId(null);
-        User user = buildUser(userRequest);
+        User user = buildCreateUser(userRequest);
 
         errorHandler.catchException(() -> userRepository.save(user),
                 "Error while trying to register the user: ");
@@ -77,20 +77,20 @@ public class UserServiceImpl implements UserService {
 
         CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user));
 
-        return converter.toResponse(user, UserResponse.class);
+        return mapper.toResponse(user, UserResponse.class);
     }
 
     @Transactional(readOnly = false)
     public UserResponse updateUser(UserRequest userRequest) {
 
         isUserExists(userRequest.getId());
-        User user = buildUser(userRequest);
+        User user = buildUpdateUser(userRequest);
 
         errorHandler.catchException(() -> userRepository.save(user),
                 "Error while trying to update the user: ");
         logger.info("User updated: {}", user);
 
-        return converter.toResponse(user, UserResponse.class);
+        return mapper.toResponse(user, UserResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -102,7 +102,7 @@ public class UserServiceImpl implements UserService {
                 "Error trying to update user role: ");
         logger.info("User role updated: {}", user);
 
-        return converter.toResponse(user, UserResponse.class);
+        return mapper.toResponse(user, UserResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -122,7 +122,7 @@ public class UserServiceImpl implements UserService {
 
         return errorHandler.catchException(() -> userRepository.findByName(name, pageable),
                 "Error while trying to fetch the user by name: ").
-                map(user -> converter.toResponse(user, UserResponse.class));
+                map(user -> mapper.toResponse(user, UserResponse.class));
     }
 
     public User findUserById(UUID id) {
@@ -168,13 +168,21 @@ public class UserServiceImpl implements UserService {
         return new BCryptPasswordEncoder().encode(password);
     }
 
-    private User buildUser(UserRequest userRequest) {
+    private User buildCreateUser(UserRequest userRequest) {
 
         String encodedPassword = validatePassword(userRequest.getPassword());
         userRequest.setPassword(encodedPassword);
         userRequest.setUserRole(UserRole.CLIENT);
 
-        return converter.toEntity(userRequest, User.class);
+        return mapper.toEntity(userRequest, User.class);
+    }
+
+    private User buildUpdateUser(UserRequest userRequest) {
+
+        User user = findUserById(userRequest.getId());
+        user = mapper.transferData(userRequest, user);
+
+        return user;
     }
 
     private User buildAdminOrManagerUser(UserRequest userRequest) {

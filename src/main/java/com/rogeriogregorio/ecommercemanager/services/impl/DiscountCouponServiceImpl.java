@@ -7,7 +7,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.DiscountCouponRepository;
 import com.rogeriogregorio.ecommercemanager.services.DiscountCouponService;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
-import com.rogeriogregorio.ecommercemanager.util.Converter;
+import com.rogeriogregorio.ecommercemanager.util.Mapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,16 +23,16 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
 
     private final DiscountCouponRepository discountCouponRepository;
     private final ErrorHandler errorHandler;
-    private final Converter converter;
+    private final Mapper mapper;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public DiscountCouponServiceImpl(DiscountCouponRepository discountCouponRepository,
-                                     ErrorHandler errorHandler, Converter converter) {
+                                     ErrorHandler errorHandler, Mapper mapper) {
 
         this.discountCouponRepository = discountCouponRepository;
         this.errorHandler = errorHandler;
-        this.converter = converter;
+        this.mapper = mapper;
     }
 
     @Transactional(readOnly = true)
@@ -40,7 +40,7 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
 
         return errorHandler.catchException(() -> discountCouponRepository.findAll(pageable),
                         "Error while trying to fetch all discount coupons: ")
-                .map(discountCoupon -> converter.toResponse(discountCoupon, DiscountCouponResponse.class));
+                .map(discountCoupon -> mapper.toResponse(discountCoupon, DiscountCouponResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -53,7 +53,7 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
                 "Error while trying to create the discount coupon: ");
         logger.info("Discount coupon created: {}", discountCoupon);
 
-        return converter.toResponse(discountCoupon, DiscountCouponResponse.class);
+        return mapper.toResponse(discountCoupon, DiscountCouponResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -61,7 +61,7 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
 
         return errorHandler.catchException(() -> discountCouponRepository.findById(id),
                         "Error while trying to find the discount coupon by ID: ")
-                .map(discountCoupon -> converter.toResponse(discountCoupon, DiscountCouponResponse.class))
+                .map(discountCoupon -> mapper.toResponse(discountCoupon, DiscountCouponResponse.class))
                 .orElseThrow(() -> new NotFoundException("Discount coupon not found with ID: " + id + "."));
     }
 
@@ -75,7 +75,7 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
                 "Error while trying to update the discount coupon: ");
         logger.info("Discount Coupon updated: {}", discountCoupon);
 
-        return converter.toResponse(discountCoupon, DiscountCouponResponse.class);
+        return mapper.toResponse(discountCoupon, DiscountCouponResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -123,6 +123,6 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
 
         validateCouponDates(discountCouponRequest);
 
-        return converter.toEntity(discountCouponRequest, DiscountCoupon.class);
+        return mapper.toEntity(discountCouponRequest, DiscountCoupon.class);
     }
 }

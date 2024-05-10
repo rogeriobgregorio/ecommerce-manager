@@ -10,7 +10,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.*;
 import com.rogeriogregorio.ecommercemanager.services.strategy.PaymentStrategy;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
-import com.rogeriogregorio.ecommercemanager.util.Converter;
+import com.rogeriogregorio.ecommercemanager.util.Mapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final OrderService orderService;
     private final List<PaymentStrategy> validators;
     private final ErrorHandler errorHandler;
-    private final Converter converter;
+    private final Mapper mapper;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
@@ -39,7 +39,7 @@ public class PaymentServiceImpl implements PaymentService {
                               InventoryItemService inventoryItemService,
                               StockMovementService stockMovementService,
                               OrderService orderService,
-                              List<PaymentStrategy> validators, ErrorHandler errorHandler, Converter converter) {
+                              List<PaymentStrategy> validators, ErrorHandler errorHandler, Mapper mapper) {
 
         this.paymentRepository = paymentRepository;
         this.inventoryItemService = inventoryItemService;
@@ -47,7 +47,7 @@ public class PaymentServiceImpl implements PaymentService {
         this.orderService = orderService;
         this.validators = validators;
         this.errorHandler = errorHandler;
-        this.converter = converter;
+        this.mapper = mapper;
     }
 
     @Transactional(readOnly = true)
@@ -55,7 +55,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         return errorHandler.catchException(() -> paymentRepository.findAll(pageable),
                         "Error while trying to fetch all payments: ")
-                .map(payment -> converter.toResponse(payment, PaymentResponse.class));
+                .map(payment -> mapper.toResponse(payment, PaymentResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -69,7 +69,7 @@ public class PaymentServiceImpl implements PaymentService {
         logger.info("Payment created: {}", payment);
 
         updateInventoryStock(payment);
-        return converter.toResponse(payment, PaymentResponse.class);
+        return mapper.toResponse(payment, PaymentResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -77,7 +77,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         return errorHandler.catchException(() -> paymentRepository.findById(id),
                         "Error while trying to find the payment by ID: ")
-                .map(payment -> converter.toResponse(payment, PaymentResponse.class))
+                .map(payment -> mapper.toResponse(payment, PaymentResponse.class))
                 .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + "."));
     }
 

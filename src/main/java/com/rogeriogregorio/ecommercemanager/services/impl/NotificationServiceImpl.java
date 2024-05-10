@@ -7,7 +7,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.NotificationRepository;
 import com.rogeriogregorio.ecommercemanager.services.NotificationService;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
-import com.rogeriogregorio.ecommercemanager.util.Converter;
+import com.rogeriogregorio.ecommercemanager.util.Mapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,16 +23,16 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final ErrorHandler errorHandler;
-    private final Converter converter;
+    private final Mapper mapper;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public NotificationServiceImpl(NotificationRepository notificationRepository,
-                                   ErrorHandler errorHandler, Converter converter) {
+                                   ErrorHandler errorHandler, Mapper mapper) {
 
         this.notificationRepository = notificationRepository;
         this.errorHandler = errorHandler;
-        this.converter = converter;
+        this.mapper = mapper;
     }
 
     @Transactional(readOnly = true)
@@ -40,7 +40,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         return errorHandler.catchException(() -> notificationRepository.findAll(pageable),
                         "Error while trying to fetch all notifications: ")
-                .map(notification -> converter.toResponse(notification, NotificationResponse.class));
+                .map(notification -> mapper.toResponse(notification, NotificationResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -53,7 +53,7 @@ public class NotificationServiceImpl implements NotificationService {
                 "Error while trying to create the notification: ");
         logger.info("Notification created: {}", notification);
 
-        return converter.toResponse(notification, NotificationResponse.class);
+        return mapper.toResponse(notification, NotificationResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -61,7 +61,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         return errorHandler.catchException(() -> notificationRepository.findById(id),
                         "Error while trying to find the notification by ID: ")
-                .map(notification -> converter.toResponse(notification, NotificationResponse.class))
+                .map(notification -> mapper.toResponse(notification, NotificationResponse.class))
                 .orElseThrow(() -> new NotFoundException("Notification not found with ID: " + id + "."));
     }
 
@@ -75,7 +75,7 @@ public class NotificationServiceImpl implements NotificationService {
                 "Error while trying to update the notification: ");
         logger.info("Notification update: {}", notification);
 
-        return converter.toResponse(notification, NotificationResponse.class);
+        return mapper.toResponse(notification, NotificationResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -115,6 +115,6 @@ public class NotificationServiceImpl implements NotificationService {
 
         validateNotificationDates(notificationRequest);
 
-        return converter.toEntity(notificationRequest, Notification.class);
+        return mapper.toEntity(notificationRequest, Notification.class);
     }
 }

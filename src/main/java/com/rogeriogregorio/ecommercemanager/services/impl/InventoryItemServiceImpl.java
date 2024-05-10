@@ -5,14 +5,14 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.InventoryItemResponse;
 import com.rogeriogregorio.ecommercemanager.entities.*;
 import com.rogeriogregorio.ecommercemanager.entities.enums.MovementType;
 import com.rogeriogregorio.ecommercemanager.entities.enums.StockStatus;
-import com.rogeriogregorio.ecommercemanager.exceptions.InsufficientStockException;
+import com.rogeriogregorio.ecommercemanager.exceptions.StockException;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.InventoryItemRepository;
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
-import com.rogeriogregorio.ecommercemanager.util.Converter;
+import com.rogeriogregorio.ecommercemanager.util.Mapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,20 +30,20 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     private final StockMovementRepository stockMovementRepository;
     private final ProductService productService;
     private final ErrorHandler errorHandler;
-    private final Converter converter;
+    private final Mapper mapper;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public InventoryItemServiceImpl(InventoryItemRepository inventoryItemRepository,
                                     StockMovementRepository stockMovementRepository,
                                     ProductService productService,
-                                    ErrorHandler errorHandler, Converter converter) {
+                                    ErrorHandler errorHandler, Mapper mapper) {
 
         this.inventoryItemRepository = inventoryItemRepository;
         this.stockMovementRepository = stockMovementRepository;
         this.productService = productService;
         this.errorHandler = errorHandler;
-        this.converter = converter;
+        this.mapper = mapper;
     }
 
     @Transactional(readOnly = true)
@@ -51,7 +51,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         return errorHandler.catchException(() -> inventoryItemRepository.findAll(pageable),
                         "Error while trying to fetch all inventory items: ")
-                .map(inventoryItem -> converter.toResponse(inventoryItem, InventoryItemResponse.class));
+                .map(inventoryItem -> mapper.toResponse(inventoryItem, InventoryItemResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -65,7 +65,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         logger.info("Inventory item created: {}", inventoryItem);
 
         updateStockMovementEntrance(inventoryItem);
-        return converter.toResponse(inventoryItem, InventoryItemResponse.class);
+        return mapper.toResponse(inventoryItem, InventoryItemResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -73,7 +73,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         return errorHandler.catchException(() -> inventoryItemRepository.findById(id),
                         "Error while trying to find the inventory item by ID: ")
-                .map(inventoryItem -> converter.toResponse(inventoryItem, InventoryItemResponse.class))
+                .map(inventoryItem -> mapper.toResponse(inventoryItem, InventoryItemResponse.class))
                 .orElseThrow(() -> new NotFoundException("Inventory item response not found with ID: " + id + "."));
     }
 
@@ -86,7 +86,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 "Error while trying to update the inventory item: ");
         logger.info("Inventory item updated: {}", inventoryItem);
 
-        return converter.toResponse(inventoryItem, InventoryItemResponse.class);
+        return mapper.toResponse(inventoryItem, InventoryItemResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -123,14 +123,14 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             StockStatus inventoryItemStatus = inventoryItem.getStockStatus();
 
             if (inventoryItemStatus == StockStatus.OUT_OF_STOCK) {
-                throw new InsufficientStockException("The item " + product.getName() + " is out of stock.");
+                throw new StockException("The item " + product.getName() + " is out of stock.");
             }
 
             int quantityInStock = inventoryItem.getQuantityInStock();
             int quantityRequired = orderItem.getQuantity();
 
             if (quantityRequired > quantityInStock) {
-                throw new InsufficientStockException("Insufficient"
+                throw new StockException("Insufficient"
                         + " quantity of " + product.getName() + " in stock."
                         + " Required quantity: " + quantityRequired
                         + ", available quantity: " + quantityInStock + "."
@@ -146,14 +146,14 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         StockStatus inventoryItemStatus = inventoryItem.getStockStatus();
 
         if (inventoryItemStatus == StockStatus.OUT_OF_STOCK) {
-            throw new InsufficientStockException("The item " + product.getName() + " is out of stock.");
+            throw new StockException("The item " + product.getName() + " is out of stock.");
         }
 
         int quantityRequired = orderItem.getQuantity();
         int quantityInStock = inventoryItem.getQuantityInStock();
 
         if (quantityRequired > quantityInStock) {
-            throw new InsufficientStockException("Insufficient"
+            throw new StockException("Insufficient"
                     + " quantity of " + product.getName() + " in stock."
                     + " Required quantity: " + quantityRequired
                     + ", available quantity: " + quantityInStock + "."

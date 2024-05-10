@@ -92,8 +92,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    @ExceptionHandler(InsufficientStockException.class)
-    public ResponseEntity<StandardError> handleInsufficientQuantityInStock(InsufficientStockException ex) {
+    @ExceptionHandler(StockException.class)
+    public ResponseEntity<StandardError> handleInsufficientQuantityInStock(StockException ex) {
 
         StandardError error = new StandardError(HttpStatus.BAD_REQUEST,
                 "InsufficientQuantityInStock: insufficient stock quantity", ex.getMessage());
@@ -162,9 +162,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MailException.class)
     public ResponseEntity<StandardError> handleMailException(MailException ex) {
 
-        StandardError error = new StandardError(HttpStatus.BAD_REQUEST,
+        StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR,
                 "MailException: an error occurred in the mail service", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    @ExceptionHandler(SecurityFilterException.class)
+    public ResponseEntity<StandardError> handleFilterChainException(SecurityFilterException ex) {
+
+        StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR,
+                "SecurityFilterException: error during filter chain execution", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

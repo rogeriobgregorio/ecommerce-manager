@@ -23,8 +23,8 @@ public class AuthenticationController {
         this.authenticationService = authenticationService;
     }
 
-    @PostMapping(value = "/authentication")
-    public ResponseEntity<LoginResponse> authentication(
+    @PostMapping(value = "/authenticate")
+    public ResponseEntity<LoginResponse> authenticate(
             @Valid @RequestBody LoginRequest loginRequest) {
 
         return ResponseEntity

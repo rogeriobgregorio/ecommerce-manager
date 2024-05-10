@@ -21,7 +21,7 @@ public class MailController {
         this.mailService = mailService;
     }
 
-    @GetMapping(value = "/email-verification/search")
+    @GetMapping(value = "/validate-email/search")
     public ResponseEntity<UserResponse> validateEmailVerificationToken(@RequestParam("token") String token) {
 
         return ResponseEntity

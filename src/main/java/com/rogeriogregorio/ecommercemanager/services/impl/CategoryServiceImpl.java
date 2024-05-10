@@ -7,7 +7,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.CategoryRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
-import com.rogeriogregorio.ecommercemanager.util.Converter;
+import com.rogeriogregorio.ecommercemanager.util.Mapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,16 +23,16 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final ErrorHandler errorHandler;
-    private final Converter converter;
+    private final Mapper mapper;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public CategoryServiceImpl(CategoryRepository categoryRepository,
-                               ErrorHandler errorHandler, Converter converter) {
+                               ErrorHandler errorHandler, Mapper mapper) {
 
         this.categoryRepository = categoryRepository;
         this.errorHandler = errorHandler;
-        this.converter = converter;
+        this.mapper = mapper;
     }
 
     @Transactional(readOnly = true)
@@ -40,7 +40,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         return errorHandler.catchException(() -> categoryRepository.findAll(pageable),
                         "Error while trying to fetch all categories: ")
-                .map(category -> converter.toResponse(category, CategoryResponse.class));
+                .map(category -> mapper.toResponse(category, CategoryResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -53,7 +53,7 @@ public class CategoryServiceImpl implements CategoryService {
                 "Error while trying to create the category: ");
         logger.info("Category created: {}", category);
 
-        return converter.toResponse(category, CategoryResponse.class);
+        return mapper.toResponse(category, CategoryResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -61,7 +61,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         return errorHandler.catchException(() -> categoryRepository.findById(id),
                         "Error while trying to find the category by ID: ")
-                .map(category -> converter.toResponse(category, CategoryResponse.class))
+                .map(category -> mapper.toResponse(category, CategoryResponse.class))
                 .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + "."));
     }
 
@@ -82,7 +82,7 @@ public class CategoryServiceImpl implements CategoryService {
                 "Error while trying to update the category: ");
         logger.info("Category updated: {}", category);
 
-        return converter.toResponse(category, CategoryResponse.class);
+        return mapper.toResponse(category, CategoryResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -102,7 +102,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         return errorHandler.catchException(() -> categoryRepository.findByName(name, pageable),
                         "Error while trying to fetch category by name: ")
-                .map(category -> converter.toResponse(category, CategoryResponse.class));
+                .map(category -> mapper.toResponse(category, CategoryResponse.class));
     }
 
     private void isCategoryExists(Long id) {
@@ -117,6 +117,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     private Category buildCategory(CategoryRequest categoryRequest) {
 
-        return converter.toEntity(categoryRequest, Category.class);
+        return mapper.toEntity(categoryRequest, Category.class);
     }
 }

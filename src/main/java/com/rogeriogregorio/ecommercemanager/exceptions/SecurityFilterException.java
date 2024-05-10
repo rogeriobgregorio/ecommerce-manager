@@ -2,16 +2,16 @@ package com.rogeriogregorio.ecommercemanager.exceptions;
 
 import java.io.Serial;
 
-public class InsufficientStockException extends RuntimeException{
+public class SecurityFilterException extends RuntimeException {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public InsufficientStockException(String message) {
+    public SecurityFilterException(String message) {
         super(message);
     }
 
-    public InsufficientStockException(String message, Throwable cause) {
+    public SecurityFilterException(String message, Throwable cause) {
         super(message, cause);
     }
 }

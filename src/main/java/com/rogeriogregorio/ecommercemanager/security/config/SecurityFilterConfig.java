@@ -1,5 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.security.config;
 
+import com.rogeriogregorio.ecommercemanager.exceptions.SecurityFilterException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.security.TokenService;
 import jakarta.servlet.FilterChain;
@@ -22,15 +23,14 @@ public class SecurityFilterConfig extends OncePerRequestFilter {
     private final UserRepository userRepository;
 
     @Autowired
-    public SecurityFilterConfig(TokenService tokenService,
-                                UserRepository userRepository) {
+    public SecurityFilterConfig(TokenService tokenService, UserRepository userRepository) {
 
         this.tokenService = tokenService;
         this.userRepository = userRepository;
     }
 
     @Override
-    protected void doFilterInternal( HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
 
         String token = recoverToken(request);
 
@@ -48,7 +48,7 @@ public class SecurityFilterConfig extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
 
         } catch (IOException | ServletException ex) {
-            throw new RuntimeException(ex);
+            throw new SecurityFilterException("Error during execution of the 'doFilter' method", ex);
         }
     }
 
