@@ -13,13 +13,13 @@ public class OrderRequest implements Serializable {
 
     private Long id;
     private Integer orderStatus;
-    private Long clientId;
+    private UUID clientId;
     private String discountCouponCode;
 
     public OrderRequest() {
     }
 
-    public OrderRequest(Long clientId) {
+    public OrderRequest(UUID clientId) {
         this.clientId = clientId;
     }
 
@@ -28,7 +28,7 @@ public class OrderRequest implements Serializable {
         setOrderStatus(orderStatus);
     }
 
-    public OrderRequest(Long id, OrderStatus orderStatus, Long clientId, String discountCouponCode) {
+    public OrderRequest(Long id, OrderStatus orderStatus, UUID clientId, String discountCouponCode) {
         this.id = id;
         setOrderStatus(orderStatus);
         this.clientId = clientId;
@@ -56,11 +56,11 @@ public class OrderRequest implements Serializable {
         this.orderStatus = orderStatus.getCode();
     }
 
-    public Long getClientId() {
+    public UUID getClientId() {
         return clientId;
     }
 
-    public void setClientId(Long clientId) {
+    public void setClientId(UUID clientId) {
         this.clientId = clientId;
     }
 

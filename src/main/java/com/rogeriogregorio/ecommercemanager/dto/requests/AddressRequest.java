@@ -9,19 +9,19 @@ public class AddressRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private Long id;
+    private UUID id;
     private String street;
     private String city;
     private String state;
     private String cep;
     private String country;
-    private Long userId;
+    private UUID userId;
 
     public AddressRequest() {
     }
 
     public AddressRequest(String street, String city, String state,
-                          String cep, String country, Long userId) {
+                          String cep, String country, UUID userId) {
 
         this.street = street;
         this.city = city;
@@ -31,8 +31,8 @@ public class AddressRequest implements Serializable {
         this.userId = userId;
     }
 
-    public AddressRequest(Long id, String street, String city, String state,
-                          String cep, String country, Long userId) {
+    public AddressRequest(UUID id, String street, String city, String state,
+                          String cep, String country, UUID userId) {
 
         this.id = id;
         this.street = street;
@@ -43,11 +43,11 @@ public class AddressRequest implements Serializable {
         this.userId = userId;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -91,11 +91,11 @@ public class AddressRequest implements Serializable {
         this.country = country;
     }
 
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 }

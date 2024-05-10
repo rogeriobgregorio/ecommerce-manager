@@ -23,9 +23,9 @@ public class User implements Serializable, UserDetails {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
-    private Long id;
+    private UUID id;
 
     @Column(name = "name")
     @NotBlank(message = "The name must not be blank.")
@@ -78,7 +78,7 @@ public class User implements Serializable, UserDetails {
         this.role = role;
     }
 
-    public User(Long id, String name, String email, String phone,
+    public User(UUID id, String name, String email, String phone,
                 String password, UserRole role) {
 
         this.id = id;
@@ -89,11 +89,11 @@ public class User implements Serializable, UserDetails {
         this.role = role;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -255,6 +255,7 @@ public class User implements Serializable, UserDetails {
                 +", name= " + name
                 + ", email= " + email
                 + ", phone= " + phone
-                + ", Role= " + role + "]";
+                + ", role= " + role
+                + ", email enabled= " + emailEnabled + "]";
     }
 }

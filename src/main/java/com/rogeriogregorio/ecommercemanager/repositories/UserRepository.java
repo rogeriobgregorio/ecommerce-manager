@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query("SELECT u FROM User u WHERE lower(u.name) LIKE lower(concat('%', :name, '%'))")
     Page<User> findByName(@Param("name") String name, Pageable pageable);

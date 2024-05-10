@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class ProductReviewServiceImpl implements ProductReviewService {
@@ -67,7 +68,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     }
 
     @Transactional(readOnly = true)
-    public ProductReviewResponse findProductReviewById(Long productId, Long userId) {
+    public ProductReviewResponse findProductReviewById(Long productId, UUID userId) {
 
         ProductReviewPK id = buildProductReviewPK(productId, userId);
 
@@ -90,7 +91,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     }
 
     @Transactional(readOnly = false)
-    public void deleteProductReview(Long productId, Long userId) {
+    public void deleteProductReview(Long productId, UUID userId) {
 
         ProductReviewPK id = buildProductReviewPK(productId, userId);
 
@@ -111,7 +112,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         }
     }
 
-    private ProductReviewPK buildProductReviewPK(Long productId, Long userId) {
+    private ProductReviewPK buildProductReviewPK(Long productId, UUID userId) {
 
         Product product = productService.findProductById(productId);
         User user = userService.findUserById(userId);

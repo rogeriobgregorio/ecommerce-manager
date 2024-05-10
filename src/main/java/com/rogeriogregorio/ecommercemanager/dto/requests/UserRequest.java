@@ -11,7 +11,7 @@ public class UserRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private Long id;
+    private UUID id;
     private String name;
     private String email;
     private String phone;
@@ -31,7 +31,7 @@ public class UserRequest implements Serializable {
         this.userRole = userRole;
     }
 
-    public UserRequest(Long id, String name, String email,
+    public UserRequest(UUID id, String name, String email,
                        String phone, String password) {
 
         this.id = id;
@@ -41,7 +41,7 @@ public class UserRequest implements Serializable {
         this.password = password;
     }
 
-    public UserRequest(Long id, String name, String email,
+    public UserRequest(UUID id, String name, String email,
                        String phone, UserRole userRole) {
 
         this.id = id;
@@ -51,11 +51,11 @@ public class UserRequest implements Serializable {
         this.userRole = userRole;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

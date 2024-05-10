@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 @Service
 public class MailServiceImpl implements MailService {
@@ -135,7 +136,7 @@ public class MailServiceImpl implements MailService {
 
     private User findUserByIdFromToken(String userIdFromToken) {
 
-        return errorHandler.catchException(() -> userRepository.findById(Long.valueOf(userIdFromToken)),
+        return errorHandler.catchException(() -> userRepository.findById(UUID.fromString(userIdFromToken)),
                         "Error while trying to search for user by token ID: " + userIdFromToken)
                 .orElseThrow(() -> new NotFoundException("The user with the token ID was not found"));
     }

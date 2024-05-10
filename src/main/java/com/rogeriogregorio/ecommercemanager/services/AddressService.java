@@ -15,9 +15,9 @@ public interface AddressService {
 
     AddressResponse createAddress(AddressRequest addressRequest);
 
-    AddressResponse findAddressById(Long id);
+    AddressResponse findAddressById(UUID id);
 
     AddressResponse updateAddress(AddressRequest addressRequest);
 
-    void deleteAddress(Long id);
+    void deleteAddress(UUID id);
 }

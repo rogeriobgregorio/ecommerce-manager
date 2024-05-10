@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -56,7 +57,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserResponse findUserResponseById(Long id) {
+    public UserResponse findUserResponseById(UUID id) {
 
         return errorHandler.catchException(() -> userRepository.findById(id),
                 "Error while trying to fetch the user by ID: " + id)
@@ -105,7 +106,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional(readOnly = false)
-    public void deleteUser(Long id) {
+    public void deleteUser(UUID id) {
 
         isUserExists(id);
 
@@ -124,14 +125,14 @@ public class UserServiceImpl implements UserService {
                 map(user -> converter.toResponse(user, UserResponse.class));
     }
 
-    public User findUserById(Long id) {
+    public User findUserById(UUID id) {
 
         return errorHandler.catchException(() -> userRepository.findById(id),
                 "Error while trying to fetch the user by ID: " + id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id + "."));
     }
 
-    private void isUserExists(Long id) {
+    private void isUserExists(UUID id) {
 
         boolean isUserExists = errorHandler.catchException(() -> userRepository.existsById(id),
                 "Error while trying to check the presence of the user: ");

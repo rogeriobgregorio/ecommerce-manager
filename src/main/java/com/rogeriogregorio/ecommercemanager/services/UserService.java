@@ -18,13 +18,13 @@ public interface UserService {
 
     UserResponse createAdminOrManagerUser(UserRequest userRequest);
 
-    UserResponse findUserResponseById(Long id);
+    UserResponse findUserResponseById(UUID id);
 
-    User findUserById(Long id);
+    User findUserById(UUID id);
 
     UserResponse updateUser(UserRequest userRequest);
 
-    void deleteUser(Long id);
+    void deleteUser(UUID id);
 
     Page<UserResponse> findUserByName(String name, Pageable pageable);
 

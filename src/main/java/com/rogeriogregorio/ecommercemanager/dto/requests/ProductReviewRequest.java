@@ -10,14 +10,14 @@ public class ProductReviewRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long productId;
-    private Long userId;
+    private UUID userId;
     private Integer rating;
     private String comment;
 
     public ProductReviewRequest() {
     }
 
-    public ProductReviewRequest(Long productId, Long userId,
+    public ProductReviewRequest(Long productId, UUID userId,
                                 Integer rating, String comment) {
 
         this.productId = productId;
@@ -34,11 +34,11 @@ public class ProductReviewRequest implements Serializable {
         this.productId = productId;
     }
 
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 

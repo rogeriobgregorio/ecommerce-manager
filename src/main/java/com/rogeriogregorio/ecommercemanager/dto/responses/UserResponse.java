@@ -5,13 +5,14 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.UUID;
 
 public class UserResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private Long id;
+    private UUID id;
     private String name;
     private String email;
     private String phone;
@@ -22,7 +23,7 @@ public class UserResponse implements Serializable {
     public UserResponse() {
     }
 
-    public UserResponse(Long id, String name, String email,
+    public UserResponse(UUID id, String name, String email,
                         String phone, Address address, UserRole userRole) {
 
         this.id = id;
@@ -33,11 +34,11 @@ public class UserResponse implements Serializable {
         this.userRole = userRole;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

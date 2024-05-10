@@ -19,9 +19,9 @@ public class Address implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
-    private Long id;
+    private UUID id;
 
     @Column(name = "street")
     @NotBlank(message = "The street name must not be blank.")
@@ -67,7 +67,7 @@ public class Address implements Serializable {
         this.country = country;
     }
 
-    public Address(Long id, String street, String city,
+    public Address(UUID id, String street, String city,
                    String state, String cep, String country) {
 
         this.id = id;
@@ -78,11 +78,11 @@ public class Address implements Serializable {
         this.country = country;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

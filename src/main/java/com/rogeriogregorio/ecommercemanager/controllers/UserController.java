@@ -51,7 +51,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/users/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -68,7 +68,7 @@ public class UserController {
     }
 
     @DeleteMapping(value = "/users/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
 
         userService.deleteUser(id);
 

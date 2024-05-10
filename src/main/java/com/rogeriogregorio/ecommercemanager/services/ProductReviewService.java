@@ -15,9 +15,9 @@ public interface ProductReviewService {
 
     ProductReviewResponse createProductReview(ProductReviewRequest productReviewRequest);
 
-    ProductReviewResponse findProductReviewById(Long productId, Long userId);
+    ProductReviewResponse findProductReviewById(Long productId, UUID userId);
 
     ProductReviewResponse updateProductReview(ProductReviewRequest productReviewRequest);
 
-    void deleteProductReview(Long productId, Long userId);
+    void deleteProductReview(Long productId, UUID userId);
 }

@@ -12,7 +12,7 @@ public class AddressResponse implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private Long id;
+    private UUID id;
     private String street;
     private String city;
     private String state;
@@ -24,7 +24,7 @@ public class AddressResponse implements Serializable {
     public AddressResponse() {
     }
 
-    public AddressResponse(Long id, String street, String city,
+    public AddressResponse(UUID id, String street, String city,
                            String state, String cep, String country) {
 
         this.id = id;
@@ -35,11 +35,11 @@ public class AddressResponse implements Serializable {
         this.country = country;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

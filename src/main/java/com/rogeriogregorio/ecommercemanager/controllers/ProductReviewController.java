@@ -43,7 +43,7 @@ public class ProductReviewController {
 
     @GetMapping(value = "/product-reviews/{productId}/{userId}")
     public ResponseEntity<ProductReviewResponse> getProductReviewById(
-            @PathVariable Long productId, @PathVariable Long userId) {
+            @PathVariable Long productId, @PathVariable UUID userId) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -61,7 +61,7 @@ public class ProductReviewController {
 
     @DeleteMapping(value = "/product-reviews/{productId}/{userId}")
     public ResponseEntity<Void> deleteProductReview(
-            @PathVariable Long productId, @PathVariable Long userId) {
+            @PathVariable Long productId, @PathVariable UUID userId) {
 
         productReviewService.deleteProductReview(productId, userId);
 

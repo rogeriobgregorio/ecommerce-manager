@@ -48,7 +48,7 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Transactional(readOnly = true)
-    public AddressResponse findAddressById(Long id) {
+    public AddressResponse findAddressById(UUID id) {
 
         return errorHandler.catchException(() -> addressRepository.findById(id),
                         "Error while trying to find the address by ID: ")
@@ -83,7 +83,7 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Transactional(readOnly = false)
-    public void deleteAddress(Long id) {
+    public void deleteAddress(UUID id) {
 
         isAddressExists(id);
 
@@ -94,7 +94,7 @@ public class AddressServiceImpl implements AddressService {
         logger.warn("Address removed with ID: {}", id);
     }
 
-    private void isAddressExists(Long id) {
+    private void isAddressExists(UUID id) {
 
         boolean isAddressExists = errorHandler.catchException(() -> addressRepository.existsById(id),
                 "Error while trying to check the presence of the address: ");
@@ -106,7 +106,7 @@ public class AddressServiceImpl implements AddressService {
 
     private Address buildAddress(AddressRequest addressRequest) {
 
-        Long userId = addressRequest.getUserId();
+        UUID userId = addressRequest.getUserId();
         User user = userService.findUserById(userId);
 
         Address address = converter.toEntity(addressRequest, Address.class);

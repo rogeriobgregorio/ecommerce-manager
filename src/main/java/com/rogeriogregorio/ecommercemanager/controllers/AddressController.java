@@ -42,7 +42,7 @@ public class AddressController {
     }
 
     @GetMapping(value = "/addresses/{id}")
-    public ResponseEntity<AddressResponse> getAddressById(@PathVariable Long id) {
+    public ResponseEntity<AddressResponse> getAddressById(@PathVariable UUID id) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -59,7 +59,7 @@ public class AddressController {
     }
 
     @DeleteMapping(value = "/addresses/{id}")
-    public ResponseEntity<Void> deleteAddress(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteAddress(@PathVariable UUID id) {
 
         addressService.deleteAddress(id);
 
