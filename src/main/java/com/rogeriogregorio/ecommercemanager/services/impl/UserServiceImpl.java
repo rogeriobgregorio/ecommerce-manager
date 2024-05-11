@@ -10,7 +10,7 @@ import com.rogeriogregorio.ecommercemanager.mail.MailService;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.services.strategy.PasswordStrategy;
-import com.rogeriogregorio.ecommercemanager.util.Mapper;
+import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,35 +34,37 @@ public class UserServiceImpl implements UserService {
     private final MailService mailService;
     private final List<PasswordStrategy> validators;
     private final ErrorHandler errorHandler;
-    private final Mapper mapper;
+    private final DataMapper dataMapper;
+    private final PasswordEncoder passwordEncoder;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository,
-                           MailService mailService, List<PasswordStrategy> validators,
-                           ErrorHandler errorHandler, Mapper mapper) {
+    public UserServiceImpl(UserRepository userRepository, MailService mailService,
+                           List<PasswordStrategy> validators, ErrorHandler errorHandler,
+                           DataMapper dataMapper, PasswordEncoder passwordEncoder) {
 
         this.userRepository = userRepository;
         this.mailService = mailService;
         this.validators = validators;
         this.errorHandler = errorHandler;
-        this.mapper = mapper;
+        this.dataMapper = dataMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional(readOnly = true)
     public Page<UserResponse> findAllUsers(Pageable pageable) {
 
         return errorHandler.catchException(() -> userRepository.findAll(pageable),
-                "Error while trying to fetch all users: ")
-                .map(user -> mapper.toResponse(user, UserResponse.class));
+                        "Error while trying to fetch all users: ")
+                .map(user -> dataMapper.toResponse(user, UserResponse.class));
     }
 
     @Transactional(readOnly = true)
     public UserResponse findUserResponseById(UUID id) {
 
         return errorHandler.catchException(() -> userRepository.findById(id),
-                "Error while trying to fetch the user by ID: " + id)
-                .map(user -> mapper.toResponse(user, UserResponse.class))
+                        "Error while trying to fetch the user by ID: " + id)
+                .map(user -> dataMapper.toResponse(user, UserResponse.class))
                 .orElseThrow(() -> new NotFoundException("User response not found with ID: " + id + "."));
     }
 
@@ -77,7 +80,7 @@ public class UserServiceImpl implements UserService {
 
         CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user));
 
-        return mapper.toResponse(user, UserResponse.class);
+        return dataMapper.toResponse(user, UserResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -90,7 +93,7 @@ public class UserServiceImpl implements UserService {
                 "Error while trying to update the user: ");
         logger.info("User updated: {}", user);
 
-        return mapper.toResponse(user, UserResponse.class);
+        return dataMapper.toResponse(user, UserResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -102,7 +105,7 @@ public class UserServiceImpl implements UserService {
                 "Error trying to update user role: ");
         logger.info("User role updated: {}", user);
 
-        return mapper.toResponse(user, UserResponse.class);
+        return dataMapper.toResponse(user, UserResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -121,14 +124,14 @@ public class UserServiceImpl implements UserService {
     public Page<UserResponse> findUserByName(String name, Pageable pageable) {
 
         return errorHandler.catchException(() -> userRepository.findByName(name, pageable),
-                "Error while trying to fetch the user by name: ").
-                map(user -> mapper.toResponse(user, UserResponse.class));
+                        "Error while trying to fetch the user by name: ").
+                map(user -> dataMapper.toResponse(user, UserResponse.class));
     }
 
     public User findUserById(UUID id) {
 
         return errorHandler.catchException(() -> userRepository.findById(id),
-                "Error while trying to fetch the user by ID: " + id)
+                        "Error while trying to fetch the user by ID: " + id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id + "."));
     }
 
@@ -165,7 +168,7 @@ public class UserServiceImpl implements UserService {
             throw new PasswordException("The password must have at least: " + failures + ".");
         }
 
-        return new BCryptPasswordEncoder().encode(password);
+        return passwordEncoder.encode(password);
     }
 
     private User buildCreateUser(UserRequest userRequest) {
@@ -174,13 +177,16 @@ public class UserServiceImpl implements UserService {
         userRequest.setPassword(encodedPassword);
         userRequest.setUserRole(UserRole.CLIENT);
 
-        return mapper.toEntity(userRequest, User.class);
+        return dataMapper.toEntity(userRequest, User.class);
     }
 
     private User buildUpdateUser(UserRequest userRequest) {
 
+        String encodedPassword = validatePassword(userRequest.getPassword());
+        userRequest.setPassword(encodedPassword);
+
         User user = findUserById(userRequest.getId());
-        user = mapper.transferData(userRequest, user);
+        user = dataMapper.transfer(userRequest, user);
 
         return user;
     }

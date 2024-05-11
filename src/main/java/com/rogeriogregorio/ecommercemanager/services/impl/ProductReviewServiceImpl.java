@@ -11,7 +11,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.ProductReviewRepository
 import com.rogeriogregorio.ecommercemanager.services.ProductReviewService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
-import com.rogeriogregorio.ecommercemanager.util.Mapper;
+import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,19 +32,19 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     private final ProductService productService;
     private final UserService userService;
     private final ErrorHandler errorHandler;
-    private final Mapper mapper;
+    private final DataMapper dataMapper;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public ProductReviewServiceImpl(ProductReviewRepository productReviewRepository,
                                     ProductService productService, UserService userService,
-                                    ErrorHandler errorHandler, Mapper mapper) {
+                                    ErrorHandler errorHandler, DataMapper dataMapper) {
 
         this.productReviewRepository = productReviewRepository;
         this.productService = productService;
         this.userService = userService;
         this.errorHandler = errorHandler;
-        this.mapper = mapper;
+        this.dataMapper = dataMapper;
     }
 
     @Transactional(readOnly = true)
@@ -52,7 +52,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         return errorHandler.catchException(() -> productReviewRepository.findAll(pageable),
                         "Error while trying to fetch all product reviews: ")
-                .map(productReview -> mapper.toResponse(productReview, ProductReviewResponse.class));
+                .map(productReview -> dataMapper.toResponse(productReview, ProductReviewResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -64,7 +64,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
                 "Error while trying to create product review: ");
         logger.info("Product review created: {}", productReview);
 
-        return mapper.toResponse(productReview, ProductReviewResponse.class);
+        return dataMapper.toResponse(productReview, ProductReviewResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -74,7 +74,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         return errorHandler.catchException(() -> productReviewRepository.findById(id),
                         "Error while trying to fetch the product review by ID: ")
-                .map(productReview -> mapper.toResponse(productReview, ProductReviewResponse.class))
+                .map(productReview -> dataMapper.toResponse(productReview, ProductReviewResponse.class))
                 .orElseThrow(() -> new NotFoundException("Product review not found with ID: " + id + "."));
     }
 
@@ -87,7 +87,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
                 "Error while trying to update the product review: ");
         logger.info("Product review updated: {}", productReview);
 
-        return mapper.toResponse(productReview, ProductReviewResponse.class);
+        return dataMapper.toResponse(productReview, ProductReviewResponse.class);
     }
 
     @Transactional(readOnly = false)

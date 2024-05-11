@@ -11,8 +11,8 @@ import com.rogeriogregorio.ecommercemanager.repositories.InventoryItemRepository
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
+import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
-import com.rogeriogregorio.ecommercemanager.util.Mapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,20 +30,20 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     private final StockMovementRepository stockMovementRepository;
     private final ProductService productService;
     private final ErrorHandler errorHandler;
-    private final Mapper mapper;
+    private final DataMapper dataMapper;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public InventoryItemServiceImpl(InventoryItemRepository inventoryItemRepository,
                                     StockMovementRepository stockMovementRepository,
                                     ProductService productService,
-                                    ErrorHandler errorHandler, Mapper mapper) {
+                                    ErrorHandler errorHandler, DataMapper dataMapper) {
 
         this.inventoryItemRepository = inventoryItemRepository;
         this.stockMovementRepository = stockMovementRepository;
         this.productService = productService;
         this.errorHandler = errorHandler;
-        this.mapper = mapper;
+        this.dataMapper = dataMapper;
     }
 
     @Transactional(readOnly = true)
@@ -51,7 +51,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         return errorHandler.catchException(() -> inventoryItemRepository.findAll(pageable),
                         "Error while trying to fetch all inventory items: ")
-                .map(inventoryItem -> mapper.toResponse(inventoryItem, InventoryItemResponse.class));
+                .map(inventoryItem -> dataMapper.toResponse(inventoryItem, InventoryItemResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -65,7 +65,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         logger.info("Inventory item created: {}", inventoryItem);
 
         updateStockMovementEntrance(inventoryItem);
-        return mapper.toResponse(inventoryItem, InventoryItemResponse.class);
+        return dataMapper.toResponse(inventoryItem, InventoryItemResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -73,7 +73,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         return errorHandler.catchException(() -> inventoryItemRepository.findById(id),
                         "Error while trying to find the inventory item by ID: ")
-                .map(inventoryItem -> mapper.toResponse(inventoryItem, InventoryItemResponse.class))
+                .map(inventoryItem -> dataMapper.toResponse(inventoryItem, InventoryItemResponse.class))
                 .orElseThrow(() -> new NotFoundException("Inventory item response not found with ID: " + id + "."));
     }
 
@@ -86,7 +86,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 "Error while trying to update the inventory item: ");
         logger.info("Inventory item updated: {}", inventoryItem);
 
-        return mapper.toResponse(inventoryItem, InventoryItemResponse.class);
+        return dataMapper.toResponse(inventoryItem, InventoryItemResponse.class);
     }
 
     @Transactional(readOnly = false)

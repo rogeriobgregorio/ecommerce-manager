@@ -10,7 +10,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.TokenException;
 import com.rogeriogregorio.ecommercemanager.mail.MailService;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
-import com.rogeriogregorio.ecommercemanager.util.Mapper;
+import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -36,17 +36,17 @@ public class MailServiceImpl implements MailService {
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
     private final ErrorHandler errorHandler;
-    private final Mapper mapper;
+    private final DataMapper dataMapper;
     private static final String ISSUER_NAME = "ecommerce-manager";
 
     @Autowired
     public MailServiceImpl(JavaMailSender mailSender, UserRepository userRepository,
-                           ErrorHandler errorHandler, Mapper mapper) {
+                           ErrorHandler errorHandler, DataMapper dataMapper) {
 
         this.mailSender = mailSender;
         this.userRepository = userRepository;
         this.errorHandler = errorHandler;
-        this.mapper = mapper;
+        this.dataMapper = dataMapper;
     }
 
     private Instant generateExpirationDate() {
@@ -131,7 +131,7 @@ public class MailServiceImpl implements MailService {
         }
 
         saveEmailAsEnabled(user);
-        return mapper.toResponse(user, UserResponse.class);
+        return dataMapper.toResponse(user, UserResponse.class);
     }
 
     private User findUserByIdFromToken(String userIdFromToken) {

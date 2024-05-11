@@ -6,8 +6,8 @@ import com.rogeriogregorio.ecommercemanager.entities.ProductDiscount;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductDiscountRepository;
 import com.rogeriogregorio.ecommercemanager.services.ProductDiscountService;
+import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
-import com.rogeriogregorio.ecommercemanager.util.Mapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,16 +23,16 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
 
     private final ProductDiscountRepository productDiscountRepository;
     private final ErrorHandler errorHandler;
-    private final Mapper mapper;
+    private final DataMapper dataMapper;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public ProductDiscountServiceImpl(ProductDiscountRepository productDiscountRepository,
-                                      ErrorHandler errorHandler, Mapper mapper) {
+                                      ErrorHandler errorHandler, DataMapper dataMapper) {
 
         this.productDiscountRepository = productDiscountRepository;
         this.errorHandler = errorHandler;
-        this.mapper = mapper;
+        this.dataMapper = dataMapper;
     }
 
     @Transactional(readOnly = true)
@@ -40,7 +40,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
 
         return errorHandler.catchException(() -> productDiscountRepository.findAll(pageable),
                         "Error while trying to fetch all products discounts: ")
-                .map(productDiscount -> mapper.toResponse(productDiscount, ProductDiscountResponse.class));
+                .map(productDiscount -> dataMapper.toResponse(productDiscount, ProductDiscountResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -53,7 +53,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
                 "Error while trying to create the product discount: ");
         logger.info("Product discount created: {}", productDiscount);
 
-        return mapper.toResponse(productDiscount, ProductDiscountResponse.class);
+        return dataMapper.toResponse(productDiscount, ProductDiscountResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -61,7 +61,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
 
         return errorHandler.catchException(() -> productDiscountRepository.findById(id),
                         "Error while trying to find the product discount by ID: ")
-                .map(productDiscount -> mapper.toResponse(productDiscount, ProductDiscountResponse.class))
+                .map(productDiscount -> dataMapper.toResponse(productDiscount, ProductDiscountResponse.class))
                 .orElseThrow(() -> new NotFoundException("Product discount response not found with ID: " + id + "."));
     }
 
@@ -75,7 +75,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
                 "Error while trying to update the product discount: ");
         logger.info("Product discount updated: {}", productDiscount);
 
-        return mapper.toResponse(productDiscount, ProductDiscountResponse.class);
+        return dataMapper.toResponse(productDiscount, ProductDiscountResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -122,6 +122,6 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
 
         validateProductDiscountDates(productDiscountRequest);
 
-        return mapper.toEntity(productDiscountRequest, ProductDiscount.class);
+        return dataMapper.toEntity(productDiscountRequest, ProductDiscount.class);
     }
 }

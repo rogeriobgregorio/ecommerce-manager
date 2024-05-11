@@ -9,8 +9,8 @@ import com.rogeriogregorio.ecommercemanager.entities.primarykeys.OrderItemPK;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderItemRepository;
 import com.rogeriogregorio.ecommercemanager.services.*;
+import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
-import com.rogeriogregorio.ecommercemanager.util.Mapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     private final ProductService productService;
     private final OrderService orderService;
     private final ErrorHandler errorHandler;
-    private final Mapper mapper;
+    private final DataMapper dataMapper;
     private final Logger logger = LogManager.getLogger();
 
     @Autowired
@@ -37,14 +37,14 @@ public class OrderItemServiceImpl implements OrderItemService {
                                 InventoryItemService inventoryItemService,
                                 ProductService productService,
                                 OrderService orderService,
-                                ErrorHandler errorHandler, Mapper mapper) {
+                                ErrorHandler errorHandler, DataMapper dataMapper) {
 
         this.orderItemRepository = orderItemRepository;
         this.inventoryItemService = inventoryItemService;
         this.productService = productService;
         this.orderService = orderService;
         this.errorHandler = errorHandler;
-        this.mapper = mapper;
+        this.dataMapper = dataMapper;
     }
 
     @Transactional(readOnly = true)
@@ -52,7 +52,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         return errorHandler.catchException(() -> orderItemRepository.findAll(pageable),
                 "Error while trying to fetch all items of the order: ")
-                .map(orderItem -> mapper.toResponse(orderItem, OrderItemResponse.class));
+                .map(orderItem -> dataMapper.toResponse(orderItem, OrderItemResponse.class));
     }
 
     @Transactional(readOnly = true)
@@ -62,7 +62,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         return errorHandler.catchException(() -> orderItemRepository.findById(id),
                 "Error while trying to fetch the order item by ID: ")
-                .map(orderItem -> mapper.toResponse(orderItem, OrderItemResponse.class))
+                .map(orderItem -> dataMapper.toResponse(orderItem, OrderItemResponse.class))
                 .orElseThrow(() -> new NotFoundException("Item not found with ID: " + id + "."));
     }
 
@@ -75,7 +75,7 @@ public class OrderItemServiceImpl implements OrderItemService {
                 "Error while trying to create order item: ");
         logger.info("Order item created: {}", orderItem);
 
-        return mapper.toResponse(orderItem, OrderItemResponse.class);
+        return dataMapper.toResponse(orderItem, OrderItemResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -87,7 +87,7 @@ public class OrderItemServiceImpl implements OrderItemService {
                 "Error while trying to update the order item: ");
         logger.info("Order item updated: {}", orderItem);
 
-        return mapper.toResponse(orderItem, OrderItemResponse.class);
+        return dataMapper.toResponse(orderItem, OrderItemResponse.class);
     }
 
     @Transactional(readOnly = false)
