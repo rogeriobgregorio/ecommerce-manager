@@ -82,7 +82,7 @@ public class MailServiceImpl implements MailService {
     private String getVerificationEmailTemplate() {
 
         try {
-            ClassPathResource pathResource = new ClassPathResource("verification-email-template.html");
+            ClassPathResource pathResource = new ClassPathResource("templates/verification-email.html");
             return new String(pathResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
 
         } catch (IOException ex) {

@@ -73,15 +73,13 @@ public class UserServiceImpl implements UserService {
         userRequest.setId(null);
         User user = buildCreateUser(userRequest);
 
-        User savedUser = errorHandler.catchException(() -> userRepository.save(user),
+        errorHandler.catchException(() -> userRepository.save(user),
                 "Error while trying to register the user: ");
-        logger.info("User registered: {}", savedUser);
+        logger.info("User registered: {}", user);
 
-        if (savedUser != null) {
-            CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user));
-        }
+        CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user));
 
-        return dataMapper.toResponse(savedUser, UserResponse.class);
+        return dataMapper.toResponse(user, UserResponse.class);
     }
 
     @Transactional(readOnly = false)
