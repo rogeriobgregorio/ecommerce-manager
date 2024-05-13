@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 @Component
 public class UpperCaseValidationStrategy implements PasswordStrategy {
 
-    public boolean validate(String password) {
+    public boolean validatePassword(String password) {
         return Pattern.matches(".*[A-Z].*", password);
     }
 

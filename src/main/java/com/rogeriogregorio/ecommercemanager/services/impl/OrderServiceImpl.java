@@ -59,6 +59,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public OrderResponse createOrder(OrderRequest orderRequest) {
 
+        orderRequest.setId(null);
         Order order = buildCreateOrder(orderRequest);
 
         errorHandler.catchException(() -> orderRepository.save(order),
@@ -139,10 +140,10 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + "."));
     }
 
-    private void validateOrderStatusChange(OrderRequest orderRequest, Order order) {
+    private void validateStatusChange(OrderRequest orderRequest, Order order) {
 
         for (OrderStrategy validator : validators) {
-            validator.validate(orderRequest, order);
+            validator.validateStatusChange(orderRequest, order);
         }
     }
 
@@ -171,7 +172,6 @@ public class OrderServiceImpl implements OrderService {
 
     private Order buildCreateOrder(OrderRequest orderRequest) {
 
-        orderRequest.setId(null);
         Instant instant = Instant.now();
         OrderStatus orderStatus = OrderStatus.WAITING_PAYMENT;
         User client = userService.findUserById(orderRequest.getClientId());
@@ -200,7 +200,7 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = findOrderById(orderRequest.getId());
 
-        validateOrderStatusChange(orderRequest, order);
+        validateStatusChange(orderRequest, order);
 
         order.setMoment(Instant.now());
         order.setOrderStatus(orderRequest.getOrderStatus());

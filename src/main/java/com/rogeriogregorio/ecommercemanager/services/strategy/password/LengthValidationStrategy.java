@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LengthValidationStrategy implements PasswordStrategy {
 
-    public boolean validate(String password) {
+    public boolean validatePassword(String password) {
         return password.length() >= 8;
     }
 

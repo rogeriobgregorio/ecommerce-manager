@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class OrderPaidStrategyImpl implements PaymentStrategy {
 
     @Override
-    public void validate(Order order) {
+    public void validateOrder(Order order) {
 
         boolean isOrderPaid = order.isOrderPaid();
 

@@ -104,8 +104,9 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private void validateOrder(Order order) {
+
         for (PaymentStrategy validator : validators) {
-            validator.validate(order);
+            validator.validateOrder(order);
         }
     }
 

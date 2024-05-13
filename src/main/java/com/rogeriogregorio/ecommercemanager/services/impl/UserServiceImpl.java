@@ -17,7 +17,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,13 +73,15 @@ public class UserServiceImpl implements UserService {
         userRequest.setId(null);
         User user = buildCreateUser(userRequest);
 
-        errorHandler.catchException(() -> userRepository.save(user),
+        User savedUser = errorHandler.catchException(() -> userRepository.save(user),
                 "Error while trying to register the user: ");
-        logger.info("User registered: {}", user);
+        logger.info("User registered: {}", savedUser);
 
-        CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user));
+        if (savedUser != null) {
+            CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user));
+        }
 
-        return dataMapper.toResponse(user, UserResponse.class);
+        return dataMapper.toResponse(savedUser, UserResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -159,7 +160,7 @@ public class UserServiceImpl implements UserService {
         List<String> failures = new ArrayList<>();
 
         for (PasswordStrategy strategy : validators) {
-            if (!strategy.validate(password)) {
+            if (!strategy.validatePassword(password)) {
                 failures.add(strategy.getRequirement());
             }
         }

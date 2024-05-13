@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class OrderItemsPresentStrategyImpl implements PaymentStrategy {
 
     @Override
-    public void validate(Order order) {
+    public void validateOrder(Order order) {
 
         boolean isOrderItemsEmpty = order.getItems().isEmpty();
 

@@ -5,6 +5,6 @@ import org.springframework.stereotype.Component;
 @Component
 public interface PasswordStrategy {
 
-    boolean validate(String password);
+    boolean validatePassword(String password);
     String getRequirement();
 }

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class ShippedStrategyImpl implements OrderStrategy {
 
     @Override
-    public void validate(OrderRequest orderRequest, Order order) {
+    public void validateStatusChange(OrderRequest orderRequest, Order order) {
 
         OrderStatus statusRequest = orderRequest.getOrderStatus();
         OrderStatus currentStatus = order.getOrderStatus();
