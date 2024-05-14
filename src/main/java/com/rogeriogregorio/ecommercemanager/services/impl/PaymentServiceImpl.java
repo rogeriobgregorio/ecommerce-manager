@@ -38,8 +38,8 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentServiceImpl(PaymentRepository paymentRepository,
                               InventoryItemService inventoryItemService,
                               StockMovementService stockMovementService,
-                              OrderService orderService,
-                              List<PaymentStrategy> validators, ErrorHandler errorHandler, DataMapper dataMapper) {
+                              OrderService orderService, List<PaymentStrategy> validators,
+                              ErrorHandler errorHandler, DataMapper dataMapper) {
 
         this.paymentRepository = paymentRepository;
         this.inventoryItemService = inventoryItemService;

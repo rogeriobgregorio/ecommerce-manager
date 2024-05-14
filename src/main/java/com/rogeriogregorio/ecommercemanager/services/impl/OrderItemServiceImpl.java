@@ -35,8 +35,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Autowired
     public OrderItemServiceImpl(OrderItemRepository orderItemRepository,
                                 InventoryItemService inventoryItemService,
-                                ProductService productService,
-                                OrderService orderService,
+                                ProductService productService, OrderService orderService,
                                 ErrorHandler errorHandler, DataMapper dataMapper) {
 
         this.orderItemRepository = orderItemRepository;

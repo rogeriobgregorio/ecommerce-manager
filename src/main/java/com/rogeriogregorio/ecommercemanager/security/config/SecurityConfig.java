@@ -25,6 +25,7 @@ public class SecurityConfig {
 
     @Autowired
     public SecurityConfig(SecurityFilterConfig securityFilterConfig) {
+
         this.securityFilterConfig = securityFilterConfig;
     }
 

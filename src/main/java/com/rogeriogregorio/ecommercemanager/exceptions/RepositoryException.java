@@ -1,8 +1,9 @@
 package com.rogeriogregorio.ecommercemanager.exceptions;
 
 import java.io.Serial;
+import java.io.Serializable;
 
-public class RepositoryException extends RuntimeException {
+public class RepositoryException extends RuntimeException implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
