@@ -2,6 +2,7 @@ package com.rogeriogregorio.ecommercemanager.controllers;
 
 import com.rogeriogregorio.ecommercemanager.pix.PixService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,10 +20,10 @@ public class PixController {
     }
 
     @GetMapping("/pix")
-    public ResponseEntity getPixEVP() {
+    public ResponseEntity<String> getPixEVP() {
 
-         String reponse = pixService.createPixEVP();
-
-         return ResponseEntity.ok().body(reponse);
+         return ResponseEntity
+                 .status(HttpStatus.OK)
+                 .body(pixService.createPixEVP());
     }
 }

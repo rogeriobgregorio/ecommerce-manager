@@ -1,7 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.pix.impl;
 
 import br.com.efi.efisdk.EfiPay;
-import br.com.efi.efisdk.exceptions.EfiPayException;
+import com.rogeriogregorio.ecommercemanager.exceptions.PixException;
 import com.rogeriogregorio.ecommercemanager.pix.Credentials;
 import com.rogeriogregorio.ecommercemanager.pix.PixService;
 import org.json.JSONObject;
@@ -28,11 +28,8 @@ public class PixServiceImpl implements PixService {
             System.out.println(response);
             return response.toString();
 
-        } catch (EfiPayException ex) {
-            throw new RuntimeException("Error while trying to create Pix EVP", ex);
-
         } catch (Exception ex) {
-            throw new RuntimeException("Error while trying to create Pix EVP", ex);
+            throw new PixException("Error while trying to create Pix EVP", ex);
         }
     }
 }

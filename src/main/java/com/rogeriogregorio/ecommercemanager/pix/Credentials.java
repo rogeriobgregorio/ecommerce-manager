@@ -1,5 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.pix;
 
+import com.rogeriogregorio.ecommercemanager.exceptions.PixException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -29,8 +30,8 @@ public class Credentials implements Serializable {
 
         try {
             credentialsFile.close();
-        } catch (IOException e) {
-            System.out.println("Impossible to close file credentials.json");
+        } catch (IOException ex) {
+            throw new PixException("Impossible to close file credentials.json", ex);
         }
 
         this.clientId = credentials.getString("client_id");
