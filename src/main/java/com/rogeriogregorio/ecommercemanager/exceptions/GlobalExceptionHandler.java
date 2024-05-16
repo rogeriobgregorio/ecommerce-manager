@@ -175,6 +175,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
+    @ExceptionHandler(PixException.class)
+    public ResponseEntity<StandardError> handlePixException(PixException ex) {
+
+        StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR,
+                "PixException: error during Pix payment execution", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<StandardError> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
 
