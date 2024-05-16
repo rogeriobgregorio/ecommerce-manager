@@ -43,7 +43,7 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.POST, "/api/v1/register").permitAll()
                             .requestMatchers(HttpMethod.POST, "/api/v1/authenticate").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/v1/validate-email/search").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/api/v1/pix/authenticate").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/v1/pix").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/v1/addresses").hasAnyRole("ADMIN", "MANAGER")
                             .requestMatchers(HttpMethod.POST, "/api/v1/addresses").hasAnyRole("ADMIN", "MANAGER", "CLIENT")
                             .requestMatchers(HttpMethod.PUT, "/api/v1/addresses").hasAnyRole("ADMIN", "MANAGER", "CLIENT")

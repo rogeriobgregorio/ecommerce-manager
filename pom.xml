@@ -13,6 +13,7 @@
 	<version>0.0.1</version>
 	<name>E-Commerce Manager</name>
 	<description>E-Commerce Manager</description>
+
 	<properties>
 		<java.version>17</java.version>
 		<spring-security.version>6.2.3</spring-security.version>
@@ -107,20 +108,35 @@
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20231013</version>
+		</dependency>
+
+		<dependency>
+			<groupId>br.com.efipay.efisdk</groupId>
+			<artifactId>sdk-java-apis-efi</artifactId>
+			<version>1.0.3</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
 		<plugins>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>3.1.0</version>
 			</plugin>
+
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>${project.parent.version}</version>
 			</plugin>
+
 		</plugins>
 	</build>
 

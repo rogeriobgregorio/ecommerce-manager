@@ -1,7 +1,8 @@
 package com.rogeriogregorio.ecommercemanager.controllers;
 
-import com.rogeriogregorio.ecommercemanager.pix.AuthenticatePixService;
+import com.rogeriogregorio.ecommercemanager.pix.PixService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,16 +11,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/api/v1")
 public class PixController {
 
-    private final AuthenticatePixService authenticatePixService;
+    private final PixService pixService;
 
     @Autowired
-    public PixController(AuthenticatePixService authenticatePixService) {
-        this.authenticatePixService = authenticatePixService;
+    public PixController(PixService pixService) {
+        this.pixService = pixService;
     }
 
-    @GetMapping("/pix/authenticate")
-    public String authenticate() {
+    @GetMapping("/pix")
+    public ResponseEntity getPixEVP() {
 
-        return authenticatePixService.generatePixAuthenticationToken();
+         String reponse = pixService.createPixEVP();
+
+         return ResponseEntity.ok().body(reponse);
     }
 }
