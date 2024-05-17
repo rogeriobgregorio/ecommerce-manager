@@ -33,4 +33,4 @@ build/
 .vscode/
 
 # pix production certificate
-production-certificate-pix.p12
+certs/production-certificate-pix.p12
