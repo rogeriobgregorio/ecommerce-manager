@@ -22,7 +22,6 @@ public class TokenServiceImpl implements TokenService {
 
     @Autowired
     public TokenServiceImpl(ErrorHandler errorHandler) {
-
         this.errorHandler = errorHandler;
     }
 

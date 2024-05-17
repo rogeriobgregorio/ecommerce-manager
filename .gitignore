@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# pix production certificate
+production-certificate-pix.p12

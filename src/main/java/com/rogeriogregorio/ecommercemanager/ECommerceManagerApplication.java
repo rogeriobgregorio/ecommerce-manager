@@ -1,5 +1,6 @@
 package com.rogeriogregorio.ecommercemanager;
 
+import com.rogeriogregorio.ecommercemanager.pix.config.PixCredentialConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
