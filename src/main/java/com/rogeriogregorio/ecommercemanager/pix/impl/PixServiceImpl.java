@@ -14,6 +14,8 @@ import java.util.HashMap;
 public class PixServiceImpl implements PixService {
 
     private final PixCredentialConfig credentials;
+    private HashMap<String, String> params = new HashMap<>();
+    private JSONObject body = new JSONObject();
 
     @Autowired
     public PixServiceImpl(PixCredentialConfig credentials) {
@@ -22,16 +24,11 @@ public class PixServiceImpl implements PixService {
 
     public String createPixEVP() {
 
-        JSONObject options = new JSONObject();
-        options.put("client_id", credentials.getClientId());
-        options.put("client_secret", credentials.getClientSecret());
-        options.put("certificate", credentials.getCertificate());
-        options.put("sandbox", credentials.isSandbox());
-
         try {
-            EfiPay efiPay = new EfiPay(options);
-            JSONObject response = efiPay.call("pixCreateEvp", new HashMap<String, String>(), new JSONObject());
-            return response.toString();
+            EfiPay efiPay = new EfiPay(credentials.options());
+            JSONObject pixEVP = efiPay.call("pixCreateEvp", params, body);
+
+            return pixEVP.toString();
 
         } catch (Exception ex) {
             throw new PixException("Error while trying to create Pix EVP", ex);

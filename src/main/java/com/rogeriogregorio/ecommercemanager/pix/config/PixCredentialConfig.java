@@ -1,5 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.pix.config;
 
+import org.json.JSONObject;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -51,5 +52,17 @@ public class PixCredentialConfig {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public JSONObject options() {
+
+        JSONObject options = new JSONObject();
+
+        options.put("client_id", getClientId());
+        options.put("client_secret", getClientSecret());
+        options.put("certificate", getCertificate());
+        options.put("sandbox", isSandbox());
+
+        return options;
     }
 }
