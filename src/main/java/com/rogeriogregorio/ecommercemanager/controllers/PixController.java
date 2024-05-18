@@ -19,11 +19,27 @@ public class PixController {
         this.pixService = pixService;
     }
 
-    @GetMapping("/pix")
+    @GetMapping("/pix/evp")
     public ResponseEntity<String> getPixEVP() {
 
          return ResponseEntity
                  .status(HttpStatus.OK)
                  .body(pixService.createPixEVP());
+    }
+
+    @GetMapping("/pix/charge")
+    public ResponseEntity<String> getImmediatePixCharge() {
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(pixService.createImmediatePixCharge());
+    }
+
+    @GetMapping("/pix/qrcode")
+    public ResponseEntity<String> getPixQRCode() {
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(pixService.generatePixQRCodeLink());
     }
 }

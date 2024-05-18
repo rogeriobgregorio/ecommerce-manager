@@ -6,4 +6,8 @@ import org.springframework.stereotype.Component;
 public interface PixService {
 
     String createPixEVP();
+
+    String createImmediatePixCharge();
+
+    String generatePixQRCodeLink();
 }

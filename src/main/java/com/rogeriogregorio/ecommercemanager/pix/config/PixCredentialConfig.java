@@ -13,6 +13,7 @@ public class PixCredentialConfig {
     private String certificate;
     private boolean sandbox;
     private boolean debug;
+    private String keyEVP;
 
     public String getClientId() {
         return clientId;
@@ -52,6 +53,14 @@ public class PixCredentialConfig {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public String getKeyEVP() {
+        return keyEVP;
+    }
+
+    public void setKeyEVP(String keyEVP) {
+        this.keyEVP = keyEVP;
     }
 
     public JSONObject options() {
