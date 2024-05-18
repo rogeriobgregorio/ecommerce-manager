@@ -1,6 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.pix.impl;
 
 import br.com.efi.efisdk.EfiPay;
+import br.com.efi.efisdk.exceptions.EfiPayException;
 import com.rogeriogregorio.ecommercemanager.exceptions.PixException;
 import com.rogeriogregorio.ecommercemanager.pix.PixService;
 import com.rogeriogregorio.ecommercemanager.pix.config.PixCredentialConfig;
@@ -74,6 +75,24 @@ public class PixServiceImpl implements PixService {
             return (String) pixQRCodeLink.get("linkVisualizacao");
 
         } catch (Exception ex) {
+            throw new PixException("Error while trying to generate Pix QRCode link", ex);
+        }
+    }
+
+    public String listPaidPixCharges() {
+
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put("inicio", "2024-05-18T18:01:35Z");
+        params.put("fim", "2024-05-18T16:01:35Z");
+
+        try {
+            EfiPay efi = new EfiPay(credentials.options());
+            JSONObject pixListCharges = efi.call("pixListCharges", params, new JSONObject());
+
+            return pixListCharges.toString();
+
+        }
+        catch (Exception ex) {
             throw new PixException("Error while trying to generate Pix QRCode link", ex);
         }
     }
