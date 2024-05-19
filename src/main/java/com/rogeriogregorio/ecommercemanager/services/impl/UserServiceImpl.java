@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -153,7 +152,7 @@ public class UserServiceImpl implements UserService {
         logger.info("User's address updated: {}", user);
     }
 
-    private String validatePassword(String password) {
+    private String validateUserPassword(String password) {
 
         List<String> failures = new ArrayList<>();
 
@@ -172,7 +171,7 @@ public class UserServiceImpl implements UserService {
 
     private User buildCreateUser(UserRequest userRequest) {
 
-        String encodedPassword = validatePassword(userRequest.getPassword());
+        String encodedPassword = validateUserPassword(userRequest.getPassword());
         userRequest.setPassword(encodedPassword);
         userRequest.setUserRole(UserRole.CLIENT);
 
@@ -181,7 +180,7 @@ public class UserServiceImpl implements UserService {
 
     private User buildUpdateUser(UserRequest userRequest) {
 
-        String encodedPassword = validatePassword(userRequest.getPassword());
+        String encodedPassword = validateUserPassword(userRequest.getPassword());
         userRequest.setPassword(encodedPassword);
 
         User user = findUserById(userRequest.getId());

@@ -140,11 +140,9 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + "."));
     }
 
-    private void validateStatusChange(OrderRequest orderRequest, Order order) {
+    private void validateOrderStatusChange(OrderRequest orderRequest, Order order) {
 
-        for (OrderStrategy validator : validators) {
-            validator.validateStatusChange(orderRequest, order);
-        }
+        validators.forEach(validator -> validator.validateStatusChange(orderRequest, order));
     }
 
     private void validateOrderDeleteEligibility(Order order) {
@@ -200,7 +198,7 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = findOrderById(orderRequest.getId());
 
-        validateStatusChange(orderRequest, order);
+        validateOrderStatusChange(orderRequest, order);
 
         order.setMoment(Instant.now());
         order.setOrderStatus(orderRequest.getOrderStatus());

@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -19,27 +20,13 @@ public class PixController {
         this.pixService = pixService;
     }
 
-    @GetMapping("/pix/evp")
-    public ResponseEntity<String> getPixEVP() {
+    @GetMapping("/pix/paid-charges")
+    public ResponseEntity<String> getAllPaidPixCharges(
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate) {
 
          return ResponseEntity
                  .status(HttpStatus.OK)
-                 .body(pixService.createPixEVP());
-    }
-
-    @GetMapping("/pix/charge")
-    public ResponseEntity<String> getImmediatePixCharge() {
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(pixService.createImmediatePixCharge());
-    }
-
-    @GetMapping("/pix/qrcode")
-    public ResponseEntity<String> getPixQRCode() {
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(pixService.generatePixQRCodeLink());
+                 .body(pixService.listPaidPixCharges(startDate, endDate));
     }
 }

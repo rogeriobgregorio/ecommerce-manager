@@ -103,11 +103,10 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
-    private void validateOrder(Order order) {
+    private void validateOrderToBePaid(Order order) {
 
-        for (PaymentStrategy validator : validators) {
-            validator.validateOrder(order);
-        }
+        validators.forEach(validator -> validator.validateOrder(order));
+
     }
 
     private void updateInventoryStock(Payment payment) {
@@ -121,7 +120,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         Long orderId = paymentRequest.getOrderId();
         Order orderToBePaid = orderService.findOrderById(orderId);
-        validateOrder(orderToBePaid);
+        validateOrderToBePaid(orderToBePaid);
 
         Payment payment = new Payment(Instant.now(), orderToBePaid);
 

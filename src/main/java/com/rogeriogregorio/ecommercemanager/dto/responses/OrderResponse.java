@@ -101,19 +101,16 @@ public class OrderResponse implements Serializable {
         this.items = items;
     }
 
-    public BigDecimal getTotal() {
+    public BigDecimal getSubTotal() {
 
-        BigDecimal total = BigDecimal.valueOf(0.0);
-
-        for (OrderItem orderItem : items) {
-            total = total.add(orderItem.getSubTotal());
-        }
-        return total;
+        return items.stream()
+                .map(OrderItem::getSubTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public BigDecimal getTotalWithDiscountCoupon() {
+    public BigDecimal getTotalFinal() {
 
-        BigDecimal total = getTotal();
+        BigDecimal total = getSubTotal();
 
         if (isDiscountCouponPresent()) {
             BigDecimal discount = discountCoupon.getDiscount();

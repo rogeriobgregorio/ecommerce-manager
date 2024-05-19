@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "tb_users", uniqueConstraints = {
@@ -177,19 +178,11 @@ public class User implements Serializable, UserDetails {
     @JsonIgnore
     public Set<Product> getPurchasedProducts() {
 
-        Set<Product> purchasedProducts = new HashSet<>();
-
-        for (Order order : orders) {
-
-            if (order.getOrderStatus() == OrderStatus.DELIVERED) {
-
-                for (OrderItem orderItem : order.getItems()) {
-                    purchasedProducts.add(orderItem.getProduct());
-                }
-            }
-        }
-
-        return purchasedProducts;
+        return orders.stream()
+                .filter(order -> order.getOrderStatus() == OrderStatus.DELIVERED)
+                .flatMap(order -> order.getItems().stream())
+                .map(OrderItem::getProduct)
+                .collect(Collectors.toSet());
     }
 
     @JsonIgnore

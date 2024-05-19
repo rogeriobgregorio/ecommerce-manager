@@ -1,6 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -10,9 +11,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "tb_orders")
@@ -136,19 +136,16 @@ public class Order implements Serializable {
         return items;
     }
 
-    public BigDecimal getTotal() {
+    public BigDecimal getSubTotal() {
 
-        BigDecimal total = BigDecimal.valueOf(0.0);
-
-        for (OrderItem orderItem : items) {
-            total = total.add(orderItem.getSubTotal());
-        }
-        return total;
+        return items.stream()
+                .map(OrderItem::getSubTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public BigDecimal getTotalWithDiscountCoupon() {
+    public BigDecimal getTotalFinal() {
 
-        BigDecimal total = getTotal();
+        BigDecimal total = getSubTotal();
 
         if (isDiscountCouponPresent() && coupon.isValid()) {
             BigDecimal discount = coupon.getDiscount();
@@ -158,6 +155,19 @@ public class Order implements Serializable {
         }
 
         return total.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @Transient
+    @JsonIgnore
+    public List<Map.Entry<Product, Integer>> getProductQuantities() {
+
+        return items.stream()
+                .collect(Collectors.groupingBy(OrderItem::getProduct,
+                        Collectors.summingInt(OrderItem::getQuantity)))
+                .entrySet()
+                .stream()
+                .map(entry -> Map.entry(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
     }
 
     public boolean isOrderPaid() {

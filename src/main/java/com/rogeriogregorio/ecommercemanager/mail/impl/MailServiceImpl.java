@@ -14,6 +14,8 @@ import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -38,6 +40,7 @@ public class MailServiceImpl implements MailService {
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
     private static final String ISSUER_NAME = "ecommerce-manager";
+    private final Logger logger = LogManager.getLogger();
 
     @Autowired
     public MailServiceImpl(JavaMailSender mailSender, UserRepository userRepository,
@@ -73,6 +76,7 @@ public class MailServiceImpl implements MailService {
             messageHelper.setText(emailTemplate, true);
 
             mailSender.send(message);
+            logger.info("Verification email sent: {}", message.toString());
 
         } catch (MessagingException ex) {
             throw new MailException("Error when trying to send account activation email: ", ex);
@@ -146,5 +150,6 @@ public class MailServiceImpl implements MailService {
         user.setEmailEnabled(true);
         errorHandler.catchException(() -> userRepository.save(user),
                 "Error while trying to save verified email");
+        logger.info("User email {} verified and saved", user.getEmail());
     }
 }
