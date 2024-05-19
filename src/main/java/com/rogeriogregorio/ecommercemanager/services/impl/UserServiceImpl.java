@@ -77,7 +77,7 @@ public class UserServiceImpl implements UserService {
                 "Error while trying to register the user: ");
         logger.info("User registered: {}", user);
 
-//        CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user));
+//        CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user)); //TODO
 
         return dataMapper.toResponse(user, UserResponse.class);
     }

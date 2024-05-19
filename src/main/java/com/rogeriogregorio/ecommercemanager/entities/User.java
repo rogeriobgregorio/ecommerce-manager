@@ -5,6 +5,7 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -43,6 +44,10 @@ public class User implements Serializable, UserDetails {
     @Pattern(regexp = "\\d{8,11}$", message = "The phone number must have between 8 and 11 digits.")
     private String phone;
 
+    @Column(name = "cpf")
+    @CPF(message = "Invalid CPF")
+    private String cpf;
+
     @Column(name = "password")
     @NotBlank(message = "The password must not be blank.")
     private String password;
@@ -69,22 +74,24 @@ public class User implements Serializable, UserDetails {
     }
 
     public User(String name, String email, String phone,
-                String password, UserRole role) {
+                String cpf, String password, UserRole role) {
 
         this.name = name;
         this.email = email;
         this.phone = phone;
+        this.cpf = cpf;
         this.password = password;
         this.role = role;
     }
 
     public User(UUID id, String name, String email, String phone,
-                String password, UserRole role) {
+                String cpf, String password, UserRole role) {
 
         this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
+        this.cpf = cpf;
         this.password = password;
         this.role = role;
     }
@@ -119,6 +126,14 @@ public class User implements Serializable, UserDetails {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 
     public void setPassword(String password) {
@@ -255,6 +270,7 @@ public class User implements Serializable, UserDetails {
                 +", name= " + name
                 + ", email= " + email
                 + ", phone= " + phone
+                + ", CPF= " + cpf
                 + ", role= " + role
                 + ", email enabled= " + emailEnabled + "]";
     }

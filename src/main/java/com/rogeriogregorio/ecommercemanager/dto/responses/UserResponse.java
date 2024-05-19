@@ -16,6 +16,7 @@ public class UserResponse implements Serializable {
     private String name;
     private String email;
     private String phone;
+    private String cpf;
     private Address address;
     private UserRole userRole;
     private boolean emailEnabled;
@@ -23,13 +24,14 @@ public class UserResponse implements Serializable {
     public UserResponse() {
     }
 
-    public UserResponse(UUID id, String name, String email,
-                        String phone, Address address, UserRole userRole) {
+    public UserResponse(UUID id, String name, String email, String phone,
+                        String cpf, Address address, UserRole userRole) {
 
         this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
+        this.cpf = cpf;
         this.address = address;
         this.userRole = userRole;
     }
@@ -64,6 +66,14 @@ public class UserResponse implements Serializable {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 
     public Address getAddress() {
