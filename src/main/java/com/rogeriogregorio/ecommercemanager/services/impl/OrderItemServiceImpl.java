@@ -30,7 +30,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     private final OrderService orderService;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger();
+    private final Logger logger = LogManager.getLogger(OrderItemServiceImpl.class);
 
     @Autowired
     public OrderItemServiceImpl(OrderItemRepository orderItemRepository,

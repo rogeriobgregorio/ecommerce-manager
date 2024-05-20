@@ -24,7 +24,7 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
     private final DiscountCouponRepository discountCouponRepository;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger();
+    private final Logger logger = LogManager.getLogger(DiscountCouponServiceImpl.class);
 
     @Autowired
     public DiscountCouponServiceImpl(DiscountCouponRepository discountCouponRepository,

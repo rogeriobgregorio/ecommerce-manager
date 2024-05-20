@@ -24,7 +24,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger();
+    private final Logger logger = LogManager.getLogger(NotificationServiceImpl.class);
 
     @Autowired
     public NotificationServiceImpl(NotificationRepository notificationRepository,

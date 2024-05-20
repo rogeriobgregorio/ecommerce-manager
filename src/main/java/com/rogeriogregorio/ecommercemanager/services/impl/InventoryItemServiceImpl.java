@@ -31,7 +31,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     private final ProductService productService;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger();
+    private final Logger logger = LogManager.getLogger(InventoryItemServiceImpl.class);
 
     @Autowired
     public InventoryItemServiceImpl(InventoryItemRepository inventoryItemRepository,

@@ -32,7 +32,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final List<PaymentStrategy> validators;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger();
+    private final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
 
     @Autowired
     public PaymentServiceImpl(PaymentRepository paymentRepository,

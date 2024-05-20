@@ -32,7 +32,7 @@ public class OrderServiceImpl implements OrderService {
     private final List<OrderStrategy> validators;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger();
+    private final Logger logger = LogManager.getLogger(OrderServiceImpl.class);
 
     @Autowired
     public OrderServiceImpl(OrderRepository orderRepository, UserService userService,

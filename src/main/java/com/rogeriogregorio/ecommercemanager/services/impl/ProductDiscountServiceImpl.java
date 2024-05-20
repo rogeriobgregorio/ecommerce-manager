@@ -24,7 +24,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
     private final ProductDiscountRepository productDiscountRepository;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger();
+    private final Logger logger = LogManager.getLogger(ProductDiscountServiceImpl.class);
 
     @Autowired
     public ProductDiscountServiceImpl(ProductDiscountRepository productDiscountRepository,

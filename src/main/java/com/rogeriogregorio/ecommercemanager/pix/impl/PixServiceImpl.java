@@ -20,13 +20,14 @@ import java.util.Map;
 @Service
 public class PixServiceImpl implements PixService {
 
-    private final CredentialService credentials;
-    private final DateFormatter dateFormatter;
     private static final String CREATE_EVP = "pixCreateEvp";
     private static final String CREATE_IMMEDIATE_CHARGE = "pixCreateImmediateCharge";
     private static final String GENERATE_QRCODE = "pixGenerateQRCode";
     private static final String LIST_CHARGES = "pixListCharges";
-    private final Logger logger = LogManager.getLogger();
+
+    private final CredentialService credentials;
+    private final DateFormatter dateFormatter;
+    private final Logger logger = LogManager.getLogger(PixServiceImpl.class);
 
     @Autowired
     public PixServiceImpl(CredentialService credentials,
@@ -41,9 +42,10 @@ public class PixServiceImpl implements PixService {
         try {
             EfiPay efiPay = new EfiPay(credentials.options());
             JSONObject pixEVP = efiPay.call(CREATE_EVP, new HashMap<>(), new JSONObject());
+            String keyEVP = pixEVP.getString("chave");
 
-            logger.info("EVP pix key created: {}", pixEVP.getString("chave"));
-            return pixEVP.getString("chave");
+            logger.info("EVP pix key created: {}", keyEVP);
+            return keyEVP;
 
         } catch (EfiPayException ex) {
             logger.error("EfiPayException: {}, {}", ex.getError(), ex.getErrorDescription());
@@ -56,29 +58,15 @@ public class PixServiceImpl implements PixService {
 
     public String createImmediatePixCharge(Order order) {
 
-        String debtorCpf = order.getClient().getCpf();
-        String debtorName = order.getClient().getName();
-        String chargeAmount = order.getTotalFinal().toString();
-        String orderNumber = order.getId().toString();
-        String items = order.getProductQuantities().toString();
-
-        JSONObject body = new JSONObject();
-        body.put("calendario", new JSONObject().put("expiracao", 3600));
-        body.put("devedor", new JSONObject().put("cpf", debtorCpf).put("nome", debtorName));
-        body.put("valor", new JSONObject().put("original", chargeAmount));
-        body.put("chave", credentials.keyEVP());
-
-        JSONArray additionalInfo = new JSONArray();
-        additionalInfo.put(new JSONObject().put("nome", "Número do Pedido").put("valor", orderNumber));
-        additionalInfo.put(new JSONObject().put("nome", "Items do Pedido").put("valor", items));
-        body.put("infoAdicionais", additionalInfo);
-
         try {
+            JSONObject body = buildChargeBody(order);
+
             EfiPay efiPay = new EfiPay(credentials.options());
             JSONObject pixCharge = efiPay.call(CREATE_IMMEDIATE_CHARGE, new HashMap<>(), body);
+            String pixChargeId = pixCharge.getJSONObject("loc").getString("id");
 
             logger.info("Immediate charge Pix created: {}", pixCharge.toString());
-            return pixCharge.getJSONObject("loc").getString("id");
+            return pixChargeId;
 
         } catch (EfiPayException ex) {
             logger.error("EfiPayException: {}, {}", ex.getError(), ex.getErrorDescription());
@@ -89,11 +77,11 @@ public class PixServiceImpl implements PixService {
         }
     }
 
-    public String generatePixQRCodeLink(String id) {
-
-        Map<String, String> params = Map.of("id", id);
+    public String generatePixQRCodeLink(String pixChargeId) {
 
         try {
+            Map<String, String> params = Map.of("id", pixChargeId);
+
             EfiPay efiPay = new EfiPay(credentials.options());
             Map<String, Object> pixQRCode = efiPay.call(GENERATE_QRCODE, params, new HashMap<>());
             String pixQRCodeLink = pixQRCode.get("linkVisualizacao").toString();
@@ -112,12 +100,12 @@ public class PixServiceImpl implements PixService {
 
     public String listPaidPixCharges(String startDate, String endDate) {
 
-        Map<String, String> params = Map.of(
-                "inicio", dateFormatter.toISO8601(startDate),
-                "fim", dateFormatter.toISO8601(endDate)
-        );
-
         try {
+            Map<String, String> params = Map.of(
+                    "inicio", dateFormatter.toISO8601(startDate),
+                    "fim", dateFormatter.toISO8601(endDate)
+            );
+
             EfiPay efiPay = new EfiPay(credentials.options());
             JSONObject pixListCharges = efiPay.call(LIST_CHARGES, params, new JSONObject());
 
@@ -127,9 +115,30 @@ public class PixServiceImpl implements PixService {
             logger.error("EfiPayException: {}, {}", ex.getError(), ex.getErrorDescription());
             throw new PixException("Error while trying to list paid pix charges", ex);
 
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw new PixException("Error while trying to list paid pix charges", ex);
         }
+    }
+
+    private JSONObject buildChargeBody(Order order) {
+
+        String debtorCpf = order.getClient().getCpf();
+        String debtorName = order.getClient().getName();
+        String chargeAmount = order.getTotalFinal().toString();
+        String orderNumber = order.getId().toString();
+        String items = order.getProductQuantities().toString();
+
+        JSONObject body = new JSONObject();
+        body.put("calendario", new JSONObject().put("expiracao", 3600));
+        body.put("devedor", new JSONObject().put("cpf", debtorCpf).put("nome", debtorName));
+        body.put("valor", new JSONObject().put("original", chargeAmount));
+        body.put("chave", credentials.keyEVP());
+
+        JSONArray additionalInfo = new JSONArray();
+        additionalInfo.put(new JSONObject().put("nome", "Número do Pedido").put("valor", orderNumber));
+        additionalInfo.put(new JSONObject().put("nome", "Items do Pedido").put("valor", items));
+        body.put("infoAdicionais", additionalInfo);
+
+        return body;
     }
 }

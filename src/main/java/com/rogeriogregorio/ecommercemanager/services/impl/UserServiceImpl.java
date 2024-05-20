@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
     private final PasswordEncoder passwordEncoder;
-    private final Logger logger = LogManager.getLogger();
+    private final Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, MailService mailService,

@@ -33,7 +33,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     private final UserService userService;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger();
+    private final Logger logger = LogManager.getLogger(ProductReviewServiceImpl.class);
 
     @Autowired
     public ProductReviewServiceImpl(ProductReviewRepository productReviewRepository,

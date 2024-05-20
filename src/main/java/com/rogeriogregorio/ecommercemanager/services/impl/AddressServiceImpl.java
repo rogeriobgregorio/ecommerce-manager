@@ -27,7 +27,7 @@ public class AddressServiceImpl implements AddressService {
     private final UserService userService;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger();
+    private final Logger logger = LogManager.getLogger(AddressServiceImpl.class);
 
     @Autowired
     public AddressServiceImpl(AddressRepository addressRepository, UserService userService,

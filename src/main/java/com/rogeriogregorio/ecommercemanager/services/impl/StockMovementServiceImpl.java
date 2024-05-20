@@ -27,7 +27,7 @@ public class StockMovementServiceImpl implements StockMovementService {
     private final InventoryItemService inventoryItemService;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger();
+    private final Logger logger = LogManager.getLogger(StockMovementServiceImpl.class);
 
     @Autowired
     public StockMovementServiceImpl(StockMovementRepository stockMovementRepository,

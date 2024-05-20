@@ -17,8 +17,8 @@ public class TokenServiceImpl implements TokenService {
 
     @Value("${api.security.token.secret}")
     private String secretKey;
-    private static final String ISSUER_NAME = "ecommerce-manager";
     private final ErrorHandler errorHandler;
+    private static final String ISSUER_NAME = "ecommerce-manager";
 
     @Autowired
     public TokenServiceImpl(ErrorHandler errorHandler) {

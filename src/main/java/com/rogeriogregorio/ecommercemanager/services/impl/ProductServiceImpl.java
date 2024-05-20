@@ -30,7 +30,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductDiscountService productDiscountService;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger();
+    private final Logger logger = LogManager.getLogger(ProductServiceImpl.class);
 
     @Autowired
     public ProductServiceImpl(ProductRepository productRepository,

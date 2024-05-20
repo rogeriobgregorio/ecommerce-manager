@@ -40,7 +40,7 @@ public class MailServiceImpl implements MailService {
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
     private static final String ISSUER_NAME = "ecommerce-manager";
-    private final Logger logger = LogManager.getLogger();
+    private final Logger logger = LogManager.getLogger(MailServiceImpl.class);
 
     @Autowired
     public MailServiceImpl(JavaMailSender mailSender, UserRepository userRepository,

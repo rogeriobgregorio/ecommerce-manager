@@ -20,7 +20,7 @@ public class PixController {
         this.pixService = pixService;
     }
 
-    @GetMapping("/pix/paid-charges")
+    @GetMapping("/pix/paid-charges/search")
     public ResponseEntity<String> getAllPaidPixCharges(
             @RequestParam("startDate") String startDate,
             @RequestParam("endDate") String endDate) {
