@@ -2,10 +2,10 @@ package com.rogeriogregorio.ecommercemanager.util;
 
 import org.springframework.stereotype.Component;
 
-import java.util.function.Supplier;
+import java.util.concurrent.Callable;
 
 @Component
 public interface ErrorHandler {
 
-    <T> T catchException(Supplier<T> method, String errorMessage);
+    <T> T catchException(Callable<T> method, String errorMessage);
 }

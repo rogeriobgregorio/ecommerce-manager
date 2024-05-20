@@ -1,10 +1,9 @@
 package com.rogeriogregorio.ecommercemanager.security.config;
 
-import com.rogeriogregorio.ecommercemanager.exceptions.SecurityFilterException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.security.TokenService;
+import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,19 +13,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
-
 @Component
 public class SecurityFilterConfig extends OncePerRequestFilter {
 
     private final TokenService tokenService;
     private final UserRepository userRepository;
+    private final ErrorHandler errorHandler;
 
     @Autowired
-    public SecurityFilterConfig(TokenService tokenService, UserRepository userRepository) {
+    public SecurityFilterConfig(TokenService tokenService,
+                                UserRepository userRepository,
+                                ErrorHandler errorHandler) {
 
         this.tokenService = tokenService;
         this.userRepository = userRepository;
+        this.errorHandler = errorHandler;
     }
 
     @Override
@@ -44,19 +45,17 @@ public class SecurityFilterConfig extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
-        try {
+        errorHandler.catchException(() -> {
             filterChain.doFilter(request, response);
-
-        } catch (IOException | ServletException ex) {
-            throw new SecurityFilterException("Error during execution of the 'doFilter' method", ex);
-        }
+            return null;
+        }, "Error during execution of the 'doFilter' method: ");
     }
 
     private String recoverToken(HttpServletRequest httpServletRequest) {
 
         String authHeader = httpServletRequest.getHeader("Authorization");
+        if (authHeader == null) return null;
 
-        if(authHeader == null) return null;
         return authHeader.replace("Bearer ", "");
     }
 }

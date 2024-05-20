@@ -5,14 +5,12 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.User;
-import com.rogeriogregorio.ecommercemanager.exceptions.MailException;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
-import com.rogeriogregorio.ecommercemanager.exceptions.TokenException;
+import com.rogeriogregorio.ecommercemanager.exceptions.TokenJwtException;
 import com.rogeriogregorio.ecommercemanager.mail.MailService;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +22,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -59,9 +56,9 @@ public class MailServiceImpl implements MailService {
 
     public void sendVerificationEmail(User user) {
 
-        try {
-            String token = generateEmailVerificationToken(user);
+        String token = generateEmailVerificationToken(user);
 
+        errorHandler.catchException(() -> {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper messageHelper = new MimeMessageHelper(message, true);
 
@@ -76,22 +73,20 @@ public class MailServiceImpl implements MailService {
             messageHelper.setText(emailTemplate, true);
 
             mailSender.send(message);
-            logger.info("Verification email sent: {}", message.toString());
+            logger.info("Verification email sent to: {}", user.getEmail());
 
-        } catch (MessagingException ex) {
-            throw new MailException("Error when trying to send account activation email: ", ex);
-        }
+            return null;
+        }, "Error when trying to send account activation email: ");
     }
 
     private String getVerificationEmailTemplate() {
 
-        try {
-            ClassPathResource pathResource = new ClassPathResource("templates/verification-email.html");
-            return new String(pathResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        ClassPathResource pathResource = new ClassPathResource("templates/verification-email.html");
 
-        } catch (IOException ex) {
-            throw new MailException("Error while trying to get verification email template: ", ex);
-        }
+        return errorHandler.catchException(() -> new String(pathResource
+                .getInputStream()
+                .readAllBytes(), StandardCharsets.UTF_8),
+                "Error while trying to get verification email template: ");
     }
 
     public String generateEmailVerificationToken(User user) {
@@ -131,7 +126,7 @@ public class MailServiceImpl implements MailService {
 
         Instant expirationDate = decodedJWT.getExpiresAt().toInstant();
         if (expirationDate.isBefore(Instant.now())) {
-            throw new TokenException("Email verification token has expired");
+            throw new TokenJwtException("Email verification token has expired");
         }
 
         saveEmailAsEnabled(user);

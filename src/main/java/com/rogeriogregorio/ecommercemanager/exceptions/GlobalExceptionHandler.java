@@ -143,11 +143,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(error);
     }
 
-    @ExceptionHandler(TokenException.class)
-    public ResponseEntity<StandardError> handleJWTException(TokenException ex) {
+    @ExceptionHandler(TokenJwtException.class)
+    public ResponseEntity<StandardError> handleTokenJwtException(TokenJwtException ex) {
 
         StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR,
-                "TokenException: an error occurred while trying to execute a JWT class method", ex.getMessage());
+                "TokenJwtException: an error occurred while trying to execute a JWT class method", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
@@ -167,11 +167,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
-    @ExceptionHandler(SecurityFilterException.class)
-    public ResponseEntity<StandardError> handleFilterChainException(SecurityFilterException ex) {
+    @ExceptionHandler(HttpServletException.class)
+    public ResponseEntity<StandardError> handleHttpServletException(HttpServletException ex) {
 
         StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR,
-                "SecurityFilterException: error during filter chain execution", ex.getMessage());
+                "HttpServletException: error during servlet operation", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
@@ -180,6 +180,14 @@ public class GlobalExceptionHandler {
 
         StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR,
                 "PixException: error during Pix payment execution", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    @ExceptionHandler(UnexpectedException.class)
+    public ResponseEntity<StandardError> handleUnexpectedException(UnexpectedException ex) {
+
+        StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR,
+                "UnexpectedException: an unexpected error occurred at run time", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 

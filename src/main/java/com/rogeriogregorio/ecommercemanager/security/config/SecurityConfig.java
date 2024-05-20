@@ -1,6 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.security.config;
 
-import com.rogeriogregorio.ecommercemanager.exceptions.SecurityFilterException;
+import com.rogeriogregorio.ecommercemanager.exceptions.HttpServletException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -120,7 +120,7 @@ public class SecurityConfig {
                     .build();
 
         } catch (Exception ex) {
-            throw new SecurityFilterException("Error during execution of the 'cors' method", ex);
+            throw new HttpServletException("Error during execution of the 'cors' method", ex);
         }
     }
 
@@ -131,7 +131,7 @@ public class SecurityConfig {
             return authenticationConfiguration.getAuthenticationManager();
 
         } catch (Exception ex) {
-            throw new SecurityFilterException("Error during execution of the 'getAuthenticationManager' method", ex);
+            throw new HttpServletException("Error during execution of the 'getAuthenticationManager' method", ex);
         }
     }
 
