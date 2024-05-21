@@ -32,6 +32,8 @@ public class Payment implements Serializable {
     @MapsId
     private Order order;
 
+    private String pixQRCodeLink;
+
     public Payment() {
     }
 
@@ -64,6 +66,14 @@ public class Payment implements Serializable {
         this.order = order;
     }
 
+    public String getPixQRCodeLink() {
+        return pixQRCodeLink;
+    }
+
+    public void setPixQRCodeLink(String pixQRCodeLink) {
+        this.pixQRCodeLink = pixQRCodeLink;
+    }
+
     public String getAmountPaid() {
 
         BigDecimal amountPaid = order.getTotalFinal();
@@ -88,6 +98,7 @@ public class Payment implements Serializable {
     public String toString() {
         return "[Payment: id= " + id
                 + ", moment= " + moment
-                + ", order= " + order + "]";
+                + ", order= " + order
+                + ", pixQRCodeLink=" + pixQRCodeLink + "]";
     }
 }

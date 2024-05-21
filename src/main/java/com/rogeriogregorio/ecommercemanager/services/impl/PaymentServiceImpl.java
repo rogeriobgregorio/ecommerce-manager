@@ -6,6 +6,7 @@ import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.Payment;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
+import com.rogeriogregorio.ecommercemanager.pix.PixService;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.*;
 import com.rogeriogregorio.ecommercemanager.services.strategy.PaymentStrategy;
@@ -29,6 +30,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final InventoryItemService inventoryItemService;
     private final StockMovementService stockMovementService;
     private final OrderService orderService;
+    private final PixService pixService;
     private final List<PaymentStrategy> validators;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
@@ -38,13 +40,15 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentServiceImpl(PaymentRepository paymentRepository,
                               InventoryItemService inventoryItemService,
                               StockMovementService stockMovementService,
-                              OrderService orderService, List<PaymentStrategy> validators,
+                              OrderService orderService, PixService pixService,
+                              List<PaymentStrategy> validators,
                               ErrorHandler errorHandler, DataMapper dataMapper) {
 
         this.paymentRepository = paymentRepository;
         this.inventoryItemService = inventoryItemService;
         this.stockMovementService = stockMovementService;
         this.orderService = orderService;
+        this.pixService = pixService;
         this.validators = validators;
         this.errorHandler = errorHandler;
         this.dataMapper = dataMapper;
@@ -59,17 +63,35 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Transactional(readOnly = false)
-    public PaymentResponse createPayment(PaymentRequest paymentRequest) {
+    public PaymentResponse createPaymentWithCharge(PaymentRequest paymentRequest) {
 
         paymentRequest.setId(null);
-        Payment payment = buildPayment(paymentRequest);
+        Payment payment = buildPaymentWithCharge(paymentRequest);
 
         errorHandler.catchException(() -> paymentRepository.save(payment),
-                "Error while trying to create the payment: ");
-        logger.info("Payment created: {}", payment);
+                "Error while trying to create paid payment with charge: ");
+        logger.info("Payment with charge saved: {}", payment);
+
+        return dataMapper.toResponse(payment, PaymentResponse.class);
+    }
+
+    @Transactional(readOnly = false)
+    public void savePaidPaymentWithChargePaid(Payment payment) {
+
+        Long orderId = payment.getOrder().getId();
+
+        Order orderToBePaid = orderService.findOrderById(orderId);
+        orderToBePaid.setPayment(payment);
+        orderToBePaid.setOrderStatus(OrderStatus.PAID);
+
+        orderService.savePaidOrder(orderToBePaid);
+        payment.setOrder(orderToBePaid);
+
+        errorHandler.catchException(() -> paymentRepository.save(payment),
+                "Error while trying to save payment with paid charge: ");
+        logger.info("Payment with paid charge saved: {}", payment);
 
         updateInventoryStock(payment);
-        return dataMapper.toResponse(payment, PaymentResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -116,7 +138,7 @@ public class PaymentServiceImpl implements PaymentService {
         stockMovementService.updateStockMovementExit(orderPaid);
     }
 
-    private Payment buildPayment(PaymentRequest paymentRequest) {
+    private Payment buildPaymentWithCharge(PaymentRequest paymentRequest) {
 
         Long orderId = paymentRequest.getOrderId();
         Order orderToBePaid = orderService.findOrderById(orderId);
@@ -124,9 +146,10 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment payment = new Payment(Instant.now(), orderToBePaid);
 
-        orderToBePaid.setPayment(payment);
-        orderToBePaid.setOrderStatus(OrderStatus.PAID);
-        orderService.savePaidOrder(orderToBePaid);
+        String pixChargeId = pixService.createImmediatePixCharge(payment.getOrder());
+        String pixQRCodeLink = pixService.generatePixQRCodeLink(pixChargeId);
+
+        payment.setPixQRCodeLink(pixQRCodeLink);
 
         return payment;
     }

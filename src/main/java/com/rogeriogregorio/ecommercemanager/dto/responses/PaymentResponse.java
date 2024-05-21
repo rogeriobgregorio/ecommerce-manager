@@ -16,6 +16,7 @@ public class PaymentResponse implements Serializable {
     private Long id;
     private Instant moment;
     private Order order;
+    private String pixQRCodeLink;
 
     public PaymentResponse() {
     }
@@ -49,6 +50,14 @@ public class PaymentResponse implements Serializable {
 
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    public String getPixQRCodeLink() {
+        return pixQRCodeLink;
+    }
+
+    public void setPixQRCodeLink(String pixQRCodeLink) {
+        this.pixQRCodeLink = pixQRCodeLink;
     }
 
     public String getAmountPaid() {

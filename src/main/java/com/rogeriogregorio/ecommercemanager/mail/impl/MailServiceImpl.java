@@ -30,13 +30,14 @@ import java.util.UUID;
 @Service
 public class MailServiceImpl implements MailService {
 
+    private static final String ISSUER_NAME = "ecommerce-manager";
+
     @Value("${api.security.token.secret}")
     private String secretKey;
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private static final String ISSUER_NAME = "ecommerce-manager";
     private final Logger logger = LogManager.getLogger(MailServiceImpl.class);
 
     @Autowired
