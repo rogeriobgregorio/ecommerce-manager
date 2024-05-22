@@ -20,7 +20,9 @@ public class InventoryItemResponse implements Serializable {
     public InventoryItemResponse() {
     }
 
-    public InventoryItemResponse(Long id, Product product, Integer quantityInStock, Integer quantitySold, Integer stockStatus) {
+    public InventoryItemResponse(Long id, Product product, Integer quantityInStock,
+                                 Integer quantitySold, Integer stockStatus) {
+
         this.id = id;
         this.product = product;
         this.quantityInStock = quantityInStock;

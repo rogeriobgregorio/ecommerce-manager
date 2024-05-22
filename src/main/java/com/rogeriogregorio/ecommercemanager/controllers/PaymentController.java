@@ -37,7 +37,7 @@ public class PaymentController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(paymentService.createPaymentWithCharge(paymentRequest));
+                .body(paymentService.createPayment(paymentRequest));
     }
 
     @GetMapping(value = "/payments/{id}")

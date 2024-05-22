@@ -32,6 +32,7 @@ public class Payment implements Serializable {
     @MapsId
     private Order order;
 
+    @Column(name = "pix_qrcode_link")
     private String pixQRCodeLink;
 
     public Payment() {

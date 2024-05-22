@@ -63,7 +63,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Transactional(readOnly = false)
-    public PaymentResponse createPaymentWithCharge(PaymentRequest paymentRequest) {
+    public PaymentResponse createPayment(PaymentRequest paymentRequest) {
 
         paymentRequest.setId(null);
         Payment payment = buildPaymentWithCharge(paymentRequest);
@@ -76,22 +76,15 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Transactional(readOnly = false)
-    public void savePaidPaymentWithChargePaid(Payment payment) {
+    public void savePaidPayment(Payment payment) {
 
-        Long orderId = payment.getOrder().getId();
+        Payment paidPayment = buildPaidPayment(payment);
 
-        Order orderToBePaid = orderService.findOrderById(orderId);
-        orderToBePaid.setPayment(payment);
-        orderToBePaid.setOrderStatus(OrderStatus.PAID);
-
-        orderService.savePaidOrder(orderToBePaid);
-        payment.setOrder(orderToBePaid);
-
-        errorHandler.catchException(() -> paymentRepository.save(payment),
+        errorHandler.catchException(() -> paymentRepository.save(paidPayment),
                 "Error while trying to save payment with paid charge: ");
-        logger.info("Payment with paid charge saved: {}", payment);
+        logger.info("Payment with paid charge saved: {}", paidPayment);
 
-        updateInventoryStock(payment);
+        updateInventoryStock(paidPayment);
     }
 
     @Transactional(readOnly = true)
@@ -150,6 +143,20 @@ public class PaymentServiceImpl implements PaymentService {
         String pixQRCodeLink = pixService.generatePixQRCodeLink(pixChargeId);
 
         payment.setPixQRCodeLink(pixQRCodeLink);
+
+        return payment;
+    }
+
+    private Payment buildPaidPayment(Payment payment) {
+
+        Long orderId = payment.getOrder().getId();
+
+        Order orderToBePaid = orderService.findOrderById(orderId);
+        orderToBePaid.setPayment(payment);
+        orderToBePaid.setOrderStatus(OrderStatus.PAID);
+
+        orderService.savePaidOrder(orderToBePaid);
+        payment.setOrder(orderToBePaid);
 
         return payment;
     }

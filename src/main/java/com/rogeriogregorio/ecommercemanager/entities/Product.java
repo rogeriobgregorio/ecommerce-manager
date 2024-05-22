@@ -60,7 +60,7 @@ public class Product implements Serializable {
     @OneToMany(mappedBy = "id.product")
     private Set<OrderItem> items = new HashSet<>();
 
-    @OneToMany(mappedBy = "id.product")
+    @OneToMany(mappedBy = "id.product", fetch = FetchType.EAGER)
     private Set<ProductReview> reviews = new HashSet<>();
 
     public Product() {

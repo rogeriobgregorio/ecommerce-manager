@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -76,7 +77,7 @@ public class UserServiceImpl implements UserService {
                 "Error while trying to register the user: ");
         logger.info("User registered: {}", user);
 
-//        CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user)); //TODO
+        CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user));
 
         return dataMapper.toResponse(user, UserResponse.class);
     }

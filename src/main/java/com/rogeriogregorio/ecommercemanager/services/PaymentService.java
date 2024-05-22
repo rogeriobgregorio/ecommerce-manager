@@ -12,9 +12,9 @@ public interface PaymentService {
 
     Page<PaymentResponse> findAllPayments(Pageable pageable);
 
-    PaymentResponse createPaymentWithCharge(PaymentRequest paymentRequest);
+    PaymentResponse createPayment(PaymentRequest paymentRequest);
 
-    void savePaidPaymentWithChargePaid(Payment payment);
+    void savePaidPayment(Payment payment);
 
     PaymentResponse findPaymentById(Long id);
 
