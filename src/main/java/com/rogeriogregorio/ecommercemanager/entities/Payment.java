@@ -32,6 +32,9 @@ public class Payment implements Serializable {
     @MapsId
     private Order order;
 
+    @Column(name = "tx_id")
+    private String txId;
+
     @Column(name = "pix_qrcode_link")
     private String pixQRCodeLink;
 
@@ -67,6 +70,14 @@ public class Payment implements Serializable {
         this.order = order;
     }
 
+    public String getTxId() {
+        return txId;
+    }
+
+    public void setTxId(String txId) {
+        this.txId = txId;
+    }
+
     public String getPixQRCodeLink() {
         return pixQRCodeLink;
     }
@@ -100,6 +111,7 @@ public class Payment implements Serializable {
         return "[Payment: id= " + id
                 + ", moment= " + moment
                 + ", order= " + order
+                + ", txId= " + txId
                 + ", pixQRCodeLink=" + pixQRCodeLink + "]";
     }
 }

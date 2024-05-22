@@ -1,6 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.pix;
 
 import com.rogeriogregorio.ecommercemanager.entities.Order;
+import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -10,9 +11,9 @@ public interface PixService {
 
     String createPixEVP();
 
-    String createImmediatePixCharge(Order order);
+    JSONObject createImmediatePixCharge(Order order);
 
-    String generatePixQRCodeLink(String id);
+    String generatePixQRCodeLink(JSONObject pixCharge);
 
     String listPaidPixCharges(String startDate, String endDate);
 }

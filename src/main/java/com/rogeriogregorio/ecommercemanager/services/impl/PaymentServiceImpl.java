@@ -14,6 +14,8 @@ import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -76,9 +78,9 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Transactional(readOnly = false)
-    public void savePaidPayment(Payment payment) {
+    public void savePaidPayment(JSONObject webhookPix) {
 
-        Payment paidPayment = buildPaidPayment(payment);
+        Payment paidPayment = buildPaidPayment(webhookPix);
 
         errorHandler.catchException(() -> paymentRepository.save(paidPayment),
                 "Error while trying to save payment with paid charge: ");
@@ -131,6 +133,13 @@ public class PaymentServiceImpl implements PaymentService {
         stockMovementService.updateStockMovementExit(orderPaid);
     }
 
+    private Payment findByTxId(String txId) {
+
+        return errorHandler.catchException(() -> paymentRepository.findByTxId(txId),
+                        "Error while trying to find the payment by txId: ")
+                .orElseThrow(() -> new NotFoundException("Payment not found with txId: " + txId + "."));
+    }
+
     private Payment buildPaymentWithCharge(PaymentRequest paymentRequest) {
 
         Long orderId = paymentRequest.getOrderId();
@@ -139,15 +148,24 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment payment = new Payment(Instant.now(), orderToBePaid);
 
-        String pixChargeId = pixService.createImmediatePixCharge(payment.getOrder());
-        String pixQRCodeLink = pixService.generatePixQRCodeLink(pixChargeId);
+        JSONObject pixCharge = pixService.createImmediatePixCharge(payment.getOrder());
 
+        String txId = pixCharge.getString("txid");
+        payment.setTxId(txId);
+
+        String pixQRCodeLink = pixService.generatePixQRCodeLink(pixCharge);
         payment.setPixQRCodeLink(pixQRCodeLink);
 
         return payment;
     }
 
-    private Payment buildPaidPayment(Payment payment) {
+    private Payment buildPaidPayment(JSONObject webhookPix) {
+
+        JSONArray pixArray = webhookPix.getJSONArray("pix");
+        JSONObject pixObject = pixArray.getJSONObject(0);
+        String txId = pixObject.getString("txid");
+
+        Payment payment = findByTxId(txId);
 
         Long orderId = payment.getOrder().getId();
 

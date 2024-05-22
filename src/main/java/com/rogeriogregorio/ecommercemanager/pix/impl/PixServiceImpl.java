@@ -51,7 +51,7 @@ public class PixServiceImpl implements PixService {
         }, "Error while trying to create Pix EVP: ");
     }
 
-    public String createImmediatePixCharge(Order order) {
+    public JSONObject createImmediatePixCharge(Order order) {
 
         return errorHandler.catchException(() -> {
             JSONObject body = buildChargeBody(order);
@@ -59,16 +59,18 @@ public class PixServiceImpl implements PixService {
             EfiPay efiPay = new EfiPay(credentials.options());
             JSONObject pixCharge = efiPay.call(CREATE_IMMEDIATE_CHARGE, new HashMap<>(), body);
 
-            String pixChargeId = pixCharge.getJSONObject("loc").getString("id");
             logger.info("Immediate charge Pix created: {}", pixCharge.toString());
 
-            return pixChargeId;
+            return pixCharge;
         }, "Error while trying to create immediate Pix charge: ");
     }
 
-    public String generatePixQRCodeLink(String pixChargeId) {
+    public String generatePixQRCodeLink(JSONObject pixCharge) {
 
         return errorHandler.catchException(() -> {
+
+            String pixChargeId = pixCharge.getJSONObject("loc").getString("id");
+
             Map<String, String> params = Map.of("id", pixChargeId);
 
             EfiPay efiPay = new EfiPay(credentials.options());
