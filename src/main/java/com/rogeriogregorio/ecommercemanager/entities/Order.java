@@ -159,14 +159,14 @@ public class Order implements Serializable {
 
     @Transient
     @JsonIgnore
-    public List<Map.Entry<Product, Integer>> getProductQuantities() {
-
+    public List<String> getProductQuantities() {
         return items.stream()
-                .collect(Collectors.groupingBy(OrderItem::getProduct,
+                .collect(Collectors.groupingBy(
+                        orderItem -> orderItem.getProduct().getName(),
                         Collectors.summingInt(OrderItem::getQuantity)))
                 .entrySet()
                 .stream()
-                .map(entry -> Map.entry(entry.getKey(), entry.getValue()))
+                .map(entry -> entry.getKey() + ": " + entry.getValue())
                 .collect(Collectors.toList());
     }
 

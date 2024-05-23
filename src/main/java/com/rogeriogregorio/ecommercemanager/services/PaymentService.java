@@ -15,7 +15,7 @@ public interface PaymentService {
 
     PaymentResponse createPayment(PaymentRequest paymentRequest);
 
-    void savePaidPayment(JSONObject webhookPix);
+    void savePaidPayment(String pix);
 
     PaymentResponse findPaymentById(Long id);
 

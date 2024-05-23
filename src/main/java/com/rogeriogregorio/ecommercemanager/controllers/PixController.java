@@ -32,9 +32,9 @@ public class PixController {
     }
 
     @PostMapping("/webhook/pix")
-    public ResponseEntity<String> webhookPix(@RequestBody JSONObject webhookPix) {
+    public ResponseEntity<Void> webhookPix(@RequestBody String pixWebhook) {
 
-        paymentService.savePaidPayment(webhookPix);
+        paymentService.savePaidPayment(pixWebhook);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -42,7 +42,7 @@ public class PixController {
     }
 
     @PostMapping("/webhook")
-    public ResponseEntity<String> webhook(@RequestBody JSONObject webhook) {
+    public ResponseEntity<Void> webhook(@RequestBody String webhook) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)

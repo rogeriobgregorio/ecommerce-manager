@@ -46,6 +46,7 @@ public class User implements Serializable, UserDetails {
     private String phone;
 
     @Column(name = "cpf")
+    @NotBlank(message = "The cpf must not be blank.")
     @CPF(message = "Invalid CPF")
     private String cpf;
 

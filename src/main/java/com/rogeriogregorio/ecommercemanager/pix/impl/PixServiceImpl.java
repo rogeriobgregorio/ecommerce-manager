@@ -41,6 +41,7 @@ public class PixServiceImpl implements PixService {
     public String createPixEVP() {
 
         return errorHandler.catchException(() -> {
+
             EfiPay efiPay = new EfiPay(credentials.options());
             JSONObject pixEVP = efiPay.call(CREATE_EVP, new HashMap<>(), new JSONObject());
 
@@ -54,6 +55,7 @@ public class PixServiceImpl implements PixService {
     public JSONObject createImmediatePixCharge(Order order) {
 
         return errorHandler.catchException(() -> {
+
             JSONObject body = buildChargeBody(order);
 
             EfiPay efiPay = new EfiPay(credentials.options());
@@ -69,9 +71,10 @@ public class PixServiceImpl implements PixService {
 
         return errorHandler.catchException(() -> {
 
-            String pixChargeId = pixCharge.getJSONObject("loc").getString("id");
+            String pixChargeId = String.valueOf(pixCharge.getJSONObject("loc").getInt("id"));
 
-            Map<String, String> params = Map.of("id", pixChargeId);
+            Map<String, String> params = new HashMap<>();
+            params.put("id", pixChargeId);
 
             EfiPay efiPay = new EfiPay(credentials.options());
             Map<String, Object> pixQRCode = efiPay.call(GENERATE_QRCODE, params, new HashMap<>());
@@ -86,10 +89,10 @@ public class PixServiceImpl implements PixService {
     public String listPaidPixCharges(String startDate, String endDate) {
 
         return errorHandler.catchException(() -> {
-            Map<String, String> params = Map.of(
-                    "inicio", dateFormatter.toISO8601(startDate),
-                    "fim", dateFormatter.toISO8601(endDate)
-            );
+
+            Map<String, String> params = new HashMap<>();
+            params.put("inicio", dateFormatter.toISO8601(startDate));
+            params.put("fim", dateFormatter.toISO8601(endDate));
 
             EfiPay efiPay = new EfiPay(credentials.options());
             JSONObject pixListCharges = efiPay.call(LIST_CHARGES, params, new JSONObject());
@@ -103,14 +106,15 @@ public class PixServiceImpl implements PixService {
         String debtorCpf = order.getClient().getCpf();
         String debtorName = order.getClient().getName();
         String chargeAmount = order.getTotalFinal().toString();
-        String orderNumber = order.getId().toString();
-        String items = order.getProductQuantities().toString();
 
         JSONObject body = new JSONObject();
         body.put("calendario", new JSONObject().put("expiracao", 3600));
         body.put("devedor", new JSONObject().put("cpf", debtorCpf).put("nome", debtorName));
         body.put("valor", new JSONObject().put("original", chargeAmount));
         body.put("chave", credentials.keyEVP());
+
+        String orderNumber = order.getId().toString();
+        String items = order.getProductQuantities().toString();
 
         JSONArray additionalInfo = new JSONArray();
         additionalInfo.put(new JSONObject().put("nome", "Número do Pedido").put("valor", orderNumber));

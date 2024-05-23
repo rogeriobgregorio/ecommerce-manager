@@ -78,9 +78,9 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Transactional(readOnly = false)
-    public void savePaidPayment(JSONObject webhookPix) {
+    public void savePaidPayment(String pixWebhook) {
 
-        Payment paidPayment = buildPaidPayment(webhookPix);
+        Payment paidPayment = buildPaidPayment(pixWebhook);
 
         errorHandler.catchException(() -> paymentRepository.save(paidPayment),
                 "Error while trying to save payment with paid charge: ");
@@ -149,7 +149,6 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = new Payment(Instant.now(), orderToBePaid);
 
         JSONObject pixCharge = pixService.createImmediatePixCharge(payment.getOrder());
-
         String txId = pixCharge.getString("txid");
         payment.setTxId(txId);
 
@@ -159,16 +158,16 @@ public class PaymentServiceImpl implements PaymentService {
         return payment;
     }
 
-    private Payment buildPaidPayment(JSONObject webhookPix) {
+    private Payment buildPaidPayment(String pixWebhook) {
 
-        JSONArray pixArray = webhookPix.getJSONArray("pix");
+        JSONObject pix = new JSONObject(pixWebhook);
+        JSONArray pixArray = pix.getJSONArray("pix");
         JSONObject pixObject = pixArray.getJSONObject(0);
         String txId = pixObject.getString("txid");
 
         Payment payment = findByTxId(txId);
 
         Long orderId = payment.getOrder().getId();
-
         Order orderToBePaid = orderService.findOrderById(orderId);
         orderToBePaid.setPayment(payment);
         orderToBePaid.setOrderStatus(OrderStatus.PAID);

@@ -73,11 +73,13 @@ public class UserServiceImpl implements UserService {
         userRequest.setId(null);
         User user = buildCreateUser(userRequest);
 
+        user.setEmailEnabled(true);//TODO
+
         errorHandler.catchException(() -> userRepository.save(user),
                 "Error while trying to register the user: ");
         logger.info("User registered: {}", user);
 
-        CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user));
+//        CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user));//TODO
 
         return dataMapper.toResponse(user, UserResponse.class);
     }
