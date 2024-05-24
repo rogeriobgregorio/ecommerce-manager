@@ -160,13 +160,14 @@ public class Order implements Serializable {
     @Transient
     @JsonIgnore
     public List<String> getProductQuantities() {
+
         return items.stream()
                 .collect(Collectors.groupingBy(
                         orderItem -> orderItem.getProduct().getName(),
                         Collectors.summingInt(OrderItem::getQuantity)))
                 .entrySet()
                 .stream()
-                .map(entry -> entry.getKey() + ": " + entry.getValue())
+                .map(entry -> entry.getKey() + ": unidades = " + entry.getValue())
                 .collect(Collectors.toList());
     }
 
