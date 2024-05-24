@@ -2,6 +2,7 @@ package com.rogeriogregorio.ecommercemanager.pix.impl;
 
 import br.com.efi.efisdk.EfiPay;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
+import com.rogeriogregorio.ecommercemanager.exceptions.PixException;
 import com.rogeriogregorio.ecommercemanager.pix.CredentialService;
 import com.rogeriogregorio.ecommercemanager.pix.PixService;
 import com.rogeriogregorio.ecommercemanager.util.DateFormatter;
@@ -11,6 +12,9 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -38,6 +42,7 @@ public class PixServiceImpl implements PixService {
         this.errorHandler = errorHandler;
     }
 
+    @Retryable(retryFor = { Exception.class }, maxAttempts = 10, backoff = @Backoff(delay = 5000, multiplier = 2))
     public String createPixEVP() {
 
         return errorHandler.catchException(() -> {
@@ -52,6 +57,14 @@ public class PixServiceImpl implements PixService {
         }, "Error while trying to create Pix EVP: ");
     }
 
+    @Recover
+    public String recoverCreatePixEVP(Exception ex) {
+
+        logger.error("Failed to create Pix EVP after retries: {}", ex.getMessage());
+        throw new PixException("Unable to create Pix EVP after multiple attempts", ex);
+    }
+
+    @Retryable(retryFor = { Exception.class }, maxAttempts = 10, backoff = @Backoff(delay = 5000, multiplier = 2))
     public JSONObject createImmediatePixCharge(Order order) {
 
         return errorHandler.catchException(() -> {
@@ -67,6 +80,14 @@ public class PixServiceImpl implements PixService {
         }, "Error while trying to create immediate Pix charge: ");
     }
 
+    @Recover
+    public JSONObject recoverCreateImmediatePixCharge(Exception ex, Order order) {
+
+        logger.error("Failed to create immediate Pix charge after retries: {}", ex.getMessage());
+        throw new PixException("Unable to create Pix charge after multiple attempts", ex);
+    }
+
+    @Retryable(retryFor = { Exception.class }, maxAttempts = 10, backoff = @Backoff(delay = 5000, multiplier = 2))
     public String generatePixQRCodeLink(JSONObject pixCharge) {
 
         return errorHandler.catchException(() -> {
@@ -86,6 +107,14 @@ public class PixServiceImpl implements PixService {
         }, "Error while trying to generate Pix QRCode link: ");
     }
 
+    @Recover
+    public String recoverGeneratePixQRCodeLink(Exception ex, JSONObject pixCharge) {
+
+        logger.error("Failed to generate Pix QRCode link after retries: {}", ex.getMessage());
+        throw new PixException("Unable to generate Pix QRCode link after multiple attempts", ex);
+    }
+
+    @Retryable(retryFor = { Exception.class }, maxAttempts = 10, backoff = @Backoff(delay = 5000, multiplier = 2))
     public String listPaidPixCharges(String startDate, String endDate) {
 
         return errorHandler.catchException(() -> {
@@ -99,6 +128,13 @@ public class PixServiceImpl implements PixService {
 
             return pixListCharges.toString();
         }, "Error while trying to list paid pix charges: ");
+    }
+
+    @Recover
+    public String recoverListPaidPixCharges(Exception ex, String startDate, String endDate) {
+
+        logger.error("Failed to list paid Pix charges after retries: {}", ex.getMessage());
+        throw new PixException("Unable to list paid Pix charges after multiple attempts", ex);
     }
 
     private JSONObject buildChargeBody(Order order) {
