@@ -21,7 +21,6 @@ public class PixQRCodeDTO implements Serializable {
         this.linkVisualizacao = linkVisualizacao;
     }
 
-    // Getters e Setters
     public String getQrcode() {
         return qrcode;
     }
@@ -44,6 +43,15 @@ public class PixQRCodeDTO implements Serializable {
 
     public void setLinkVisualizacao(String linkVisualizacao) {
         this.linkVisualizacao = linkVisualizacao;
+    }
+
+    @Override
+    public String toString() {
+        return "PixQRCodeDTO {" +
+                "\n  qrcode: " + qrcode +
+                "\n  imagemQrcode: " + imagemQrcode +
+                "\n  linkVisualizacao: " + linkVisualizacao +
+                "\n}";
     }
 }
 

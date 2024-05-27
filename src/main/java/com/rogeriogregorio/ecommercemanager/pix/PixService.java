@@ -1,19 +1,20 @@
 package com.rogeriogregorio.ecommercemanager.pix;
 
+import com.rogeriogregorio.ecommercemanager.dto.PixChargeDTO;
+import com.rogeriogregorio.ecommercemanager.dto.PixEVPKeyDTO;
+import com.rogeriogregorio.ecommercemanager.dto.PixListChargeDTO;
+import com.rogeriogregorio.ecommercemanager.dto.PixQRCodeDTO;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
-import org.json.JSONObject;
 import org.springframework.stereotype.Component;
-
-import java.time.Instant;
 
 @Component
 public interface PixService {
 
-    String createPixEVP();
+    PixEVPKeyDTO createPixEVP();
 
-    JSONObject createImmediatePixCharge(Order order);
+    PixChargeDTO createImmediatePixCharge(Order order);
 
-    String generatePixQRCodeLink(JSONObject pixCharge);
+    PixQRCodeDTO generatePixQRCode(PixChargeDTO pixCharge);
 
-    String listPaidPixCharges(String startDate, String endDate);
+    PixListChargeDTO listPixCharges(String startDate, String endDate);
 }

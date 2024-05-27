@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -187,7 +186,7 @@ public class UserServiceImpl implements UserService {
         userRequest.setPassword(encodedPassword);
 
         User user = findUserById(userRequest.getId());
-        user = dataMapper.transfer(userRequest, user);
+        user = dataMapper.transferSkipNull(userRequest, user);
 
         return user;
     }

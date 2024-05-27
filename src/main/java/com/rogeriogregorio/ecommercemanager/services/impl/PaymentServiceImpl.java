@@ -1,5 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.services.impl;
 
+import com.rogeriogregorio.ecommercemanager.dto.PixChargeDTO;
+import com.rogeriogregorio.ecommercemanager.dto.PixQRCodeDTO;
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
@@ -148,11 +150,12 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment payment = new Payment(Instant.now(), orderToBePaid);
 
-        JSONObject pixCharge = pixService.createImmediatePixCharge(payment.getOrder());
-        String txId = pixCharge.getString("txid");
+        PixChargeDTO pixCharge = pixService.createImmediatePixCharge(payment.getOrder());
+        String txId = pixCharge.getTxid();
         payment.setTxId(txId);
 
-        String pixQRCodeLink = pixService.generatePixQRCodeLink(pixCharge);
+        PixQRCodeDTO pixQRCode = pixService.generatePixQRCode(pixCharge);
+        String pixQRCodeLink = pixQRCode.getLinkVisualizacao();
         payment.setPixQRCodeLink(pixQRCodeLink);
 
         return payment;

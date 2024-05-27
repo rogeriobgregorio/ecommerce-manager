@@ -1,10 +1,15 @@
 package com.rogeriogregorio.ecommercemanager.pix.impl;
 
 import br.com.efi.efisdk.EfiPay;
+import com.rogeriogregorio.ecommercemanager.dto.PixChargeDTO;
+import com.rogeriogregorio.ecommercemanager.dto.PixEVPKeyDTO;
+import com.rogeriogregorio.ecommercemanager.dto.PixListChargeDTO;
+import com.rogeriogregorio.ecommercemanager.dto.PixQRCodeDTO;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.exceptions.PixException;
 import com.rogeriogregorio.ecommercemanager.pix.CredentialService;
 import com.rogeriogregorio.ecommercemanager.pix.PixService;
+import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.DateFormatter;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import org.apache.logging.log4j.LogManager;
@@ -31,27 +36,29 @@ public class PixServiceImpl implements PixService {
     private final CredentialService credentials;
     private final DateFormatter dateFormatter;
     private final ErrorHandler errorHandler;
+    private final DataMapper dataMapper;
     private final Logger logger = LogManager.getLogger(PixServiceImpl.class);
 
     @Autowired
-    public PixServiceImpl(CredentialService credentials,
-                          DateFormatter dateFormatter, ErrorHandler errorHandler) {
+    public PixServiceImpl(CredentialService credentials, DateFormatter dateFormatter,
+                          ErrorHandler errorHandler, DataMapper dataMapper) {
 
         this.credentials = credentials;
         this.dateFormatter = dateFormatter;
         this.errorHandler = errorHandler;
+        this.dataMapper = dataMapper;
     }
 
     @Retryable(retryFor = { Exception.class }, maxAttempts = 10, backoff = @Backoff(delay = 5000, multiplier = 2))
-    public String createPixEVP() {
+    public PixEVPKeyDTO createPixEVP() {
 
         return errorHandler.catchException(() -> {
 
             EfiPay efiPay = new EfiPay(credentials.options());
-            JSONObject pixEVP = efiPay.call(CREATE_EVP, new HashMap<>(), new JSONObject());
+            JSONObject efiPayResponse = efiPay.call(CREATE_EVP, new HashMap<>(), new JSONObject());
 
-            String keyEVP = pixEVP.getString("chave");
-            logger.info("EVP pix key created: {}", keyEVP);
+            PixEVPKeyDTO keyEVP = dataMapper.fromJson(efiPayResponse, PixEVPKeyDTO.class);
+            logger.info("EVP pix key created: {}", keyEVP.toString());
 
             return keyEVP;
         }, "Error while trying to create Pix EVP: ");
@@ -65,15 +72,16 @@ public class PixServiceImpl implements PixService {
     }
 
     @Retryable(retryFor = { Exception.class }, maxAttempts = 10, backoff = @Backoff(delay = 5000, multiplier = 2))
-    public JSONObject createImmediatePixCharge(Order order) {
+    public PixChargeDTO createImmediatePixCharge(Order order) {
 
         return errorHandler.catchException(() -> {
 
             JSONObject body = buildChargeBody(order);
 
             EfiPay efiPay = new EfiPay(credentials.options());
-            JSONObject pixCharge = efiPay.call(CREATE_IMMEDIATE_CHARGE, new HashMap<>(), body);
+            JSONObject efiPayResponse = efiPay.call(CREATE_IMMEDIATE_CHARGE, new HashMap<>(), body);
 
+            PixChargeDTO pixCharge = dataMapper.fromJson(efiPayResponse, PixChargeDTO.class);
             logger.info("Immediate charge Pix created: {}", pixCharge.toString());
 
             return pixCharge;
@@ -81,41 +89,41 @@ public class PixServiceImpl implements PixService {
     }
 
     @Recover
-    public JSONObject recoverCreateImmediatePixCharge(Exception ex, Order order) {
+    public PixChargeDTO recoverCreateImmediatePixCharge(Exception ex, Order order) {
 
         logger.error("Failed to create immediate Pix charge after retries: {}", ex.getMessage());
         throw new PixException("Unable to create Pix charge after multiple attempts", ex);
     }
 
     @Retryable(retryFor = { Exception.class }, maxAttempts = 10, backoff = @Backoff(delay = 5000, multiplier = 2))
-    public String generatePixQRCodeLink(JSONObject pixCharge) {
+    public PixQRCodeDTO generatePixQRCode(PixChargeDTO pixCharge) {
 
         return errorHandler.catchException(() -> {
 
-            String pixChargeId = String.valueOf(pixCharge.getJSONObject("loc").getInt("id"));
+            String locId = String.valueOf(pixCharge.getLoc().getId());
 
             Map<String, String> params = new HashMap<>();
-            params.put("id", pixChargeId);
+            params.put("id", locId);
 
             EfiPay efiPay = new EfiPay(credentials.options());
-            Map<String, Object> pixQRCode = efiPay.call(GENERATE_QRCODE, params, new HashMap<>());
+            Map<String, Object> efiPayResponse = efiPay.call(GENERATE_QRCODE, params, new HashMap<>());
 
-            String pixQRCodeLink = pixQRCode.get("linkVisualizacao").toString();
-            logger.info("Generated QRCode Pix link: {}", pixQRCodeLink);
+            PixQRCodeDTO pixQRCode = dataMapper.fromHashMap(efiPayResponse, PixQRCodeDTO.class);
+            logger.info("Generated QRCode Pix: {}", pixQRCode.toString());
 
-            return pixQRCodeLink;
-        }, "Error while trying to generate Pix QRCode link: ");
+            return pixQRCode;
+        }, "Error while trying to generate Pix QRCode: ");
     }
 
     @Recover
-    public String recoverGeneratePixQRCodeLink(Exception ex, JSONObject pixCharge) {
+    public PixChargeDTO recoverGeneratePixQRCode(Exception ex, PixChargeDTO pixCharge) {
 
         logger.error("Failed to generate Pix QRCode link after retries: {}", ex.getMessage());
         throw new PixException("Unable to generate Pix QRCode link after multiple attempts", ex);
     }
 
     @Retryable(retryFor = { Exception.class }, maxAttempts = 10, backoff = @Backoff(delay = 5000, multiplier = 2))
-    public String listPaidPixCharges(String startDate, String endDate) {
+    public PixListChargeDTO listPixCharges(String startDate, String endDate) {
 
         return errorHandler.catchException(() -> {
 
@@ -124,9 +132,9 @@ public class PixServiceImpl implements PixService {
             params.put("fim", dateFormatter.toISO8601(endDate));
 
             EfiPay efiPay = new EfiPay(credentials.options());
-            JSONObject pixListCharges = efiPay.call(LIST_CHARGES, params, new JSONObject());
+            JSONObject efiPayResponse = efiPay.call(LIST_CHARGES, params, new JSONObject());
 
-            return pixListCharges.toString();
+            return dataMapper.fromJson(efiPayResponse, PixListChargeDTO.class);
         }, "Error while trying to list paid pix charges: ");
     }
 

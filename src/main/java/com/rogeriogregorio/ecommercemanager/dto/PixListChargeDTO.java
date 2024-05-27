@@ -4,7 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
-public class PixPaidChargeDTO implements Serializable {
+public class PixListChargeDTO implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -12,10 +12,10 @@ public class PixPaidChargeDTO implements Serializable {
     private List<CobData> cobs;
     private Parametros parametros;
 
-    public PixPaidChargeDTO() {
+    public PixListChargeDTO() {
     }
 
-    public PixPaidChargeDTO(List<CobData> cobs, Parametros parametros) {
+    public PixListChargeDTO(List<CobData> cobs, Parametros parametros) {
         this.cobs = cobs;
         this.parametros = parametros;
     }
@@ -34,6 +34,14 @@ public class PixPaidChargeDTO implements Serializable {
 
     public void setParametros(Parametros parametros) {
         this.parametros = parametros;
+    }
+
+    @Override
+    public String toString() {
+        return "PixListChargeDTO {" +
+                "\n  cobs: " + cobs +
+                "\n  parametros: " + parametros +
+                "\n}";
     }
 
     public static class CobData implements Serializable {
@@ -171,6 +179,25 @@ public class PixPaidChargeDTO implements Serializable {
         public void setStatus(String status) {
             this.status = status;
         }
+
+        @Override
+        public String toString() {
+
+            return "CobData {" +
+                    "\n  devedor: " + devedor +
+                    "\n  loc: " + loc +
+                    "\n  pixCopiaECola: " + pixCopiaECola +
+                    "\n  valor: " + valor +
+                    "\n  chave: " + chave +
+                    "\n  calendario: " + calendario +
+                    "\n  txid: " + txid +
+                    "\n  infoAdicionais: " + infoAdicionais +
+                    "\n  location: " + location +
+                    "\n  revisao: " + revisao +
+                    "\n  pix: " + pix +
+                    "\n  status: " + status +
+                    "\n}";
+        }
     }
 
     public static class Devedor implements Serializable {
@@ -203,6 +230,14 @@ public class PixPaidChargeDTO implements Serializable {
 
         public void setNome(String nome) {
             this.nome = nome;
+        }
+
+        @Override
+        public String toString() {
+            return "Devedor {" +
+                    "\n  cpf: " + cpf +
+                    "\n  nome: " + nome +
+                    "\n}";
         }
     }
 
@@ -257,6 +292,16 @@ public class PixPaidChargeDTO implements Serializable {
         public void setTipoCob(String tipoCob) {
             this.tipoCob = tipoCob;
         }
+
+        @Override
+        public String toString() {
+            return "Loc {" +
+                    "\n  location: " + location +
+                    "\n  id: " + id +
+                    "\n  criacao: " + criacao +
+                    "\n  tipoCob: " + tipoCob +
+                    "\n}";
+        }
     }
 
     public static class Valor implements Serializable {
@@ -279,6 +324,13 @@ public class PixPaidChargeDTO implements Serializable {
 
         public void setOriginal(String original) {
             this.original = original;
+        }
+
+        @Override
+        public String toString() {
+            return "Valor {" +
+                    "\n  original: " + original +
+                    "\n}";
         }
     }
 
@@ -313,6 +365,14 @@ public class PixPaidChargeDTO implements Serializable {
         public void setCriacao(String criacao) {
             this.criacao = criacao;
         }
+
+        @Override
+        public String toString() {
+            return "Calendario {" +
+                    "\n  expiracao: " + expiracao +
+                    "\n  criacao: " + criacao +
+                    "\n}";
+        }
     }
 
     public static class InfoAdicionais implements Serializable {
@@ -345,6 +405,14 @@ public class PixPaidChargeDTO implements Serializable {
 
         public void setNome(String nome) {
             this.nome = nome;
+        }
+
+        @Override
+        public String toString() {
+            return "InfoAdicionais {" +
+                    "\n  valor: " + valor +
+                    "\n  nome: " + nome +
+                    "\n}";
         }
     }
 
@@ -452,6 +520,15 @@ public class PixPaidChargeDTO implements Serializable {
         public void setFim(String fim) {
             this.fim = fim;
         }
+
+        @Override
+        public String toString() {
+            return "Parametros {" +
+                    "\n  paginacao: " + paginacao +
+                    "\n  inicio: " + inicio +
+                    "\n  fim: " + fim +
+                    "\n}";
+        }
     }
 
     public static class Paginacao implements Serializable {
@@ -506,6 +583,16 @@ public class PixPaidChargeDTO implements Serializable {
 
         public void setQuantidadeDePaginas(int quantidadeDePaginas) {
             this.quantidadeDePaginas = quantidadeDePaginas;
+        }
+
+        @Override
+        public String toString() {
+            return "Paginacao {" +
+                    "\n  paginaAtual: " + paginaAtual +
+                    "\n  quantidadeTotalDeItens: " + quantidadeTotalDeItens +
+                    "\n  itensPorPagina: " + itensPorPagina +
+                    "\n  quantidadeDePaginas: " + quantidadeDePaginas +
+                    "\n}";
         }
     }
 }

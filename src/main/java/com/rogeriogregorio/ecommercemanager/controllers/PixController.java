@@ -1,8 +1,8 @@
 package com.rogeriogregorio.ecommercemanager.controllers;
 
+import com.rogeriogregorio.ecommercemanager.dto.PixListChargeDTO;
 import com.rogeriogregorio.ecommercemanager.pix.PixService;
 import com.rogeriogregorio.ecommercemanager.services.PaymentService;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,13 +22,13 @@ public class PixController {
     }
 
     @GetMapping("/pix/paid-charges/search")
-    public ResponseEntity<String> getAllPaidPixCharges(
+    public ResponseEntity<PixListChargeDTO> getAllPixCharges(
             @RequestParam("startDate") String startDate,
             @RequestParam("endDate") String endDate) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(pixService.listPaidPixCharges(startDate, endDate));
+                .body(pixService.listPixCharges(startDate, endDate));
     }
 
     @PostMapping("/webhook/pix")
