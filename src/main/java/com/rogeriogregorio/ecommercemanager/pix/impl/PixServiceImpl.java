@@ -50,17 +50,17 @@ public class PixServiceImpl implements PixService {
     }
 
     @Retryable(retryFor = { Exception.class }, maxAttempts = 10, backoff = @Backoff(delay = 5000, multiplier = 2))
-    public PixEVPKeyDTO createPixEVP() {
+    public PixEVPKeyDTO createPixEVPKey() {
 
         return errorHandler.catchException(() -> {
 
             EfiPay efiPay = new EfiPay(credentials.options());
             JSONObject efiPayResponse = efiPay.call(CREATE_EVP, new HashMap<>(), new JSONObject());
 
-            PixEVPKeyDTO keyEVP = dataMapper.fromJson(efiPayResponse, PixEVPKeyDTO.class);
-            logger.info("EVP pix key created: {}", keyEVP.toString());
+            PixEVPKeyDTO EVPKey = dataMapper.fromJson(efiPayResponse, PixEVPKeyDTO.class);
+            logger.info("EVP pix key created: {}", EVPKey.toString());
 
-            return keyEVP;
+            return EVPKey;
         }, "Error while trying to create Pix EVP: ");
     }
 

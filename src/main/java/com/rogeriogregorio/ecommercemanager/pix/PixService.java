@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public interface PixService {
 
-    PixEVPKeyDTO createPixEVP();
+    PixEVPKeyDTO createPixEVPKey();
 
     PixChargeDTO createImmediatePixCharge(Order order);
 
