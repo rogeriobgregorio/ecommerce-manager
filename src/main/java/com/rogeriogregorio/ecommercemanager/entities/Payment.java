@@ -2,6 +2,9 @@ package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
+import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentMethod;
+import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -38,12 +41,25 @@ public class Payment implements Serializable {
     @Column(name = "pix_qrcode_link")
     private String pixQRCodeLink;
 
+    @Column(name = "payment_method")
+    @NotNull(message = "The payment method cannot be null.")
+    private Integer paymentMethod;
+
+    @Column(name = "payment_status")
+    @NotNull(message = "The payment status cannot be null.")
+    private Integer paymentStatus;
+
     public Payment() {
     }
 
-    public Payment(Instant moment, Order order) {
+    public Payment(Instant moment, Order order,
+                   PaymentMethod paymentMethod,
+                   PaymentStatus paymentStatus) {
+
         this.moment = moment;
         this.order = order;
+        setPaymentMethod(paymentMethod);
+        setPaymentStatus(paymentStatus);
     }
 
     public Long getId() {
@@ -91,6 +107,32 @@ public class Payment implements Serializable {
         BigDecimal amountPaid = order.getTotalFinal();
 
         return "Amount paid: " + amountPaid + ".";
+    }
+
+    public PaymentMethod getPaymentMethod() {
+        return PaymentMethod.valueOf(paymentMethod);
+    }
+
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+
+        if (paymentMethod == null) {
+            throw new IllegalArgumentException("The payment method cannot be null.");
+        }
+
+        this.paymentMethod = paymentMethod.getCode();
+    }
+
+    public PaymentStatus getPaymentStatus() {
+        return PaymentStatus.valueOf(paymentStatus);
+    }
+
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+
+        if (paymentStatus == null) {
+            throw new IllegalArgumentException("The payment status cannot be null.");
+        }
+
+        this.paymentStatus = paymentStatus.getCode();
     }
 
     @Override

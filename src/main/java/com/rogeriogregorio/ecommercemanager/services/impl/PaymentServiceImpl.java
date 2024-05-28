@@ -2,6 +2,7 @@ package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.PixChargeDTO;
 import com.rogeriogregorio.ecommercemanager.dto.PixQRCodeDTO;
+import com.rogeriogregorio.ecommercemanager.dto.PixWebHook;
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -80,15 +82,17 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Transactional(readOnly = false)
-    public void savePaidPayment(String pixWebhook) {
+    public void savePaidPaymentsFromWebHook(JSONObject webhook) {
 
-        Payment paidPayment = buildPaidPayment(pixWebhook);
+        List<Payment> paidPayments = buildPaidPayments(webhook);
 
-        errorHandler.catchException(() -> paymentRepository.save(paidPayment),
-                "Error while trying to save payment with paid charge: ");
-        logger.info("Payment with paid charge saved: {}", paidPayment);
+        for (Payment paidPayment : paidPayments) {
+            errorHandler.catchException(() -> paymentRepository.save(paidPayment),
+                    "Error while trying to save payment with paid charge: ");
+            logger.info("Payment with paid charge saved: {}", paidPayment);
 
-        updateInventoryStock(paidPayment);
+            updateInventoryStock(paidPayment);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -161,24 +165,28 @@ public class PaymentServiceImpl implements PaymentService {
         return payment;
     }
 
-    private Payment buildPaidPayment(String pixWebhook) {
+    private List<Payment> buildPaidPayments(JSONObject webhook) {
 
-        JSONObject pix = new JSONObject(pixWebhook);
-        JSONArray pixArray = pix.getJSONArray("pix");
-        JSONObject pixObject = pixArray.getJSONObject(0);
-        String txId = pixObject.getString("txid");
+        PixWebHook pixWebHook = dataMapper.fromJson(webhook, PixWebHook.class);
+        List<PixWebHook.Pix> pixArray = pixWebHook.getPix();
+        List<Payment> payments = new ArrayList<>();
 
-        Payment payment = findByTxId(txId);
+        for (PixWebHook.Pix pix : pixArray) {
+            String txId = pix.getTxid();
+            Payment payment = findByTxId(txId);
 
-        Long orderId = payment.getOrder().getId();
-        Order orderToBePaid = orderService.findOrderById(orderId);
-        orderToBePaid.setPayment(payment);
-        orderToBePaid.setOrderStatus(OrderStatus.PAID);
+            Long orderId = payment.getOrder().getId();
+            Order orderToBePaid = orderService.findOrderById(orderId);
+            orderToBePaid.setPayment(payment);
+            orderToBePaid.setOrderStatus(OrderStatus.PAID);
 
-        orderService.savePaidOrder(orderToBePaid);
-        payment.setOrder(orderToBePaid);
+            orderService.savePaidOrder(orderToBePaid);
+            payment.setOrder(orderToBePaid);
 
-        return payment;
+            payments.add(payment);
+        }
+
+        return payments;
     }
 }
 

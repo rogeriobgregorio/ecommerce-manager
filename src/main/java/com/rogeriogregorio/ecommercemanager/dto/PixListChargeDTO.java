@@ -9,22 +9,22 @@ public class PixListChargeDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private List<CobData> cobs;
+    private List<Cob> cobs;
     private Parametros parametros;
 
     public PixListChargeDTO() {
     }
 
-    public PixListChargeDTO(List<CobData> cobs, Parametros parametros) {
+    public PixListChargeDTO(List<Cob> cobs, Parametros parametros) {
         this.cobs = cobs;
         this.parametros = parametros;
     }
 
-    public List<CobData> getCobs() {
+    public List<Cob> getCobs() {
         return cobs;
     }
 
-    public void setCobs(List<CobData> cobs) {
+    public void setCobs(List<Cob> cobs) {
         this.cobs = cobs;
     }
 
@@ -44,7 +44,7 @@ public class PixListChargeDTO implements Serializable {
                 "\n}";
     }
 
-    public static class CobData implements Serializable {
+    public static class Cob implements Serializable {
 
         @Serial
         private static final long serialVersionUID = 1L;
@@ -62,13 +62,13 @@ public class PixListChargeDTO implements Serializable {
         private List<Pix> pix;
         private String status;
 
-        public CobData() {
+        public Cob() {
         }
 
-        public CobData(Devedor devedor, Loc loc, String pixCopiaECola,
-                       Valor valor, String chave, Calendario calendario,
-                       String txid, List<InfoAdicionais> infoAdicionais,
-                       String location, int revisao, List<Pix> pix, String status) {
+        public Cob(Devedor devedor, Loc loc, String pixCopiaECola,
+                   Valor valor, String chave, Calendario calendario,
+                   String txid, List<InfoAdicionais> infoAdicionais,
+                   String location, int revisao, List<Pix> pix, String status) {
 
             this.devedor = devedor;
             this.loc = loc;
@@ -182,8 +182,7 @@ public class PixListChargeDTO implements Serializable {
 
         @Override
         public String toString() {
-
-            return "CobData {" +
+            return "Cob {" +
                     "\n  devedor: " + devedor +
                     "\n  loc: " + loc +
                     "\n  pixCopiaECola: " + pixCopiaECola +
@@ -476,6 +475,17 @@ public class PixListChargeDTO implements Serializable {
 
         public void setEndToEndId(String endToEndId) {
             this.endToEndId = endToEndId;
+        }
+
+        @Override
+        public String toString() {
+            return "Pix {" +
+                    "\n  horario: " + horario +
+                    "\n  valor: " + valor +
+                    "\n  chave: " + chave +
+                    "\n  txid: " + txid +
+                    "\n  endToEndId: " + endToEndId +
+                    "\n}";
         }
     }
 

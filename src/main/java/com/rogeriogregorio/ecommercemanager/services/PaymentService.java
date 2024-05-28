@@ -2,7 +2,6 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
-import com.rogeriogregorio.ecommercemanager.entities.Payment;
 import org.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +14,7 @@ public interface PaymentService {
 
     PaymentResponse createPayment(PaymentRequest paymentRequest);
 
-    void savePaidPayment(String pix);
+    void savePaidPaymentsFromWebHook(JSONObject pixWebHook);
 
     PaymentResponse findPaymentById(Long id);
 
