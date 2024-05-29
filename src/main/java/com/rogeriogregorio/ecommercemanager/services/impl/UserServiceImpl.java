@@ -9,7 +9,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.PasswordException;
 import com.rogeriogregorio.ecommercemanager.mail.MailService;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
-import com.rogeriogregorio.ecommercemanager.services.strategy.PasswordStrategy;
+import com.rogeriogregorio.ecommercemanager.services.strategy.validations.PasswordStrategy;
 import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import org.apache.logging.log4j.LogManager;

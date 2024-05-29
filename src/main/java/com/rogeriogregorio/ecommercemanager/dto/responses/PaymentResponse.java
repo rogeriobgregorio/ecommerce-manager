@@ -2,6 +2,8 @@ package com.rogeriogregorio.ecommercemanager.dto.responses;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
+import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentMethod;
+import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentStatus;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -17,15 +19,26 @@ public class PaymentResponse implements Serializable {
     private Instant moment;
     private Order order;
     private String txId;
+    private Integer paymentMethod;
     private String pixQRCodeLink;
+    private Integer paymentStatus;
+
 
     public PaymentResponse() {
     }
 
-    public PaymentResponse(Long id, Instant moment, Order order) {
+    public PaymentResponse(Long id, Instant moment, Order order,
+                           String txId, PaymentMethod paymentMethod,
+                           String pixQRCodeLink,
+                           PaymentStatus paymentStatus) {
+
         this.id = id;
         this.moment = moment;
         this.order = order;
+        this.txId = txId;
+        setPaymentMethod(paymentMethod);
+        this.pixQRCodeLink = pixQRCodeLink;
+        setPaymentStatus(paymentStatus);
     }
 
     public Long getId() {
@@ -61,12 +74,38 @@ public class PaymentResponse implements Serializable {
         this.txId = txId;
     }
 
+    public PaymentMethod getPaymentMethod() {
+        return PaymentMethod.valueOf(paymentMethod);
+    }
+
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+
+        if (paymentMethod == null) {
+            throw new IllegalArgumentException("The payment method cannot be null.");
+        }
+
+        this.paymentMethod = paymentMethod.getCode();
+    }
+
     public String getPixQRCodeLink() {
         return pixQRCodeLink;
     }
 
     public void setPixQRCodeLink(String pixQRCodeLink) {
         this.pixQRCodeLink = pixQRCodeLink;
+    }
+
+    public PaymentStatus getPaymentStatus() {
+        return PaymentStatus.valueOf(paymentStatus);
+    }
+
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+
+        if (paymentStatus == null) {
+            throw new IllegalArgumentException("The payment status cannot be null.");
+        }
+
+        this.paymentStatus = paymentStatus.getCode();
     }
 
     public String getAmountPaid() {

@@ -9,7 +9,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.PaymentServiceImpl;
-import com.rogeriogregorio.ecommercemanager.services.strategy.PaymentStrategy;
+import com.rogeriogregorio.ecommercemanager.services.strategy.validations.OrderStrategy;
 import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,7 +48,7 @@ class PaymentServiceImplTest {
     private Converter converter;
 
     @Mock
-    private List<PaymentStrategy> validators;
+    private List<OrderStrategy> validators;
 
     @InjectMocks
     private PaymentServiceImpl paymentService;

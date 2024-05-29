@@ -9,7 +9,7 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.services.*;
-import com.rogeriogregorio.ecommercemanager.services.strategy.OrderStrategy;
+import com.rogeriogregorio.ecommercemanager.services.strategy.validations.OrderStatusStrategy;
 import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import org.apache.logging.log4j.LogManager;
@@ -29,7 +29,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final UserService userService;
     private final DiscountCouponService discountCouponService;
-    private final List<OrderStrategy> validators;
+    private final List<OrderStatusStrategy> validators;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
     private final Logger logger = LogManager.getLogger(OrderServiceImpl.class);
@@ -37,7 +37,7 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     public OrderServiceImpl(OrderRepository orderRepository, UserService userService,
                             DiscountCouponService discountCouponService,
-                            List<OrderStrategy> validators,
+                            List<OrderStatusStrategy> validators,
                             ErrorHandler errorHandler, DataMapper dataMapper) {
 
         this.orderRepository = orderRepository;

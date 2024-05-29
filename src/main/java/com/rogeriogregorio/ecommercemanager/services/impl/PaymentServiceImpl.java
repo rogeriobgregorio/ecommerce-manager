@@ -1,23 +1,25 @@
 package com.rogeriogregorio.ecommercemanager.services.impl;
 
-import com.rogeriogregorio.ecommercemanager.dto.PixChargeDTO;
-import com.rogeriogregorio.ecommercemanager.dto.PixQRCodeDTO;
 import com.rogeriogregorio.ecommercemanager.dto.PixWebHook;
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.Payment;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
+import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentMethod;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.pix.PixService;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
-import com.rogeriogregorio.ecommercemanager.services.*;
-import com.rogeriogregorio.ecommercemanager.services.strategy.PaymentStrategy;
+import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
+import com.rogeriogregorio.ecommercemanager.services.OrderService;
+import com.rogeriogregorio.ecommercemanager.services.PaymentService;
+import com.rogeriogregorio.ecommercemanager.services.StockMovementService;
+import com.rogeriogregorio.ecommercemanager.services.strategy.payments.PaymentStrategy;
+import com.rogeriogregorio.ecommercemanager.services.strategy.validations.OrderStrategy;
 import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,9 +27,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -36,28 +40,30 @@ public class PaymentServiceImpl implements PaymentService {
     private final InventoryItemService inventoryItemService;
     private final StockMovementService stockMovementService;
     private final OrderService orderService;
-    private final PixService pixService;
-    private final List<PaymentStrategy> validators;
+    private final List<OrderStrategy> validators;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
+    private final Map<PaymentMethod, PaymentStrategy> paymentMethods;
     private final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
 
     @Autowired
-    public PaymentServiceImpl(PaymentRepository paymentRepository,
-                              InventoryItemService inventoryItemService,
-                              StockMovementService stockMovementService,
-                              OrderService orderService, PixService pixService,
-                              List<PaymentStrategy> validators,
-                              ErrorHandler errorHandler, DataMapper dataMapper) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository, InventoryItemService inventoryItemService,
+                              StockMovementService stockMovementService, OrderService orderService,
+                              List<OrderStrategy> validators, ErrorHandler errorHandler,
+                              DataMapper dataMapper,List<PaymentStrategy> paymentMethods) {
 
         this.paymentRepository = paymentRepository;
         this.inventoryItemService = inventoryItemService;
         this.stockMovementService = stockMovementService;
         this.orderService = orderService;
-        this.pixService = pixService;
         this.validators = validators;
         this.errorHandler = errorHandler;
         this.dataMapper = dataMapper;
+        this.paymentMethods = paymentMethods
+                .stream()
+                .collect(Collectors
+                .toMap(PaymentStrategy::getSupportedPaymentMethod, Function.identity())
+        );
     }
 
     @Transactional(readOnly = true)
@@ -68,17 +74,15 @@ public class PaymentServiceImpl implements PaymentService {
                 .map(payment -> dataMapper.toResponse(payment, PaymentResponse.class));
     }
 
-    @Transactional(readOnly = false)
     public PaymentResponse createPayment(PaymentRequest paymentRequest) {
+        PaymentMethod paymentMethod = paymentRequest.getPaymentMethod();
+        PaymentStrategy strategy = paymentMethods.get(paymentMethod);
 
-        paymentRequest.setId(null);
-        Payment payment = buildPaymentWithCharge(paymentRequest);
+        if (strategy == null) {
+            throw new IllegalArgumentException("Payment method not supported: " + paymentMethod);
+        }
 
-        errorHandler.catchException(() -> paymentRepository.save(payment),
-                "Error while trying to create paid payment with charge: ");
-        logger.info("Payment with charge saved: {}", payment);
-
-        return dataMapper.toResponse(payment, PaymentResponse.class);
+        return strategy.createPayment(paymentRequest);
     }
 
     @Transactional(readOnly = false)
@@ -129,7 +133,6 @@ public class PaymentServiceImpl implements PaymentService {
     private void validateOrderToBePaid(Order order) {
 
         validators.forEach(validator -> validator.validateOrder(order));
-
     }
 
     private void updateInventoryStock(Payment payment) {
@@ -144,25 +147,6 @@ public class PaymentServiceImpl implements PaymentService {
         return errorHandler.catchException(() -> paymentRepository.findByTxId(txId),
                         "Error while trying to find the payment by txId: ")
                 .orElseThrow(() -> new NotFoundException("Payment not found with txId: " + txId + "."));
-    }
-
-    private Payment buildPaymentWithCharge(PaymentRequest paymentRequest) {
-
-        Long orderId = paymentRequest.getOrderId();
-        Order orderToBePaid = orderService.findOrderById(orderId);
-        validateOrderToBePaid(orderToBePaid);
-
-        Payment payment = new Payment(Instant.now(), orderToBePaid);
-
-        PixChargeDTO pixCharge = pixService.createImmediatePixCharge(payment.getOrder());
-        String txId = pixCharge.getTxid();
-        payment.setTxId(txId);
-
-        PixQRCodeDTO pixQRCode = pixService.generatePixQRCode(pixCharge);
-        String pixQRCodeLink = pixQRCode.getLinkVisualizacao();
-        payment.setPixQRCodeLink(pixQRCodeLink);
-
-        return payment;
     }
 
     private List<Payment> buildPaidPayments(JSONObject webhook) {

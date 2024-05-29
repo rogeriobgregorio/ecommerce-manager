@@ -9,7 +9,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.OrderServiceImpl;
-import com.rogeriogregorio.ecommercemanager.services.strategy.OrderStrategy;
+import com.rogeriogregorio.ecommercemanager.services.strategy.validations.OrderStatusStrategy;
 import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -43,7 +43,7 @@ class OrderServiceImplTest {
     private Converter converter;
 
     @Mock
-    private List<OrderStrategy> validators;
+    private List<OrderStatusStrategy> validators;
 
     @InjectMocks
     private OrderServiceImpl orderService;

@@ -38,12 +38,12 @@ public class Payment implements Serializable {
     @Column(name = "tx_id")
     private String txId;
 
-    @Column(name = "pix_qrcode_link")
-    private String pixQRCodeLink;
-
     @Column(name = "payment_method")
     @NotNull(message = "The payment method cannot be null.")
     private Integer paymentMethod;
+
+    @Column(name = "pix_qrcode_link")
+    private String pixQRCodeLink;
 
     @Column(name = "payment_status")
     @NotNull(message = "The payment status cannot be null.")
@@ -94,14 +94,6 @@ public class Payment implements Serializable {
         this.txId = txId;
     }
 
-    public String getPixQRCodeLink() {
-        return pixQRCodeLink;
-    }
-
-    public void setPixQRCodeLink(String pixQRCodeLink) {
-        this.pixQRCodeLink = pixQRCodeLink;
-    }
-
     public String getAmountPaid() {
 
         BigDecimal amountPaid = order.getTotalFinal();
@@ -120,6 +112,14 @@ public class Payment implements Serializable {
         }
 
         this.paymentMethod = paymentMethod.getCode();
+    }
+
+    public String getPixQRCodeLink() {
+        return pixQRCodeLink;
+    }
+
+    public void setPixQRCodeLink(String pixQRCodeLink) {
+        this.pixQRCodeLink = pixQRCodeLink;
     }
 
     public PaymentStatus getPaymentStatus() {
@@ -154,6 +154,7 @@ public class Payment implements Serializable {
                 + ", moment= " + moment
                 + ", order= " + order
                 + ", txId= " + txId
-                + ", pixQRCodeLink=" + pixQRCodeLink + "]";
+                + ", paymentMethod=" + paymentMethod
+                + ", paymentStatus=" + paymentStatus + "]";
     }
 }
