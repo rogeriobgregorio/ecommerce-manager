@@ -180,7 +180,6 @@ public class OrderServiceImpl implements OrderService {
     private Order buildUpdateOrder(OrderRequest orderRequest) {
 
         Order order = findOrderById(orderRequest.getId());
-        order.setMoment(Instant.now());
 
         if (orderRequest.getOrderStatus() == OrderStatus.CANCELED) {
             order.setOrderStatus(orderRequest.getOrderStatus());
@@ -188,7 +187,7 @@ public class OrderServiceImpl implements OrderService {
 
         String code = orderRequest.getDiscountCouponCode();
         DiscountCoupon discountCoupon = validateDiscountCoupon(code);
-
+        order.setMoment(Instant.now());
         order.setCoupon(discountCoupon);
 
         return order;
@@ -197,9 +196,7 @@ public class OrderServiceImpl implements OrderService {
     private Order buildUpdateOrderStatus(OrderRequest orderRequest) {
 
         Order order = findOrderById(orderRequest.getId());
-
         validateOrderStatusChange(orderRequest, order);
-
         order.setMoment(Instant.now());
         order.setOrderStatus(orderRequest.getOrderStatus());
 

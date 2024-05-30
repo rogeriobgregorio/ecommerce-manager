@@ -37,7 +37,8 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     public InventoryItemServiceImpl(InventoryItemRepository inventoryItemRepository,
                                     StockMovementRepository stockMovementRepository,
                                     ProductService productService,
-                                    ErrorHandler errorHandler, DataMapper dataMapper) {
+                                    ErrorHandler errorHandler,
+                                    DataMapper dataMapper) {
 
         this.inventoryItemRepository = inventoryItemRepository;
         this.stockMovementRepository = stockMovementRepository;

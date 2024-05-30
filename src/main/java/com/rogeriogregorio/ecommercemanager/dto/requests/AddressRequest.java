@@ -20,17 +20,6 @@ public class AddressRequest implements Serializable {
     public AddressRequest() {
     }
 
-    public AddressRequest(String street, String city, String state,
-                          String cep, String country, UUID userId) {
-
-        this.street = street;
-        this.city = city;
-        this.state = state;
-        this.cep = cep;
-        this.country = country;
-        this.userId = userId;
-    }
-
     public AddressRequest(UUID id, String street, String city, String state,
                           String cep, String country, UUID userId) {
 

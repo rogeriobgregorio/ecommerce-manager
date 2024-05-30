@@ -47,14 +47,9 @@ public class DiscountCoupon implements Serializable {
     public DiscountCoupon() {
     }
 
-    public DiscountCoupon(String code, BigDecimal discount, Instant validFrom, Instant validUntil) {
-        this.code = code;
-        this.discount = discount;
-        this.validFrom = validFrom;
-        this.validUntil = validUntil;
-    }
+    public DiscountCoupon(Long id, String code, BigDecimal discount,
+                          Instant validFrom, Instant validUntil) {
 
-    public DiscountCoupon(Long id, String code, BigDecimal discount, Instant validFrom, Instant validUntil) {
         this.id = id;
         this.code = code;
         this.discount = discount;

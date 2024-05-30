@@ -18,14 +18,9 @@ public class NotificationRequest implements Serializable {
     public NotificationRequest() {
     }
 
-    public NotificationRequest(Instant validFrom, Instant validUntil, String title, String message) {
-        this.validFrom = validFrom;
-        this.validUntil = validUntil;
-        this.title = title;
-        this.message = message;
-    }
+    public NotificationRequest(Long id, Instant validFrom, Instant validUntil,
+                               String title, String message) {
 
-    public NotificationRequest(Long id, Instant validFrom, Instant validUntil, String title, String message) {
         this.id = id;
         this.validFrom = validFrom;
         this.validUntil = validUntil;

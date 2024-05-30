@@ -35,8 +35,10 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Autowired
     public OrderItemServiceImpl(OrderItemRepository orderItemRepository,
                                 InventoryItemService inventoryItemService,
-                                ProductService productService, OrderService orderService,
-                                ErrorHandler errorHandler, DataMapper dataMapper) {
+                                ProductService productService,
+                                OrderService orderService,
+                                ErrorHandler errorHandler,
+                                DataMapper dataMapper) {
 
         this.orderItemRepository = orderItemRepository;
         this.inventoryItemService = inventoryItemService;
@@ -131,7 +133,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         Order order = validateOrderChangeEligibility(orderItemRequest.getOrderId());
         Product product = productService.findProductById(orderItemRequest.getProductId());
         int quantity = orderItemRequest.getQuantity();
-        BigDecimal price = product.isDiscountPresent() ? product.getPriceWithDiscount() : product.getPrice();
+        BigDecimal price = product.getPriceFinal();
         OrderItem orderItem = new OrderItem(order, product, quantity, price);
 
         inventoryItemService.isItemAvailable(orderItem);

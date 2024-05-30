@@ -19,16 +19,9 @@ public class OrderRequest implements Serializable {
     public OrderRequest() {
     }
 
-    public OrderRequest(UUID clientId) {
-        this.clientId = clientId;
-    }
+    public OrderRequest(Long id, OrderStatus orderStatus,
+                        UUID clientId, String discountCouponCode) {
 
-    public OrderRequest(Long id, OrderStatus orderStatus) {
-        this.id = id;
-        setOrderStatus(orderStatus);
-    }
-
-    public OrderRequest(Long id, OrderStatus orderStatus, UUID clientId, String discountCouponCode) {
         this.id = id;
         setOrderStatus(orderStatus);
         this.clientId = clientId;

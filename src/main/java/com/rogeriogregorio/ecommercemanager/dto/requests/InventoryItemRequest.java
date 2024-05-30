@@ -18,15 +18,8 @@ public class InventoryItemRequest implements Serializable {
     public InventoryItemRequest() {
     }
 
-    public InventoryItemRequest(Long productId, Integer quantityInStock,
-                                StockStatus stockStatus) {
-
-        this.productId = productId;
-        this.quantityInStock = quantityInStock;
-        setStockStatus(stockStatus);
-    }
-
-    public InventoryItemRequest(Long id, Long productId, Integer quantityInStock,
+    public InventoryItemRequest(Long id, Long productId,
+                                Integer quantityInStock,
                                 StockStatus stockStatus) {
 
         this.id = id;

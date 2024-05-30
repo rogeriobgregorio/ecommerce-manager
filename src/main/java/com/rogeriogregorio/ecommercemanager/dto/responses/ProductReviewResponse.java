@@ -20,7 +20,7 @@ public class ProductReviewResponse implements Serializable {
     private Instant moment;
 
     public ProductReviewResponse(Product product, User user, Integer rating,
-                         String comment, Instant moment) {
+                                 String comment, Instant moment) {
 
         id.setProduct(product);
         id.setUser(user);

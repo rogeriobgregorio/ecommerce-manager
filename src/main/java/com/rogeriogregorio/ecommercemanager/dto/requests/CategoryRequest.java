@@ -14,10 +14,6 @@ public class CategoryRequest implements Serializable {
     public CategoryRequest() {
     }
 
-    public CategoryRequest(String name) {
-        this.name = name;
-    }
-
     public CategoryRequest(Long id, String name) {
         this.id = id;
         this.name = name;

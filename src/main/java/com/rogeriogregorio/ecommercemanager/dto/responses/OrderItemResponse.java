@@ -21,7 +21,9 @@ public class OrderItemResponse implements Serializable {
     public OrderItemResponse() {
     }
 
-    public OrderItemResponse(Order order, Product product, Integer quantity, Double price) {
+    public OrderItemResponse(Order order, Product product,
+                             Integer quantity, Double price) {
+
         id.setOrder(order);
         id.setProduct(product);
         this.quantity = quantity;

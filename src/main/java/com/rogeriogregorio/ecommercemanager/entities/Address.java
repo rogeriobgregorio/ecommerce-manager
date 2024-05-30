@@ -57,16 +57,6 @@ public class Address implements Serializable {
     public Address() {
     }
 
-    public Address(String street, String city,
-                   String state, String cep, String country) {
-
-        this.street = street;
-        this.city = city;
-        this.state = state;
-        this.cep = cep;
-        this.country = country;
-    }
-
     public Address(UUID id, String street, String city,
                    String state, String cep, String country) {
 

@@ -46,10 +46,12 @@ public class PaymentServiceImpl implements PaymentService {
     private final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
 
     @Autowired
-    public PaymentServiceImpl(PaymentRepository paymentRepository, InventoryItemService inventoryItemService,
-                              StockMovementService stockMovementService, OrderService orderService,
-                              List<OrderStrategy> validators, ErrorHandler errorHandler,
-                              DataMapper dataMapper,List<PaymentStrategy> paymentMethods) {
+    public PaymentServiceImpl(PaymentRepository paymentRepository,
+                              InventoryItemService inventoryItemService,
+                              StockMovementService stockMovementService,
+                              OrderService orderService, List<OrderStrategy> validators,
+                              ErrorHandler errorHandler, DataMapper dataMapper,
+                              List<PaymentStrategy> paymentMethods) {
 
         this.paymentRepository = paymentRepository;
         this.inventoryItemService = inventoryItemService;

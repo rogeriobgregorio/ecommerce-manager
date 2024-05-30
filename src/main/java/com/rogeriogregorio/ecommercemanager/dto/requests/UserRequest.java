@@ -22,19 +22,10 @@ public class UserRequest implements Serializable {
     public UserRequest() {
     }
 
-    public UserRequest(String name, String email, String phone,
-                       String cpf, String password, UserRole userRole) {
-
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.cpf = cpf;
-        this.password = password;
-        this.userRole = userRole;
-    }
-
-    public UserRequest(UUID id, String name, String email,
-                       String phone, String cpf, String password) {
+    public UserRequest(UUID id, String name,
+                       String email, String phone,
+                       String cpf, String password,
+                       UserRole userRole) {
 
         this.id = id;
         this.name = name;
@@ -42,15 +33,6 @@ public class UserRequest implements Serializable {
         this.phone = phone;
         this.cpf = cpf;
         this.password = password;
-    }
-
-    public UserRequest(UUID id, String name, String email,
-                       String phone, UserRole userRole) {
-
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
         this.userRole = userRole;
     }
 

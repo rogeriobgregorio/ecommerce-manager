@@ -19,7 +19,8 @@ public class NotificationResponse implements Serializable {
     public NotificationResponse() {
     }
 
-    public NotificationResponse(Long id, Instant validFrom, Instant validUntil,
+    public NotificationResponse(Long id, Instant validFrom,
+                                Instant validUntil,
                                 String title, String message) {
 
         this.id = id;

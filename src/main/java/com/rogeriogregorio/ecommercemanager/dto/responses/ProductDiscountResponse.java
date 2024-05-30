@@ -20,15 +20,6 @@ public class ProductDiscountResponse implements Serializable {
     public ProductDiscountResponse() {
     }
 
-    public ProductDiscountResponse(String name, BigDecimal discount,
-                                   Instant validFrom, Instant validUntil) {
-
-        this.name = name;
-        this.discount = discount;
-        this.validFrom = validFrom;
-        this.validUntil = validUntil;
-    }
-
     public ProductDiscountResponse(Long id, String name, BigDecimal discount,
                                    Instant validFrom, Instant validUntil) {
 

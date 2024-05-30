@@ -30,8 +30,9 @@ public class ProductResponse implements Serializable {
     public ProductResponse() {
     }
 
-    public ProductResponse(Long id, String name, String description, BigDecimal price,
-                           String imgUrl, ProductDiscount productDiscount) {
+    public ProductResponse(Long id, String name, String description,
+                           BigDecimal price, String imgUrl,
+                           ProductDiscount productDiscount) {
         this.id = id;
         this.name = name;
         this.description = description;

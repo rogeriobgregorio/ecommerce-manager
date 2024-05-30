@@ -21,7 +21,11 @@ public class StockMovementResponse implements Serializable {
     public StockMovementResponse() {
     }
 
-    public StockMovementResponse(Long id, Instant moment, InventoryItem inventoryItem, MovementType movementType, Integer quantityMoved) {
+    public StockMovementResponse(Long id, Instant moment,
+                                 InventoryItem inventoryItem,
+                                 MovementType movementType,
+                                 Integer quantityMoved) {
+
         this.id = id;
         this.moment = moment;
         this.inventoryItem = inventoryItem;

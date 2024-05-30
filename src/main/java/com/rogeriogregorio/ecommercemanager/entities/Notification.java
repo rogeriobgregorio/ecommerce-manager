@@ -46,16 +46,8 @@ public class Notification implements Serializable {
     public Notification() {
     }
 
-    public Notification(Instant validFrom, Instant validUntil,
-                        String title, String message) {
-
-        this.validFrom = validFrom;
-        this.validUntil = validUntil;
-        this.title = title;
-        this.message = message;
-    }
-
-    public Notification(Long id, Instant validFrom, Instant validUntil,
+    public Notification(Long id, Instant validFrom,
+                        Instant validUntil,
                         String title, String message) {
 
         this.id = id;

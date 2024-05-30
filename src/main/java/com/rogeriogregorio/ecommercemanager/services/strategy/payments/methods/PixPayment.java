@@ -76,14 +76,13 @@ public class PixPayment implements PaymentStrategy {
     private Payment buildPaymentPix(PaymentRequest paymentRequest) {
 
         Long orderId = paymentRequest.getOrderId();
-        PaymentType paymentType = paymentRequest.getPaymentType();
-
         Order orderToBePaid = orderService.findOrderById(orderId);
         validateOrderToBePaid(orderToBePaid);
 
         PixChargeDTO pixCharge = pixService.createImmediatePixCharge(orderToBePaid);
         PixQRCodeDTO pixQRCode = pixService.generatePixQRCode(pixCharge);
 
+        PaymentType paymentType = paymentRequest.getPaymentType();
         Payment payment = new Payment(Instant.now(), orderToBePaid, paymentType, PaymentStatus.PROCESSING);
         payment.setTxId(pixCharge.getTxid());
         payment.setChargeLink(pixQRCode.getLinkVisualizacao());

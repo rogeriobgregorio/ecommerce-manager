@@ -66,17 +66,9 @@ public class Product implements Serializable {
     public Product() {
     }
 
-    public Product(String name, String description,
-                   BigDecimal price, String imgUrl) {
-
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.imgUrl = imgUrl;
-    }
-
-    public Product(Long id, String name, String description, BigDecimal price,
-                   String imgUrl, ProductDiscount productDiscount) {
+    public Product(Long id, String name, String description,
+                   BigDecimal price, String imgUrl,
+                   ProductDiscount productDiscount) {
 
         this.id = id;
         this.name = name;
@@ -142,18 +134,18 @@ public class Product implements Serializable {
         return productDiscount != null;
     }
 
-    public BigDecimal getPriceWithDiscount() {
+    public BigDecimal getPriceFinal() {
 
-        BigDecimal productPrice = getPrice();
+        BigDecimal PriceFinal = getPrice();
 
         if (isDiscountPresent() && productDiscount.isValid()) {
             BigDecimal discount = productDiscount.getDiscount();
             BigDecimal discountPercentage = discount.divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
-            BigDecimal discountValue = productPrice.multiply(discountPercentage);
-            productPrice = productPrice.subtract(discountValue);
+            BigDecimal discountValue = PriceFinal.multiply(discountPercentage);
+            PriceFinal = PriceFinal.subtract(discountValue);
         }
 
-        return productPrice.setScale(2, RoundingMode.HALF_UP);
+        return PriceFinal.setScale(2, RoundingMode.HALF_UP);
     }
 
     public Set<ProductReview> getReviews() {

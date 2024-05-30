@@ -21,18 +21,10 @@ public class ProductRequest implements Serializable {
     public ProductRequest() {
     }
 
-    public ProductRequest(String name, String description, Double price,
-                          String imgUrl,  List<Long> categoryIdList) {
-
-        this.name = name;
-        this.description = description;
-        this.price = BigDecimal.valueOf(price);
-        this.imgUrl = imgUrl;
-        this.categoryIdList = categoryIdList;
-    }
-
-    public ProductRequest(Long id, String name, String description, Double price,
-                          String imgUrl, Long discountId, List<Long> categoryIdList) {
+    public ProductRequest(Long id, String name,
+                          String description, Double price,
+                          String imgUrl, Long discountId,
+                          List<Long> categoryIdList) {
 
         this.id = id;
         this.name = name;

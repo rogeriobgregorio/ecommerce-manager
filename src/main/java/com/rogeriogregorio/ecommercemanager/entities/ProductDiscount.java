@@ -45,15 +45,6 @@ public class ProductDiscount implements Serializable {
     public ProductDiscount() {
     }
 
-    public ProductDiscount(String name, BigDecimal discount,
-                           Instant validFrom, Instant validUntil) {
-
-        this.name = name;
-        this.discount = discount;
-        this.validFrom = validFrom;
-        this.validUntil = validUntil;
-    }
-
     public ProductDiscount(Long id, String name, BigDecimal discount,
                            Instant validFrom, Instant validUntil) {
 
