@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.pix.config;
+package com.rogeriogregorio.ecommercemanager.payment.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

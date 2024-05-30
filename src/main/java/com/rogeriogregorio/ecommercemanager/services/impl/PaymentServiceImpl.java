@@ -151,12 +151,11 @@ public class PaymentServiceImpl implements PaymentService {
 
     private List<Payment> buildPaidPayments(PixWebhookDTO pixWebhookDTO) {
 
-        List<PixWebhookDTO.Pix> pixArray = pixWebhookDTO.getPix();
-        List<Payment> payments = new ArrayList<>();
+        List<PixWebhookDTO.Pix> pixList = pixWebhookDTO.getPix();
+        List<Payment> paymentList = new ArrayList<>();
 
-        for (PixWebhookDTO.Pix pix : pixArray) {
-            String txId = pix.getTxid();
-            Payment payment = findByTxId(txId);
+        for (PixWebhookDTO.Pix pix : pixList) {
+            Payment payment = findByTxId(pix.getTxid());
 
             Long orderId = payment.getOrder().getId();
             Order orderToBePaid = orderService.findOrderById(orderId);
@@ -166,10 +165,10 @@ public class PaymentServiceImpl implements PaymentService {
 
             payment.setOrder(orderToBePaid);
             payment.setPaymentStatus(PaymentStatus.CONCLUDED);
-            payments.add(payment);
+            paymentList.add(payment);
         }
 
-        return payments;
+        return paymentList;
     }
 }
 

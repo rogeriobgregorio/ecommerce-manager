@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.pix;
+package com.rogeriogregorio.ecommercemanager.payment;
 
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public interface CredentialService {
 
-    JSONObject options();
+    JSONObject getOptions();
 
-    String keyEVP();
+    String getKeyEVP();
 }

@@ -44,7 +44,7 @@ public class Product implements Serializable {
     private BigDecimal price;
 
     @Column(name = "img_url")
-    @URL(message = "\"The image URL must be valid.\"")
+    @URL(message = "The image URL must be valid.")
     private String imgUrl;
 
     @ManyToOne

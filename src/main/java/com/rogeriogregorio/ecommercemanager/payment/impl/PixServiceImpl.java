@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.pix.impl;
+package com.rogeriogregorio.ecommercemanager.payment.impl;
 
 import br.com.efi.efisdk.EfiPay;
 import com.rogeriogregorio.ecommercemanager.dto.PixChargeDTO;
@@ -7,8 +7,8 @@ import com.rogeriogregorio.ecommercemanager.dto.PixListChargeDTO;
 import com.rogeriogregorio.ecommercemanager.dto.PixQRCodeDTO;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.exceptions.PixException;
-import com.rogeriogregorio.ecommercemanager.pix.CredentialService;
-import com.rogeriogregorio.ecommercemanager.pix.PixService;
+import com.rogeriogregorio.ecommercemanager.payment.CredentialService;
+import com.rogeriogregorio.ecommercemanager.payment.PixService;
 import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.DateFormatter;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
@@ -40,8 +40,10 @@ public class PixServiceImpl implements PixService {
     private final Logger logger = LogManager.getLogger(PixServiceImpl.class);
 
     @Autowired
-    public PixServiceImpl(CredentialService credentials, DateFormatter dateFormatter,
-                          ErrorHandler errorHandler, DataMapper dataMapper) {
+    public PixServiceImpl(CredentialService credentials,
+                          DateFormatter dateFormatter,
+                          ErrorHandler errorHandler,
+                          DataMapper dataMapper) {
 
         this.credentials = credentials;
         this.dateFormatter = dateFormatter;
@@ -54,7 +56,7 @@ public class PixServiceImpl implements PixService {
 
         return errorHandler.catchException(() -> {
 
-            EfiPay efiPay = new EfiPay(credentials.options());
+            EfiPay efiPay = new EfiPay(credentials.getOptions());
             JSONObject efiPayResponse = efiPay.call(CREATE_EVP, new HashMap<>(), new JSONObject());
 
             PixEVPKeyDTO EVPKey = dataMapper.fromJson(efiPayResponse, PixEVPKeyDTO.class);
@@ -78,7 +80,7 @@ public class PixServiceImpl implements PixService {
 
             JSONObject body = buildChargeBody(order);
 
-            EfiPay efiPay = new EfiPay(credentials.options());
+            EfiPay efiPay = new EfiPay(credentials.getOptions());
             JSONObject efiPayResponse = efiPay.call(CREATE_IMMEDIATE_CHARGE, new HashMap<>(), body);
 
             PixChargeDTO pixCharge = dataMapper.fromJson(efiPayResponse, PixChargeDTO.class);
@@ -105,7 +107,7 @@ public class PixServiceImpl implements PixService {
             Map<String, String> params = new HashMap<>();
             params.put("id", locId);
 
-            EfiPay efiPay = new EfiPay(credentials.options());
+            EfiPay efiPay = new EfiPay(credentials.getOptions());
             Map<String, Object> efiPayResponse = efiPay.call(GENERATE_QRCODE, params, new HashMap<>());
 
             PixQRCodeDTO pixQRCode = dataMapper.fromHashMap(efiPayResponse, PixQRCodeDTO.class);
@@ -131,7 +133,7 @@ public class PixServiceImpl implements PixService {
             params.put("inicio", dateFormatter.toISO8601(startDate));
             params.put("fim", dateFormatter.toISO8601(endDate));
 
-            EfiPay efiPay = new EfiPay(credentials.options());
+            EfiPay efiPay = new EfiPay(credentials.getOptions());
             JSONObject efiPayResponse = efiPay.call(LIST_CHARGES, params, new JSONObject());
 
             return dataMapper.fromJson(efiPayResponse, PixListChargeDTO.class);
@@ -155,7 +157,7 @@ public class PixServiceImpl implements PixService {
         body.put("calendario", new JSONObject().put("expiracao", 3600));
         body.put("devedor", new JSONObject().put("cpf", debtorCpf).put("nome", debtorName));
         body.put("valor", new JSONObject().put("original", chargeAmount));
-        body.put("chave", credentials.keyEVP());
+        body.put("chave", credentials.getKeyEVP());
 
         String orderNumber = order.getId().toString();
         String items = order.getProductQuantities().toString();

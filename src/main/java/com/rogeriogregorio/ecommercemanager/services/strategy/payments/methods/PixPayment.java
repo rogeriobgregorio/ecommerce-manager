@@ -8,7 +8,7 @@ import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.Payment;
 import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
 import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentStatus;
-import com.rogeriogregorio.ecommercemanager.pix.PixService;
+import com.rogeriogregorio.ecommercemanager.payment.PixService;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.services.strategy.payments.PaymentStrategy;
@@ -76,19 +76,17 @@ public class PixPayment implements PaymentStrategy {
     private Payment buildPaymentPix(PaymentRequest paymentRequest) {
 
         Long orderId = paymentRequest.getOrderId();
+        PaymentType paymentType = paymentRequest.getPaymentType();
+
         Order orderToBePaid = orderService.findOrderById(orderId);
         validateOrderToBePaid(orderToBePaid);
 
-        PaymentType paymentType = paymentRequest.getPaymentType();
-        Payment payment = new Payment(Instant.now(), orderToBePaid, paymentType, PaymentStatus.PROCESSING);
-
-        PixChargeDTO pixCharge = pixService.createImmediatePixCharge(payment.getOrder());
-        String txId = pixCharge.getTxid();
-        payment.setTxId(txId);
-
+        PixChargeDTO pixCharge = pixService.createImmediatePixCharge(orderToBePaid);
         PixQRCodeDTO pixQRCode = pixService.generatePixQRCode(pixCharge);
-        String pixQRCodeLink = pixQRCode.getLinkVisualizacao();
-        payment.setChargeLink(pixQRCodeLink);
+
+        Payment payment = new Payment(Instant.now(), orderToBePaid, paymentType, PaymentStatus.PROCESSING);
+        payment.setTxId(pixCharge.getTxid());
+        payment.setChargeLink(pixQRCode.getLinkVisualizacao());
 
         return payment;
     }

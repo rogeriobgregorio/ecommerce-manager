@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.pix;
+package com.rogeriogregorio.ecommercemanager.payment;
 
 import com.rogeriogregorio.ecommercemanager.dto.PixChargeDTO;
 import com.rogeriogregorio.ecommercemanager.dto.PixEVPKeyDTO;

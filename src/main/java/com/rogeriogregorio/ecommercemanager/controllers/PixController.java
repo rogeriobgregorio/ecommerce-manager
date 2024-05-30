@@ -2,7 +2,7 @@ package com.rogeriogregorio.ecommercemanager.controllers;
 
 import com.rogeriogregorio.ecommercemanager.dto.PixListChargeDTO;
 import com.rogeriogregorio.ecommercemanager.dto.PixWebhookDTO;
-import com.rogeriogregorio.ecommercemanager.pix.PixService;
+import com.rogeriogregorio.ecommercemanager.payment.PixService;
 import com.rogeriogregorio.ecommercemanager.services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

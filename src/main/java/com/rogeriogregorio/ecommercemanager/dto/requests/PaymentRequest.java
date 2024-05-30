@@ -4,7 +4,6 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.Instant;
 
 public class PaymentRequest implements Serializable {
 
@@ -12,7 +11,6 @@ public class PaymentRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
-    private Instant moment;
     private Long orderId;
     private Integer paymentType;
 
@@ -31,14 +29,6 @@ public class PaymentRequest implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Instant getMoment() {
-        return moment;
-    }
-
-    public void setMoment(Instant moment) {
-        this.moment = moment;
     }
 
     public Long getOrderId() {

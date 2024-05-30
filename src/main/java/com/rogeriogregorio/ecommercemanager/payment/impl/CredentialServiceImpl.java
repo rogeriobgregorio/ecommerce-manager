@@ -1,7 +1,7 @@
-package com.rogeriogregorio.ecommercemanager.pix.impl;
+package com.rogeriogregorio.ecommercemanager.payment.impl;
 
-import com.rogeriogregorio.ecommercemanager.pix.CredentialService;
-import com.rogeriogregorio.ecommercemanager.pix.config.CredentialConfig;
+import com.rogeriogregorio.ecommercemanager.payment.CredentialService;
+import com.rogeriogregorio.ecommercemanager.payment.config.CredentialConfig;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ public class CredentialServiceImpl implements CredentialService {
         this.pixCredential = pixCredential;
     }
 
-    public JSONObject options() {
+    public JSONObject getOptions() {
 
         JSONObject options = new JSONObject();
         options.put("client_id", pixCredential.getClientId());
@@ -27,7 +27,7 @@ public class CredentialServiceImpl implements CredentialService {
         return options;
     }
     
-    public String keyEVP() {
+    public String getKeyEVP() {
         return pixCredential.getKeyEVP();
     }
 }

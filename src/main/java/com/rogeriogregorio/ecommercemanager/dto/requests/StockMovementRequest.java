@@ -19,7 +19,8 @@ public class StockMovementRequest implements Serializable {
     }
 
     public StockMovementRequest(Long inventoryItemId,
-                                MovementType movementType, Integer quantityMoved) {
+                                MovementType movementType,
+                                Integer quantityMoved) {
 
         this.inventoryItemId = inventoryItemId;
         setMovementType(movementType);
@@ -27,7 +28,8 @@ public class StockMovementRequest implements Serializable {
     }
 
     public StockMovementRequest(Long id, Long inventoryItemId,
-                                MovementType movementType, Integer quantityMoved) {
+                                MovementType movementType,
+                                Integer quantityMoved) {
 
         this.id = id;
         this.inventoryItemId = inventoryItemId;
