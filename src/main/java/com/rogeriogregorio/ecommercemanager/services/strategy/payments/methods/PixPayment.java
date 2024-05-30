@@ -6,7 +6,7 @@ import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.Payment;
-import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentMethod;
+import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
 import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentStatus;
 import com.rogeriogregorio.ecommercemanager.pix.PixService;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
@@ -64,8 +64,8 @@ public class PixPayment implements PaymentStrategy {
     }
 
     @Override
-    public PaymentMethod getSupportedPaymentMethod() {
-        return PaymentMethod.PIX;
+    public PaymentType getSupportedPaymentMethod() {
+        return PaymentType.PIX;
     }
 
     private void validateOrderToBePaid(Order order) {
@@ -78,9 +78,9 @@ public class PixPayment implements PaymentStrategy {
         Long orderId = paymentRequest.getOrderId();
         Order orderToBePaid = orderService.findOrderById(orderId);
         validateOrderToBePaid(orderToBePaid);
-        PaymentMethod paymentMethod = paymentRequest.getPaymentMethod();
 
-        Payment payment = new Payment(Instant.now(), orderToBePaid, paymentMethod, PaymentStatus.PROCESSING);
+        PaymentType paymentType = paymentRequest.getPaymentType();
+        Payment payment = new Payment(Instant.now(), orderToBePaid, paymentType, PaymentStatus.PROCESSING);
 
         PixChargeDTO pixCharge = pixService.createImmediatePixCharge(payment.getOrder());
         String txId = pixCharge.getTxid();
@@ -88,7 +88,7 @@ public class PixPayment implements PaymentStrategy {
 
         PixQRCodeDTO pixQRCode = pixService.generatePixQRCode(pixCharge);
         String pixQRCodeLink = pixQRCode.getLinkVisualizacao();
-        payment.setPixQRCodeLink(pixQRCodeLink);
+        payment.setChargeLink(pixQRCodeLink);
 
         return payment;
     }

@@ -1,9 +1,9 @@
 package com.rogeriogregorio.ecommercemanager.controllers;
 
 import com.rogeriogregorio.ecommercemanager.dto.PixListChargeDTO;
+import com.rogeriogregorio.ecommercemanager.dto.PixWebhookDTO;
 import com.rogeriogregorio.ecommercemanager.pix.PixService;
 import com.rogeriogregorio.ecommercemanager.services.PaymentService;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,9 +33,9 @@ public class PixController {
     }
 
     @PostMapping("/webhook/pix")
-    public ResponseEntity<Void> webhookPix(@RequestBody JSONObject webhook) {
+    public ResponseEntity<Void> webhookPix(@RequestBody PixWebhookDTO pixWebhookDTO) {
 
-        paymentService.savePaidPaymentsFromWebHook(webhook);
+        paymentService.savePaidPaymentsFromWebHook(pixWebhookDTO);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

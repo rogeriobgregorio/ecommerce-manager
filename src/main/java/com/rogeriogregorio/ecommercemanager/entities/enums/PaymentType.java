@@ -1,12 +1,12 @@
 package com.rogeriogregorio.ecommercemanager.entities.enums;
 
-public enum PaymentMethod {
+public enum PaymentType {
 
     PIX(1);
 
     private int code;
 
-    private PaymentMethod(int code) {
+    private PaymentType(int code) {
         this.code = code;
     }
 
@@ -14,9 +14,9 @@ public enum PaymentMethod {
         return code;
     }
 
-    public static PaymentMethod valueOf(int code) {
+    public static PaymentType valueOf(int code) {
 
-        for (PaymentMethod value : PaymentMethod.values()) {
+        for (PaymentType value : PaymentType.values()) {
             if (value.getCode() == code) {
                 return value;
             }

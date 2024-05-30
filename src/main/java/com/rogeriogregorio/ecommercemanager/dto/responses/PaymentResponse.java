@@ -2,7 +2,7 @@ package com.rogeriogregorio.ecommercemanager.dto.responses;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
-import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentMethod;
+import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
 import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentStatus;
 
 import java.io.Serial;
@@ -19,8 +19,8 @@ public class PaymentResponse implements Serializable {
     private Instant moment;
     private Order order;
     private String txId;
-    private Integer paymentMethod;
-    private String pixQRCodeLink;
+    private Integer paymentType;
+    private String chargeLink;
     private Integer paymentStatus;
 
 
@@ -28,16 +28,15 @@ public class PaymentResponse implements Serializable {
     }
 
     public PaymentResponse(Long id, Instant moment, Order order,
-                           String txId, PaymentMethod paymentMethod,
-                           String pixQRCodeLink,
-                           PaymentStatus paymentStatus) {
+                           String txId, PaymentType paymentType,
+                           String chargeLink, PaymentStatus paymentStatus) {
 
         this.id = id;
         this.moment = moment;
         this.order = order;
         this.txId = txId;
-        setPaymentMethod(paymentMethod);
-        this.pixQRCodeLink = pixQRCodeLink;
+        setPaymentType(paymentType);
+        this.chargeLink = chargeLink;
         setPaymentStatus(paymentStatus);
     }
 
@@ -74,25 +73,25 @@ public class PaymentResponse implements Serializable {
         this.txId = txId;
     }
 
-    public PaymentMethod getPaymentMethod() {
-        return PaymentMethod.valueOf(paymentMethod);
+    public PaymentType getPaymentType() {
+        return PaymentType.valueOf(paymentType);
     }
 
-    public void setPaymentMethod(PaymentMethod paymentMethod) {
+    public void setPaymentType(PaymentType paymentType) {
 
-        if (paymentMethod == null) {
-            throw new IllegalArgumentException("The payment method cannot be null.");
+        if (paymentType == null) {
+            throw new IllegalArgumentException("The payment type cannot be null.");
         }
 
-        this.paymentMethod = paymentMethod.getCode();
+        this.paymentType = paymentType.getCode();
     }
 
-    public String getPixQRCodeLink() {
-        return pixQRCodeLink;
+    public String getChargeLink() {
+        return chargeLink;
     }
 
-    public void setPixQRCodeLink(String pixQRCodeLink) {
-        this.pixQRCodeLink = pixQRCodeLink;
+    public void setChargeLink(String chargeLink) {
+        this.chargeLink = chargeLink;
     }
 
     public PaymentStatus getPaymentStatus() {

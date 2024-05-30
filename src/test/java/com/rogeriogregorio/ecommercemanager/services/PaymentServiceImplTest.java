@@ -179,7 +179,7 @@ class PaymentServiceImplTest {
         when(converter.toResponse(payment, PaymentResponse.class)).thenReturn(expectedResponse);
 
         // Act
-        PaymentResponse actualResponse = paymentService.createPayment(paymentRequest);
+        PaymentResponse actualResponse = paymentService.createPaymentProcess(paymentRequest);
 
         // Assert
         assertNotNull(actualResponse, "paymentResponse should not be null");
@@ -216,7 +216,7 @@ class PaymentServiceImplTest {
         when(paymentRepository.save(payment)).thenThrow(PersistenceException.class);
 
         // Act and Assert
-        assertThrows(RepositoryException.class, () -> paymentService.createPayment(paymentRequest), "Expected RepositoryException due to a generic runtime exception");
+        assertThrows(RepositoryException.class, () -> paymentService.createPaymentProcess(paymentRequest), "Expected RepositoryException due to a generic runtime exception");
 
         verify(orderService, times(1)).findOrderById(paymentRequest.getOrderId());
         verify(orderService, times(1)).savePaidOrder(order);

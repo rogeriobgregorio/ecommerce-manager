@@ -4,17 +4,17 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
-public class PixWebHook implements Serializable {
+public class PixWebhookDTO implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     private List<Pix> pix;
 
-    public PixWebHook() {
+    public PixWebhookDTO() {
     }
 
-    public PixWebHook(List<Pix> pix) {
+    public PixWebhookDTO(List<Pix> pix) {
         this.pix = pix;
     }
 
@@ -113,7 +113,7 @@ public class PixWebHook implements Serializable {
 
     @Override
     public String toString() {
-        return "PixWebHook{" +
+        return "PixWebhookDTO{" +
                 "\n  pix: " + pix +
                 "\n}";
     }

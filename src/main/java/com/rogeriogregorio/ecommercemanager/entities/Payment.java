@@ -2,8 +2,7 @@ package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
-import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentMethod;
+import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
 import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -39,11 +38,11 @@ public class Payment implements Serializable {
     private String txId;
 
     @Column(name = "payment_method")
-    @NotNull(message = "The payment method cannot be null.")
-    private Integer paymentMethod;
+    @NotNull(message = "The payment type cannot be null.")
+    private Integer paymentType;
 
-    @Column(name = "pix_qrcode_link")
-    private String pixQRCodeLink;
+    @Column(name = "charge_link")
+    private String chargeLink;
 
     @Column(name = "payment_status")
     @NotNull(message = "The payment status cannot be null.")
@@ -53,12 +52,12 @@ public class Payment implements Serializable {
     }
 
     public Payment(Instant moment, Order order,
-                   PaymentMethod paymentMethod,
+                   PaymentType paymentType,
                    PaymentStatus paymentStatus) {
 
         this.moment = moment;
         this.order = order;
-        setPaymentMethod(paymentMethod);
+        setPaymentType(paymentType);
         setPaymentStatus(paymentStatus);
     }
 
@@ -101,25 +100,25 @@ public class Payment implements Serializable {
         return "Amount paid: " + amountPaid + ".";
     }
 
-    public PaymentMethod getPaymentMethod() {
-        return PaymentMethod.valueOf(paymentMethod);
+    public PaymentType getPaymentType() {
+        return PaymentType.valueOf(paymentType);
     }
 
-    public void setPaymentMethod(PaymentMethod paymentMethod) {
+    public void setPaymentType(PaymentType paymentType) {
 
-        if (paymentMethod == null) {
-            throw new IllegalArgumentException("The payment method cannot be null.");
+        if (paymentType == null) {
+            throw new IllegalArgumentException("The payment type cannot be null.");
         }
 
-        this.paymentMethod = paymentMethod.getCode();
+        this.paymentType = paymentType.getCode();
     }
 
-    public String getPixQRCodeLink() {
-        return pixQRCodeLink;
+    public String getChargeLink() {
+        return chargeLink;
     }
 
-    public void setPixQRCodeLink(String pixQRCodeLink) {
-        this.pixQRCodeLink = pixQRCodeLink;
+    public void setChargeLink(String chargeLink) {
+        this.chargeLink = chargeLink;
     }
 
     public PaymentStatus getPaymentStatus() {
@@ -154,7 +153,7 @@ public class Payment implements Serializable {
                 + ", moment= " + moment
                 + ", order= " + order
                 + ", txId= " + txId
-                + ", paymentMethod=" + paymentMethod
+                + ", paymentType=" + paymentType
                 + ", paymentStatus=" + paymentStatus + "]";
     }
 }

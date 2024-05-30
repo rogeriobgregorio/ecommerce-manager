@@ -1,14 +1,14 @@
 package com.rogeriogregorio.ecommercemanager.services.impl;
 
-import com.rogeriogregorio.ecommercemanager.dto.PixWebHook;
+import com.rogeriogregorio.ecommercemanager.dto.PixWebhookDTO;
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.Payment;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
-import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentMethod;
+import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentStatus;
+import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
-import com.rogeriogregorio.ecommercemanager.pix.PixService;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
@@ -20,7 +20,6 @@ import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,7 +42,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final List<OrderStrategy> validators;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Map<PaymentMethod, PaymentStrategy> paymentMethods;
+    private final Map<PaymentType, PaymentStrategy> paymentMethods;
     private final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
 
     @Autowired
@@ -74,21 +73,22 @@ public class PaymentServiceImpl implements PaymentService {
                 .map(payment -> dataMapper.toResponse(payment, PaymentResponse.class));
     }
 
-    public PaymentResponse createPayment(PaymentRequest paymentRequest) {
-        PaymentMethod paymentMethod = paymentRequest.getPaymentMethod();
-        PaymentStrategy strategy = paymentMethods.get(paymentMethod);
+    public PaymentResponse createPaymentProcess(PaymentRequest paymentRequest) {
+
+        PaymentType paymentType = paymentRequest.getPaymentType();
+        PaymentStrategy strategy = paymentMethods.get(paymentType);
 
         if (strategy == null) {
-            throw new IllegalArgumentException("Payment method not supported: " + paymentMethod);
+            throw new IllegalArgumentException("Payment method not supported: " + paymentType);
         }
 
         return strategy.createPayment(paymentRequest);
     }
 
     @Transactional(readOnly = false)
-    public void savePaidPaymentsFromWebHook(JSONObject webhook) {
+    public void savePaidPaymentsFromWebHook(PixWebhookDTO pixWebhookDTO) {
 
-        List<Payment> paidPayments = buildPaidPayments(webhook);
+        List<Payment> paidPayments = buildPaidPayments(pixWebhookDTO);
 
         for (Payment paidPayment : paidPayments) {
             errorHandler.catchException(() -> paymentRepository.save(paidPayment),
@@ -149,13 +149,12 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(() -> new NotFoundException("Payment not found with txId: " + txId + "."));
     }
 
-    private List<Payment> buildPaidPayments(JSONObject webhook) {
+    private List<Payment> buildPaidPayments(PixWebhookDTO pixWebhookDTO) {
 
-        PixWebHook pixWebHook = dataMapper.fromJson(webhook, PixWebHook.class);
-        List<PixWebHook.Pix> pixArray = pixWebHook.getPix();
+        List<PixWebhookDTO.Pix> pixArray = pixWebhookDTO.getPix();
         List<Payment> payments = new ArrayList<>();
 
-        for (PixWebHook.Pix pix : pixArray) {
+        for (PixWebhookDTO.Pix pix : pixArray) {
             String txId = pix.getTxid();
             Payment payment = findByTxId(txId);
 
@@ -163,10 +162,10 @@ public class PaymentServiceImpl implements PaymentService {
             Order orderToBePaid = orderService.findOrderById(orderId);
             orderToBePaid.setPayment(payment);
             orderToBePaid.setOrderStatus(OrderStatus.PAID);
-
             orderService.savePaidOrder(orderToBePaid);
-            payment.setOrder(orderToBePaid);
 
+            payment.setOrder(orderToBePaid);
+            payment.setPaymentStatus(PaymentStatus.CONCLUDED);
             payments.add(payment);
         }
 

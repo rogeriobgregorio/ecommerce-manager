@@ -1,6 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.dto.requests;
 
-import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentMethod;
+import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -14,15 +14,15 @@ public class PaymentRequest implements Serializable {
     private Long id;
     private Instant moment;
     private Long orderId;
-    private Integer paymentMethod;
+    private Integer paymentType;
 
     public PaymentRequest() {
     }
 
-    public PaymentRequest(Long orderId, PaymentMethod paymentMethod) {
+    public PaymentRequest(Long orderId, PaymentType paymentType) {
 
         this.orderId = orderId;
-        setPaymentMethod(paymentMethod);
+        setPaymentType(paymentType);
     }
 
     public Long getId() {
@@ -49,16 +49,16 @@ public class PaymentRequest implements Serializable {
         this.orderId = orderId;
     }
 
-    public PaymentMethod getPaymentMethod() {
-        return PaymentMethod.valueOf(paymentMethod);
+    public PaymentType getPaymentType() {
+        return PaymentType.valueOf(paymentType);
     }
 
-    public void setPaymentMethod(PaymentMethod paymentMethod) {
+    public void setPaymentType(PaymentType paymentType) {
 
-        if (paymentMethod == null) {
-            throw new IllegalArgumentException("The payment method cannot be null.");
+        if (paymentType == null) {
+            throw new IllegalArgumentException("The payment type cannot be null.");
         }
 
-        this.paymentMethod = paymentMethod.getCode();
+        this.paymentType = paymentType.getCode();
     }
 }
