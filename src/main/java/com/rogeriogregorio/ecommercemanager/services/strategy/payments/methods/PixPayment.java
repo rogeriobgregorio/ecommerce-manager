@@ -7,7 +7,6 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.Payment;
 import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
-import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentStatus;
 import com.rogeriogregorio.ecommercemanager.payment.PixService;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
@@ -65,6 +64,7 @@ public class PixPayment implements PaymentStrategy {
 
     @Override
     public PaymentType getSupportedPaymentMethod() {
+
         return PaymentType.PIX;
     }
 
@@ -82,11 +82,12 @@ public class PixPayment implements PaymentStrategy {
         PixChargeDTO pixCharge = pixService.createImmediatePixCharge(orderToBePaid);
         PixQRCodeDTO pixQRCode = pixService.generatePixQRCode(pixCharge);
 
-        PaymentType paymentType = paymentRequest.getPaymentType();
-        Payment payment = new Payment(Instant.now(), orderToBePaid, paymentType, PaymentStatus.PROCESSING);
-        payment.setTxId(pixCharge.getTxid());
-        payment.setChargeLink(pixQRCode.getLinkVisualizacao());
-
-        return payment;
+        return Payment.newBuilder()
+                .withMoment(Instant.now())
+                .withOrder(orderToBePaid)
+                .withTxId(pixCharge.getTxid())
+                .withPaymentType(paymentRequest.getPaymentType())
+                .withChargeLink(pixQRCode.getLinkVisualizacao())
+                .build();
     }
 }

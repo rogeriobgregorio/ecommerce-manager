@@ -2,8 +2,8 @@ package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
 import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentStatus;
+import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -35,6 +35,7 @@ public class Payment implements Serializable {
     private Order order;
 
     @Column(name = "tx_id")
+    @NotNull(message = "The txId cannot be null.")
     private String txId;
 
     @Column(name = "payment_method")
@@ -42,6 +43,7 @@ public class Payment implements Serializable {
     private Integer paymentType;
 
     @Column(name = "charge_link")
+    @NotNull(message = "The charge Link cannot be null.")
     private String chargeLink;
 
     @Column(name = "payment_status")
@@ -51,14 +53,31 @@ public class Payment implements Serializable {
     public Payment() {
     }
 
-    public Payment(Instant moment, Order order,
-                   PaymentType paymentType,
-                   PaymentStatus paymentStatus) {
+    public Payment(Long id, Instant moment, Order order,
+                   String txId, Integer paymentType,
+                   String chargeLink, Integer paymentStatus) {
 
+        this.id = id;
         this.moment = moment;
         this.order = order;
-        setPaymentType(paymentType);
-        setPaymentStatus(paymentStatus);
+        this.txId = txId;
+        this.paymentType = paymentType;
+        this.chargeLink = chargeLink;
+        this.paymentStatus = paymentStatus;
+    }
+
+    private Payment(Builder builder) {
+        setId(builder.id);
+        setMoment(builder.moment);
+        setOrder(builder.order);
+        setTxId(builder.txId);
+        paymentType = builder.paymentType;
+        setChargeLink(builder.chargeLink);
+        paymentStatus = builder.paymentStatus;
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
     }
 
     public Long getId() {
@@ -155,5 +174,69 @@ public class Payment implements Serializable {
                 + ", txId= " + txId
                 + ", paymentType=" + paymentType
                 + ", paymentStatus=" + paymentStatus + "]";
+    }
+
+    public Builder toBuilder() {
+        return new Builder()
+                .withId(this.id)
+                .withMoment(this.moment)
+                .withOrder(this.order)
+                .withTxId(this.txId)
+                .withPaymentType(PaymentType.valueOf(this.paymentType))
+                .withChargeLink(this.chargeLink)
+                .withPaymentStatus(PaymentStatus.valueOf(this.paymentStatus));
+    }
+
+    public static final class Builder {
+
+        private Long id;
+        private Instant moment;
+        private Order order;
+        private String txId;
+        private Integer paymentType;
+        private String chargeLink;
+        private Integer paymentStatus;
+
+        private Builder() {
+        }
+
+        public Builder withId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder withMoment(Instant moment) {
+            this.moment = moment;
+            return this;
+        }
+
+        public Builder withOrder(Order order) {
+            this.order = order;
+            return this;
+        }
+
+        public Builder withTxId(String txId) {
+            this.txId = txId;
+            return this;
+        }
+
+        public Builder withPaymentType(PaymentType paymentType) {
+            this.paymentType = paymentType.getCode();
+            return this;
+        }
+
+        public Builder withChargeLink(String chargeLink) {
+            this.chargeLink = chargeLink;
+            return this;
+        }
+
+        public Builder withPaymentStatus(PaymentStatus paymentStatus) {
+            this.paymentStatus = paymentStatus.getCode();
+            return this;
+        }
+
+        public Payment build() {
+            return new Payment(this);
+        }
     }
 }

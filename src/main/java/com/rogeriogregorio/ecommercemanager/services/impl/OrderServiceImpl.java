@@ -52,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
     public Page<OrderResponse> findAllOrders(Pageable pageable) {
 
         return errorHandler.catchException(() -> orderRepository.findAll(pageable),
-                "Error while trying to fetch all orders: ")
+                        "Error while trying to fetch all orders: ")
                 .map(order -> dataMapper.toResponse(order, OrderResponse.class));
     }
 
@@ -83,7 +83,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse findOrderResponseById(Long id) {
 
         return errorHandler.catchException(() -> orderRepository.findById(id),
-                "Error while trying to find the order by ID: ")
+                        "Error while trying to find the order by ID: ")
                 .map(order -> dataMapper.toResponse(order, OrderResponse.class))
                 .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + "."));
     }
@@ -129,14 +129,14 @@ public class OrderServiceImpl implements OrderService {
     public Page<OrderResponse> findOrderByClientId(Long id, Pageable pageable) {
 
         return errorHandler.catchException(() -> orderRepository.findByClient_Id(id, pageable),
-                "Error while trying to fetch orders by customer ID: ")
+                        "Error while trying to fetch orders by customer ID: ")
                 .map(order -> dataMapper.toResponse(order, OrderResponse.class));
     }
 
     public Order findOrderById(Long id) {
 
         return errorHandler.catchException(() -> orderRepository.findById(id),
-                "Error while trying to find order by ID: ")
+                        "Error while trying to find order by ID: ")
                 .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + "."));
     }
 
@@ -170,11 +170,13 @@ public class OrderServiceImpl implements OrderService {
 
     private Order buildCreateOrder(OrderRequest orderRequest) {
 
-        Instant instant = Instant.now();
-        OrderStatus orderStatus = OrderStatus.WAITING_PAYMENT;
         User client = userService.findUserById(orderRequest.getClientId());
 
-        return new Order(instant, orderStatus, client);
+        return Order.newBuilder()
+                .withMoment(Instant.now())
+                .withOrderStatus(OrderStatus.WAITING_PAYMENT)
+                .withClient(client)
+                .build();
     }
 
     private Order buildUpdateOrder(OrderRequest orderRequest) {
@@ -187,18 +189,21 @@ public class OrderServiceImpl implements OrderService {
 
         String code = orderRequest.getDiscountCouponCode();
         DiscountCoupon discountCoupon = validateDiscountCoupon(code);
-        order.setMoment(Instant.now());
-        order.setCoupon(discountCoupon);
 
-        return order;
+        return order.toBuilder()
+                .withMoment(Instant.now())
+                .withCoupon(discountCoupon)
+                .build();
     }
 
     private Order buildUpdateOrderStatus(OrderRequest orderRequest) {
 
-        Order order = findOrderById(orderRequest.getId());
+        Order order = findOrderById(orderRequest.getId()).toBuilder()
+                .withMoment(Instant.now())
+                .withOrderStatus(orderRequest.getOrderStatus())
+                .build();
+
         validateOrderStatusChange(orderRequest, order);
-        order.setMoment(Instant.now());
-        order.setOrderStatus(orderRequest.getOrderStatus());
 
         return order;
     }

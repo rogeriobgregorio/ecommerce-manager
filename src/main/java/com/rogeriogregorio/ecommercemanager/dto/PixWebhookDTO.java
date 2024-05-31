@@ -12,10 +12,7 @@ public class PixWebhookDTO implements Serializable {
     private List<Pix> pix;
 
     public PixWebhookDTO() {
-    }
-
-    public PixWebhookDTO(List<Pix> pix) {
-        this.pix = pix;
+        // default constructor
     }
 
     public List<Pix> getPix() {
@@ -39,15 +36,7 @@ public class PixWebhookDTO implements Serializable {
         private String infoPagador;
 
         public Pix() {
-        }
-
-        public Pix(String endToEndId, String txid, String chave, String valor, String horario, String infoPagador) {
-            this.endToEndId = endToEndId;
-            this.txid = txid;
-            this.chave = chave;
-            this.valor = valor;
-            this.horario = horario;
-            this.infoPagador = infoPagador;
+            // default constructor
         }
 
         public String getEndToEndId() {

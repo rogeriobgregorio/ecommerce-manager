@@ -60,6 +60,18 @@ public class InventoryItem implements Serializable {
         setStockStatus(stockStatus);
     }
 
+    private InventoryItem(Builder builder) {
+        setId(builder.id);
+        setProduct(builder.product);
+        setQuantityInStock(builder.quantityInStock);
+        setQuantitySold(builder.quantitySold);
+        stockStatus = builder.stockStatus;
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
     public Long getId() {
         return id;
     }
@@ -125,5 +137,55 @@ public class InventoryItem implements Serializable {
                 + ", quantityInStock= " + quantityInStock
                 + ", quantitySold= " + quantitySold
                 + ", stockStatus= " + stockStatus + "]";
+    }
+
+    public Builder toBuilder() {
+        return new Builder()
+                .withId(this.id)
+                .withProduct(this.product)
+                .withQuantityInStock(this.quantityInStock)
+                .withStockStatus(StockStatus.valueOf(this.stockStatus))
+                .withQuantitySold(this.quantitySold);
+    }
+
+    public static final class Builder {
+
+        private Long id;
+        private Product product;
+        private Integer quantityInStock;
+        private  Integer quantitySold;
+        private Integer stockStatus;
+
+        private Builder() {
+        }
+
+        public Builder withId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder withProduct(Product product) {
+            this.product = product;
+            return this;
+        }
+
+        public Builder withQuantityInStock(Integer quantityInStock) {
+            this.quantityInStock = quantityInStock;
+            return this;
+        }
+
+        public Builder withQuantitySold(Integer quantitySold) {
+            this.quantitySold = quantitySold;
+            return this;
+        }
+
+        public Builder withStockStatus(StockStatus stockStatus) {
+            this.stockStatus = stockStatus.getCode();
+            return this;
+        }
+
+        public InventoryItem build() {
+            return new InventoryItem(this);
+        }
     }
 }

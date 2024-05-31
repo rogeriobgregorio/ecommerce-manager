@@ -13,11 +13,7 @@ public class PixListChargeDTO implements Serializable {
     private Parametros parametros;
 
     public PixListChargeDTO() {
-    }
-
-    public PixListChargeDTO(List<Cob> cobs, Parametros parametros) {
-        this.cobs = cobs;
-        this.parametros = parametros;
+        // default constructor
     }
 
     public List<Cob> getCobs() {
@@ -63,25 +59,7 @@ public class PixListChargeDTO implements Serializable {
         private String status;
 
         public Cob() {
-        }
-
-        public Cob(Devedor devedor, Loc loc, String pixCopiaECola,
-                   Valor valor, String chave, Calendario calendario,
-                   String txid, List<InfoAdicionais> infoAdicionais,
-                   String location, int revisao, List<Pix> pix, String status) {
-
-            this.devedor = devedor;
-            this.loc = loc;
-            this.pixCopiaECola = pixCopiaECola;
-            this.valor = valor;
-            this.chave = chave;
-            this.calendario = calendario;
-            this.txid = txid;
-            this.infoAdicionais = infoAdicionais;
-            this.location = location;
-            this.revisao = revisao;
-            this.pix = pix;
-            this.status = status;
+            // default constructor
         }
 
         public Devedor getDevedor() {
@@ -208,11 +186,7 @@ public class PixListChargeDTO implements Serializable {
         private String nome;
 
         public Devedor() {
-        }
-
-        public Devedor(String cpf, String nome) {
-            this.cpf = cpf;
-            this.nome = nome;
+            // default constructor
         }
 
         public String getCpf() {
@@ -251,13 +225,7 @@ public class PixListChargeDTO implements Serializable {
         private String tipoCob;
 
         public Loc() {
-        }
-
-        public Loc(String location, int id, String criacao, String tipoCob) {
-            this.location = location;
-            this.id = id;
-            this.criacao = criacao;
-            this.tipoCob = tipoCob;
+            // default constructor
         }
 
         public String getLocation() {
@@ -311,10 +279,7 @@ public class PixListChargeDTO implements Serializable {
         private String original;
 
         public Valor() {
-        }
-
-        public Valor(String original) {
-            this.original = original;
+            // default constructor
         }
 
         public String getOriginal() {
@@ -342,11 +307,7 @@ public class PixListChargeDTO implements Serializable {
         private String criacao;
 
         public Calendario() {
-        }
-
-        public Calendario(int expiracao, String criacao) {
-            this.expiracao = expiracao;
-            this.criacao = criacao;
+            // default constructor
         }
 
         public int getExpiracao() {
@@ -383,11 +344,7 @@ public class PixListChargeDTO implements Serializable {
         private String nome;
 
         public InfoAdicionais() {
-        }
-
-        public InfoAdicionais(String valor, String nome) {
-            this.valor = valor;
-            this.nome = nome;
+            // default constructor
         }
 
         public String getValor() {
@@ -427,14 +384,7 @@ public class PixListChargeDTO implements Serializable {
         private String endToEndId;
 
         public Pix() {
-        }
-
-        public Pix(String horario, String valor, String chave, String txid, String endToEndId) {
-            this.horario = horario;
-            this.valor = valor;
-            this.chave = chave;
-            this.txid = txid;
-            this.endToEndId = endToEndId;
+            // default constructor
         }
 
         public String getHorario() {
@@ -499,12 +449,7 @@ public class PixListChargeDTO implements Serializable {
         private String fim;
 
         public Parametros() {
-        }
-
-        public Parametros(Paginacao paginacao, String inicio, String fim) {
-            this.paginacao = paginacao;
-            this.inicio = inicio;
-            this.fim = fim;
+            // default constructor
         }
 
         public Paginacao getPaginacao() {
@@ -552,15 +497,7 @@ public class PixListChargeDTO implements Serializable {
         private int quantidadeDePaginas;
 
         public Paginacao() {
-        }
-
-        public Paginacao(int paginaAtual, int quantidadeTotalDeItens,
-                         int itensPorPagina, int quantidadeDePaginas) {
-
-            this.paginaAtual = paginaAtual;
-            this.quantidadeTotalDeItens = quantidadeTotalDeItens;
-            this.itensPorPagina = itensPorPagina;
-            this.quantidadeDePaginas = quantidadeDePaginas;
+            // default constructor
         }
 
         public int getPaginaAtual() {

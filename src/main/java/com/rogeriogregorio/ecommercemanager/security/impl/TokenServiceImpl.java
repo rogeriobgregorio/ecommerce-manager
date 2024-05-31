@@ -15,10 +15,11 @@ import java.time.temporal.ChronoUnit;
 @Service
 public class TokenServiceImpl implements TokenService {
 
+    private static final String ISSUER_NAME = "ecommerce-manager";
+
     @Value("${api.security.token.secret}")
     private String secretKey;
     private final ErrorHandler errorHandler;
-    private static final String ISSUER_NAME = "ecommerce-manager";
 
     @Autowired
     public TokenServiceImpl(ErrorHandler errorHandler) {

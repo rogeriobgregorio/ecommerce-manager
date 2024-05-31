@@ -71,6 +71,20 @@ public class Order implements Serializable {
         this.payment = payment;
     }
 
+    private Order(Builder builder) {
+        setId(builder.id);
+        setMoment(builder.moment);
+        orderStatus = builder.orderStatus;
+        setClient(builder.client);
+        items = builder.items;
+        setCoupon(builder.coupon);
+        setPayment(builder.payment);
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
     public Long getId() {
         return id;
     }
@@ -193,5 +207,67 @@ public class Order implements Serializable {
                 + ", orderStatus= " + orderStatus
                 + ", client= " + client
                 + ", discount coupon= " + coupon + "]";
+    }
+
+    public Builder toBuilder() {
+        return new Builder()
+                .withId(this.id)
+                .withMoment(this.moment)
+                .withOrderStatus(OrderStatus.valueOf(this.orderStatus))
+                .withClient(this.client)
+                .withCoupon(this.coupon)
+                .withPayment(this.payment);
+    }
+
+    public static final class Builder {
+        private Long id;
+        private Instant moment;
+        private Integer orderStatus;
+        private User client;
+        private Set<OrderItem> items;
+        private DiscountCoupon coupon;
+        private Payment payment;
+
+        private Builder() {
+        }
+
+        public Builder withId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder withMoment(Instant moment) {
+            this.moment = moment;
+            return this;
+        }
+
+        public Builder withOrderStatus(OrderStatus orderStatus) {
+            this.orderStatus = orderStatus.getCode();
+            return this;
+        }
+
+        public Builder withClient(User client) {
+            this.client = client;
+            return this;
+        }
+
+        public Builder withItems(Set<OrderItem> items) {
+            this.items = items;
+            return this;
+        }
+
+        public Builder withCoupon(DiscountCoupon coupon) {
+            this.coupon = coupon;
+            return this;
+        }
+
+        public Builder withPayment(Payment payment) {
+            this.payment = payment;
+            return this;
+        }
+
+        public Order build() {
+            return new Order(this);
+        }
     }
 }

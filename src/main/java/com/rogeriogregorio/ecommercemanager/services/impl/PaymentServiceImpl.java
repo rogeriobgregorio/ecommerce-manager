@@ -60,11 +60,9 @@ public class PaymentServiceImpl implements PaymentService {
         this.validators = validators;
         this.errorHandler = errorHandler;
         this.dataMapper = dataMapper;
-        this.paymentMethods = paymentMethods
-                .stream()
-                .collect(Collectors
-                .toMap(PaymentStrategy::getSupportedPaymentMethod, Function.identity())
-        );
+        this.paymentMethods = paymentMethods.stream()
+                .collect(Collectors.toMap(PaymentStrategy::getSupportedPaymentMethod, Function.identity())
+                );
     }
 
     @Transactional(readOnly = true)
@@ -83,7 +81,6 @@ public class PaymentServiceImpl implements PaymentService {
         if (strategy == null) {
             throw new IllegalArgumentException("Payment method not supported: " + paymentType);
         }
-
         return strategy.createPayment(paymentRequest);
     }
 
@@ -165,11 +162,12 @@ public class PaymentServiceImpl implements PaymentService {
             orderToBePaid.setOrderStatus(OrderStatus.PAID);
             orderService.savePaidOrder(orderToBePaid);
 
-            payment.setOrder(orderToBePaid);
-            payment.setPaymentStatus(PaymentStatus.CONCLUDED);
-            paymentList.add(payment);
+            paymentList.add(payment.toBuilder()
+                    .withOrder(orderToBePaid)
+                    .withPaymentStatus(PaymentStatus.CONCLUDED)
+                    .build()
+            );
         }
-
         return paymentList;
     }
 }

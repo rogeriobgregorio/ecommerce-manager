@@ -11,10 +11,7 @@ public class PixEVPKeyDTO implements Serializable {
     private String chave;
 
     public PixEVPKeyDTO() {
-    }
-
-    public PixEVPKeyDTO(String chave) {
-        this.chave = chave;
+        // default constructor
     }
 
     public String getChave() {

@@ -44,7 +44,7 @@ public class StockMovementServiceImpl implements StockMovementService {
     public Page<StockMovementResponse> findAllStockMovements(Pageable pageable) {
 
         return errorHandler.catchException(() -> stockMovementRepository.findAll(pageable),
-                "Error while trying to fetch all inventory movements: ")
+                        "Error while trying to fetch all inventory movements: ")
                 .map(stockMovement -> dataMapper.toResponse(stockMovement, StockMovementResponse.class));
     }
 
@@ -65,7 +65,7 @@ public class StockMovementServiceImpl implements StockMovementService {
     public StockMovementResponse findStockMovementById(Long id) {
 
         return errorHandler.catchException(() -> stockMovementRepository.findById(id),
-                "Error while trying to fetch inventory movement by ID: " + id)
+                        "Error while trying to fetch inventory movement by ID: " + id)
                 .map(stockMovement -> dataMapper.toResponse(stockMovement, StockMovementResponse.class))
                 .orElseThrow(() -> new NotFoundException("Inventory movement not found with ID: " + id + "."));
     }
@@ -111,10 +111,12 @@ public class StockMovementServiceImpl implements StockMovementService {
             Product product = orderItem.getProduct();
             InventoryItem inventoryItem = inventoryItemService.findInventoryItemByProduct(product);
 
-            int outputQuantity = orderItem.getQuantity();
-
-            Instant moment = Instant.now();
-            StockMovement stockMovement = new StockMovement(moment, inventoryItem, MovementType.EXIT, outputQuantity);
+            StockMovement stockMovement = StockMovement.newBuilder()
+                    .withMoment(Instant.now())
+                    .withInventoryItem(inventoryItem)
+                    .withMovementType(MovementType.EXIT)
+                    .withQuantityMoved(orderItem.getQuantity())
+                    .build();
 
             saveStockMovement(stockMovement);
             logger.info("Inventory movement exit: {}", stockMovement);
@@ -129,13 +131,15 @@ public class StockMovementServiceImpl implements StockMovementService {
 
     private StockMovement buildStockMovement(StockMovementRequest stockMovementRequest) {
 
-        Long id = stockMovementRequest.getId();
         Long inventoryItemId = stockMovementRequest.getInventoryItemId();
         InventoryItem inventoryItem = inventoryItemService.findInventoryItemById(inventoryItemId);
-        Instant moment = Instant.now();
-        MovementType movementType = stockMovementRequest.getMovementType();
-        int quantityMoved = stockMovementRequest.getQuantityMoved();
 
-        return new StockMovement(id, moment, inventoryItem, movementType, quantityMoved);
+        return StockMovement.newBuilder()
+                .withId(stockMovementRequest.getId())
+                .withMoment(Instant.now())
+                .withInventoryItem(inventoryItem)
+                .withMovementType(stockMovementRequest.getMovementType())
+                .withQuantityMoved(stockMovementRequest.getQuantityMoved())
+                .build();
     }
 }

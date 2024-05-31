@@ -22,24 +22,7 @@ public class PixChargeDTO implements Serializable {
     private String status;
 
     public PixChargeDTO() {
-    }
-
-    public PixChargeDTO(Devedor devedor, Loc loc, String pixCopiaECola,
-                        Valor valor, String chave, Calendario calendario,
-                        String txid, List<InfoAdicionais> infoAdicionais,
-                        String location, int revisao, String status) {
-
-        this.devedor = devedor;
-        this.loc = loc;
-        this.pixCopiaECola = pixCopiaECola;
-        this.valor = valor;
-        this.chave = chave;
-        this.calendario = calendario;
-        this.txid = txid;
-        this.infoAdicionais = infoAdicionais;
-        this.location = location;
-        this.revisao = revisao;
-        this.status = status;
+        // default constructor
     }
 
     public Devedor getDevedor() {
@@ -156,11 +139,7 @@ public class PixChargeDTO implements Serializable {
         private String nome;
 
         public Devedor() {
-        }
-
-        public Devedor(String cpf, String nome) {
-            this.cpf = cpf;
-            this.nome = nome;
+            // default constructor
         }
 
         public String getCpf() {
@@ -199,13 +178,7 @@ public class PixChargeDTO implements Serializable {
         private String tipoCob;
 
         public Loc() {
-        }
-
-        public Loc(String location, int id, String criacao, String tipoCob) {
-            this.location = location;
-            this.id = id;
-            this.criacao = criacao;
-            this.tipoCob = tipoCob;
+            // default constructor
         }
 
         public String getLocation() {
@@ -259,10 +232,7 @@ public class PixChargeDTO implements Serializable {
         private String original;
 
         public Valor() {
-        }
-
-        public Valor(String original) {
-            this.original = original;
+            // default constructor
         }
 
         public String getOriginal() {
@@ -290,11 +260,7 @@ public class PixChargeDTO implements Serializable {
         private String criacao;
 
         public Calendario() {
-        }
-
-        public Calendario(int expiracao, String criacao) {
-            this.expiracao = expiracao;
-            this.criacao = criacao;
+            // default constructor
         }
 
         public int getExpiracao() {
@@ -331,11 +297,7 @@ public class PixChargeDTO implements Serializable {
         private String nome;
 
         public InfoAdicionais() {
-        }
-
-        public InfoAdicionais(String valor, String nome) {
-            this.valor = valor;
-            this.nome = nome;
+            // default constructor
         }
 
         public String getValor() {

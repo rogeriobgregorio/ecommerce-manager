@@ -75,6 +75,17 @@ public class User implements Serializable, UserDetails {
     public User() {
     }
 
+    public User(String name, String email, String phone,
+                String cpf, String password, UserRole role) {
+
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.cpf = cpf;
+        this.password = password;
+        this.role = role;
+    }
+
     public User(UUID id, String name, String email, String phone,
                 String cpf, String password, UserRole role) {
 
@@ -85,6 +96,24 @@ public class User implements Serializable, UserDetails {
         this.cpf = cpf;
         this.password = password;
         this.role = role;
+    }
+
+    private User(Builder builder) {
+        setId(builder.id);
+        setName(builder.name);
+        setEmail(builder.email);
+        setPhone(builder.phone);
+        setCpf(builder.cpf);
+        setPassword(builder.password);
+        orders = builder.orders;
+        reviews = builder.reviews;
+        setAddress(builder.address);
+        setRole(builder.role);
+        setEmailEnabled(builder.emailEnabled);
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
     }
 
     public UUID getId() {
@@ -250,11 +279,102 @@ public class User implements Serializable, UserDetails {
     @Override
     public String toString() {
         return "[User: id= " + id
-                +", name= " + name
+                + ", name= " + name
                 + ", email= " + email
                 + ", phone= " + phone
                 + ", CPF= " + cpf
                 + ", role= " + role
                 + ", email enabled= " + emailEnabled + "]";
+    }
+
+    public Builder toBuilder() {
+        return new Builder()
+                .withId(this.id)
+                .withName(this.name)
+                .withEmail(this.email)
+                .withPhone(this.phone)
+                .withCpf(this.cpf)
+                .withPassword(this.password)
+                .withOrders(this.orders)
+                .withReviews(this.reviews)
+                .withAddress(this.address)
+                .withRole(this.role)
+                .withEmailEnabled(this.emailEnabled);
+    }
+
+    public static final class Builder {
+        private UUID id;
+        private String name;
+        private String email;
+        private String phone;
+        private String cpf;
+        private String password;
+        private List<Order> orders;
+        private Set<ProductReview> reviews;
+        private Address address;
+        private UserRole role;
+        private boolean emailEnabled;
+
+        private Builder() {
+        }
+
+        public Builder withId(UUID id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder withName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder withEmail(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public Builder withPhone(String phone) {
+            this.phone = phone;
+            return this;
+        }
+
+        public Builder withCpf(String cpf) {
+            this.cpf = cpf;
+            return this;
+        }
+
+        public Builder withPassword(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public Builder withOrders(List<Order> orders) {
+            this.orders = orders;
+            return this;
+        }
+
+        public Builder withReviews(Set<ProductReview> reviews) {
+            this.reviews = reviews;
+            return this;
+        }
+
+        public Builder withAddress(Address address) {
+            this.address = address;
+            return this;
+        }
+
+        public Builder withRole(UserRole role) {
+            this.role = role;
+            return this;
+        }
+
+        public Builder withEmailEnabled(boolean emailEnabled) {
+            this.emailEnabled = emailEnabled;
+            return this;
+        }
+
+        public User build() {
+            return new User(this);
+        }
     }
 }

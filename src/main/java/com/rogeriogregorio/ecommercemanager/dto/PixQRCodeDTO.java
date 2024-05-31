@@ -13,12 +13,7 @@ public class PixQRCodeDTO implements Serializable {
     private String linkVisualizacao;
 
     public PixQRCodeDTO() {
-    }
-
-    public PixQRCodeDTO(String qrcode, String imagemQrcode, String linkVisualizacao) {
-        this.qrcode = qrcode;
-        this.imagemQrcode = imagemQrcode;
-        this.linkVisualizacao = linkVisualizacao;
+        // default constructor
     }
 
     public String getQrcode() {

@@ -168,15 +168,16 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             Product product = orderItem.getProduct();
             InventoryItem inventoryItem = findInventoryItemByProduct(product);
 
-            int purchasedQuantity = orderItem.getQuantity();
-            int remainingQuantity = inventoryItem.getQuantityInStock() - purchasedQuantity;
+            int orderItemQuantity = orderItem.getQuantity();
+            int quantityInStockUpdated = inventoryItem.getQuantityInStock() - orderItemQuantity;
+            int quantitySoldUpdated = inventoryItem.getQuantitySold() + orderItemQuantity;
 
-            if (remainingQuantity == 0) {
+            if (quantityInStockUpdated == 0) {
                 inventoryItem.setStockStatus(StockStatus.OUT_OF_STOCK);
             }
 
-            inventoryItem.setQuantityInStock(remainingQuantity);
-            inventoryItem.setQuantitySold(inventoryItem.getQuantitySold() + purchasedQuantity);
+            inventoryItem.setQuantityInStock(quantityInStockUpdated);
+            inventoryItem.setQuantitySold(quantitySoldUpdated);
 
             saveInventoryItem(inventoryItem);
         }
@@ -216,9 +217,12 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
     private void updateStockMovementEntrance(InventoryItem inventoryItem) {
 
-        Instant moment = Instant.now();
-        int quantity = inventoryItem.getQuantityInStock();
-        StockMovement stockMovement = new StockMovement(moment, inventoryItem, MovementType.ENTRANCE, quantity);
+        StockMovement stockMovement = StockMovement.newBuilder()
+                .withMoment(Instant.now())
+                .withInventoryItem(inventoryItem)
+                .withMovementType(MovementType.ENTRANCE)
+                .withQuantityMoved(inventoryItem.getQuantityInStock())
+                .build();
 
         errorHandler.catchException(() -> stockMovementRepository.save(stockMovement),
                 "Error while trying to create the inventory movement: ");
@@ -227,19 +231,19 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
     private InventoryItem buildCreateInventoryItem(InventoryItemRequest inventoryItemRequest) {
 
-        Product product = validateProductForInventory(inventoryItemRequest);
-        Integer quantityInStock = inventoryItemRequest.getQuantityInStock();
-        StockStatus stockStatus = inventoryItemRequest.getStockStatus();
-
-        return new InventoryItem(product, quantityInStock, 0, stockStatus);
+        return InventoryItem.newBuilder()
+                .withProduct(validateProductForInventory(inventoryItemRequest))
+                .withQuantityInStock(inventoryItemRequest.getQuantityInStock())
+                .withQuantitySold(0)
+                .withStockStatus(inventoryItemRequest.getStockStatus())
+                .build();
     }
 
     private InventoryItem buildUpdateInventoryItem(InventoryItemRequest inventoryItemRequest) {
 
-        InventoryItem inventoryItem = findInventoryItemById(inventoryItemRequest.getId());
-        inventoryItem.setStockStatus(inventoryItemRequest.getStockStatus());
-        inventoryItem.setQuantityInStock(inventoryItemRequest.getQuantityInStock());
-
-        return inventoryItem;
+        return findInventoryItemById(inventoryItemRequest.getId()).toBuilder()
+                .withStockStatus(inventoryItemRequest.getStockStatus())
+                .withQuantityInStock(inventoryItemRequest.getQuantityInStock())
+                .build();
     }
 }

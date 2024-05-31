@@ -60,6 +60,18 @@ public class StockMovement implements Serializable {
         this.quantityMoved = quantityMoved;
     }
 
+    private StockMovement(Builder builder) {
+        setId(builder.id);
+        setMoment(builder.moment);
+        setInventoryItem(builder.inventoryItem);
+        movementType = builder.movementType;
+        setQuantityMoved(builder.quantityMoved);
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
     public Long getId() {
         return id;
     }
@@ -125,5 +137,46 @@ public class StockMovement implements Serializable {
                 + ", inventoryItem= " + inventoryItem
                 + ", movementType= " + movementType
                 + ", quantityMoved= " + quantityMoved +"]";
+    }
+
+    public static final class Builder {
+
+        private Long id;
+        private Instant moment;
+        private InventoryItem inventoryItem;
+        private Integer movementType;
+        private Integer quantityMoved;
+
+        private Builder() {
+        }
+
+        public Builder withId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder withMoment(Instant moment) {
+            this.moment = moment;
+            return this;
+        }
+
+        public Builder withInventoryItem(InventoryItem inventoryItem) {
+            this.inventoryItem = inventoryItem;
+            return this;
+        }
+
+        public Builder withMovementType(MovementType movementType) {
+            this.movementType = movementType.getCode();
+            return this;
+        }
+
+        public Builder withQuantityMoved(Integer quantityMoved) {
+            this.quantityMoved = quantityMoved;
+            return this;
+        }
+
+        public StockMovement build() {
+            return new StockMovement(this);
+        }
     }
 }
