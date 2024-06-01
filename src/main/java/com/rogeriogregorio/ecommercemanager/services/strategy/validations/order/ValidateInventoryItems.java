@@ -19,6 +19,6 @@ public class ValidateInventoryItems implements OrderStrategy {
     @Override
     public void validateOrder(Order order) {
 
-        inventoryItemService.isListItemsAvailable(order);
+        inventoryItemService.validateItemListAvailability(order);
     }
 }

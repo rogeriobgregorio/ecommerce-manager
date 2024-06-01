@@ -52,25 +52,6 @@ public class Order implements Serializable {
     public Order() {
     }
 
-    public Order(Instant moment, OrderStatus
-            orderStatus, User client) {
-
-        this.moment = moment;
-        setOrderStatus(orderStatus);
-        this.client = client;
-    }
-
-    public Order(Long id, Instant moment, Integer orderStatus,
-                 User client, DiscountCoupon coupon, Payment payment) {
-
-        this.id = id;
-        this.moment = moment;
-        this.orderStatus = orderStatus;
-        this.client = client;
-        this.coupon = coupon;
-        this.payment = payment;
-    }
-
     private Order(Builder builder) {
         setId(builder.id);
         setMoment(builder.moment);

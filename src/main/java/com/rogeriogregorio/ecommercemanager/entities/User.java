@@ -75,29 +75,6 @@ public class User implements Serializable, UserDetails {
     public User() {
     }
 
-    public User(String name, String email, String phone,
-                String cpf, String password, UserRole role) {
-
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.cpf = cpf;
-        this.password = password;
-        this.role = role;
-    }
-
-    public User(UUID id, String name, String email, String phone,
-                String cpf, String password, UserRole role) {
-
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.cpf = cpf;
-        this.password = password;
-        this.role = role;
-    }
-
     private User(Builder builder) {
         setId(builder.id);
         setName(builder.name);

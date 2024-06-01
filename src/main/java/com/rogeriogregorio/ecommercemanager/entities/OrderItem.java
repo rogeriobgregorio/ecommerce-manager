@@ -38,13 +38,15 @@ public class OrderItem implements Serializable {
     public OrderItem() {
     }
 
-    public OrderItem(Order order, Product product,
-                     Integer quantity, BigDecimal price) {
+    private OrderItem(Builder builder) {
+        id.setOrder(builder.order);
+        id.setProduct(builder.product);
+        setQuantity(builder.quantity);
+        setPrice(builder.price);
+    }
 
-        id.setOrder(order);
-        id.setProduct(product);
-        this.quantity = quantity;
-        this.price = price;
+    public static Builder newBuilder() {
+        return new Builder();
     }
 
     @JsonIgnore
@@ -102,5 +104,47 @@ public class OrderItem implements Serializable {
         return "[Order Item: id= " + id
                 + ", quantity= " + quantity
                 +", price= " + price +"]";
+    }
+
+    public Builder toBuilder() {
+        return new Builder()
+                .withOrder(id.getOrder())
+                .withProduct(id.getProduct())
+                .withQuantity(this.quantity)
+                .withPrice(this.price);
+    }
+
+    public static final class Builder {
+        private Order order;
+        private Product product;
+        private Integer quantity;
+        private BigDecimal price;
+
+        private Builder() {
+        }
+
+        public Builder withOrder(Order order) {
+            this.order = order;
+            return this;
+        }
+
+        public Builder withProduct(Product product) {
+            this.product = product;
+            return this;
+        }
+
+        public Builder withQuantity(Integer quantity) {
+            this.quantity = quantity;
+            return this;
+        }
+
+        public Builder withPrice(BigDecimal price) {
+            this.price = price;
+            return this;
+        }
+
+        public OrderItem build() {
+            return new OrderItem(this);
+        }
     }
 }

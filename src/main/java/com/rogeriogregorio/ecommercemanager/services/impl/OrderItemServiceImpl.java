@@ -19,8 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-
 @Service
 public class OrderItemServiceImpl implements OrderItemService {
 
@@ -52,7 +50,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     public Page<OrderItemResponse> findAllOrderItems(Pageable pageable) {
 
         return errorHandler.catchException(() -> orderItemRepository.findAll(pageable),
-                "Error while trying to fetch all items of the order: ")
+                        "Error while trying to fetch all items of the order: ")
                 .map(orderItem -> dataMapper.toResponse(orderItem, OrderItemResponse.class));
     }
 
@@ -62,7 +60,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         OrderItemPK id = buildOrderItemPK(orderId, itemId);
 
         return errorHandler.catchException(() -> orderItemRepository.findById(id),
-                "Error while trying to fetch the order item by ID: ")
+                        "Error while trying to fetch the order item by ID: ")
                 .map(orderItem -> dataMapper.toResponse(orderItem, OrderItemResponse.class))
                 .orElseThrow(() -> new NotFoundException("Item not found with ID: " + id + "."));
     }
@@ -110,7 +108,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         Order order = orderService.findOrderById(orderId);
 
         if (order.isOrderPaid()) {
-            throw new IllegalStateException("It's not possible to modify the list of items: the order has already been paid for.");
+            throw new IllegalStateException("It's not possible to modify the item list of a paid order.");
         }
 
         return order;
@@ -132,12 +130,14 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         Order order = validateOrderChangeEligibility(orderItemRequest.getOrderId());
         Product product = productService.findProductById(orderItemRequest.getProductId());
-        int quantity = orderItemRequest.getQuantity();
-        BigDecimal price = product.getPriceFinal();
-        OrderItem orderItem = new OrderItem(order, product, quantity, price);
 
-        inventoryItemService.isItemAvailable(orderItem);
+        OrderItem orderItem = OrderItem.newBuilder()
+                .withOrder(order)
+                .withProduct(product)
+                .withQuantity(orderItemRequest.getQuantity())
+                .withPrice(product.getPriceFinal())
+                .build();
 
-        return orderItem;
+        return inventoryItemService.validateItemAvailability(orderItem);
     }
 }

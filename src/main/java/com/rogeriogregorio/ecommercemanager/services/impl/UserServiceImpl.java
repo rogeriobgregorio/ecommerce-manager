@@ -38,8 +38,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, MailService mailService,
-                           List<PasswordStrategy> validators, ErrorHandler errorHandler,
-                           DataMapper dataMapper, PasswordEncoder passwordEncoder) {
+                           List<PasswordStrategy> validators,
+                           ErrorHandler errorHandler, DataMapper dataMapper,
+                           PasswordEncoder passwordEncoder) {
 
         this.userRepository = userRepository;
         this.mailService = mailService;
@@ -154,7 +155,7 @@ public class UserServiceImpl implements UserService {
         logger.info("User's address updated: {}", user);
     }
 
-    private String validateUserPassword(String password) {
+    private String validatePassword(String password) {
 
         List<String> failures = new ArrayList<>();
 
@@ -173,7 +174,7 @@ public class UserServiceImpl implements UserService {
 
     private User buildCreateUser(UserRequest userRequest) {
 
-        String encodedPassword = validateUserPassword(userRequest.getPassword());
+        String encodedPassword = validatePassword(userRequest.getPassword());
         userRequest.setPassword(encodedPassword);
         userRequest.setUserRole(UserRole.CLIENT);
 
@@ -182,7 +183,7 @@ public class UserServiceImpl implements UserService {
 
     private User buildUpdateUser(UserRequest userRequest) {
 
-        String encodedPassword = validateUserPassword(userRequest.getPassword());
+        String encodedPassword = validatePassword(userRequest.getPassword());
         userRequest.setPassword(encodedPassword);
 
         User user = findUserById(userRequest.getId());

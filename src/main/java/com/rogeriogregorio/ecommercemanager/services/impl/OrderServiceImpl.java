@@ -142,7 +142,7 @@ public class OrderServiceImpl implements OrderService {
 
     private void validateOrderStatusChange(OrderRequest orderRequest, Order order) {
 
-        validators.forEach(validator -> validator.validateStatusChange(orderRequest, order));
+        validators.forEach(strategy -> strategy.validateStatusChange(orderRequest, order));
     }
 
     private void validateOrderDeleteEligibility(Order order) {

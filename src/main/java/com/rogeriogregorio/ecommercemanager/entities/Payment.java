@@ -53,19 +53,6 @@ public class Payment implements Serializable {
     public Payment() {
     }
 
-    public Payment(Long id, Instant moment, Order order,
-                   String txId, Integer paymentType,
-                   String chargeLink, Integer paymentStatus) {
-
-        this.id = id;
-        this.moment = moment;
-        this.order = order;
-        this.txId = txId;
-        this.paymentType = paymentType;
-        this.chargeLink = chargeLink;
-        this.paymentStatus = paymentStatus;
-    }
-
     private Payment(Builder builder) {
         setId(builder.id);
         setMoment(builder.moment);

@@ -41,25 +41,6 @@ public class StockMovement implements Serializable {
     public StockMovement() {
     }
 
-    public StockMovement(Instant moment, InventoryItem inventoryItem,
-                         MovementType movementType, Integer quantityMoved) {
-
-        this.moment = moment;
-        this.inventoryItem = inventoryItem;
-        setMovementType(movementType);
-        this.quantityMoved = quantityMoved;
-    }
-
-    public StockMovement(Long id, Instant moment, InventoryItem inventoryItem,
-                         MovementType movementType, Integer quantityMoved) {
-
-        this.id = id;
-        this.moment = moment;
-        this.inventoryItem = inventoryItem;
-        setMovementType(movementType);
-        this.quantityMoved = quantityMoved;
-    }
-
     private StockMovement(Builder builder) {
         setId(builder.id);
         setMoment(builder.moment);

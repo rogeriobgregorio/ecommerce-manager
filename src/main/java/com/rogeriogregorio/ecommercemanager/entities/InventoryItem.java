@@ -41,25 +41,6 @@ public class InventoryItem implements Serializable {
     public InventoryItem() {
     }
 
-    public InventoryItem(Product product, Integer quantityInStock,
-                         Integer quantitySold, StockStatus stockStatus) {
-
-        this.product = product;
-        this.quantityInStock = quantityInStock;
-        this.quantitySold = quantitySold;
-        setStockStatus(stockStatus);
-    }
-
-    public InventoryItem(Long id, Product product, Integer quantityInStock,
-                         Integer quantitySold, StockStatus stockStatus) {
-
-        this.id = id;
-        this.product = product;
-        this.quantityInStock = quantityInStock;
-        this.quantitySold = quantitySold;
-        setStockStatus(stockStatus);
-    }
-
     private InventoryItem(Builder builder) {
         setId(builder.id);
         setProduct(builder.product);

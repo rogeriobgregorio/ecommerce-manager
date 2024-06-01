@@ -116,7 +116,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 .orElseThrow(() -> new NotFoundException("Item not found in the inventory: " + product + "."));
     }
 
-    public void isListItemsAvailable(Order order) {
+    public void validateItemListAvailability(Order order) {
 
         for (OrderItem orderItem : order.getItems()) {
             Product product = orderItem.getProduct();
@@ -140,7 +140,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         }
     }
 
-    public void isItemAvailable(OrderItem orderItem) {
+    public OrderItem validateItemAvailability(OrderItem orderItem) {
 
         Product product = orderItem.getProduct();
         InventoryItem inventoryItem = findInventoryItemByProduct(product);
@@ -160,6 +160,8 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                     + ", available quantity: " + quantityInStock + "."
             );
         }
+
+        return orderItem;
     }
 
     public void updateInventoryItemQuantity(Order order) {

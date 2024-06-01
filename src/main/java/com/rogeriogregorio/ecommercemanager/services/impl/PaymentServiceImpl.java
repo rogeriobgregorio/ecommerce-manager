@@ -28,9 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -38,31 +35,29 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final InventoryItemService inventoryItemService;
     private final StockMovementService stockMovementService;
-    private final OrderService orderService;
     private final List<OrderStrategy> validators;
+    private final OrderService orderService;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Map<PaymentType, PaymentStrategy> paymentMethods;
+    private final List<PaymentStrategy> paymentMethods;
     private final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
 
     @Autowired
     public PaymentServiceImpl(PaymentRepository paymentRepository,
                               InventoryItemService inventoryItemService,
                               StockMovementService stockMovementService,
-                              OrderService orderService, List<OrderStrategy> validators,
+                              List<OrderStrategy> validators, OrderService orderService,
                               ErrorHandler errorHandler, DataMapper dataMapper,
                               List<PaymentStrategy> paymentMethods) {
 
         this.paymentRepository = paymentRepository;
         this.inventoryItemService = inventoryItemService;
         this.stockMovementService = stockMovementService;
-        this.orderService = orderService;
         this.validators = validators;
+        this.orderService = orderService;
         this.errorHandler = errorHandler;
         this.dataMapper = dataMapper;
-        this.paymentMethods = paymentMethods.stream()
-                .collect(Collectors.toMap(PaymentStrategy::getSupportedPaymentMethod, Function.identity())
-                );
+        this.paymentMethods = paymentMethods;
     }
 
     @Transactional(readOnly = true)
@@ -75,17 +70,36 @@ public class PaymentServiceImpl implements PaymentService {
 
     public PaymentResponse createPaymentProcess(PaymentRequest paymentRequest) {
 
-        PaymentType paymentType = paymentRequest.getPaymentType();
-        PaymentStrategy strategy = paymentMethods.get(paymentType);
+        Order order = orderService.findOrderById(paymentRequest.getOrderId());
+        validateOrder(order);
 
-        if (strategy == null) {
-            throw new IllegalArgumentException("Payment method not supported: " + paymentType);
-        }
-        return strategy.createPayment(paymentRequest);
+        Payment payment = getPaymentStrategy(paymentRequest).createPayment(order);
+
+        errorHandler.catchException(() -> paymentRepository.save(payment),
+                "Error while trying to create paid payment with charge: ");
+        logger.info("Payment with charge saved: {}", payment);
+
+        return dataMapper.toResponse(payment, PaymentResponse.class);
+    }
+
+    private void validateOrder(Order order) {
+
+        validators.forEach(strategy -> strategy.validateOrder(order));
+    }
+
+    private PaymentStrategy getPaymentStrategy(PaymentRequest paymentRequest) {
+
+        PaymentType paymentType = paymentRequest.getPaymentType();
+
+        return paymentMethods
+                .stream()
+                .filter(strategy -> strategy.getSupportedPaymentMethod().equals(paymentType))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Payment method not supported: " + paymentType));
     }
 
     @Transactional(readOnly = false)
-    public void savePaidPaymentsFromWebHook(PixWebhookDTO pixWebhookDTO) {
+    public void savePaidCharges(PixWebhookDTO pixWebhookDTO) {
 
         List<Payment> paidPayments = buildPaidPayments(pixWebhookDTO);
 
@@ -96,6 +110,13 @@ public class PaymentServiceImpl implements PaymentService {
 
             updateInventoryStock(paidPayment);
         }
+    }
+
+    private void updateInventoryStock(Payment payment) {
+
+        Order orderPaid = payment.getOrder();
+        inventoryItemService.updateInventoryItemQuantity(orderPaid);
+        stockMovementService.updateStockMovementExit(orderPaid);
     }
 
     @Transactional(readOnly = true)
@@ -129,18 +150,6 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
-    private void validateOrderToBePaid(Order order) {
-
-        validators.forEach(validator -> validator.validateOrder(order));
-    }
-
-    private void updateInventoryStock(Payment payment) {
-
-        Order orderPaid = payment.getOrder();
-        inventoryItemService.updateInventoryItemQuantity(orderPaid);
-        stockMovementService.updateStockMovementExit(orderPaid);
-    }
-
     private Payment findByTxId(String txId) {
 
         return errorHandler.catchException(() -> paymentRepository.findByTxId(txId),
@@ -162,11 +171,12 @@ public class PaymentServiceImpl implements PaymentService {
             orderToBePaid.setOrderStatus(OrderStatus.PAID);
             orderService.savePaidOrder(orderToBePaid);
 
-            paymentList.add(payment.toBuilder()
+            payment.toBuilder()
                     .withOrder(orderToBePaid)
                     .withPaymentStatus(PaymentStatus.CONCLUDED)
-                    .build()
-            );
+                    .build();
+
+            paymentList.add(payment);
         }
         return paymentList;
     }
