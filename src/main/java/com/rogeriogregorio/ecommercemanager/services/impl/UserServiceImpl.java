@@ -1,5 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.services.impl;
 
+import com.rogeriogregorio.ecommercemanager.dto.PasswordResetDTO;
 import com.rogeriogregorio.ecommercemanager.dto.requests.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.User;
@@ -73,15 +74,27 @@ public class UserServiceImpl implements UserService {
         userRequest.setId(null);
         User user = buildCreateUser(userRequest);
 
-        user.setEmailEnabled(true);//TODO
+        user.setEmailEnabled(true);// TODO remover essa linha
 
         errorHandler.catchException(() -> userRepository.save(user),
                 "Error while trying to register the user: ");
         logger.info("User registered: {}", user);
 
-//        CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user));//TODO
+        //CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user));// TODO reativar método
 
         return dataMapper.toResponse(user, UserResponse.class);
+    }
+
+    @Transactional(readOnly = false)
+    public void saveNewPassword(PasswordResetDTO PasswordResetDTO) {
+
+        User user = findUserByEmail(PasswordResetDTO.getEmail()).toBuilder()
+                .withPassword(validatePassword(PasswordResetDTO.getPassword()))
+                .build();
+
+        errorHandler.catchException(() -> userRepository.save(user),
+                "Error while trying to update user password: ");
+        logger.info("User password updated: {}", user.toString());
     }
 
     @Transactional(readOnly = false)
@@ -134,6 +147,13 @@ public class UserServiceImpl implements UserService {
         return errorHandler.catchException(() -> userRepository.findById(id),
                         "Error while trying to fetch the user by ID: " + id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id + "."));
+    }
+
+    public User findUserByEmail(String email) {
+
+        return errorHandler.catchException(() -> userRepository.findUserByEmail(email),
+                        "Error while trying to fetch the user by email: " + email)
+                .orElseThrow(() -> new NotFoundException("User not found with email: " + email + "."));
     }
 
     private void isUserExists(UUID id) {
@@ -194,9 +214,8 @@ public class UserServiceImpl implements UserService {
 
     private User buildAdminOrManagerUser(UserRequest userRequest) {
 
-        User user = findUserById(userRequest.getId());
-        user.setRole(userRequest.getUserRole());
-
-        return user;
+        return findUserById(userRequest.getId()).toBuilder()
+                .withRole(userRequest.getUserRole())
+                .build();
     }
 }

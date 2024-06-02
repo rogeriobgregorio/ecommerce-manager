@@ -3,7 +3,7 @@ package com.rogeriogregorio.ecommercemanager.dto;
 import java.io.Serial;
 import java.io.Serializable;
 
-public class RecoverPasswordDTO implements Serializable {
+public class PasswordResetDTO implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -12,10 +12,10 @@ public class RecoverPasswordDTO implements Serializable {
     private String password;
     private String token;
 
-    public RecoverPasswordDTO() {
+    public PasswordResetDTO() {
     }
 
-    public RecoverPasswordDTO(String email, String password, String token) {
+    public PasswordResetDTO(String email, String password, String token) {
         this.email = email;
         this.password = password;
         this.token = token;

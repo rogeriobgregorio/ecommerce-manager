@@ -46,7 +46,7 @@ public class UserController {
             @Valid @RequestBody UserRequest userRequest) {
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
+                .status(HttpStatus.OK)
                 .body(userService.createAdminOrManagerUser(userRequest));
     }
 

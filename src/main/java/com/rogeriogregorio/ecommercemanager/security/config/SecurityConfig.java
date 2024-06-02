@@ -42,7 +42,7 @@ public class SecurityConfig {
                     .authorizeHttpRequests(authorize -> authorize
                             .requestMatchers(HttpMethod.POST, "/api/v1/register").permitAll()
                             .requestMatchers(HttpMethod.POST, "/api/v1/authenticate").permitAll()
-                            .requestMatchers(HttpMethod.GET, "/api/v1/validate-email/search").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/v1/email/validate/search").permitAll()
                             .requestMatchers(HttpMethod.POST, "/api/v1/webhook/pix").permitAll()
                             .requestMatchers(HttpMethod.POST, "/api/v1/webhook").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/v1/pix/paid-charges/search").hasAnyRole("ADMIN", "MANAGER")
