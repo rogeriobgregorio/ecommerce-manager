@@ -4,12 +4,16 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.rogeriogregorio.ecommercemanager.dto.PasswordResetDTO;
+import com.rogeriogregorio.ecommercemanager.dto.ReceiptPaymentDTO;
 import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
+import com.rogeriogregorio.ecommercemanager.entities.Payment;
 import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
+import com.rogeriogregorio.ecommercemanager.exceptions.PasswordException;
 import com.rogeriogregorio.ecommercemanager.exceptions.TokenJwtException;
 import com.rogeriogregorio.ecommercemanager.mail.MailService;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
+import com.rogeriogregorio.ecommercemanager.services.strategy.validations.PasswordStrategy;
 import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import jakarta.mail.internet.MimeMessage;
@@ -20,21 +24,26 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class MailServiceImpl implements MailService {
 
     private static final String ISSUER_NAME = "ecommerce-manager";
-    private static final String SENDER = "ecommercemanager@mailservice.com";
+    private static final String SENDER_EMAIL = "ecommercemanager@mailservice.com";
+    private static final String RECEIPT_PAYMENT = "Receipt of Payment";
     private static final String EMAIL_VERIFICATION_PROCESS = "Email Verification Process";
-    private static final String PASSWORD_RESET_PROCESS = "Password reset process";
+    private static final String PASSWORD_RESET_PROCESS = "Password Reset Process";
+    private static final String RECEIPT_PAYMENT_EMAIL_HTML = "templates/receipt-payment-email.html";
     private static final String VERIFICATION_EMAIL_HTML = "templates/verification-email.html";
     private static final String PASSWORD_RESET_HTML = "templates/password-reset-email.html";
 
@@ -42,22 +51,52 @@ public class MailServiceImpl implements MailService {
     private String secretKey;
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final List<PasswordStrategy> validators;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
     private final Logger logger = LogManager.getLogger(MailServiceImpl.class);
 
     @Autowired
     public MailServiceImpl(JavaMailSender mailSender, UserRepository userRepository,
+                           PasswordEncoder passwordEncoder, List<PasswordStrategy> validators,
                            ErrorHandler errorHandler, DataMapper dataMapper) {
 
         this.mailSender = mailSender;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.validators = validators;
         this.errorHandler = errorHandler;
         this.dataMapper = dataMapper;
     }
 
     private Instant generateExpirationDate() {
         return Instant.now().plus(2, ChronoUnit.HOURS);
+    }
+
+    public void sendPaymentReceiptEmail(Payment payment) {
+
+        ReceiptPaymentDTO receiptPaymentDTO = new ReceiptPaymentDTO(payment);
+
+        errorHandler.catchException(() -> {
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper messageHelper = new MimeMessageHelper(message, true);
+
+            messageHelper.setFrom(SENDER_EMAIL);
+            messageHelper.setSubject(RECEIPT_PAYMENT);
+            messageHelper.setTo(receiptPaymentDTO.getClienteEmail());
+
+            String emailTemplate = getEmailTemplate(RECEIPT_PAYMENT_EMAIL_HTML);
+            emailTemplate = emailTemplate.replace("#{receipt}", receiptPaymentDTO.toString());
+
+            messageHelper.setText(emailTemplate, true);
+
+            mailSender.send(message);
+            logger.info("Email with payment receipt sent to: {}", receiptPaymentDTO.getClienteEmail());
+
+            return null;
+        }, "Error while trying to send email with payment receipt: ");
     }
 
     public void sendVerificationEmail(User user) {
@@ -69,7 +108,7 @@ public class MailServiceImpl implements MailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper messageHelper = new MimeMessageHelper(message, true);
 
-            messageHelper.setFrom(SENDER);
+            messageHelper.setFrom(SENDER_EMAIL);
             messageHelper.setSubject(EMAIL_VERIFICATION_PROCESS);
             messageHelper.setTo(user.getEmail());
 
@@ -96,7 +135,7 @@ public class MailServiceImpl implements MailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper messageHelper = new MimeMessageHelper(message, true);
 
-            messageHelper.setFrom(SENDER);
+            messageHelper.setFrom(SENDER_EMAIL);
             messageHelper.setSubject(PASSWORD_RESET_PROCESS);
             messageHelper.setTo(user.getEmail());
 
@@ -134,6 +173,7 @@ public class MailServiceImpl implements MailService {
                         .withSubject(user.getEmail())
                         .withClaim("userId", String.valueOf(user.getId()))
                         .withClaim("userEmail", user.getEmail())
+                        .withClaim("userPassword", user.getPassword())
                         .withExpiresAt(generateExpirationDate())
                         .sign(algorithm),
                 "Error while trying to generate email verification token"
@@ -190,9 +230,14 @@ public class MailServiceImpl implements MailService {
             throw new NotFoundException("The user with the token email was not found");
         }
 
+        String userPasswordFromToken = decodedJWT.getClaim("userPassword").asString();
+        if (!userPasswordFromToken.equals(user.getPassword())) {
+            throw new TokenJwtException("Invalid password reset token");
+        }
+
         Instant expirationDate = decodedJWT.getExpiresAt().toInstant();
         if (expirationDate.isBefore(Instant.now())) {
-            throw new TokenJwtException("Email verification token has expired");
+            throw new TokenJwtException("Password reset token has expired");
         }
 
         user.setPassword(passwordResetDTO.getPassword());
@@ -227,8 +272,27 @@ public class MailServiceImpl implements MailService {
     @Transactional(readOnly = false)
     public void saveNewPassword(User user) {
 
+        String passwordEncode = validatePassword(user.getPassword());
+        user.setPassword(passwordEncode);
         errorHandler.catchException(() -> userRepository.save(user),
                 "Error while trying to update user password: ");
         logger.info("User password updated: {}", user.toString());
+    }
+
+    private String validatePassword(String password) {
+
+        List<String> failures = new ArrayList<>();
+
+        for (PasswordStrategy strategy : validators) {
+            if (!strategy.validatePassword(password)) {
+                failures.add(strategy.getRequirement());
+            }
+        }
+
+        if (!failures.isEmpty()) {
+            throw new PasswordException("The password must have at least: " + failures + ".");
+        }
+
+        return passwordEncoder.encode(password);
     }
 }

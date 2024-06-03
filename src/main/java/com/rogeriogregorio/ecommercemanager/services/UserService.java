@@ -19,8 +19,6 @@ public interface UserService {
 
     UserResponse createAdminOrManagerUser(UserRequest userRequest);
 
-    void saveNewPassword(PasswordResetDTO PasswordResetDTO);
-
     UserResponse findUserResponseById(UUID id);
 
     User findUserById(UUID id);

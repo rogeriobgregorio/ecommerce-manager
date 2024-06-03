@@ -35,7 +35,7 @@ public class PixController {
     @PostMapping("/webhook/pix")
     public ResponseEntity<Void> webhookPix(@RequestBody PixWebhookDTO pixWebhookDTO) {
 
-        paymentService.savePaidCharges(pixWebhookDTO);
+        paymentService.savePaidPixCharges(pixWebhookDTO);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

@@ -51,6 +51,18 @@ public class ProductReview implements Serializable {
         this.moment = moment;
     }
 
+    private ProductReview(Builder builder) {
+        id.setProduct(builder.product);
+        id.setUser(builder.user);
+        setRating(builder.rating);
+        setComment(builder.comment);
+        setMoment(builder.moment);
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
     @JsonIgnore
     public Product getProduct() {
         return id.getProduct();
@@ -111,5 +123,55 @@ public class ProductReview implements Serializable {
                 + ", rating= " + rating
                 + ", comment= " + comment
                 + ", moment= " + moment + "]";
+    }
+
+    public Builder toBuilder() {
+        return new Builder()
+                .withProduct(this.id.getProduct())
+                .withUser(this.id.getUser())
+                .withRating(this.rating)
+                .withComment(this.comment)
+                .withMoment(this.moment);
+
+    }
+
+    public static final class Builder {
+        private Product product;
+        private User user;
+        private Integer rating;
+        private String comment;
+        private Instant moment;
+
+        private Builder() {
+        }
+
+        public Builder withProduct(Product product) {
+            this.product = product;
+            return this;
+        }
+
+        public Builder withUser(User user) {
+            this.user = user;
+            return this;
+        }
+
+        public Builder withRating(Integer rating) {
+            this.rating = rating;
+            return this;
+        }
+
+        public Builder withComment(String comment) {
+            this.comment = comment;
+            return this;
+        }
+
+        public Builder withMoment(Instant moment) {
+            this.moment = moment;
+            return this;
+        }
+
+        public ProductReview build() {
+            return new ProductReview(this);
+        }
     }
 }

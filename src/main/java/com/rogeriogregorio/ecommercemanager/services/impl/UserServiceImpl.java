@@ -86,18 +86,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional(readOnly = false)
-    public void saveNewPassword(PasswordResetDTO PasswordResetDTO) {
-
-        User user = findUserByEmail(PasswordResetDTO.getEmail()).toBuilder()
-                .withPassword(validatePassword(PasswordResetDTO.getPassword()))
-                .build();
-
-        errorHandler.catchException(() -> userRepository.save(user),
-                "Error while trying to update user password: ");
-        logger.info("User password updated: {}", user.toString());
-    }
-
-    @Transactional(readOnly = false)
     public UserResponse updateUser(UserRequest userRequest) {
 
         isUserExists(userRequest.getId());

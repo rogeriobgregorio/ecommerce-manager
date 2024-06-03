@@ -129,9 +129,13 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         Product product = productService.findProductById(productReviewRequest.getProductId());
         User user = userService.findUserById(productReviewRequest.getUserId());
         validateProductReview(user, product);
-        Integer rating = productReviewRequest.getRating();
-        String comment = productReviewRequest.getComment();
 
-        return new ProductReview(product, user, rating, comment, Instant.now());
+        return ProductReview.newBuilder()
+                .withProduct(product)
+                .withUser(user)
+                .withRating(productReviewRequest.getRating())
+                .withComment(productReviewRequest.getComment())
+                .withMoment(Instant.now())
+                .build();
     }
 }

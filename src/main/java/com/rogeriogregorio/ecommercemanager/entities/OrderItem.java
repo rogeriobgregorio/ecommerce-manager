@@ -108,8 +108,8 @@ public class OrderItem implements Serializable {
 
     public Builder toBuilder() {
         return new Builder()
-                .withOrder(id.getOrder())
-                .withProduct(id.getProduct())
+                .withOrder(this.id.getOrder())
+                .withProduct(this.id.getProduct())
                 .withQuantity(this.quantity)
                 .withPrice(this.price);
     }

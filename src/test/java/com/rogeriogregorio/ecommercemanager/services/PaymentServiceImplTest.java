@@ -59,7 +59,7 @@ class PaymentServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        paymentService = new PaymentServiceImpl(paymentRepository, inventoryItemService, stockMovementService, orderService, discountCouponService, discountCouponService1, converter, validators);
+        paymentService = new PaymentServiceImpl(paymentRepository, inventoryItemService, stockMovementService, mailService, orderService, discountCouponService, discountCouponService1, converter, validators);
     }
 
     @Test

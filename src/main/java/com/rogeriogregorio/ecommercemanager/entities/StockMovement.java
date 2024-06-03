@@ -120,6 +120,15 @@ public class StockMovement implements Serializable {
                 + ", quantityMoved= " + quantityMoved +"]";
     }
 
+    public Builder toBuilder() {
+        return new Builder()
+                .withId(this.id)
+                .withMoment(this.moment)
+                .withInventoryItem(this.inventoryItem)
+                .withMovementType(MovementType.valueOf(this.movementType))
+                .withQuantityMoved(this.quantityMoved);
+    }
+
     public static final class Builder {
 
         private Long id;

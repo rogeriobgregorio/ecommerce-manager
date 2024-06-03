@@ -1,6 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.services.impl;
 
 import com.rogeriogregorio.ecommercemanager.dto.PixWebhookDTO;
+import com.rogeriogregorio.ecommercemanager.dto.ReceiptPaymentDTO;
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
@@ -9,6 +10,7 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentStatus;
 import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
+import com.rogeriogregorio.ecommercemanager.mail.MailService;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
@@ -35,29 +37,35 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final InventoryItemService inventoryItemService;
     private final StockMovementService stockMovementService;
-    private final List<OrderStrategy> validators;
+    private final MailService mailService;
     private final OrderService orderService;
+    private final List<OrderStrategy> validators;
+    private final List<PaymentStrategy> paymentMethods;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final List<PaymentStrategy> paymentMethods;
+
     private final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
 
     @Autowired
     public PaymentServiceImpl(PaymentRepository paymentRepository,
                               InventoryItemService inventoryItemService,
                               StockMovementService stockMovementService,
-                              List<OrderStrategy> validators, OrderService orderService,
-                              ErrorHandler errorHandler, DataMapper dataMapper,
-                              List<PaymentStrategy> paymentMethods) {
+                              MailService mailService,
+                              OrderService orderService,
+                              List<OrderStrategy> validators,
+                              List<PaymentStrategy> paymentMethods,
+                              ErrorHandler errorHandler,
+                              DataMapper dataMapper) {
 
         this.paymentRepository = paymentRepository;
         this.inventoryItemService = inventoryItemService;
         this.stockMovementService = stockMovementService;
-        this.validators = validators;
+        this.mailService = mailService;
         this.orderService = orderService;
+        this.validators = validators;
+        this.paymentMethods = paymentMethods;
         this.errorHandler = errorHandler;
         this.dataMapper = dataMapper;
-        this.paymentMethods = paymentMethods;
     }
 
     @Transactional(readOnly = true)
@@ -99,16 +107,17 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Transactional(readOnly = false)
-    public void savePaidCharges(PixWebhookDTO pixWebhookDTO) {
+    public void savePaidPixCharges(PixWebhookDTO pixWebhookDTO) {
 
-        List<Payment> paidPayments = buildPaidPayments(pixWebhookDTO);
+        List<Payment> paidPixChargeList = buildPaidPixCharges(pixWebhookDTO);
 
-        for (Payment paidPayment : paidPayments) {
-            errorHandler.catchException(() -> paymentRepository.save(paidPayment),
-                    "Error while trying to save payment with paid charge: ");
-            logger.info("Payment with paid charge saved: {}", paidPayment);
+        for (Payment paymentPix : paidPixChargeList) {
+            errorHandler.catchException(() -> paymentRepository.save(paymentPix),
+                    "Error while trying to save paymentPix with paid charge: ");
+            logger.info("Payment pix with paid charge saved: {}", paymentPix);
 
-            updateInventoryStock(paidPayment);
+            updateInventoryStock(paymentPix);
+            //CompletableFuture.runAsync(() -> mailService.sendPaymentReceiptEmail(paymentPix));// TODO reativar método
         }
     }
 
@@ -157,28 +166,28 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(() -> new NotFoundException("Payment not found with txId: " + txId + "."));
     }
 
-    private List<Payment> buildPaidPayments(PixWebhookDTO pixWebhookDTO) {
+    private List<Payment> buildPaidPixCharges(PixWebhookDTO pixWebhookDTO) {
 
         List<PixWebhookDTO.Pix> pixList = pixWebhookDTO.getPix();
-        List<Payment> paymentList = new ArrayList<>();
+        List<Payment> paidPixChargeList = new ArrayList<>();
 
         for (PixWebhookDTO.Pix pix : pixList) {
-            Payment payment = findByTxId(pix.getTxid());
+            Payment paymentPix = findByTxId(pix.getTxid());
 
-            Long orderId = payment.getOrder().getId();
-            Order orderToBePaid = orderService.findOrderById(orderId);
-            orderToBePaid.setPayment(payment);
-            orderToBePaid.setOrderStatus(OrderStatus.PAID);
-            orderService.savePaidOrder(orderToBePaid);
+            Long orderId = paymentPix.getOrder().getId();
+            Order order = orderService.findOrderById(orderId);
+            order.setPayment(paymentPix);
+            order.setOrderStatus(OrderStatus.PAID);
+            orderService.savePaidOrder(order);
 
-            payment.toBuilder()
-                    .withOrder(orderToBePaid)
+            paymentPix.toBuilder()
+                    .withOrder(order)
                     .withPaymentStatus(PaymentStatus.CONCLUDED)
                     .build();
 
-            paymentList.add(payment);
+            paidPixChargeList.add(paymentPix);
         }
-        return paymentList;
+        return paidPixChargeList;
     }
 }
 

@@ -14,7 +14,7 @@ public interface PaymentService {
 
     PaymentResponse createPaymentProcess(PaymentRequest paymentRequest);
 
-    void savePaidCharges(PixWebhookDTO pixWebhookDTO);
+    void savePaidPixCharges(PixWebhookDTO pixWebhookDTO);
 
     PaymentResponse findPaymentById(Long id);
 
