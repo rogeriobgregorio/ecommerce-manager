@@ -46,6 +46,7 @@ public class MailServiceImpl implements MailService {
     private static final String RECEIPT_PAYMENT_EMAIL_HTML = "templates/receipt-payment-email.html";
     private static final String VERIFICATION_EMAIL_HTML = "templates/verification-email.html";
     private static final String PASSWORD_RESET_HTML = "templates/password-reset-email.html";
+    private static final Instant EXPIRATION_DATE = Instant.now().plus(2, ChronoUnit.HOURS);
 
     @Value("${api.security.token.secret}")
     private String secretKey;
@@ -58,9 +59,12 @@ public class MailServiceImpl implements MailService {
     private final Logger logger = LogManager.getLogger(MailServiceImpl.class);
 
     @Autowired
-    public MailServiceImpl(JavaMailSender mailSender, UserRepository userRepository,
-                           PasswordEncoder passwordEncoder, List<PasswordStrategy> validators,
-                           ErrorHandler errorHandler, DataMapper dataMapper) {
+    public MailServiceImpl(JavaMailSender mailSender,
+                           UserRepository userRepository,
+                           PasswordEncoder passwordEncoder,
+                           List<PasswordStrategy> validators,
+                           ErrorHandler errorHandler,
+                           DataMapper dataMapper) {
 
         this.mailSender = mailSender;
         this.userRepository = userRepository;
@@ -68,10 +72,6 @@ public class MailServiceImpl implements MailService {
         this.validators = validators;
         this.errorHandler = errorHandler;
         this.dataMapper = dataMapper;
-    }
-
-    private Instant generateExpirationDate() {
-        return Instant.now().plus(2, ChronoUnit.HOURS);
     }
 
     public void sendPaymentReceiptEmail(Payment payment) {
@@ -174,14 +174,31 @@ public class MailServiceImpl implements MailService {
                         .withClaim("userId", String.valueOf(user.getId()))
                         .withClaim("userEmail", user.getEmail())
                         .withClaim("userPassword", user.getPassword())
-                        .withExpiresAt(generateExpirationDate())
+                        .withExpiresAt(EXPIRATION_DATE)
                         .sign(algorithm),
                 "Error while trying to generate email verification token"
         );
     }
 
-    @Transactional(readOnly = false)
     public UserResponse validateEmailVerificationToken(String token) {
+
+        String validationType = "email verification";
+        User user = validateToken(token, validationType);
+
+        saveEmailAsEnabled(user);
+        return dataMapper.toResponse(user, UserResponse.class);
+    }
+
+    public void validatePasswordResetToken(PasswordResetDTO passwordResetDTO) {
+
+        String validationType = "reset password";
+        User user = validateToken(passwordResetDTO.getToken(), validationType);
+
+        user.setPassword(passwordResetDTO.getPassword());
+        saveNewPassword(user);
+    }
+
+    private User validateToken(String token, String validationType) {
 
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
@@ -190,36 +207,7 @@ public class MailServiceImpl implements MailService {
                         .withIssuer(ISSUER_NAME)
                         .build()
                         .verify(token),
-                "Error while trying to validate the email validation token"
-        );
-
-        String userIdFromToken = decodedJWT.getClaim("userId").asString();
-        User user = findUserByIdFromToken(userIdFromToken);
-
-        String userEmailFromToken = decodedJWT.getClaim("userEmail").asString();
-        if (!userEmailFromToken.equals(user.getEmail())) {
-            throw new NotFoundException("The user with the token email was not found");
-        }
-
-        Instant expirationDate = decodedJWT.getExpiresAt().toInstant();
-        if (expirationDate.isBefore(Instant.now())) {
-            throw new TokenJwtException("Email verification token has expired");
-        }
-
-        saveEmailAsEnabled(user);
-        return dataMapper.toResponse(user, UserResponse.class);
-    }
-
-    public void validatePasswordResetToken(PasswordResetDTO passwordResetDTO) {
-
-        Algorithm algorithm = Algorithm.HMAC256(secretKey);
-
-        DecodedJWT decodedJWT = errorHandler.catchException(
-                () -> JWT.require(algorithm)
-                        .withIssuer(ISSUER_NAME)
-                        .build()
-                        .verify(passwordResetDTO.getToken()),
-                "Error while trying to validate the recover password token"
+                "Error while trying to validate the" + validationType + "token"
         );
 
         String userIdFromToken = decodedJWT.getClaim("userId").asString();
@@ -232,16 +220,15 @@ public class MailServiceImpl implements MailService {
 
         String userPasswordFromToken = decodedJWT.getClaim("userPassword").asString();
         if (!userPasswordFromToken.equals(user.getPassword())) {
-            throw new TokenJwtException("Invalid password reset token");
+            throw new TokenJwtException("Invalid" + validationType + "token");
         }
 
         Instant expirationDate = decodedJWT.getExpiresAt().toInstant();
         if (expirationDate.isBefore(Instant.now())) {
-            throw new TokenJwtException("Password reset token has expired");
+            throw new TokenJwtException("The" + validationType + "token has expired");
         }
 
-        user.setPassword(passwordResetDTO.getPassword());
-        saveNewPassword(user);
+        return user;
     }
 
     @Transactional(readOnly = true)

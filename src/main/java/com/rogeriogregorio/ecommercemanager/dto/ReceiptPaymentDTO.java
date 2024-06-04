@@ -46,8 +46,7 @@ public class ReceiptPaymentDTO {
                         .getProduct()
                         .getName()
                         + " (Quantity: " + item.getQuantity()
-                        + ", Subtotal: " + item.getSubTotal()
-                        + ")"
+                        + ", Subtotal: " + item.getSubTotal() + ")"
                 ).collect(Collectors.toList());
         this.subtotal = order.getSubTotal();
         if (order.isDiscountCouponPresent() && order.getCoupon().isValid()) {
@@ -61,33 +60,33 @@ public class ReceiptPaymentDTO {
     @Override
     public String toString() {
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("E-COMMERCE MANAGER\n");
-        sb.append("Recibo de Pagamento\n");
-        sb.append("====================\n");
-        sb.append("Id do pagamento: ").append(paymentId).append("\n");
-        sb.append("Data: ").append(paymentMoment).append("\n");
-        sb.append("Id da transação: ").append(transactionId).append("\n");
-        sb.append("Tipo de pagamento: ").append(paymentType).append("\n");
-        sb.append("Status do pagamento: ").append(paymentStatus).append("\n");
-        sb.append("Link da cobrança: ").append(chargeLink).append("\n");
-        sb.append("\nDetalhes do Pedido\n");
-        sb.append("====================\n");
-        sb.append("Id do pedido: ").append(orderId).append("\n");
-        sb.append("Data do pedido: ").append(orderMoment).append("\n");
-        sb.append("Status do pedido: ").append(orderStatus).append("\n");
-        sb.append("Cliente: ").append(clientName).append("\n");
-        sb.append("\nItens:\n");
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("E-COMMERCE MANAGER\n");
+        stringBuilder.append("Recibo de Pagamento\n");
+        stringBuilder.append("====================\n");
+        stringBuilder.append("Id do pagamento: ").append(paymentId).append("\n");
+        stringBuilder.append("Data: ").append(paymentMoment).append("\n");
+        stringBuilder.append("Id da transação: ").append(transactionId).append("\n");
+        stringBuilder.append("Tipo de pagamento: ").append(paymentType).append("\n");
+        stringBuilder.append("Status do pagamento: ").append(paymentStatus).append("\n");
+        stringBuilder.append("Link da cobrança: ").append(chargeLink).append("\n");
+        stringBuilder.append("\nDetalhes do Pedido\n");
+        stringBuilder.append("====================\n");
+        stringBuilder.append("Id do pedido: ").append(orderId).append("\n");
+        stringBuilder.append("Data do pedido: ").append(orderMoment).append("\n");
+        stringBuilder.append("Status do pedido: ").append(orderStatus).append("\n");
+        stringBuilder.append("Cliente: ").append(clientName).append("\n");
+        stringBuilder.append("\nItens:\n");
         for (String item : items) {
-            sb.append(" - ").append(item).append("\n");
+            stringBuilder.append(" - ").append(item).append("\n");
         }
-        sb.append("\nSubtotal: ").append(subtotal).append("\n");
-        sb.append("Desconto: ").append(discount).append("%\n");
-        sb.append("Valor total pago: ").append(totalAmountPaid).append("\n");
-        sb.append("====================\n");
-        sb.append("Muito obrigado pela sua compra!\n");
+        stringBuilder.append("\nSubtotal: ").append(subtotal).append("\n");
+        stringBuilder.append("Desconto: ").append(discount).append("%\n");
+        stringBuilder.append("Valor total pago: ").append(totalAmountPaid).append("\n");
+        stringBuilder.append("====================\n");
+        stringBuilder.append("Muito obrigado pela sua compra!\n");
 
-        return sb.toString();
+        return stringBuilder.toString();
     }
 
     public Long getPaymentId() {
