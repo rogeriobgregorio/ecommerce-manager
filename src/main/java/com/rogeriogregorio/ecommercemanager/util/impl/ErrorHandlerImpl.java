@@ -43,7 +43,7 @@ public class ErrorHandlerImpl implements ErrorHandler {
 
         } catch (MappingException ex) {
             logger.error("MappingException: {}", ex.getMessage());
-            throw new ConverterException(errorMessage, ex);
+            throw new DataMapperException(errorMessage, ex);
 
         } catch (MessagingException ex) {
             logger.error("MessagingException: {}", ex.getMessage());
@@ -51,7 +51,7 @@ public class ErrorHandlerImpl implements ErrorHandler {
 
         } catch (EfiPayException ex) {
             logger.error("EfiPayException: {}, {}", ex.getError(), ex.getErrorDescription());
-            throw new PixException(errorMessage, ex);
+            throw new PaymentException(errorMessage, ex);
 
         } catch (IOException ex) {
             logger.error("IOException: {}", ex.getMessage());

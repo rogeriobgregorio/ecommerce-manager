@@ -3,7 +3,7 @@ package com.rogeriogregorio.ecommercemanager.payment.impl;
 import br.com.efi.efisdk.EfiPay;
 import com.rogeriogregorio.ecommercemanager.dto.*;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
-import com.rogeriogregorio.ecommercemanager.exceptions.PixException;
+import com.rogeriogregorio.ecommercemanager.exceptions.PaymentException;
 import com.rogeriogregorio.ecommercemanager.payment.CredentialService;
 import com.rogeriogregorio.ecommercemanager.payment.PixService;
 import com.rogeriogregorio.ecommercemanager.util.DataMapper;
@@ -67,7 +67,7 @@ public class PixServiceImpl implements PixService {
     public EvpKeyDto recoverCreateEvpKey(Exception ex) {
 
         logger.error("Failed to create EVP after retries: {}", ex.getMessage());
-        throw new PixException("Unable to create EVP after multiple attempts", ex);
+        throw new PaymentException("Unable to create EVP after multiple attempts", ex);
     }
 
     @Retryable(retryFor = { Exception.class }, maxAttempts = 10, backoff = @Backoff(delay = 5000, multiplier = 2))
@@ -91,7 +91,7 @@ public class PixServiceImpl implements PixService {
     public PixChargeDto recoverCreateImmediatePixCharge(Exception ex, Order order) {
 
         logger.error("Failed to create immediate Pix charge after retries: {}", ex.getMessage());
-        throw new PixException("Unable to create Pix charge after multiple attempts", ex);
+        throw new PaymentException("Unable to create Pix charge after multiple attempts", ex);
     }
 
     @Retryable(retryFor = { Exception.class }, maxAttempts = 10, backoff = @Backoff(delay = 5000, multiplier = 2))
@@ -118,7 +118,7 @@ public class PixServiceImpl implements PixService {
     public PixQRCodeDto recoverGeneratePixQRCode(Exception ex, PixChargeDto pixCharge) {
 
         logger.error("Failed to generate Pix QRCode link after retries: {}", ex.getMessage());
-        throw new PixException("Unable to generate Pix QRCode link after multiple attempts", ex);
+        throw new PaymentException("Unable to generate Pix QRCode link after multiple attempts", ex);
     }
 
     @Retryable(retryFor = { Exception.class }, maxAttempts = 10, backoff = @Backoff(delay = 5000, multiplier = 2))
@@ -141,7 +141,7 @@ public class PixServiceImpl implements PixService {
     public PixListChargeDto recoverListPixCharges(Exception ex, String startDate, String endDate) {
 
         logger.error("Failed to list Pix charges after retries: {}", ex.getMessage());
-        throw new PixException("Unable to list Pix charges after multiple attempts", ex);
+        throw new PaymentException("Unable to list Pix charges after multiple attempts", ex);
     }
 
     private JSONObject buildChargeBody(Order order) {

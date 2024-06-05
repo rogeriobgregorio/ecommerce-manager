@@ -38,7 +38,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final StockMovementService stockMovementService;
     private final MailService mailService;
     private final OrderService orderService;
-    private final List<OrderStrategy> validators;
+    private final List<OrderStrategy> orderValidators;
     private final List<PaymentStrategy> paymentMethods;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
@@ -51,7 +51,7 @@ public class PaymentServiceImpl implements PaymentService {
                               StockMovementService stockMovementService,
                               MailService mailService,
                               OrderService orderService,
-                              List<OrderStrategy> validators,
+                              List<OrderStrategy> orderValidators,
                               List<PaymentStrategy> paymentMethods,
                               ErrorHandler errorHandler,
                               DataMapper dataMapper) {
@@ -61,7 +61,7 @@ public class PaymentServiceImpl implements PaymentService {
         this.stockMovementService = stockMovementService;
         this.mailService = mailService;
         this.orderService = orderService;
-        this.validators = validators;
+        this.orderValidators = orderValidators;
         this.paymentMethods = paymentMethods;
         this.errorHandler = errorHandler;
         this.dataMapper = dataMapper;
@@ -78,7 +78,7 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentResponse createPaymentProcess(PaymentRequest paymentRequest) {
 
         Order order = orderService.findOrderById(paymentRequest.getOrderId());
-        validateOrder(order);
+        orderValidators.forEach(strategy -> strategy.validateOrder(order));
 
         Payment payment = getPaymentStrategy(paymentRequest).createPayment(order);
 
@@ -89,17 +89,11 @@ public class PaymentServiceImpl implements PaymentService {
         return dataMapper.toResponse(payment, PaymentResponse.class);
     }
 
-    private void validateOrder(Order order) {
-
-        validators.forEach(strategy -> strategy.validateOrder(order));
-    }
-
     private PaymentStrategy getPaymentStrategy(PaymentRequest paymentRequest) {
 
         PaymentType paymentType = paymentRequest.getPaymentType();
 
-        return paymentMethods
-                .stream()
+        return paymentMethods.stream()
                 .filter(strategy -> strategy.getSupportedPaymentMethod().equals(paymentType))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Payment method not supported: " + paymentType));

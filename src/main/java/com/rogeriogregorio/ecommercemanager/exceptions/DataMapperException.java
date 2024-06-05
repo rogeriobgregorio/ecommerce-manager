@@ -3,16 +3,16 @@ package com.rogeriogregorio.ecommercemanager.exceptions;
 import java.io.Serial;
 import java.io.Serializable;
 
-public class PixException extends RuntimeException implements Serializable {
+public class DataMapperException extends RuntimeException implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    public PixException(String message) {
+    public DataMapperException(String message) {
         super(message);
     }
 
-    public PixException(String message, Throwable cause) {
+    public DataMapperException(String message, Throwable cause) {
         super(message, cause);
     }
 }

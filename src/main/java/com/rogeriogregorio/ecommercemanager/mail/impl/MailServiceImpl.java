@@ -6,7 +6,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.rogeriogregorio.ecommercemanager.dto.EmailDetailsDto;
 import com.rogeriogregorio.ecommercemanager.dto.PasswordResetDto;
 import com.rogeriogregorio.ecommercemanager.dto.ReceiptPaymentDto;
-import com.rogeriogregorio.ecommercemanager.dto.TokenClaimContextDto;
+import com.rogeriogregorio.ecommercemanager.dto.UserTokenDetailsDto;
 import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Payment;
 import com.rogeriogregorio.ecommercemanager.entities.User;
@@ -15,7 +15,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.PasswordException;
 import com.rogeriogregorio.ecommercemanager.mail.MailService;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.strategy.validations.PasswordStrategy;
-import com.rogeriogregorio.ecommercemanager.services.strategy.validations.TokenClaimStrategy;
+import com.rogeriogregorio.ecommercemanager.services.strategy.validations.TokenStrategy;
 import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import jakarta.mail.internet.MimeMessage;
@@ -54,7 +54,7 @@ public class MailServiceImpl implements MailService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final List<PasswordStrategy> passwordValidators;
-    private final List<TokenClaimStrategy> tokenValidators;
+    private final List<TokenStrategy> tokenValidators;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
     private final Logger logger = LogManager.getLogger(MailServiceImpl.class);
@@ -64,7 +64,7 @@ public class MailServiceImpl implements MailService {
                            UserRepository userRepository,
                            PasswordEncoder passwordEncoder,
                            List<PasswordStrategy> passwordValidators,
-                           List<TokenClaimStrategy> tokenValidators,
+                           List<TokenStrategy> tokenValidators,
                            ErrorHandler errorHandler,
                            DataMapper dataMapper) {
 
@@ -95,8 +95,8 @@ public class MailServiceImpl implements MailService {
 
             messageHelper.setText(emailTemplate, true);
             mailSender.send(message);
-
             logger.info("Email sent to: {}", emailDetails.getRecipient());
+
             return null;
         }, emailDetails.getErrorMessage());
     }
@@ -214,7 +214,8 @@ public class MailServiceImpl implements MailService {
         String userIdFromToken = decodedJWT.getClaim("userId").asString();
         User user = findUserByIdFromToken(userIdFromToken);
 
-        validateTokenClaim(new TokenClaimContextDto(user, decodedJWT));
+        UserTokenDetailsDto userTokenDetails = new UserTokenDetailsDto(user, decodedJWT);
+        tokenValidators.forEach(strategy -> strategy.validateTokenClaim(userTokenDetails));
 
         return user;
     }
@@ -252,11 +253,6 @@ public class MailServiceImpl implements MailService {
         errorHandler.catchException(() -> userRepository.save(user),
                 "Error while trying to update user password: ");
         logger.info("User password updated: {}", user.toString());
-    }
-
-    private void validateTokenClaim(TokenClaimContextDto tokenClaimContext) {
-
-        tokenValidators.forEach(strategy -> strategy.validateTokenClaim(tokenClaimContext));
     }
 
     private String validatePassword(String password) {

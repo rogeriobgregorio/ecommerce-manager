@@ -111,11 +111,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    @ExceptionHandler(ConverterException.class)
-    public ResponseEntity<StandardError> handleConverterException(ConverterException ex) {
+    @ExceptionHandler(DataMapperException.class)
+    public ResponseEntity<StandardError> handleConverterException(DataMapperException ex) {
 
         StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR,
-                "ConverterException: data conversion error", ex.getMessage());
+                "DataMapperException: data conversion error", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
@@ -175,11 +175,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
-    @ExceptionHandler(PixException.class)
-    public ResponseEntity<StandardError> handlePixException(PixException ex) {
+    @ExceptionHandler(PaymentException.class)
+    public ResponseEntity<StandardError> handlePixException(PaymentException ex) {
 
         StandardError error = new StandardError(HttpStatus.INTERNAL_SERVER_ERROR,
-                "PixException: error during Pix payment execution", ex.getMessage());
+                "PaymentException: error during Pix payment execution", ex.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 

@@ -29,7 +29,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final UserService userService;
     private final DiscountCouponService discountCouponService;
-    private final List<OrderStatusStrategy> validators;
+    private final List<OrderStatusStrategy> statusValidators;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
     private final Logger logger = LogManager.getLogger(OrderServiceImpl.class);
@@ -37,13 +37,13 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     public OrderServiceImpl(OrderRepository orderRepository, UserService userService,
                             DiscountCouponService discountCouponService,
-                            List<OrderStatusStrategy> validators,
+                            List<OrderStatusStrategy> statusValidators,
                             ErrorHandler errorHandler, DataMapper dataMapper) {
 
         this.orderRepository = orderRepository;
         this.userService = userService;
         this.discountCouponService = discountCouponService;
-        this.validators = validators;
+        this.statusValidators = statusValidators;
         this.errorHandler = errorHandler;
         this.dataMapper = dataMapper;
     }
@@ -140,11 +140,6 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + "."));
     }
 
-    private void validateOrderStatusChange(OrderRequest orderRequest, Order order) {
-
-        validators.forEach(strategy -> strategy.validateStatusChange(orderRequest, order));
-    }
-
     private void validateOrderDeleteEligibility(Order order) {
 
         boolean isOrderPaid = order.isOrderPaid();
@@ -203,7 +198,8 @@ public class OrderServiceImpl implements OrderService {
                 .withOrderStatus(orderRequest.getOrderStatus())
                 .build();
 
-        validateOrderStatusChange(orderRequest, order);
+        statusValidators.forEach(strategy -> strategy
+                .validateStatusChange(orderRequest, order));
 
         return order;
     }
