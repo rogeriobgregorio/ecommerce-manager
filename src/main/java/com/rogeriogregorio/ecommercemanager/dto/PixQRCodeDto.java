@@ -3,7 +3,7 @@ package com.rogeriogregorio.ecommercemanager.dto;
 import java.io.Serial;
 import java.io.Serializable;
 
-public class PixQRCodeDTO implements Serializable {
+public class PixQRCodeDto implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -12,7 +12,7 @@ public class PixQRCodeDTO implements Serializable {
     private String imagemQrcode;
     private String linkVisualizacao;
 
-    public PixQRCodeDTO() {
+    public PixQRCodeDto() {
         // default constructor
     }
 
@@ -42,7 +42,7 @@ public class PixQRCodeDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "PixQRCodeDTO {" +
+        return "PixQRCodeDto {" +
                 "\n  qrcode: " + qrcode +
                 "\n  imagemQrcode: " + imagemQrcode +
                 "\n  linkVisualizacao: " + linkVisualizacao +

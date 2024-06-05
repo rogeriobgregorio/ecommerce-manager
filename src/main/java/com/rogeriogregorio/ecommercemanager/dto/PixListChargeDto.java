@@ -4,7 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
-public class PixListChargeDTO implements Serializable {
+public class PixListChargeDto implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -12,7 +12,7 @@ public class PixListChargeDTO implements Serializable {
     private List<Cob> cobs;
     private Parametros parametros;
 
-    public PixListChargeDTO() {
+    public PixListChargeDto() {
         // default constructor
     }
 
@@ -34,7 +34,7 @@ public class PixListChargeDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "PixListChargeDTO {" +
+        return "PixListChargeDto {" +
                 "\n  cobs: " + cobs +
                 "\n  parametros: " + parametros +
                 "\n}";

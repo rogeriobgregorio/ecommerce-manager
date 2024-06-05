@@ -1,7 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.services.strategy.payments.methods;
 
-import com.rogeriogregorio.ecommercemanager.dto.PixChargeDTO;
-import com.rogeriogregorio.ecommercemanager.dto.PixQRCodeDTO;
+import com.rogeriogregorio.ecommercemanager.dto.PixChargeDto;
+import com.rogeriogregorio.ecommercemanager.dto.PixQRCodeDto;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.Payment;
 import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
@@ -27,8 +27,8 @@ public class PixPayment implements PaymentStrategy {
     @Override
     public Payment createPayment(Order order) {
 
-        PixChargeDTO pixCharge = pixService.createImmediatePixCharge(order);
-        PixQRCodeDTO pixQRCode = pixService.generatePixQRCode(pixCharge);
+        PixChargeDto pixCharge = pixService.createImmediatePixCharge(order);
+        PixQRCodeDto pixQRCode = pixService.generatePixQRCode(pixCharge);
 
         return Payment.newBuilder()
                 .withMoment(Instant.now())

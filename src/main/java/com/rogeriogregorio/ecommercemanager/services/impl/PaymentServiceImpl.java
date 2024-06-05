@@ -1,7 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.services.impl;
 
-import com.rogeriogregorio.ecommercemanager.dto.PixWebhookDTO;
-import com.rogeriogregorio.ecommercemanager.dto.ReceiptPaymentDTO;
+import com.rogeriogregorio.ecommercemanager.dto.PixWebhookDto;
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
@@ -107,9 +106,9 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Transactional(readOnly = false)
-    public void savePaidPixCharges(PixWebhookDTO pixWebhookDTO) {
+    public void savePaidPixCharges(PixWebhookDto pixWebhook) {
 
-        List<Payment> paidPixChargeList = buildPaidPixCharges(pixWebhookDTO);
+        List<Payment> paidPixChargeList = buildPaidPixCharges(pixWebhook);
 
         for (Payment paymentPix : paidPixChargeList) {
             errorHandler.catchException(() -> paymentRepository.save(paymentPix),
@@ -166,12 +165,12 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(() -> new NotFoundException("Payment not found with txId: " + txId + "."));
     }
 
-    private List<Payment> buildPaidPixCharges(PixWebhookDTO pixWebhookDTO) {
+    private List<Payment> buildPaidPixCharges(PixWebhookDto pixWebhook) {
 
-        List<PixWebhookDTO.Pix> pixList = pixWebhookDTO.getPix();
+        List<PixWebhookDto.Pix> pixList = pixWebhook.getPix();
         List<Payment> paidPixChargeList = new ArrayList<>();
 
-        for (PixWebhookDTO.Pix pix : pixList) {
+        for (PixWebhookDto.Pix pix : pixList) {
             Payment paymentPix = findByTxId(pix.getTxid());
 
             Long orderId = paymentPix.getOrder().getId();

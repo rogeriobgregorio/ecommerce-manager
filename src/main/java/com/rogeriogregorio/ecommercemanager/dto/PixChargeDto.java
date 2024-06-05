@@ -4,7 +4,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
-public class PixChargeDTO implements Serializable {
+public class PixChargeDto implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -21,7 +21,7 @@ public class PixChargeDTO implements Serializable {
     private int revisao;
     private String status;
 
-    public PixChargeDTO() {
+    public PixChargeDto() {
         // default constructor
     }
 
@@ -115,7 +115,7 @@ public class PixChargeDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "PixChargeDTO {" +
+        return "PixChargeDto {" +
                 "\n  devedor: " + devedor +
                 "\n  loc: " + loc +
                 "\n  pixCopiaECola: " + pixCopiaECola +

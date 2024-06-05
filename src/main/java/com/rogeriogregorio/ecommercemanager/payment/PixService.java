@@ -1,20 +1,20 @@
 package com.rogeriogregorio.ecommercemanager.payment;
 
-import com.rogeriogregorio.ecommercemanager.dto.PixChargeDTO;
-import com.rogeriogregorio.ecommercemanager.dto.PixEVPKeyDTO;
-import com.rogeriogregorio.ecommercemanager.dto.PixListChargeDTO;
-import com.rogeriogregorio.ecommercemanager.dto.PixQRCodeDTO;
+import com.rogeriogregorio.ecommercemanager.dto.EvpKeyDto;
+import com.rogeriogregorio.ecommercemanager.dto.PixChargeDto;
+import com.rogeriogregorio.ecommercemanager.dto.PixListChargeDto;
+import com.rogeriogregorio.ecommercemanager.dto.PixQRCodeDto;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 public interface PixService {
 
-    PixEVPKeyDTO createPixEVPKey();
+    EvpKeyDto createEvpKey();
 
-    PixChargeDTO createImmediatePixCharge(Order order);
+    PixChargeDto createImmediatePixCharge(Order order);
 
-    PixQRCodeDTO generatePixQRCode(PixChargeDTO pixCharge);
+    PixQRCodeDto generatePixQRCode(PixChargeDto pixCharge);
 
-    PixListChargeDTO listPixCharges(String startDate, String endDate);
+    PixListChargeDto listPixCharges(String startDate, String endDate);
 }

@@ -1,12 +1,13 @@
 package com.rogeriogregorio.ecommercemanager.controllers;
 
-import com.rogeriogregorio.ecommercemanager.dto.PasswordResetDTO;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.rogeriogregorio.ecommercemanager.dto.PasswordResetDto;
 import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
 import com.rogeriogregorio.ecommercemanager.mail.MailService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,8 +30,10 @@ public class MailController {
     }
 
     @PostMapping(value = "/mail/password-reset")
-    public ResponseEntity<Void> sendPasswordResetEmail(
-            @Valid @RequestBody PasswordResetDTO passwordResetDTO) {
+    public ResponseEntity<Void> postRequestPasswordReset(
+            @Validated(PasswordResetDto.View.Request.class)
+            @JsonView(PasswordResetDto.View.Request.class)
+            @RequestBody PasswordResetDto passwordResetDTO) {
 
         mailService.sendPasswordResetEmail(passwordResetDTO);
 
@@ -40,8 +43,10 @@ public class MailController {
     }
 
     @PutMapping(value = "/mail/password-reset")
-    public ResponseEntity<Void> resetPassword(
-            @Valid @RequestBody PasswordResetDTO passwordResetDTO) {
+    public ResponseEntity<Void> putResetPassword(
+            @Validated(PasswordResetDto.View.Reset.class)
+            @JsonView(PasswordResetDto.View.Reset.class)
+            @RequestBody PasswordResetDto passwordResetDTO) {
 
         mailService.validatePasswordResetToken(passwordResetDTO);
 

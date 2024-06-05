@@ -1,6 +1,5 @@
 package com.rogeriogregorio.ecommercemanager.services;
 
-import com.rogeriogregorio.ecommercemanager.dto.PasswordResetDTO;
 import com.rogeriogregorio.ecommercemanager.dto.requests.UserRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.User;

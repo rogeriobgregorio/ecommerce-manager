@@ -1,7 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.controllers;
 
-import com.rogeriogregorio.ecommercemanager.dto.PixListChargeDTO;
-import com.rogeriogregorio.ecommercemanager.dto.PixWebhookDTO;
+import com.rogeriogregorio.ecommercemanager.dto.PixListChargeDto;
+import com.rogeriogregorio.ecommercemanager.dto.PixWebhookDto;
 import com.rogeriogregorio.ecommercemanager.payment.PixService;
 import com.rogeriogregorio.ecommercemanager.services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class PixController {
     }
 
     @GetMapping("/pix/paid-charges/search")
-    public ResponseEntity<PixListChargeDTO> getAllPixCharges(
+    public ResponseEntity<PixListChargeDto> getAllPixCharges(
             @RequestParam("startDate") String startDate,
             @RequestParam("endDate") String endDate) {
 
@@ -33,9 +33,9 @@ public class PixController {
     }
 
     @PostMapping("/webhook/pix")
-    public ResponseEntity<Void> webhookPix(@RequestBody PixWebhookDTO pixWebhookDTO) {
+    public ResponseEntity<Void> webhookPix(@RequestBody PixWebhookDto pixWebhook) {
 
-        paymentService.savePaidPixCharges(pixWebhookDTO);
+        paymentService.savePaidPixCharges(pixWebhook);
 
         return ResponseEntity
                 .status(HttpStatus.OK)

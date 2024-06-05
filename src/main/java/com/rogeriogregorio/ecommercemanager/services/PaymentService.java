@@ -1,6 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.services;
 
-import com.rogeriogregorio.ecommercemanager.dto.PixWebhookDTO;
+import com.rogeriogregorio.ecommercemanager.dto.PixWebhookDto;
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
 import org.springframework.data.domain.Page;
@@ -14,7 +14,7 @@ public interface PaymentService {
 
     PaymentResponse createPaymentProcess(PaymentRequest paymentRequest);
 
-    void savePaidPixCharges(PixWebhookDTO pixWebhookDTO);
+    void savePaidPixCharges(PixWebhookDto pixWebhook);
 
     PaymentResponse findPaymentById(Long id);
 

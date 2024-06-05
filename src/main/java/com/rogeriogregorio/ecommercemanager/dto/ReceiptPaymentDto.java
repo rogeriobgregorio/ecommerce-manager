@@ -3,31 +3,36 @@ package com.rogeriogregorio.ecommercemanager.dto;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.entities.Payment;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ReceiptPaymentDTO {
+public class ReceiptPaymentDto implements Serializable {
 
-    private Long paymentId;
-    private Instant paymentMoment;
-    private String transactionId;
-    private String paymentType;
-    private String paymentStatus;
-    private String chargeLink;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-    private Long orderId;
-    private Instant orderMoment;
-    private String orderStatus;
-    private String clientName;
-    private String clienteEmail;
-    private List<String> items;
-    private BigDecimal subtotal;
-    private BigDecimal discount;
-    private BigDecimal totalAmountPaid;
+    private final Long paymentId;
+    private final Instant paymentMoment;
+    private final String transactionId;
+    private final String paymentType;
+    private final String paymentStatus;
+    private final String chargeLink;
 
-    public ReceiptPaymentDTO(Payment payment) {
+    private final Long orderId;
+    private final Instant orderMoment;
+    private final String orderStatus;
+    private final String clientName;
+    private final String clienteEmail;
+    private final List<String> items;
+    private final BigDecimal subtotal;
+    private final BigDecimal discount;
+    private final BigDecimal totalAmountPaid;
+
+    public ReceiptPaymentDto(Payment payment) {
         this.paymentId = payment.getId();
         this.paymentMoment = payment.getMoment();
         this.transactionId = payment.getTxId();
@@ -60,33 +65,33 @@ public class ReceiptPaymentDTO {
     @Override
     public String toString() {
 
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("E-COMMERCE MANAGER\n");
-        stringBuilder.append("Recibo de Pagamento\n");
-        stringBuilder.append("====================\n");
-        stringBuilder.append("Id do pagamento: ").append(paymentId).append("\n");
-        stringBuilder.append("Data: ").append(paymentMoment).append("\n");
-        stringBuilder.append("Id da transação: ").append(transactionId).append("\n");
-        stringBuilder.append("Tipo de pagamento: ").append(paymentType).append("\n");
-        stringBuilder.append("Status do pagamento: ").append(paymentStatus).append("\n");
-        stringBuilder.append("Link da cobrança: ").append(chargeLink).append("\n");
-        stringBuilder.append("\nDetalhes do Pedido\n");
-        stringBuilder.append("====================\n");
-        stringBuilder.append("Id do pedido: ").append(orderId).append("\n");
-        stringBuilder.append("Data do pedido: ").append(orderMoment).append("\n");
-        stringBuilder.append("Status do pedido: ").append(orderStatus).append("\n");
-        stringBuilder.append("Cliente: ").append(clientName).append("\n");
-        stringBuilder.append("\nItens:\n");
+        StringBuilder receipt = new StringBuilder();
+        receipt.append("E-COMMERCE MANAGER\n");
+        receipt.append("Recibo de Pagamento\n");
+        receipt.append("====================\n");
+        receipt.append("Id do pagamento: ").append(paymentId).append("\n");
+        receipt.append("Data: ").append(paymentMoment).append("\n");
+        receipt.append("Id da transação: ").append(transactionId).append("\n");
+        receipt.append("Tipo de pagamento: ").append(paymentType).append("\n");
+        receipt.append("Status do pagamento: ").append(paymentStatus).append("\n");
+        receipt.append("Link da cobrança: ").append(chargeLink).append("\n");
+        receipt.append("\nDetalhes do Pedido\n");
+        receipt.append("====================\n");
+        receipt.append("Id do pedido: ").append(orderId).append("\n");
+        receipt.append("Data do pedido: ").append(orderMoment).append("\n");
+        receipt.append("Status do pedido: ").append(orderStatus).append("\n");
+        receipt.append("Cliente: ").append(clientName).append("\n");
+        receipt.append("\nItens:\n");
         for (String item : items) {
-            stringBuilder.append(" - ").append(item).append("\n");
+            receipt.append(" - ").append(item).append("\n");
         }
-        stringBuilder.append("\nSubtotal: ").append(subtotal).append("\n");
-        stringBuilder.append("Desconto: ").append(discount).append("%\n");
-        stringBuilder.append("Valor total pago: ").append(totalAmountPaid).append("\n");
-        stringBuilder.append("====================\n");
-        stringBuilder.append("Muito obrigado pela sua compra!\n");
+        receipt.append("\nSubtotal: ").append(subtotal).append("\n");
+        receipt.append("Desconto: ").append(discount).append("%\n");
+        receipt.append("Valor total pago: ").append(totalAmountPaid).append("\n");
+        receipt.append("====================\n");
+        receipt.append("Muito obrigado pela sua compra!\n");
 
-        return stringBuilder.toString();
+        return receipt.toString();
     }
 
     public Long getPaymentId() {

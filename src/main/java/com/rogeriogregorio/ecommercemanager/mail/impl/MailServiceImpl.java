@@ -3,17 +3,19 @@ package com.rogeriogregorio.ecommercemanager.mail.impl;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.rogeriogregorio.ecommercemanager.dto.PasswordResetDTO;
-import com.rogeriogregorio.ecommercemanager.dto.ReceiptPaymentDTO;
+import com.rogeriogregorio.ecommercemanager.dto.EmailDetailsDto;
+import com.rogeriogregorio.ecommercemanager.dto.PasswordResetDto;
+import com.rogeriogregorio.ecommercemanager.dto.ReceiptPaymentDto;
+import com.rogeriogregorio.ecommercemanager.dto.TokenClaimContextDto;
 import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Payment;
 import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.PasswordException;
-import com.rogeriogregorio.ecommercemanager.exceptions.TokenJwtException;
 import com.rogeriogregorio.ecommercemanager.mail.MailService;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.strategy.validations.PasswordStrategy;
+import com.rogeriogregorio.ecommercemanager.services.strategy.validations.TokenClaimStrategy;
 import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import jakarta.mail.internet.MimeMessage;
@@ -31,9 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class MailServiceImpl implements MailService {
@@ -43,7 +43,7 @@ public class MailServiceImpl implements MailService {
     private static final String RECEIPT_PAYMENT = "Receipt of Payment";
     private static final String EMAIL_VERIFICATION_PROCESS = "Email Verification Process";
     private static final String PASSWORD_RESET_PROCESS = "Password Reset Process";
-    private static final String RECEIPT_PAYMENT_EMAIL_HTML = "templates/receipt-payment-email.html";
+    private static final String RECEIPT_PAYMENT_HTML = "templates/receipt-payment-email.html";
     private static final String VERIFICATION_EMAIL_HTML = "templates/verification-email.html";
     private static final String PASSWORD_RESET_HTML = "templates/password-reset-email.html";
     private static final Instant EXPIRATION_DATE = Instant.now().plus(2, ChronoUnit.HOURS);
@@ -53,7 +53,8 @@ public class MailServiceImpl implements MailService {
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final List<PasswordStrategy> validators;
+    private final List<PasswordStrategy> passwordValidators;
+    private final List<TokenClaimStrategy> tokenValidators;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
     private final Logger logger = LogManager.getLogger(MailServiceImpl.class);
@@ -62,21 +63,21 @@ public class MailServiceImpl implements MailService {
     public MailServiceImpl(JavaMailSender mailSender,
                            UserRepository userRepository,
                            PasswordEncoder passwordEncoder,
-                           List<PasswordStrategy> validators,
+                           List<PasswordStrategy> passwordValidators,
+                           List<TokenClaimStrategy> tokenValidators,
                            ErrorHandler errorHandler,
                            DataMapper dataMapper) {
 
         this.mailSender = mailSender;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.validators = validators;
+        this.passwordValidators = passwordValidators;
+        this.tokenValidators = tokenValidators;
         this.errorHandler = errorHandler;
         this.dataMapper = dataMapper;
     }
 
-    public void sendPaymentReceiptEmail(Payment payment) {
-
-        ReceiptPaymentDTO receiptPaymentDTO = new ReceiptPaymentDTO(payment);
+    private void sendEmail(EmailDetailsDto emailDetails) {
 
         errorHandler.catchException(() -> {
 
@@ -84,72 +85,74 @@ public class MailServiceImpl implements MailService {
             MimeMessageHelper messageHelper = new MimeMessageHelper(message, true);
 
             messageHelper.setFrom(SENDER_EMAIL);
-            messageHelper.setSubject(RECEIPT_PAYMENT);
-            messageHelper.setTo(receiptPaymentDTO.getClienteEmail());
+            messageHelper.setSubject(emailDetails.getSubject());
+            messageHelper.setTo(emailDetails.getRecipient());
 
-            String emailTemplate = getEmailTemplate(RECEIPT_PAYMENT_EMAIL_HTML);
-            emailTemplate = emailTemplate.replace("#{receipt}", receiptPaymentDTO.toString());
+            String emailTemplate = getEmailTemplate(emailDetails.getTemplateName());
+            for (Map.Entry<String, String> entry : emailDetails.getReplacements().entrySet()) {
+                emailTemplate = emailTemplate.replace(entry.getKey(), entry.getValue());
+            }
 
             messageHelper.setText(emailTemplate, true);
-
             mailSender.send(message);
-            logger.info("Email with payment receipt sent to: {}", receiptPaymentDTO.getClienteEmail());
 
+            logger.info("Email sent to: {}", emailDetails.getRecipient());
             return null;
-        }, "Error while trying to send email with payment receipt: ");
+        }, emailDetails.getErrorMessage());
     }
 
     public void sendVerificationEmail(User user) {
 
         String token = generateEmailToken(user);
 
-        errorHandler.catchException(() -> {
+        Map<String, String> replacements = new HashMap<>();
+        replacements.put("#{name}", user.getName());
+        replacements.put("#{token}", token);
 
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper messageHelper = new MimeMessageHelper(message, true);
-
-            messageHelper.setFrom(SENDER_EMAIL);
-            messageHelper.setSubject(EMAIL_VERIFICATION_PROCESS);
-            messageHelper.setTo(user.getEmail());
-
-            String emailTemplate = getEmailTemplate(VERIFICATION_EMAIL_HTML);
-            emailTemplate = emailTemplate.replace("#{name}", user.getName());
-            emailTemplate = emailTemplate.replace("#{token}", token);
-
-            messageHelper.setText(emailTemplate, true);
-
-            mailSender.send(message);
-            logger.info("Verification email sent to: {}", user.getEmail());
-
-            return null;
-        }, "Error while trying to send verification email: ");
+        sendEmail(EmailDetailsDto.newBuilder()
+                .withSubject(EMAIL_VERIFICATION_PROCESS)
+                .withRecipient(user.getEmail())
+                .withTemplateName(VERIFICATION_EMAIL_HTML)
+                .withReplacements(replacements)
+                .withErrorMessage("Error while trying to send verification email")
+                .build()
+        );
     }
 
-    public void sendPasswordResetEmail(PasswordResetDTO PasswordResetDTO) {
+    public void sendPaymentReceiptEmail(Payment payment) {
 
-        User user = findUserByEmail(PasswordResetDTO.getEmail());
+        ReceiptPaymentDto receiptPayment = new ReceiptPaymentDto(payment);
+
+        Map<String, String> replacements = new HashMap<>();
+        replacements.put("#{receipt}", receiptPayment.toString());
+
+        sendEmail(EmailDetailsDto.newBuilder()
+                .withSubject(RECEIPT_PAYMENT)
+                .withRecipient(receiptPayment.getClienteEmail())
+                .withTemplateName(RECEIPT_PAYMENT_HTML)
+                .withReplacements(replacements)
+                .withErrorMessage("Error while trying to send email with payment receipt")
+                .build()
+        );
+    }
+
+    public void sendPasswordResetEmail(PasswordResetDto passwordReset) {
+
+        User user = findUserByEmail(passwordReset.getEmail());
         String token = generateEmailToken(user);
 
-        errorHandler.catchException(() -> {
+        Map<String, String> replacements = new HashMap<>();
+        replacements.put("#{name}", user.getName());
+        replacements.put("#{token}", token);
 
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper messageHelper = new MimeMessageHelper(message, true);
-
-            messageHelper.setFrom(SENDER_EMAIL);
-            messageHelper.setSubject(PASSWORD_RESET_PROCESS);
-            messageHelper.setTo(user.getEmail());
-
-            String emailTemplate = getEmailTemplate(PASSWORD_RESET_HTML);
-            emailTemplate = emailTemplate.replace("#{name}", user.getName());
-            emailTemplate = emailTemplate.replace("#{token}", token);
-
-            messageHelper.setText(emailTemplate, true);
-
-            mailSender.send(message);
-            logger.info("Password recovery email sent to: {}", user.getEmail());
-
-            return null;
-        }, "Error while trying to send password recovery email: ");
+        sendEmail(EmailDetailsDto.newBuilder()
+                .withSubject(PASSWORD_RESET_PROCESS)
+                .withRecipient(user.getEmail())
+                .withTemplateName(PASSWORD_RESET_HTML)
+                .withReplacements(replacements)
+                .withErrorMessage("Error while trying to send password reset email")
+                .build()
+        );
     }
 
     private String getEmailTemplate(String path) {
@@ -182,23 +185,21 @@ public class MailServiceImpl implements MailService {
 
     public UserResponse validateEmailVerificationToken(String token) {
 
-        String validationType = "email verification";
-        User user = validateToken(token, validationType);
+        User user = validateToken(token);
 
         saveEmailAsEnabled(user);
         return dataMapper.toResponse(user, UserResponse.class);
     }
 
-    public void validatePasswordResetToken(PasswordResetDTO passwordResetDTO) {
+    public void validatePasswordResetToken(PasswordResetDto passwordReset) {
 
-        String validationType = "reset password";
-        User user = validateToken(passwordResetDTO.getToken(), validationType);
+        User user = validateToken(passwordReset.getToken());
 
-        user.setPassword(passwordResetDTO.getPassword());
+        user.setPassword(passwordReset.getPassword());
         saveNewPassword(user);
     }
 
-    private User validateToken(String token, String validationType) {
+    private User validateToken(String token) {
 
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
@@ -207,26 +208,13 @@ public class MailServiceImpl implements MailService {
                         .withIssuer(ISSUER_NAME)
                         .build()
                         .verify(token),
-                "Error while trying to validate the" + validationType + "token"
+                "Error while trying to validate the token"
         );
 
         String userIdFromToken = decodedJWT.getClaim("userId").asString();
         User user = findUserByIdFromToken(userIdFromToken);
 
-        String userEmailFromToken = decodedJWT.getClaim("userEmail").asString();
-        if (!userEmailFromToken.equals(user.getEmail())) {
-            throw new NotFoundException("The user with the token email was not found");
-        }
-
-        String userPasswordFromToken = decodedJWT.getClaim("userPassword").asString();
-        if (!userPasswordFromToken.equals(user.getPassword())) {
-            throw new TokenJwtException("Invalid" + validationType + "token");
-        }
-
-        Instant expirationDate = decodedJWT.getExpiresAt().toInstant();
-        if (expirationDate.isBefore(Instant.now())) {
-            throw new TokenJwtException("The" + validationType + "token has expired");
-        }
+        validateTokenClaim(new TokenClaimContextDto(user, decodedJWT));
 
         return user;
     }
@@ -266,11 +254,16 @@ public class MailServiceImpl implements MailService {
         logger.info("User password updated: {}", user.toString());
     }
 
+    private void validateTokenClaim(TokenClaimContextDto tokenClaimContext) {
+
+        tokenValidators.forEach(strategy -> strategy.validateTokenClaim(tokenClaimContext));
+    }
+
     private String validatePassword(String password) {
 
         List<String> failures = new ArrayList<>();
 
-        for (PasswordStrategy strategy : validators) {
+        for (PasswordStrategy strategy : passwordValidators) {
             if (!strategy.validatePassword(password)) {
                 failures.add(strategy.getRequirement());
             }

@@ -3,14 +3,14 @@ package com.rogeriogregorio.ecommercemanager.dto;
 import java.io.Serial;
 import java.io.Serializable;
 
-public class PixEVPKeyDTO implements Serializable {
+public class EvpKeyDto implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     private String chave;
 
-    public PixEVPKeyDTO() {
+    public EvpKeyDto() {
         // default constructor
     }
 
@@ -24,7 +24,7 @@ public class PixEVPKeyDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "PixEVPKeyDTO {" +
+        return "EvpKeyDto {" +
                 "\n  chave: " + chave +
                 "\n}";
     }
