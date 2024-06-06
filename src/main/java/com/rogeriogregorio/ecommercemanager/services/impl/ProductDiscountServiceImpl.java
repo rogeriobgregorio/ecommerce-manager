@@ -46,8 +46,9 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
     @Transactional(readOnly = false)
     public ProductDiscountResponse createProductDiscount(ProductDiscountRequest productDiscountRequest) {
 
-        productDiscountRequest.setId(null);
-        ProductDiscount productDiscount = buildProductDiscount(productDiscountRequest);
+        validateProductDiscountDates(productDiscountRequest);
+
+        ProductDiscount productDiscount = dataMapper.toEntity(productDiscountRequest, ProductDiscount.class);
 
         errorHandler.catchException(() -> productDiscountRepository.save(productDiscount),
                 "Error while trying to create the product discount: ");
@@ -66,10 +67,12 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
     }
 
     @Transactional(readOnly = false)
-    public ProductDiscountResponse updateProductDiscount(ProductDiscountRequest productDiscountRequest) {
+    public ProductDiscountResponse updateProductDiscount(Long id, ProductDiscountRequest productDiscountRequest) {
 
-        isProductDiscountExists(productDiscountRequest.getId());
-        ProductDiscount productDiscount = buildProductDiscount(productDiscountRequest);
+        verifyProductDiscountExists(id);
+        validateProductDiscountDates(productDiscountRequest);
+
+        ProductDiscount productDiscount = dataMapper.toEntity(productDiscountRequest, ProductDiscount.class);
 
         errorHandler.catchException(() -> productDiscountRepository.save(productDiscount),
                 "Error while trying to update the product discount: ");
@@ -81,7 +84,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
     @Transactional(readOnly = false)
     public void deleteProductDiscount(Long id) {
 
-        isProductDiscountExists(id);
+        verifyProductDiscountExists(id);
 
         errorHandler.catchException(() -> {
             productDiscountRepository.deleteById(id);
@@ -97,7 +100,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
                 .orElseThrow(() -> new NotFoundException("Product discount not found with ID: " + id + "."));
     }
 
-    private void isProductDiscountExists(Long id) {
+    private void verifyProductDiscountExists(Long id) {
 
         boolean isProductDiscountExists = errorHandler.catchException(() -> productDiscountRepository.existsById(id),
                 "Error while trying to check the presence of the product discount: ");
@@ -116,12 +119,5 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
         if (!isValidDate) {
             throw new IllegalStateException("The start date must be before the end date.");
         }
-    }
-
-    private ProductDiscount buildProductDiscount(ProductDiscountRequest productDiscountRequest) {
-
-        validateProductDiscountDates(productDiscountRequest);
-
-        return dataMapper.toEntity(productDiscountRequest, ProductDiscount.class);
     }
 }

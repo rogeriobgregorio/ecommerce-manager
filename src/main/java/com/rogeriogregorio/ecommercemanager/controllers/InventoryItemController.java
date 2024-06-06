@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/inventory-items")
 public class InventoryItemController {
 
     private final InventoryItemService inventoryItemService;
@@ -23,7 +23,7 @@ public class InventoryItemController {
         this.inventoryItemService = inventoryItemService;
     }
 
-    @GetMapping(value = "/inventory-items")
+    @GetMapping
     public ResponseEntity<List<InventoryItemResponse>> getAllInventoryItem(Pageable pageable) {
 
         return ResponseEntity
@@ -31,7 +31,7 @@ public class InventoryItemController {
                 .body(inventoryItemService.findAllInventoryItems(pageable).getContent());
     }
 
-    @PostMapping(value = "/inventory-items")
+    @PostMapping
     public ResponseEntity<InventoryItemResponse> postInventoryItem(
             @Valid @RequestBody InventoryItemRequest inventoryItemRequest) {
 
@@ -40,7 +40,7 @@ public class InventoryItemController {
                 .body(inventoryItemService.createInventoryItem(inventoryItemRequest));
     }
 
-    @GetMapping(value = "/inventory-items/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<InventoryItemResponse> getInventoryItemById(@PathVariable Long id) {
 
         return ResponseEntity
@@ -48,16 +48,16 @@ public class InventoryItemController {
                 .body(inventoryItemService.findInventoryItemResponseById(id));
     }
 
-    @PutMapping(value = "/inventory-items")
-    public ResponseEntity<InventoryItemResponse> putInventoryItem(
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<InventoryItemResponse> putInventoryItem(@PathVariable Long id,
             @Valid @RequestBody InventoryItemRequest inventoryItemRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(inventoryItemService.updateInventoryItem(inventoryItemRequest));
+                .body(inventoryItemService.updateInventoryItem(id, inventoryItemRequest));
     }
 
-    @DeleteMapping(value = "/inventory-items/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteInventoryItem(@PathVariable Long id) {
 
         inventoryItemService.deleteInventoryItem(id);

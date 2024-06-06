@@ -18,7 +18,7 @@ public interface ProductService {
 
     Product findProductById(Long id);
 
-    ProductResponse updateProduct(ProductRequest productRequest);
+    ProductResponse updateProduct(Long id, ProductRequest productRequest);
 
     void deleteProduct(Long id);
 

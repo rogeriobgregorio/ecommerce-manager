@@ -11,7 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/mail")
 public class MailController {
 
     private final MailService mailService;
@@ -21,7 +21,7 @@ public class MailController {
         this.mailService = mailService;
     }
 
-    @GetMapping(value = "/mail/validate/search")
+    @GetMapping(value = "/validate/search")
     public ResponseEntity<UserResponse> getEmailVerificationToken(@RequestParam("token") String token) {
 
         return ResponseEntity
@@ -29,7 +29,7 @@ public class MailController {
                 .body(mailService.validateEmailVerificationToken(token));
     }
 
-    @PostMapping(value = "/mail/password-reset")
+    @PostMapping(value = "/password-reset")
     public ResponseEntity<Void> postRequestPasswordReset(
             @Validated(PasswordResetDto.View.Request.class)
             @JsonView(PasswordResetDto.View.Request.class)
@@ -42,7 +42,7 @@ public class MailController {
                 .build();
     }
 
-    @PutMapping(value = "/mail/password-reset")
+    @PutMapping(value = "/password-reset")
     public ResponseEntity<Void> putResetPassword(
             @Validated(PasswordResetDto.View.Reset.class)
             @JsonView(PasswordResetDto.View.Reset.class)

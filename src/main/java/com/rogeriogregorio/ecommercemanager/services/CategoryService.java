@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 
 @Component
 public interface CategoryService {
@@ -20,7 +21,7 @@ public interface CategoryService {
 
     List<Category> findAllCategoriesByIds(List<Long> id);
 
-    CategoryResponse updateCategory(CategoryRequest categoryRequest);
+    CategoryResponse updateCategory(Long id, CategoryRequest categoryRequest);
 
     void deleteCategory(Long id);
 

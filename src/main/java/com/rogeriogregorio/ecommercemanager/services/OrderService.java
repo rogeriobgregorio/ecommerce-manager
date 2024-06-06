@@ -20,9 +20,9 @@ public interface OrderService {
 
     Order findOrderById(Long id);
 
-    OrderResponse updateOrder(OrderRequest orderRequest);
+    OrderResponse updateOrder(Long id, OrderRequest orderRequest);
 
-    OrderResponse updateOrderStatus(OrderRequest orderRequest);
+    OrderResponse updateOrderStatus(Long id, OrderRequest orderRequest);
 
     void deleteOrder(Long id);
 

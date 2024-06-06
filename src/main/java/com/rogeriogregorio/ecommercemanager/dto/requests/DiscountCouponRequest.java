@@ -10,7 +10,6 @@ public class DiscountCouponRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private Long id;
     private String code;
     private BigDecimal discount;
     private Instant validFrom;
@@ -19,22 +18,13 @@ public class DiscountCouponRequest implements Serializable {
     public DiscountCouponRequest() {
     }
 
-    public DiscountCouponRequest(Long id, String code, BigDecimal discount,
+    public DiscountCouponRequest(String code, BigDecimal discount,
                                  Instant validFrom, Instant validUntil) {
 
-        this.id = id;
         this.code = code;
         this.discount = discount;
         this.validFrom = validFrom;
         this.validUntil = validUntil;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getCode() {

@@ -10,7 +10,6 @@ public class InventoryItemRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private Long id;
     private Long productId;
     private Integer quantityInStock;
     private Integer stockStatus;
@@ -18,22 +17,13 @@ public class InventoryItemRequest implements Serializable {
     public InventoryItemRequest() {
     }
 
-    public InventoryItemRequest(Long id, Long productId,
+    public InventoryItemRequest(Long productId,
                                 Integer quantityInStock,
                                 StockStatus stockStatus) {
 
-        this.id = id;
         this.productId = productId;
         this.quantityInStock = quantityInStock;
         setStockStatus(stockStatus);
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Long getProductId() {

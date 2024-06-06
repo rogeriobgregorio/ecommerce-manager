@@ -70,8 +70,10 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = false)
     public UserResponse registerUser(UserRequest userRequest) {
 
-        userRequest.setId(null);
-        User user = buildCreateUser(userRequest);
+        String encodedPassword = validatePassword(userRequest.getPassword());
+        User user = dataMapper.toEntity(userRequest, User.class);
+        user.setPassword(encodedPassword);
+        user.setRole(UserRole.CLIENT);
 
         user.setEmailEnabled(true);// TODO remover essa linha
 
@@ -85,10 +87,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional(readOnly = false)
-    public UserResponse updateUser(UserRequest userRequest) {
+    public UserResponse updateUser(UUID id, UserRequest userRequest) {
 
-        isUserExists(userRequest.getId());
-        User user = buildUpdateUser(userRequest);
+        verifyUserExists(id);
+        String encodedPassword = validatePassword(userRequest.getPassword());
+        User user = dataMapper.toEntity(userRequest, User.class);
+        user.setPassword(encodedPassword);
 
         errorHandler.catchException(() -> userRepository.save(user),
                 "Error while trying to update the user: ");
@@ -100,7 +104,8 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = false)
     public UserResponse createAdminOrManagerUser(UserRequest userRequest) {
 
-        User user = buildAdminOrManagerUser(userRequest);
+        User user = findUserById(userRequest.getId());
+        user.setRole(userRequest.getUserRole());
 
         errorHandler.catchException(() -> userRepository.save(user),
                 "Error trying to update user role: ");
@@ -112,7 +117,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = false)
     public void deleteUser(UUID id) {
 
-        isUserExists(id);
+        verifyUserExists(id);
 
         errorHandler.catchException(() -> {
             userRepository.deleteById(id);
@@ -136,14 +141,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id + "."));
     }
 
-    public User findUserByEmail(String email) {
-
-        return errorHandler.catchException(() -> userRepository.findUserByEmail(email),
-                        "Error while trying to fetch the user by email: " + email)
-                .orElseThrow(() -> new NotFoundException("User not found with email: " + email + "."));
-    }
-
-    private void isUserExists(UUID id) {
+    private void verifyUserExists(UUID id) {
 
         boolean isUserExists = errorHandler.catchException(() -> userRepository.existsById(id),
                 "Error while trying to check the presence of the user: ");
@@ -177,32 +175,5 @@ public class UserServiceImpl implements UserService {
         }
 
         return passwordEncoder.encode(password);
-    }
-
-    private User buildCreateUser(UserRequest userRequest) {
-
-        String encodedPassword = validatePassword(userRequest.getPassword());
-        userRequest.setPassword(encodedPassword);
-        userRequest.setUserRole(UserRole.CLIENT);
-
-        return dataMapper.toEntity(userRequest, User.class);
-    }
-
-    private User buildUpdateUser(UserRequest userRequest) {
-
-        String encodedPassword = validatePassword(userRequest.getPassword());
-        userRequest.setPassword(encodedPassword);
-
-        User user = findUserById(userRequest.getId());
-        user = dataMapper.transferSkipNull(userRequest, user);
-
-        return user;
-    }
-
-    private User buildAdminOrManagerUser(UserRequest userRequest) {
-
-        return findUserById(userRequest.getId()).toBuilder()
-                .withRole(userRequest.getUserRole())
-                .build();
     }
 }

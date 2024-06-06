@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/payments")
 public class PaymentController {
 
     private final PaymentService paymentService;
@@ -23,7 +23,7 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
-    @GetMapping(value = "/payments")
+    @GetMapping
     public ResponseEntity<List<PaymentResponse>> getAllPayments(Pageable pageable) {
 
         return ResponseEntity
@@ -31,7 +31,7 @@ public class PaymentController {
                 .body(paymentService.findAllPayments(pageable).getContent());
     }
 
-    @PostMapping(value = "/payments")
+    @PostMapping
     public ResponseEntity<PaymentResponse> postPayment(
             @Valid @RequestBody PaymentRequest paymentRequest) {
 
@@ -40,7 +40,7 @@ public class PaymentController {
                 .body(paymentService.createPaymentProcess(paymentRequest));
     }
 
-    @GetMapping(value = "/payments/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<PaymentResponse> getPaymentById(@PathVariable Long id) {
 
         return ResponseEntity
@@ -48,7 +48,7 @@ public class PaymentController {
                 .body(paymentService.findPaymentById(id));
     }
 
-    @DeleteMapping(value = "/payments/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deletePayment(@PathVariable Long id) {
 
         paymentService.deletePayment(id);

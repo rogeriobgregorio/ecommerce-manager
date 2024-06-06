@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/stock-movements")
 public class StockMovementController {
 
     private final StockMovementService stockMovementService;
@@ -23,7 +23,7 @@ public class StockMovementController {
         this.stockMovementService = stockMovementService;
     }
 
-    @GetMapping(value = "/stock-movements")
+    @GetMapping
     public ResponseEntity<List<StockMovementResponse>> getAllStockMovement(Pageable pageable) {
 
         return ResponseEntity
@@ -31,7 +31,7 @@ public class StockMovementController {
                 .body(stockMovementService.findAllStockMovements(pageable).getContent());
     }
 
-    @PostMapping(value = "/stock-movements")
+    @PostMapping
     public ResponseEntity<StockMovementResponse> postStockMovement(
             @Valid @RequestBody StockMovementRequest stockMovementRequest) {
 
@@ -40,7 +40,7 @@ public class StockMovementController {
                 .body(stockMovementService.createStockMovement(stockMovementRequest));
     }
 
-    @GetMapping(value = "/stock-movements/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<StockMovementResponse> getStockMovementById(@PathVariable Long id) {
 
         return ResponseEntity
@@ -48,16 +48,16 @@ public class StockMovementController {
                 .body(stockMovementService.findStockMovementById(id));
     }
 
-    @PutMapping(value = "/stock-movements")
-    public ResponseEntity<StockMovementResponse> putStockMovement(
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<StockMovementResponse> putStockMovement(@PathVariable Long id,
             @Valid @RequestBody StockMovementRequest stockMovementRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(stockMovementService.updateStockMovement(stockMovementRequest));
+                .body(stockMovementService.updateStockMovement(id, stockMovementRequest));
     }
 
-    @DeleteMapping(value = "/stock-movements/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteStockMovement(@PathVariable Long id) {
 
         stockMovementService.deleteStockMovement(id);

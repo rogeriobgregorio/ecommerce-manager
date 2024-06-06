@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/notifications")
 public class NotificationController {
 
     private final NotificationService notificationService;
@@ -23,7 +23,7 @@ public class NotificationController {
         this.notificationService = notificationService;
     }
 
-    @GetMapping(value = "/notifications")
+    @GetMapping
     public ResponseEntity<List<NotificationResponse>> getAllNotifications(Pageable pageable) {
 
         return ResponseEntity
@@ -31,7 +31,7 @@ public class NotificationController {
                 .body(notificationService.findAllNotifications(pageable).getContent());
     }
 
-    @PostMapping(value = "/notifications")
+    @PostMapping
     public ResponseEntity<NotificationResponse> postNotification(
             @Valid @RequestBody NotificationRequest notificationRequest) {
 
@@ -40,7 +40,7 @@ public class NotificationController {
                 .body(notificationService.createNotification(notificationRequest));
     }
 
-    @GetMapping(value = "/notifications/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<NotificationResponse> getNotificationById(@PathVariable Long id) {
 
         return ResponseEntity
@@ -48,16 +48,16 @@ public class NotificationController {
                 .body(notificationService.findNotificationById(id));
     }
 
-    @PutMapping(value = "/notifications")
-    public ResponseEntity<NotificationResponse> putNotification(
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<NotificationResponse> putNotification(@PathVariable Long id,
             @Valid @RequestBody NotificationRequest notificationRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(notificationService.updateNotification(notificationRequest));
+                .body(notificationService.updateNotification(id, notificationRequest));
     }
 
-    @DeleteMapping(value = "/notifications/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteNotification(@PathVariable Long id) {
 
         notificationService.deleteNotification(id);

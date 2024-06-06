@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/discount-coupons")
 public class DiscountCouponController {
 
     private final DiscountCouponService discountCouponService;
@@ -23,7 +23,7 @@ public class DiscountCouponController {
         this.discountCouponService = discountCouponService;
     }
 
-    @GetMapping(value = "/discount-coupons")
+    @GetMapping
     public ResponseEntity<List<DiscountCouponResponse>> getAllDiscountCoupons(Pageable pageable) {
 
         return ResponseEntity
@@ -31,7 +31,7 @@ public class DiscountCouponController {
                 .body(discountCouponService.findAllDiscountCoupons(pageable).getContent());
     }
 
-    @PostMapping(value = "/discount-coupons")
+    @PostMapping
     public ResponseEntity<DiscountCouponResponse> postDiscountCoupon(
             @Valid @RequestBody DiscountCouponRequest discountCouponRequest) {
 
@@ -40,7 +40,7 @@ public class DiscountCouponController {
                 .body(discountCouponService.createDiscountCoupon(discountCouponRequest));
     }
 
-    @GetMapping(value = "/discount-coupons/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<DiscountCouponResponse> getDiscountCouponById(@PathVariable Long id) {
 
         return ResponseEntity
@@ -48,16 +48,16 @@ public class DiscountCouponController {
                 .body(discountCouponService.findDiscountCouponById(id));
     }
 
-    @PutMapping(value = "/discount-coupons")
-    public ResponseEntity<DiscountCouponResponse> putDiscountCoupon(
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<DiscountCouponResponse> putDiscountCoupon(@PathVariable Long id,
             @Valid @RequestBody DiscountCouponRequest discountCouponRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(discountCouponService.updateDiscountCoupon(discountCouponRequest));
+                .body(discountCouponService.updateDiscountCoupon(id, discountCouponRequest));
     }
 
-    @DeleteMapping(value = "/discount-coupons/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteDiscountCoupon(@PathVariable Long id) {
 
         discountCouponService.deleteDiscountCoupon(id);

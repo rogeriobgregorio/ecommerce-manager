@@ -71,9 +71,9 @@ public class StockMovementServiceImpl implements StockMovementService {
     }
 
     @Transactional(readOnly = false)
-    public StockMovementResponse updateStockMovement(StockMovementRequest stockMovementRequest) {
+    public StockMovementResponse updateStockMovement(Long id, StockMovementRequest stockMovementRequest) {
 
-        isStockMovementExists(stockMovementRequest.getId());
+        verifyStockMovementExists(id);
         StockMovement stockMovement = buildStockMovement(stockMovementRequest);
 
         errorHandler.catchException(() -> stockMovementRepository.save(stockMovement),
@@ -86,7 +86,7 @@ public class StockMovementServiceImpl implements StockMovementService {
     @Transactional(readOnly = false)
     public void deleteStockMovement(Long id) {
 
-        isStockMovementExists(id);
+        verifyStockMovementExists(id);
 
         errorHandler.catchException(() -> {
             stockMovementRepository.deleteById(id);
@@ -95,7 +95,7 @@ public class StockMovementServiceImpl implements StockMovementService {
         logger.info("Inventory movement removed: {}", id);
     }
 
-    private void isStockMovementExists(Long id) {
+    private void verifyStockMovementExists(Long id) {
 
         boolean isStockMovementExists = errorHandler.catchException(() -> stockMovementRepository.existsById(id),
                 "Error while trying to check the presence of the stock movement: ");

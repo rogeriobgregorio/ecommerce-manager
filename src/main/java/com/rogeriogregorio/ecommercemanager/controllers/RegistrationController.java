@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/register")
 public class RegistrationController {
 
     private final UserService userService;
@@ -23,7 +23,7 @@ public class RegistrationController {
         this.userService = userService;
     }
 
-    @PostMapping(value = "/register")
+    @PostMapping
     public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRequest userRequest) {
         
         return ResponseEntity

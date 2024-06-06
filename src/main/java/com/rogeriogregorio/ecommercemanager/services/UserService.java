@@ -22,7 +22,7 @@ public interface UserService {
 
     User findUserById(UUID id);
 
-    UserResponse updateUser(UserRequest userRequest);
+    UserResponse updateUser(UUID id, UserRequest userRequest);
 
     void deleteUser(UUID id);
 

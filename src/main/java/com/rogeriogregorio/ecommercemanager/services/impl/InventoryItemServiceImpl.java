@@ -58,8 +58,13 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Transactional(readOnly = false)
     public InventoryItemResponse createInventoryItem(InventoryItemRequest inventoryItemRequest) {
 
-        inventoryItemRequest.setId(null);
-        InventoryItem inventoryItem = buildCreateInventoryItem(inventoryItemRequest);
+        Product product = validateProductForInventory(inventoryItemRequest);
+        InventoryItem inventoryItem = InventoryItem.newBuilder()
+                .withProduct(product)
+                .withQuantityInStock(inventoryItemRequest.getQuantityInStock())
+                .withQuantitySold(0)
+                .withStockStatus(inventoryItemRequest.getStockStatus())
+                .build();
 
         errorHandler.catchException(() -> inventoryItemRepository.save(inventoryItem),
                 "Error while trying to create the inventory item: ");
@@ -79,9 +84,13 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     }
 
     @Transactional(readOnly = false)
-    public InventoryItemResponse updateInventoryItem(InventoryItemRequest inventoryItemRequest) {
+    public InventoryItemResponse updateInventoryItem(Long id, InventoryItemRequest inventoryItemRequest) {
 
-        InventoryItem inventoryItem = buildUpdateInventoryItem(inventoryItemRequest);
+        verifyInventoryItemExists(id);
+        InventoryItem inventoryItem = findInventoryItemById(id).toBuilder()
+                .withStockStatus(inventoryItemRequest.getStockStatus())
+                .withQuantityInStock(inventoryItemRequest.getQuantityInStock())
+                .build();
 
         errorHandler.catchException(() -> inventoryItemRepository.save(inventoryItem),
                 "Error while trying to update the inventory item: ");
@@ -93,7 +102,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Transactional(readOnly = false)
     public void deleteInventoryItem(Long id) {
 
-        isInventoryItemExists(id);
+        verifyInventoryItemExists(id);
 
         errorHandler.catchException(() -> {
             inventoryItemRepository.deleteById(id);
@@ -200,7 +209,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         return product;
     }
 
-    private void isInventoryItemExists(Long id) {
+    private void verifyInventoryItemExists(Long id) {
 
         boolean isInventoryItemExists = errorHandler.catchException(() -> inventoryItemRepository.existsById(id),
                 "Error while trying to check the presence of the inventory item: ");
@@ -238,14 +247,6 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 .withQuantityInStock(inventoryItemRequest.getQuantityInStock())
                 .withQuantitySold(0)
                 .withStockStatus(inventoryItemRequest.getStockStatus())
-                .build();
-    }
-
-    private InventoryItem buildUpdateInventoryItem(InventoryItemRequest inventoryItemRequest) {
-
-        return findInventoryItemById(inventoryItemRequest.getId()).toBuilder()
-                .withStockStatus(inventoryItemRequest.getStockStatus())
-                .withQuantityInStock(inventoryItemRequest.getQuantityInStock())
                 .build();
     }
 }

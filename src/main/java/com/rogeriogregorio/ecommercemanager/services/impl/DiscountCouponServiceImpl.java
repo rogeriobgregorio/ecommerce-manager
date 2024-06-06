@@ -46,8 +46,7 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
     @Transactional(readOnly = false)
     public DiscountCouponResponse createDiscountCoupon(DiscountCouponRequest discountCouponRequest) {
 
-        discountCouponRequest.setId(null);
-        DiscountCoupon discountCoupon = buildDiscountCoupon(discountCouponRequest);
+        DiscountCoupon discountCoupon = validateCouponDates(discountCouponRequest);
 
         errorHandler.catchException(() -> discountCouponRepository.save(discountCoupon),
                 "Error while trying to create the discount coupon: ");
@@ -66,10 +65,10 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
     }
 
     @Transactional(readOnly = false)
-    public DiscountCouponResponse updateDiscountCoupon(DiscountCouponRequest discountCouponRequest) {
+    public DiscountCouponResponse updateDiscountCoupon(Long id, DiscountCouponRequest discountCouponRequest) {
 
-        isDiscountCouponExists(discountCouponRequest.getId());
-        DiscountCoupon discountCoupon = buildDiscountCoupon(discountCouponRequest);
+        verifyDiscountCouponExists(id);
+        DiscountCoupon discountCoupon = validateCouponDates(discountCouponRequest);
 
         errorHandler.catchException(() -> discountCouponRepository.save(discountCoupon),
                 "Error while trying to update the discount coupon: ");
@@ -81,7 +80,7 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
     @Transactional(readOnly = false)
     public void deleteDiscountCoupon(Long id) {
 
-        isDiscountCouponExists(id);
+        verifyDiscountCouponExists(id);
 
         errorHandler.catchException(() -> {
             discountCouponRepository.deleteById(id);
@@ -98,7 +97,7 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
                 .orElseThrow(() -> new NotFoundException("Discount coupon not found with code: " + code + "."));
     }
 
-    private void isDiscountCouponExists(Long id) {
+    private void verifyDiscountCouponExists(Long id) {
 
         boolean isExistsDiscountCoupon = errorHandler.catchException(() -> discountCouponRepository.existsById(id),
                 "Error while trying to check the presence of the discount coupon: ");
@@ -108,7 +107,7 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
         }
     }
 
-    private void validateCouponDates(DiscountCouponRequest discountCouponRequest) {
+    private DiscountCoupon validateCouponDates(DiscountCouponRequest discountCouponRequest) {
 
         Instant validFrom = discountCouponRequest.getValidFrom();
         Instant validUntil = discountCouponRequest.getValidUntil();
@@ -117,11 +116,6 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
         if (!isValidDate) {
             throw new IllegalStateException("The start date must be before the end date.");
         }
-    }
-
-    private DiscountCoupon buildDiscountCoupon(DiscountCouponRequest discountCouponRequest) {
-
-        validateCouponDates(discountCouponRequest);
 
         return dataMapper.toEntity(discountCouponRequest, DiscountCoupon.class);
     }

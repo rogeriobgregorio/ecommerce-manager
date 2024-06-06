@@ -16,7 +16,7 @@ public interface DiscountCouponService {
 
     DiscountCouponResponse findDiscountCouponById(Long id);
 
-    DiscountCouponResponse updateDiscountCoupon(DiscountCouponRequest discountCouponRequest);
+    DiscountCouponResponse updateDiscountCoupon(Long id, DiscountCouponRequest discountCouponRequest);
 
     void deleteDiscountCoupon(Long id);
 

@@ -30,8 +30,10 @@ public class AddressServiceImpl implements AddressService {
     private final Logger logger = LogManager.getLogger(AddressServiceImpl.class);
 
     @Autowired
-    public AddressServiceImpl(AddressRepository addressRepository, UserService userService,
-                              ErrorHandler errorHandler, DataMapper dataMapper) {
+    public AddressServiceImpl(AddressRepository addressRepository,
+                              UserService userService,
+                              ErrorHandler errorHandler,
+                              DataMapper dataMapper) {
 
         this.addressRepository = addressRepository;
         this.userService = userService;
@@ -59,7 +61,6 @@ public class AddressServiceImpl implements AddressService {
     @Transactional(readOnly = false)
     public AddressResponse createAddress(AddressRequest addressRequest) {
 
-        addressRequest.setId(null);
         Address address = buildAddress(addressRequest);
 
         errorHandler.catchException(() -> addressRepository.save(address),
@@ -70,9 +71,9 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Transactional(readOnly = false)
-    public AddressResponse updateAddress(AddressRequest addressRequest) {
+    public AddressResponse updateAddress(UUID id, AddressRequest addressRequest) {
 
-        isAddressExists(addressRequest.getId());
+        verifyAddressExists(id);
         Address address = buildAddress(addressRequest);
 
         errorHandler.catchException(() -> addressRepository.save(address),
@@ -85,7 +86,7 @@ public class AddressServiceImpl implements AddressService {
     @Transactional(readOnly = false)
     public void deleteAddress(UUID id) {
 
-        isAddressExists(id);
+        verifyAddressExists(id);
 
         errorHandler.catchException(() -> {
             addressRepository.deleteById(id);
@@ -94,7 +95,7 @@ public class AddressServiceImpl implements AddressService {
         logger.warn("Address removed with ID: {}", id);
     }
 
-    private void isAddressExists(UUID id) {
+    private void verifyAddressExists(UUID id) {
 
         boolean isAddressExists = errorHandler.catchException(() -> addressRepository.existsById(id),
                 "Error while trying to check the presence of the address: ");

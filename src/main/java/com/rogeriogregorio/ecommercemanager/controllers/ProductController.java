@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/products")
 public class ProductController {
 
     private final ProductService productService;
@@ -23,7 +23,7 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @GetMapping(value = "/products")
+    @GetMapping
     public ResponseEntity<List<ProductResponse>> getAllProducts(Pageable pageable) {
 
         return ResponseEntity
@@ -31,7 +31,7 @@ public class ProductController {
                 .body(productService.findAllProducts(pageable).getContent());
     }
 
-    @PostMapping(value = "/products")
+    @PostMapping
     public ResponseEntity<ProductResponse> postProduct(
             @Valid @RequestBody ProductRequest productRequest) {
 
@@ -40,7 +40,7 @@ public class ProductController {
                 .body(productService.createProduct(productRequest));
     }
 
-    @GetMapping(value = "/products/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
 
         return ResponseEntity
@@ -48,16 +48,16 @@ public class ProductController {
                 .body(productService.findProductResponseById(id));
     }
 
-    @PutMapping(value = "/products")
-    public ResponseEntity<ProductResponse> putProduct(
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<ProductResponse> putProduct(@PathVariable Long id,
             @Valid @RequestBody ProductRequest productRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(productService.updateProduct(productRequest));
+                .body(productService.updateProduct(id, productRequest));
     }
 
-    @DeleteMapping(value = "/products/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
 
         productService.deleteProduct(id);
@@ -67,7 +67,7 @@ public class ProductController {
                 .build();
     }
 
-    @GetMapping(value = "/products/search")
+    @GetMapping(value = "/search")
     public ResponseEntity<List<ProductResponse>> getProductByName(
             @RequestParam("name") String name, Pageable pageable) {
 

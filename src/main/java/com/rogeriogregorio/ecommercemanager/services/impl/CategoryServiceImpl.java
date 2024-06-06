@@ -46,8 +46,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = false)
     public CategoryResponse createCategory(CategoryRequest categoryRequest) {
 
-        categoryRequest.setId(null);
-        Category category = buildCategory(categoryRequest);
+        Category category = dataMapper.toEntity(categoryRequest, Category.class);
 
         errorHandler.catchException(() -> categoryRepository.save(category),
                 "Error while trying to create the category: ");
@@ -73,10 +72,10 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Transactional(readOnly = false)
-    public CategoryResponse updateCategory(CategoryRequest categoryRequest) {
+    public CategoryResponse updateCategory(Long id, CategoryRequest categoryRequest) {
 
-        isCategoryExists(categoryRequest.getId());
-        Category category = buildCategory(categoryRequest);
+        verifyCategoryExists(id);
+        Category category = dataMapper.toEntity(categoryRequest, Category.class);
 
         errorHandler.catchException(() -> categoryRepository.save(category),
                 "Error while trying to update the category: ");
@@ -88,7 +87,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = false)
     public void deleteCategory(Long id) {
 
-        isCategoryExists(id);
+        verifyCategoryExists(id);
 
         errorHandler.catchException(() -> {
             categoryRepository.deleteById(id);
@@ -105,18 +104,14 @@ public class CategoryServiceImpl implements CategoryService {
                 .map(category -> dataMapper.toResponse(category, CategoryResponse.class));
     }
 
-    private void isCategoryExists(Long id) {
+    private void verifyCategoryExists(Long id) {
 
         boolean isCategoryExists = errorHandler.catchException(() -> categoryRepository.existsById(id),
-                "Error while trying to check the presence of the category: ");
+                "Error while trying to check the presence of the category: "
+        );
 
         if (!isCategoryExists) {
             throw new NotFoundException("Category not found with ID: " + id + ".");
         }
-    }
-
-    private Category buildCategory(CategoryRequest categoryRequest) {
-
-        return dataMapper.toEntity(categoryRequest, Category.class);
     }
 }

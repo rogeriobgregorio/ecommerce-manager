@@ -59,8 +59,13 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public OrderResponse createOrder(OrderRequest orderRequest) {
 
-        orderRequest.setId(null);
-        Order order = buildCreateOrder(orderRequest);
+        User client = userService.findUserById(orderRequest.getClientId());
+
+        Order order = Order.newBuilder()
+                .withMoment(Instant.now())
+                .withOrderStatus(OrderStatus.WAITING_PAYMENT)
+                .withClient(client)
+                .build();
 
         errorHandler.catchException(() -> orderRepository.save(order),
                 "Error while trying to create the order: ");
@@ -89,9 +94,21 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional(readOnly = false)
-    public OrderResponse updateOrder(OrderRequest orderRequest) {
+    public OrderResponse updateOrder(Long id, OrderRequest orderRequest) {
 
-        Order order = buildUpdateOrder(orderRequest);
+        Order order = findOrderById(id);
+
+        String code = orderRequest.getDiscountCouponCode();
+        DiscountCoupon discountCoupon = validateDiscountCoupon(code);
+
+        if (orderRequest.getOrderStatus() == OrderStatus.CANCELED) {
+            order.setOrderStatus(orderRequest.getOrderStatus());
+        }
+
+        order.toBuilder()
+                .withMoment(Instant.now())
+                .withCoupon(discountCoupon)
+                .build();
 
         errorHandler.catchException(() -> orderRepository.save(order),
                 "Error while trying to update the order: ");
@@ -101,9 +118,15 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional(readOnly = false)
-    public OrderResponse updateOrderStatus(OrderRequest orderRequest) {
+    public OrderResponse updateOrderStatus(Long id, OrderRequest orderRequest) {
 
-        Order order = buildUpdateOrderStatus(orderRequest);
+        verifyOrderExists(id);
+        Order order = findOrderById(id).toBuilder()
+                .withMoment(Instant.now())
+                .withOrderStatus(orderRequest.getOrderStatus())
+                .build();
+
+        statusValidators.forEach(strategy -> strategy.validateStatusChange(orderRequest, order));
 
         errorHandler.catchException(() -> orderRepository.save(order),
                 "Error while trying to update the order: ");
@@ -115,14 +138,14 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public void deleteOrder(Long id) {
 
-        Order order = findOrderById(id);
-        validateOrderDeleteEligibility(order);
+        verifyOrderExists(id);
+        validateOrderDeleteEligibility(id);
 
         errorHandler.catchException(() -> {
             orderRepository.deleteById(id);
             return null;
         }, "Error while trying to delete the order: ");
-        logger.warn("Order removed: {}", order);
+        logger.warn("Order removed with ID: {}", id);
     }
 
     @Transactional(readOnly = true)
@@ -140,8 +163,19 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + "."));
     }
 
-    private void validateOrderDeleteEligibility(Order order) {
+    private void verifyOrderExists(Long id) {
 
+        boolean isOrderExists = errorHandler.catchException(() -> orderRepository.existsById(id),
+                "Error while trying to check the presence of the order: ");
+
+        if (!isOrderExists) {
+            throw new NotFoundException("Order not found with ID: " + id + ".");
+        }
+    }
+
+    private void validateOrderDeleteEligibility(Long id) {
+
+        Order order = findOrderById(id);
         boolean isOrderPaid = order.isOrderPaid();
 
         if (isOrderPaid) {
@@ -161,46 +195,5 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return discountCoupon;
-    }
-
-    private Order buildCreateOrder(OrderRequest orderRequest) {
-
-        User client = userService.findUserById(orderRequest.getClientId());
-
-        return Order.newBuilder()
-                .withMoment(Instant.now())
-                .withOrderStatus(OrderStatus.WAITING_PAYMENT)
-                .withClient(client)
-                .build();
-    }
-
-    private Order buildUpdateOrder(OrderRequest orderRequest) {
-
-        Order order = findOrderById(orderRequest.getId());
-
-        if (orderRequest.getOrderStatus() == OrderStatus.CANCELED) {
-            order.setOrderStatus(orderRequest.getOrderStatus());
-        }
-
-        String code = orderRequest.getDiscountCouponCode();
-        DiscountCoupon discountCoupon = validateDiscountCoupon(code);
-
-        return order.toBuilder()
-                .withMoment(Instant.now())
-                .withCoupon(discountCoupon)
-                .build();
-    }
-
-    private Order buildUpdateOrderStatus(OrderRequest orderRequest) {
-
-        Order order = findOrderById(orderRequest.getId()).toBuilder()
-                .withMoment(Instant.now())
-                .withOrderStatus(orderRequest.getOrderStatus())
-                .build();
-
-        statusValidators.forEach(strategy -> strategy
-                .validateStatusChange(orderRequest, order));
-
-        return order;
     }
 }

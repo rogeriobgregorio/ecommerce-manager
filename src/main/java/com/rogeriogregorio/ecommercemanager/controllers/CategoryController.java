@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/categories")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -23,7 +23,7 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping(value = "/categories")
+    @GetMapping
     public ResponseEntity<List<CategoryResponse>> getAllCategories(Pageable pageable) {
 
         return ResponseEntity
@@ -31,7 +31,7 @@ public class CategoryController {
                 .body(categoryService.findAllCategories(pageable).getContent());
     }
 
-    @PostMapping(value = "/categories")
+    @PostMapping
     public ResponseEntity<CategoryResponse> postCategory(
             @Valid @RequestBody CategoryRequest categoryRequest) {
 
@@ -40,7 +40,7 @@ public class CategoryController {
                 .body(categoryService.createCategory(categoryRequest));
     }
 
-    @GetMapping(value = "/categories/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable Long id) {
 
         return ResponseEntity
@@ -48,16 +48,16 @@ public class CategoryController {
                 .body(categoryService.findCategoryById(id));
     }
 
-    @PutMapping(value = "/categories")
-    public ResponseEntity<CategoryResponse> putCategory(
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<CategoryResponse> putCategory(@PathVariable Long id,
             @Valid @RequestBody CategoryRequest categoryRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(categoryService.updateCategory(categoryRequest));
+                .body(categoryService.updateCategory(id, categoryRequest));
     }
 
-    @DeleteMapping(value = "/categories/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
 
         categoryService.deleteCategory(id);
@@ -67,7 +67,7 @@ public class CategoryController {
                 .build();
     }
 
-    @GetMapping(value = "/categories/search")
+    @GetMapping(value = "/search")
     public ResponseEntity<List<CategoryResponse>> getCategoryByName(
             @RequestParam("name") String name, Pageable pageable) {
 

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/orders")
 public class OrderController {
 
     private final OrderService orderService;
@@ -23,7 +23,7 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @GetMapping(value = "/orders")
+    @GetMapping
     public ResponseEntity<List<OrderResponse>> getAllOrders(Pageable pageable) {
 
         return ResponseEntity
@@ -31,7 +31,7 @@ public class OrderController {
                 .body(orderService.findAllOrders(pageable).getContent());
     }
 
-    @PostMapping(value = "/orders")
+    @PostMapping
     public ResponseEntity<OrderResponse> postOrder(
             @Valid @RequestBody OrderRequest orderRequest) {
 
@@ -40,7 +40,7 @@ public class OrderController {
                 .body(orderService.createOrder(orderRequest));
     }
 
-    @GetMapping(value = "/orders/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long id) {
 
         return ResponseEntity
@@ -48,25 +48,25 @@ public class OrderController {
                 .body(orderService.findOrderResponseById(id));
     }
 
-    @PutMapping(value = "/orders")
-    public ResponseEntity<OrderResponse> putOrder(
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<OrderResponse> putOrder(@PathVariable Long id,
             @Valid @RequestBody OrderRequest orderRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(orderService.updateOrder(orderRequest));
+                .body(orderService.updateOrder(id, orderRequest));
     }
 
-    @PatchMapping(value = "/orders/status")
-    public ResponseEntity<OrderResponse> patchOrderStatus(
+    @PatchMapping(value = "/status/{id}")
+    public ResponseEntity<OrderResponse> patchOrderStatus(@PathVariable Long id,
             @Valid @RequestBody OrderRequest orderRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(orderService.updateOrderStatus(orderRequest));
+                .body(orderService.updateOrderStatus(id, orderRequest));
     }
 
-    @DeleteMapping(value = "/orders/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
 
         orderService.deleteOrder(id);
@@ -76,7 +76,7 @@ public class OrderController {
                 .build();
     }
 
-    @GetMapping(value = "/clients/{id}/orders")
+    @GetMapping(value = "/{client-id}")
     public ResponseEntity<List<OrderResponse>> getOrdersByClientId(
             @PathVariable Long id, Pageable pageable) {
 

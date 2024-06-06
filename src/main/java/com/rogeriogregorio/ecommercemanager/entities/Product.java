@@ -1,6 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -78,6 +79,22 @@ public class Product implements Serializable {
         this.productDiscount = productDiscount;
     }
 
+    private Product(Builder builder) {
+        setId(builder.id);
+        setName(builder.name);
+        setDescription(builder.description);
+        setPrice(builder.price);
+        setImgUrl(builder.imgUrl);
+        setProductDiscount(builder.productDiscount);
+        categories = builder.categories;
+        items = builder.items;
+        reviews = builder.reviews;
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
     public Long getId() {
         return id;
     }
@@ -120,6 +137,10 @@ public class Product implements Serializable {
 
     public Set<Category> getCategories() {
         return categories;
+    }
+
+    public void setCategories(Set<Category> categories) {
+        this.categories = categories;
     }
 
     public ProductDiscount getProductDiscount() {
@@ -183,5 +204,82 @@ public class Product implements Serializable {
                 + ", price= " + price
                 + ", imgUrl= " + imgUrl
                 + "categories= " + categories + "]";
+    }
+
+    public Builder toBuilder() {
+        return new Product.Builder()
+                .withId(this.id)
+                .withName(this.name)
+                .withDescription(this.description)
+                .withPrice(this.price)
+                .withImgUrl(this.imgUrl)
+                .withProductDiscount(this.productDiscount)
+                .withCategories(this.categories)
+                .withItems(this.items)
+                .withReviews(this.reviews);
+    }
+
+    public static final class Builder {
+        private Long id;
+        private String name;
+        private String description;
+        private BigDecimal price;
+        private String imgUrl;
+        private ProductDiscount productDiscount;
+        private Set<Category> categories;
+        private Set<OrderItem> items;
+        private Set<ProductReview> reviews;
+
+        private Builder() {
+        }
+
+        public Builder withId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder withName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder withDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder withPrice(BigDecimal price) {
+            this.price = price;
+            return this;
+        }
+
+        public Builder withImgUrl(String imgUrl) {
+            this.imgUrl = imgUrl;
+            return this;
+        }
+
+        public Builder withProductDiscount(ProductDiscount productDiscount) {
+            this.productDiscount = productDiscount;
+            return this;
+        }
+
+        public Builder withCategories(Set<Category> categories) {
+            this.categories = categories;
+            return this;
+        }
+
+        public Builder withItems(Set<OrderItem> items) {
+            this.items = items;
+            return this;
+        }
+
+        public Builder withReviews(Set<ProductReview> reviews) {
+            this.reviews = reviews;
+            return this;
+        }
+
+        public Product build() {
+            return new Product(this);
+        }
     }
 }

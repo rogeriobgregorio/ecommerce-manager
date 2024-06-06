@@ -10,7 +10,6 @@ public class ProductRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private Long id;
     private String name;
     private String description;
     private BigDecimal price;
@@ -21,26 +20,17 @@ public class ProductRequest implements Serializable {
     public ProductRequest() {
     }
 
-    public ProductRequest(Long id, String name,
-                          String description, Double price,
+    public ProductRequest(String name,
+                          String description, BigDecimal price,
                           String imgUrl, Long discountId,
                           List<Long> categoryIdList) {
 
-        this.id = id;
         this.name = name;
         this.description = description;
-        this.price = BigDecimal.valueOf(price);
+        this.price = price;
         this.imgUrl = imgUrl;
         this.discountId = discountId;
         this.categoryIdList = categoryIdList;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -63,8 +53,8 @@ public class ProductRequest implements Serializable {
         return price;
     }
 
-    public void setPrice(Double price) {
-        this.price = BigDecimal.valueOf(price);
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
     public String getImgUrl() {

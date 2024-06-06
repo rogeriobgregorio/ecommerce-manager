@@ -20,7 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -56,8 +56,9 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = false)
     public ProductResponse createProduct(ProductRequest productRequest) {
 
-        productRequest.setId(null);
-        Product product = buildCreateProduct(productRequest);
+        Product product = dataMapper.toEntity(productRequest, Product.class);
+        product.setProductDiscount(validateDiscount(productRequest));
+        product.setCategories(validateCategory(productRequest));
 
         errorHandler.catchException(() -> productRepository.save(product),
                 "Error while trying to create the product: ");
@@ -76,9 +77,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional(readOnly = false)
-    public ProductResponse updateProduct(ProductRequest productRequest) {
+    public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
 
-        Product product = buildUpdateProduct(productRequest);
+        verifyProductExists(id);
+        Product product = dataMapper.toEntity(productRequest, Product.class);
+        product.setProductDiscount(validateDiscount(productRequest));
+        product.setCategories(validateCategory(productRequest));
 
         errorHandler.catchException(() -> productRepository.save(product),
                 "Error while trying to update the product: ");
@@ -90,7 +94,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = false)
     public void deleteProduct(Long id) {
 
-        isProductExists(id);
+        verifyProductExists(id);
 
         errorHandler.catchException(() -> {
             productRepository.deleteById(id);
@@ -114,7 +118,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new NotFoundException("Product not found with ID: " + id + "."));
     }
 
-    private void isProductExists(Long id) {
+    private void verifyProductExists(Long id) {
 
         boolean isProductExists = errorHandler.catchException(() -> productRepository.existsById(id),
                 "Error while trying to check the presence of the product: ");
@@ -124,36 +128,21 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    private Product buildCreateProduct(ProductRequest productRequest) {
-
-        Product product = dataMapper.toEntity(productRequest, Product.class);
+    private Set<Category> validateCategory(ProductRequest productRequest) {
 
         List<Long> categoryIdList = productRequest.getCategoryIdList();
-        List<Category> categoryList = categoryService.findAllCategoriesByIds(categoryIdList);
-
-        product.getCategories().addAll(categoryList);
-
-        return product;
+        if (categoryIdList != null) {
+            return new HashSet<>(categoryService.findAllCategoriesByIds(categoryIdList));
+        }
+        return Collections.emptySet();
     }
 
-    private Product buildUpdateProduct(ProductRequest productRequest) {
-
-        isProductExists(productRequest.getId());
-        Product product = dataMapper.toEntity(productRequest, Product.class);
+    private ProductDiscount validateDiscount(ProductRequest productRequest) {
 
         Long discountId = productRequest.getDiscountId();
-        ProductDiscount discount = null;
-
         if (discountId != null) {
-            discount = productDiscountService.findProductDiscountById(discountId);
+            return productDiscountService.findProductDiscountById(discountId);
         }
-
-        List<Long> categoryIdList = productRequest.getCategoryIdList();
-        List<Category> categoryList = categoryService.findAllCategoriesByIds(categoryIdList);
-
-        product.getCategories().addAll(categoryList);
-        product.setProductDiscount(discount);
-
-        return product;
+        return null;
     }
 }

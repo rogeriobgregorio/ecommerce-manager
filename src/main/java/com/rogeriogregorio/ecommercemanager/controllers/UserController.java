@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/users")
 public class UserController {
 
     private final UserService userService;
@@ -24,7 +24,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping(value = "/users")
+    @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers(Pageable pageable) {
 
         return ResponseEntity
@@ -32,7 +32,7 @@ public class UserController {
                 .body(userService.findAllUsers(pageable).getContent());
     }
 
-    @PostMapping(value = "/users")
+    @PostMapping
     public ResponseEntity<UserResponse> postUser(
             @Valid @RequestBody UserRequest userRequest) {
 
@@ -41,7 +41,7 @@ public class UserController {
                 .body(userService.registerUser(userRequest));
     }
 
-    @PatchMapping(value = "/users/roles")
+    @PatchMapping(value = "/roles")
     public ResponseEntity<UserResponse> patchAdminOrManagerUser(
             @Valid @RequestBody UserRequest userRequest) {
 
@@ -50,7 +50,7 @@ public class UserController {
                 .body(userService.createAdminOrManagerUser(userRequest));
     }
 
-    @GetMapping(value = "/users/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable UUID id) {
 
         return ResponseEntity
@@ -58,16 +58,16 @@ public class UserController {
                 .body(userService.findUserResponseById(id));
     }
 
-    @PutMapping(value = "/users")
-    public ResponseEntity<UserResponse> putUser(
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<UserResponse> putUser(@PathVariable UUID id,
             @Valid @RequestBody UserRequest userRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(userService.updateUser(userRequest));
+                .body(userService.updateUser(id, userRequest));
     }
 
-    @DeleteMapping(value = "/users/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
 
         userService.deleteUser(id);
@@ -77,7 +77,7 @@ public class UserController {
                 .build();
     }
 
-    @GetMapping(value = "/users/search")
+    @GetMapping(value = "/search")
     public ResponseEntity<List<UserResponse>> getUserByName(
             @RequestParam("name") String name, Pageable pageable) {
 

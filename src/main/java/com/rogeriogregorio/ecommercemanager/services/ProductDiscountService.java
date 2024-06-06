@@ -16,7 +16,7 @@ public interface ProductDiscountService {
 
     ProductDiscount findProductDiscountById(Long id);
 
-    ProductDiscountResponse updateProductDiscount(ProductDiscountRequest productDiscountRequest);
+    ProductDiscountResponse updateProductDiscount(Long id, ProductDiscountRequest productDiscountRequest);
 
     void deleteProductDiscount(Long id);
 }

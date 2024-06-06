@@ -46,8 +46,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional(readOnly = false)
     public NotificationResponse createNotification(NotificationRequest notificationRequest) {
 
-        notificationRequest.setId(null);
-        Notification notification = buildNotification(notificationRequest);
+        Notification notification = validateNotificationDates(notificationRequest);
 
         errorHandler.catchException(() -> notificationRepository.save(notification),
                 "Error while trying to create the notification: ");
@@ -66,10 +65,10 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Transactional(readOnly = false)
-    public NotificationResponse updateNotification(NotificationRequest notificationRequest) {
+    public NotificationResponse updateNotification(Long id, NotificationRequest notificationRequest) {
 
-        isNotificationExists(notificationRequest.getId());
-        Notification notification = buildNotification(notificationRequest);
+        verifyNotificationExists(id);
+        Notification notification = validateNotificationDates(notificationRequest);
 
         errorHandler.catchException(() -> notificationRepository.save(notification),
                 "Error while trying to update the notification: ");
@@ -81,7 +80,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional(readOnly = false)
     public void deleteNotification(Long id) {
 
-        isNotificationExists(id);
+        verifyNotificationExists(id);
 
         errorHandler.catchException(() -> {
             notificationRepository.deleteById(id);
@@ -90,7 +89,7 @@ public class NotificationServiceImpl implements NotificationService {
         logger.warn("Notification removed with ID: {}", id);
     }
 
-    private void isNotificationExists(Long id) {
+    private void verifyNotificationExists(Long id) {
 
         boolean isNotificationExists = errorHandler.catchException(() -> notificationRepository.existsById(id),
                 "Error while trying to check the presence of the notification: ");
@@ -100,7 +99,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
-    private void validateNotificationDates(NotificationRequest notificationRequest) {
+    private Notification validateNotificationDates(NotificationRequest notificationRequest) {
 
         Instant validFrom = notificationRequest.getValidFrom();
         Instant validUntil = notificationRequest.getValidUntil();
@@ -109,11 +108,6 @@ public class NotificationServiceImpl implements NotificationService {
         if (!isValidDate) {
             throw new IllegalStateException("The start date must be before the end date.");
         }
-    }
-
-    private Notification buildNotification(NotificationRequest notificationRequest) {
-
-        validateNotificationDates(notificationRequest);
 
         return dataMapper.toEntity(notificationRequest, Notification.class);
     }

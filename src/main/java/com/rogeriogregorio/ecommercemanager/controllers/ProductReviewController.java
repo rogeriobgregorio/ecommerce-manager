@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/product-reviews")
 public class ProductReviewController {
 
     private final ProductReviewService productReviewService;
@@ -24,7 +24,7 @@ public class ProductReviewController {
         this.productReviewService = productReviewService;
     }
 
-    @GetMapping(value = "/product-reviews")
+    @GetMapping
     public ResponseEntity<List<ProductReviewResponse>> getAllProductReviews(Pageable pageable) {
 
         return ResponseEntity
@@ -32,7 +32,7 @@ public class ProductReviewController {
                 .body(productReviewService.findAllProductReviews(pageable).getContent());
     }
 
-    @PostMapping(value = "/product-reviews")
+    @PostMapping
     public ResponseEntity<ProductReviewResponse> postProductReview(
             @Valid @RequestBody ProductReviewRequest productReviewRequest) {
 
@@ -41,7 +41,7 @@ public class ProductReviewController {
                 .body(productReviewService.createProductReview(productReviewRequest));
     }
 
-    @GetMapping(value = "/product-reviews/{productId}/{userId}")
+    @GetMapping(value = "/{productId}/{userId}")
     public ResponseEntity<ProductReviewResponse> getProductReviewById(
             @PathVariable Long productId, @PathVariable UUID userId) {
 
@@ -50,7 +50,7 @@ public class ProductReviewController {
                 .body(productReviewService.findProductReviewById(productId, userId));
     }
 
-    @PutMapping(value = "/product-reviews")
+    @PutMapping
     public ResponseEntity<ProductReviewResponse> putProductReview(
             @Valid @RequestBody ProductReviewRequest productReviewRequest) {
 
@@ -59,7 +59,7 @@ public class ProductReviewController {
                 .body(productReviewService.updateProductReview(productReviewRequest));
     }
 
-    @DeleteMapping(value = "/product-reviews/{productId}/{userId}")
+    @DeleteMapping(value = "/{productId}/{userId}")
     public ResponseEntity<Void> deleteProductReview(
             @PathVariable Long productId, @PathVariable UUID userId) {
 

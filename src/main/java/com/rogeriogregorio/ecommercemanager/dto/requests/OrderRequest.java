@@ -11,7 +11,6 @@ public class OrderRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private Long id;
     private Integer orderStatus;
     private UUID clientId;
     private String discountCouponCode;
@@ -19,21 +18,13 @@ public class OrderRequest implements Serializable {
     public OrderRequest() {
     }
 
-    public OrderRequest(Long id, OrderStatus orderStatus,
-                        UUID clientId, String discountCouponCode) {
+    public OrderRequest(OrderStatus orderStatus,
+                        UUID clientId,
+                        String discountCouponCode) {
 
-        this.id = id;
         setOrderStatus(orderStatus);
         this.clientId = clientId;
         this.discountCouponCode = discountCouponCode;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public OrderStatus getOrderStatus() {

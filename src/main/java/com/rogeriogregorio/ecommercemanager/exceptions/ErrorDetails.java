@@ -7,22 +7,21 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 
-public class StandardError implements Serializable {
+public class ErrorDetails implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "GMT")
     private Instant timeStamp;
-
     private Integer status;
     private String error;
     private String message;
 
-    public StandardError() {
+    public ErrorDetails() {
     }
 
-    public StandardError(HttpStatus status, String error, String message) {
+    public ErrorDetails(HttpStatus status, String error, String message) {
         this.timeStamp = Instant.now();
         this.status = status.value();
         this.error = error;

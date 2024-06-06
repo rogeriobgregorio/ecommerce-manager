@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/product-discounts")
 public class ProductDiscountController {
 
     private final ProductDiscountService productDiscountService;
@@ -23,7 +23,7 @@ public class ProductDiscountController {
         this.productDiscountService = productDiscountService;
     }
 
-    @GetMapping(value = "/product-discounts")
+    @GetMapping
     public ResponseEntity<List<ProductDiscountResponse>> getAllProductDiscounts(Pageable pageable) {
 
         return ResponseEntity
@@ -31,7 +31,7 @@ public class ProductDiscountController {
                 .body(productDiscountService.findAllProductDiscounts(pageable).getContent());
     }
 
-    @PostMapping(value = "/product-discounts")
+    @PostMapping
     public ResponseEntity<ProductDiscountResponse> postProductDiscount(
             @Valid @RequestBody ProductDiscountRequest productDiscountRequest) {
 
@@ -40,7 +40,7 @@ public class ProductDiscountController {
                 .body(productDiscountService.createProductDiscount(productDiscountRequest));
     }
 
-    @GetMapping(value = "/product-discounts/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<ProductDiscountResponse> getProductDiscountById(@PathVariable Long id) {
 
         return ResponseEntity
@@ -48,16 +48,16 @@ public class ProductDiscountController {
                 .body(productDiscountService.findProductDiscountResponseById(id));
     }
 
-    @PutMapping(value = "/product-discounts")
-    public ResponseEntity<ProductDiscountResponse> putDiscountCoupon(
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<ProductDiscountResponse> putDiscountCoupon(@PathVariable Long id,
             @Valid @RequestBody ProductDiscountRequest productDiscountRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(productDiscountService.updateProductDiscount(productDiscountRequest));
+                .body(productDiscountService.updateProductDiscount(id, productDiscountRequest));
     }
 
-    @DeleteMapping(value = "/product-discounts/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteDiscountCoupon(@PathVariable Long id) {
 
         productDiscountService.deleteProductDiscount(id);

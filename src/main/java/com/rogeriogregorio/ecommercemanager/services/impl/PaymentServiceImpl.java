@@ -133,7 +133,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional(readOnly = false)
     public void deletePayment(Long id) {
 
-        isPaymentExists(id);
+        verifyPaymentExists(id);
 
         errorHandler.catchException(() -> {
             paymentRepository.deleteById(id);
@@ -142,7 +142,7 @@ public class PaymentServiceImpl implements PaymentService {
         logger.warn("Payment removed: {}", id);
     }
 
-    private void isPaymentExists(Long id) {
+    private void verifyPaymentExists(Long id) {
 
         boolean isPaymentExists = errorHandler.catchException(() -> paymentRepository.existsById(id),
                 "Error while trying to check the presence of the payment:");

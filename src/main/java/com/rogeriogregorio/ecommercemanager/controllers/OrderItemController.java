@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/order-items")
 public class OrderItemController {
 
     private final OrderItemService orderItemService;
@@ -23,7 +23,7 @@ public class OrderItemController {
         this.orderItemService = orderItemService;
     }
 
-    @GetMapping(value = "/order-items")
+    @GetMapping
     public ResponseEntity<List<OrderItemResponse>> getAllOrderItems(Pageable pageable) {
 
         return ResponseEntity
@@ -31,7 +31,7 @@ public class OrderItemController {
                 .body(orderItemService.findAllOrderItems(pageable).getContent());
     }
 
-    @PostMapping(value = "/order-items")
+    @PostMapping
     public ResponseEntity<OrderItemResponse> postOrderItem(
             @Valid @RequestBody OrderItemRequest orderItemRequest) {
 
@@ -40,7 +40,7 @@ public class OrderItemController {
                 .body(orderItemService.createOrderItem(orderItemRequest));
     }
 
-    @GetMapping(value = "/order-items/{orderId}/{itemId}")
+    @GetMapping(value = "/{orderId}/{itemId}")
     public ResponseEntity<OrderItemResponse> getOrderItemById(
             @PathVariable Long orderId, @PathVariable Long itemId) {
 
@@ -49,7 +49,7 @@ public class OrderItemController {
                 .body(orderItemService.findOrderItemById(orderId, itemId));
     }
 
-    @PutMapping(value = "/order-items")
+    @PutMapping
     public ResponseEntity<OrderItemResponse> putOrderItem(
             @Valid @RequestBody OrderItemRequest orderItemRequest) {
 
@@ -58,7 +58,7 @@ public class OrderItemController {
                 .body(orderItemService.updateOrderItem(orderItemRequest));
     }
 
-    @DeleteMapping(value = "/order-items/{orderId}/{itemId}")
+    @DeleteMapping(value = "/{orderId}/{itemId}")
     public ResponseEntity<Void> deleteOrderItem(
             @PathVariable Long orderId, @PathVariable Long itemId) {
 

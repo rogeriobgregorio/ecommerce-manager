@@ -16,7 +16,7 @@ public interface StockMovementService {
 
     StockMovementResponse findStockMovementById(Long id);
 
-    StockMovementResponse updateStockMovement(StockMovementRequest stockMovementRequest);
+    StockMovementResponse updateStockMovement(Long id, StockMovementRequest stockMovementRequest);
 
     void deleteStockMovement(Long id);
 

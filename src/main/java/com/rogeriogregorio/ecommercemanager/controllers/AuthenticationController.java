@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/authenticate")
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
@@ -23,7 +23,7 @@ public class AuthenticationController {
         this.authenticationService = authenticationService;
     }
 
-    @PostMapping(value = "/authenticate")
+    @PostMapping
     public ResponseEntity<LoginResponse> authenticate(
             @Valid @RequestBody LoginRequest loginRequest) {
 

@@ -4,8 +4,6 @@ import com.rogeriogregorio.ecommercemanager.dto.requests.AddressRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.services.AddressService;
 import jakarta.validation.Valid;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -16,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/addresses")
 public class AddressController {
 
     private final AddressService addressService;
@@ -26,7 +24,7 @@ public class AddressController {
         this.addressService = addressService;
     }
 
-    @GetMapping(value = "/addresses")
+    @GetMapping
     public ResponseEntity<List<AddressResponse>> getAllAddresses(Pageable pageable) {
 
         return ResponseEntity
@@ -34,7 +32,7 @@ public class AddressController {
                 .body(addressService.findAllAddresses(pageable).getContent());
     }
 
-    @PostMapping(value = "/addresses")
+    @PostMapping
     public ResponseEntity<AddressResponse> postAddress(
             @Valid @RequestBody AddressRequest addressRequest) {
 
@@ -43,7 +41,7 @@ public class AddressController {
                 .body(addressService.createAddress(addressRequest));
     }
 
-    @GetMapping(value = "/addresses/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<AddressResponse> getAddressById(@PathVariable UUID id) {
 
         return ResponseEntity
@@ -51,16 +49,16 @@ public class AddressController {
                 .body(addressService.findAddressById(id));
     }
 
-    @PutMapping(value = "/addresses")
-    public ResponseEntity<AddressResponse> putAddress(
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<AddressResponse> putAddress(@PathVariable UUID id,
             @Valid @RequestBody AddressRequest addressRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(addressService.updateAddress(addressRequest));
+                .body(addressService.updateAddress(id, addressRequest));
     }
 
-    @DeleteMapping(value = "/addresses/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteAddress(@PathVariable UUID id) {
 
         addressService.deleteAddress(id);
