@@ -12,9 +12,9 @@ public interface ProductDiscountService {
 
     ProductDiscountResponse createProductDiscount(ProductDiscountRequest productDiscountRequest);
 
-    ProductDiscountResponse findProductDiscountResponseById(Long id);
+    ProductDiscountResponse findProductDiscountById(Long id);
 
-    ProductDiscount findProductDiscountById(Long id);
+    ProductDiscount getProductDiscountIfExists(Long id);
 
     ProductDiscountResponse updateProductDiscount(Long id, ProductDiscountRequest productDiscountRequest);
 

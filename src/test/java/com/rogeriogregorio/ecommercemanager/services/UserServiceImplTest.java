@@ -200,7 +200,7 @@ class UserServiceImplTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         // Act
-        UserResponse actualResponse = userService.findUserResponseById(1L);
+        UserResponse actualResponse = userService.findUserById(1L);
 
         // Assert
         assertNotNull(actualResponse, "UserResponse should not be null");
@@ -217,7 +217,7 @@ class UserServiceImplTest {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(NotFoundException.class, () -> userService.findUserResponseById(1L), "Expected NotFoundException for non-existent user");
+        assertThrows(NotFoundException.class, () -> userService.findUserById(1L), "Expected NotFoundException for non-existent user");
 
         verify(userRepository, times(1)).findById(1L);
     }
@@ -257,7 +257,7 @@ class UserServiceImplTest {
         when(userRepository.findById(userRequest.getId())).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(NotFoundException.class, () -> userService.findUserResponseById(1L), "Expected NotFoundException for non-existent user");
+        assertThrows(NotFoundException.class, () -> userService.findUserById(1L), "Expected NotFoundException for non-existent user");
 
         verify(userRepository, times(1)).findById(userRequest.getId());
     }

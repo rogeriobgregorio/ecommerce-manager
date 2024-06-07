@@ -21,39 +21,42 @@ public class DataMapperImpl implements DataMapper {
         this.errorHandler = errorHandler;
     }
 
-    public <E, O> E toEntity(O object, Class<E> entity) {
+    @Override
+    public <S, T> T toEntity(S object, Class<T> entity) {
 
         return errorHandler.catchException(() -> modelMapper.map(object, entity),
                 "Error while trying to convert from response to entity: ");
     }
 
-    public <O, R> R toResponse(O object, Class<R> response) {
+    @Override
+    public <S, T> T toResponse(S object, Class<T> response) {
 
         return errorHandler.catchException(() -> modelMapper.map(object, response),
                 "Error while trying to convert from entity to response: ");
     }
 
-    public <S, T> T transferSkipNull(S source, T target) {
-
-        modelMapper.getConfiguration().setSkipNullEnabled(true);
+    @Override
+    public <S, T> T copyTo(S source, T target) {
 
         return errorHandler.catchException(() -> {
             modelMapper.map(source, target);
             return target;
-        }, "Error while trying to transfer data between objects skipping null fields: ");
+        }, "Error while trying to transfer data between objects: ");
     }
 
+    @Override
     public <T> T fromJson(JSONObject jsonObject, Class<T> targetClass) {
 
         return errorHandler.catchException(() -> {
             Map<String, Object> map = jsonObject.toMap();
             return modelMapper.map(map, targetClass);
-        }, "Error while trying to convert from JSONObject to entity: ");
+        }, "Error while trying to convert from JSONObject to object: ");
     }
 
-    public <T> T fromHashMap(Map<String, Object> map, Class<T> targetClass) {
+    @Override
+    public <T> T fromMap(Map<String, Object> map, Class<T> targetClass) {
 
         return errorHandler.catchException(() -> modelMapper.map(map, targetClass),
-                "Error while trying to convert from HashMap to entity: ");
+                "Error while trying to convert from HashMap to object: ");
     }
 }

@@ -8,13 +8,13 @@ import java.util.Map;
 @Component
 public interface DataMapper {
 
-    <E, O> E toEntity(O object, Class<E> entity);
+    <S, T> T toEntity(S object, Class<T> entity);
 
-    <O, R> R toResponse(O object, Class<R> response);
+    <S, T> T toResponse(S object, Class<T> response);
 
-    <S, T> T transferSkipNull(S source, T target);
+    <S, T> T copyTo(S source, T target);
 
     <T> T fromJson(JSONObject jsonObject, Class<T> targetClass);
 
-    <T> T fromHashMap(Map<String, Object> map, Class<T> targetClass);
+    <T> T fromMap(Map<String, Object> map, Class<T> targetClass);
 }

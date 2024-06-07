@@ -45,7 +45,7 @@ public class OrderController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(orderService.findOrderResponseById(id));
+                .body(orderService.findOrderById(id));
     }
 
     @PutMapping(value = "/{id}")

@@ -10,7 +10,6 @@ public class StockMovementRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private Long id;
     private Long inventoryItemId;
     private Integer movementType;
     private Integer quantityMoved;
@@ -18,22 +17,13 @@ public class StockMovementRequest implements Serializable {
     public StockMovementRequest() {
     }
 
-    public StockMovementRequest(Long id, Long inventoryItemId,
+    public StockMovementRequest(Long inventoryItemId,
                                 MovementType movementType,
                                 Integer quantityMoved) {
 
-        this.id = id;
         this.inventoryItemId = inventoryItemId;
         setMovementType(movementType);
         this.quantityMoved = quantityMoved;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Long getInventoryItemId() {

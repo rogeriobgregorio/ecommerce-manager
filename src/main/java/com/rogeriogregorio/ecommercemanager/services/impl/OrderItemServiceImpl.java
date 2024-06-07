@@ -8,7 +8,10 @@ import com.rogeriogregorio.ecommercemanager.entities.Product;
 import com.rogeriogregorio.ecommercemanager.entities.primarykeys.OrderItemPK;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderItemRepository;
-import com.rogeriogregorio.ecommercemanager.services.*;
+import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
+import com.rogeriogregorio.ecommercemanager.services.OrderItemService;
+import com.rogeriogregorio.ecommercemanager.services.OrderService;
+import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import org.apache.logging.log4j.LogManager;
@@ -105,10 +108,10 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     private Order validateOrderChangeEligibility(Long orderId) {
 
-        Order order = orderService.findOrderById(orderId);
+        Order order = orderService.getOrderIfExists(orderId);
 
         if (order.isOrderPaid()) {
-            throw new IllegalStateException("It's not possible to modify the item list of a paid order.");
+            throw new IllegalStateException("You cannot change items on a paid order.");
         }
 
         return order;
@@ -116,8 +119,8 @@ public class OrderItemServiceImpl implements OrderItemService {
 
     private OrderItemPK buildOrderItemPK(Long orderId, Long itemId) {
 
-        Order order = orderService.findOrderById(orderId);
-        Product product = productService.findProductById(itemId);
+        Order order = orderService.getOrderIfExists(orderId);
+        Product product = productService.getProductIfExists(itemId);
 
         OrderItemPK id = new OrderItemPK();
         id.setOrder(order);
@@ -129,7 +132,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     private OrderItem buildOrderItem(OrderItemRequest orderItemRequest) {
 
         Order order = validateOrderChangeEligibility(orderItemRequest.getOrderId());
-        Product product = productService.findProductById(orderItemRequest.getProductId());
+        Product product = productService.getProductIfExists(orderItemRequest.getProductId());
 
         OrderItem orderItem = OrderItem.newBuilder()
                 .withOrder(order)

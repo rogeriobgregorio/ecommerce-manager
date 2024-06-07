@@ -211,7 +211,7 @@ class ProductServiceImplTest {
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
         // Act
-        ProductResponse actualResponse = productService.findProductResponseById(1L);
+        ProductResponse actualResponse = productService.findProductById(1L);
 
         // Assert
         assertNotNull(actualResponse, "ProductResponse should not be null");
@@ -228,7 +228,7 @@ class ProductServiceImplTest {
         when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(NotFoundException.class, () -> productService.findProductResponseById(1L));
+        assertThrows(NotFoundException.class, () -> productService.findProductById(1L));
 
         verify(productRepository, times(1)).findById(1L);
     }

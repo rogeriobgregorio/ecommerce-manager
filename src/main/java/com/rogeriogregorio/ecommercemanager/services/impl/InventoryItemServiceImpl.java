@@ -5,8 +5,8 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.InventoryItemResponse;
 import com.rogeriogregorio.ecommercemanager.entities.*;
 import com.rogeriogregorio.ecommercemanager.entities.enums.MovementType;
 import com.rogeriogregorio.ecommercemanager.entities.enums.StockStatus;
-import com.rogeriogregorio.ecommercemanager.exceptions.StockException;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
+import com.rogeriogregorio.ecommercemanager.exceptions.StockException;
 import com.rogeriogregorio.ecommercemanager.repositories.InventoryItemRepository;
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
@@ -75,7 +75,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     }
 
     @Transactional(readOnly = true)
-    public InventoryItemResponse findInventoryItemResponseById(Long id) {
+    public InventoryItemResponse findInventoryItemById(Long id) {
 
         return errorHandler.catchException(() -> inventoryItemRepository.findById(id),
                         "Error while trying to find the inventory item by ID: ")
@@ -86,8 +86,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Transactional(readOnly = false)
     public InventoryItemResponse updateInventoryItem(Long id, InventoryItemRequest inventoryItemRequest) {
 
-        verifyInventoryItemExists(id);
-        InventoryItem inventoryItem = findInventoryItemById(id).toBuilder()
+        InventoryItem inventoryItem = getInventoryItemIfExists(id).toBuilder()
                 .withStockStatus(inventoryItemRequest.getStockStatus())
                 .withQuantityInStock(inventoryItemRequest.getQuantityInStock())
                 .build();
@@ -102,20 +101,13 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Transactional(readOnly = false)
     public void deleteInventoryItem(Long id) {
 
-        verifyInventoryItemExists(id);
+        InventoryItem inventoryItem = getInventoryItemIfExists(id);
 
         errorHandler.catchException(() -> {
-            inventoryItemRepository.deleteById(id);
+            inventoryItemRepository.delete(inventoryItem);
             return null;
         }, "Error while trying to delete the inventory item: ");
-        logger.warn("Inventory item removed: {}", id);
-    }
-
-    public InventoryItem findInventoryItemById(Long id) {
-
-        return errorHandler.catchException(() -> inventoryItemRepository.findById(id),
-                        "Error while trying to find the inventory item by ID: ")
-                .orElseThrow(() -> new NotFoundException("Inventory item not found with ID: " + id + "."));
+        logger.warn("Inventory item deleted: {}", inventoryItem);
     }
 
     public InventoryItem findInventoryItemByProduct(Product product) {
@@ -190,14 +182,16 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             inventoryItem.setQuantityInStock(quantityInStockUpdated);
             inventoryItem.setQuantitySold(quantitySoldUpdated);
 
-            saveInventoryItem(inventoryItem);
+            errorHandler.catchException(() -> inventoryItemRepository.save(inventoryItem),
+                    "Error while trying to save the inventory item: ");
+            logger.info("Inventory item quantity updated: {}", inventoryItem);
         }
     }
 
     private Product validateProductForInventory(InventoryItemRequest inventoryItemRequest) {
 
         Long productId = inventoryItemRequest.getProductId();
-        Product product = productService.findProductById(productId);
+        Product product = productService.getProductIfExists(productId);
 
         boolean isItemAlreadyAdded = errorHandler.catchException(() -> inventoryItemRepository.existsByProduct(product),
                 "Error while trying to check the presence of the item in the inventory: ");
@@ -209,21 +203,16 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         return product;
     }
 
-    private void verifyInventoryItemExists(Long id) {
+    public InventoryItem getInventoryItemIfExists(Long id) {
 
-        boolean isInventoryItemExists = errorHandler.catchException(() -> inventoryItemRepository.existsById(id),
-                "Error while trying to check the presence of the inventory item: ");
+        return errorHandler.catchException(() -> {
 
-        if (!isInventoryItemExists) {
-            throw new NotFoundException("Inventory item not found with ID: " + id + ".");
-        }
-    }
+            if (!inventoryItemRepository.existsById(id)) {
+                throw new NotFoundException("Inventory item not exists with ID: " + id + ".");
+            }
 
-    private void saveInventoryItem(InventoryItem inventoryItem) {
-
-        errorHandler.catchException(() -> inventoryItemRepository.save(inventoryItem),
-                "Error while trying to save the inventory item: ");
-        logger.info("Inventory item quantity updated: {}", inventoryItem);
+            return dataMapper.toEntity(inventoryItemRepository.findById(id), InventoryItem.class);
+        }, "Error while trying to verify the existence of the inventory item by ID: ");
     }
 
     private void updateStockMovementEntrance(InventoryItem inventoryItem) {
@@ -238,15 +227,5 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         errorHandler.catchException(() -> stockMovementRepository.save(stockMovement),
                 "Error while trying to create the inventory movement: ");
         logger.info("Inventory movement entrance: {}", stockMovement);
-    }
-
-    private InventoryItem buildCreateInventoryItem(InventoryItemRequest inventoryItemRequest) {
-
-        return InventoryItem.newBuilder()
-                .withProduct(validateProductForInventory(inventoryItemRequest))
-                .withQuantityInStock(inventoryItemRequest.getQuantityInStock())
-                .withQuantitySold(0)
-                .withStockStatus(inventoryItemRequest.getStockStatus())
-                .build();
     }
 }

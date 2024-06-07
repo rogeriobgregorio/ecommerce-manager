@@ -17,9 +17,9 @@ public interface InventoryItemService {
 
     InventoryItemResponse createInventoryItem(InventoryItemRequest inventoryItemRequest);
 
-    InventoryItemResponse findInventoryItemResponseById(Long id);
+    InventoryItemResponse findInventoryItemById(Long id);
 
-    InventoryItem findInventoryItemById(Long id);
+    InventoryItem getInventoryItemIfExists(Long id);
 
     InventoryItemResponse updateInventoryItem(Long id, InventoryItemRequest inventoryItemRequest);
 

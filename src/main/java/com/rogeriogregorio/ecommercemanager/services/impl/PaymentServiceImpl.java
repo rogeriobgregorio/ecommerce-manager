@@ -77,7 +77,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     public PaymentResponse createPaymentProcess(PaymentRequest paymentRequest) {
 
-        Order order = orderService.findOrderById(paymentRequest.getOrderId());
+        Order order = orderService.getOrderIfExists(paymentRequest.getOrderId());
         orderValidators.forEach(strategy -> strategy.validateOrder(order));
 
         Payment payment = getPaymentStrategy(paymentRequest).createPayment(order);
@@ -133,23 +133,25 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional(readOnly = false)
     public void deletePayment(Long id) {
 
-        verifyPaymentExists(id);
+        Payment payment = getPaymentIfExists(id);
 
         errorHandler.catchException(() -> {
-            paymentRepository.deleteById(id);
+            paymentRepository.delete(payment);
             return null;
         }, "Error while trying to delete the payment: ");
-        logger.warn("Payment removed: {}", id);
+        logger.warn("Payment deleted: {}", payment);
     }
 
-    private void verifyPaymentExists(Long id) {
+    public Payment getPaymentIfExists(Long id) {
 
-        boolean isPaymentExists = errorHandler.catchException(() -> paymentRepository.existsById(id),
-                "Error while trying to check the presence of the payment:");
+        return errorHandler.catchException(() -> {
 
-        if (!isPaymentExists) {
-            throw new NotFoundException("Payment not found with ID: " + id + ".");
-        }
+            if (!paymentRepository.existsById(id)) {
+                throw new NotFoundException("Payment not exists with ID: " + id + ".");
+            }
+
+            return dataMapper.toEntity(paymentRepository.findById(id), Payment.class);
+        }, "Error while trying to verify the existence of the Payment by ID: ");
     }
 
     private Payment findByTxId(String txId) {
@@ -168,7 +170,7 @@ public class PaymentServiceImpl implements PaymentService {
             Payment paymentPix = findByTxId(pix.getTxid());
 
             Long orderId = paymentPix.getOrder().getId();
-            Order order = orderService.findOrderById(orderId);
+            Order order = orderService.getOrderIfExists(orderId);
             order.setPayment(paymentPix);
             order.setOrderStatus(OrderStatus.PAID);
             orderService.savePaidOrder(order);

@@ -16,9 +16,9 @@ public interface OrderService {
 
     void savePaidOrder(Order order);
 
-    OrderResponse findOrderResponseById(Long id);
+    OrderResponse findOrderById(Long id);
 
-    Order findOrderById(Long id);
+    Order getOrderIfExists(Long id);
 
     OrderResponse updateOrder(Long id, OrderRequest orderRequest);
 

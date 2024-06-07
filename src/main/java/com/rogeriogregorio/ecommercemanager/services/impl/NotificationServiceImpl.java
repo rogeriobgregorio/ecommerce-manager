@@ -6,8 +6,8 @@ import com.rogeriogregorio.ecommercemanager.entities.Notification;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.NotificationRepository;
 import com.rogeriogregorio.ecommercemanager.services.NotificationService;
-import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import com.rogeriogregorio.ecommercemanager.util.DataMapper;
+import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +46,8 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional(readOnly = false)
     public NotificationResponse createNotification(NotificationRequest notificationRequest) {
 
-        Notification notification = validateNotificationDates(notificationRequest);
+        validateNotificationDates(notificationRequest);
+        Notification notification = dataMapper.toEntity(notificationRequest, Notification.class);
 
         errorHandler.catchException(() -> notificationRepository.save(notification),
                 "Error while trying to create the notification: ");
@@ -67,39 +68,42 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional(readOnly = false)
     public NotificationResponse updateNotification(Long id, NotificationRequest notificationRequest) {
 
-        verifyNotificationExists(id);
-        Notification notification = validateNotificationDates(notificationRequest);
+        validateNotificationDates(notificationRequest);
+        Notification currentNotification = getNotificationIfExists(id);
+        Notification updatedNotification = dataMapper.copyTo(notificationRequest, currentNotification);
 
-        errorHandler.catchException(() -> notificationRepository.save(notification),
+        errorHandler.catchException(() -> notificationRepository.save(updatedNotification),
                 "Error while trying to update the notification: ");
-        logger.info("Notification update: {}", notification);
+        logger.info("Notification update: {}", updatedNotification);
 
-        return dataMapper.toResponse(notification, NotificationResponse.class);
+        return dataMapper.toResponse(updatedNotification, NotificationResponse.class);
     }
 
     @Transactional(readOnly = false)
     public void deleteNotification(Long id) {
 
-        verifyNotificationExists(id);
+        Notification notification = getNotificationIfExists(id);
 
         errorHandler.catchException(() -> {
-            notificationRepository.deleteById(id);
+            notificationRepository.delete(notification);
             return null;
         }, "Error while trying to delete the notification: ");
-        logger.warn("Notification removed with ID: {}", id);
+        logger.warn("Notification deleted: {}", notification);
     }
 
-    private void verifyNotificationExists(Long id) {
+    private Notification getNotificationIfExists(Long id) {
 
-        boolean isNotificationExists = errorHandler.catchException(() -> notificationRepository.existsById(id),
-                "Error while trying to check the presence of the notification: ");
+        return errorHandler.catchException(() -> {
 
-        if (!isNotificationExists) {
-            throw new NotFoundException("Notification not found with ID: " + id + ".");
-        }
+            if (!notificationRepository.existsById(id)) {
+                throw new NotFoundException("Notification not exists with ID: " + id + ".");
+            }
+
+            return dataMapper.toEntity(notificationRepository.findById(id), Notification.class);
+        }, "Error while trying to verify the existence of the notification by ID: ");
     }
 
-    private Notification validateNotificationDates(NotificationRequest notificationRequest) {
+    private void validateNotificationDates(NotificationRequest notificationRequest) {
 
         Instant validFrom = notificationRequest.getValidFrom();
         Instant validUntil = notificationRequest.getValidUntil();
@@ -108,7 +112,5 @@ public class NotificationServiceImpl implements NotificationService {
         if (!isValidDate) {
             throw new IllegalStateException("The start date must be before the end date.");
         }
-
-        return dataMapper.toEntity(notificationRequest, Notification.class);
     }
 }

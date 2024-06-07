@@ -10,7 +10,6 @@ public class ProductDiscountRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private Long id;
     private String name;
     private BigDecimal discount;
     private Instant validFrom;
@@ -19,22 +18,13 @@ public class ProductDiscountRequest implements Serializable {
     public ProductDiscountRequest() {
     }
 
-    public ProductDiscountRequest(Long id, String name, BigDecimal discount,
+    public ProductDiscountRequest(String name, BigDecimal discount,
                                   Instant validFrom, Instant validUntil) {
 
-        this.id = id;
         this.name = name;
         this.discount = discount;
         this.validFrom = validFrom;
         this.validUntil = validUntil;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {

@@ -59,7 +59,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public OrderResponse createOrder(OrderRequest orderRequest) {
 
-        User client = userService.findUserById(orderRequest.getClientId());
+        User client = userService.getUserIfExists(orderRequest.getClientId());
 
         Order order = Order.newBuilder()
                 .withMoment(Instant.now())
@@ -85,7 +85,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional(readOnly = true)
-    public OrderResponse findOrderResponseById(Long id) {
+    public OrderResponse findOrderById(Long id) {
 
         return errorHandler.catchException(() -> orderRepository.findById(id),
                         "Error while trying to find the order by ID: ")
@@ -96,7 +96,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public OrderResponse updateOrder(Long id, OrderRequest orderRequest) {
 
-        Order order = findOrderById(id);
+        Order order = getOrderIfExists(id);
 
         String code = orderRequest.getDiscountCouponCode();
         DiscountCoupon discountCoupon = validateDiscountCoupon(code);
@@ -120,8 +120,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public OrderResponse updateOrderStatus(Long id, OrderRequest orderRequest) {
 
-        verifyOrderExists(id);
-        Order order = findOrderById(id).toBuilder()
+        Order order = getOrderIfExists(id).toBuilder()
                 .withMoment(Instant.now())
                 .withOrderStatus(orderRequest.getOrderStatus())
                 .build();
@@ -138,14 +137,17 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = false)
     public void deleteOrder(Long id) {
 
-        verifyOrderExists(id);
-        validateOrderDeleteEligibility(id);
+        Order order = getOrderIfExists(id);
+
+        if (order.isOrderPaid()) {
+            throw new IllegalStateException("Paid order cannot be deleted.");
+        }
 
         errorHandler.catchException(() -> {
-            orderRepository.deleteById(id);
+            orderRepository.delete(order);
             return null;
         }, "Error while trying to delete the order: ");
-        logger.warn("Order removed with ID: {}", id);
+        logger.warn("Order deleted: {}", order);
     }
 
     @Transactional(readOnly = true)
@@ -156,32 +158,18 @@ public class OrderServiceImpl implements OrderService {
                 .map(order -> dataMapper.toResponse(order, OrderResponse.class));
     }
 
-    public Order findOrderById(Long id) {
+    public Order getOrderIfExists(Long id) {
 
-        return errorHandler.catchException(() -> orderRepository.findById(id),
-                        "Error while trying to find order by ID: ")
-                .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + "."));
+        return errorHandler.catchException(() -> {
+
+            if (!orderRepository.existsById(id)) {
+                throw new NotFoundException("Order not exists with ID: " + id + ".");
+            }
+
+            return dataMapper.toEntity(orderRepository.findById(id), Order.class);
+        }, "Error while trying to verify the existence of the order by ID: ");
     }
 
-    private void verifyOrderExists(Long id) {
-
-        boolean isOrderExists = errorHandler.catchException(() -> orderRepository.existsById(id),
-                "Error while trying to check the presence of the order: ");
-
-        if (!isOrderExists) {
-            throw new NotFoundException("Order not found with ID: " + id + ".");
-        }
-    }
-
-    private void validateOrderDeleteEligibility(Long id) {
-
-        Order order = findOrderById(id);
-        boolean isOrderPaid = order.isOrderPaid();
-
-        if (isOrderPaid) {
-            throw new IllegalStateException("You cannot delete an order that has already been paid for.");
-        }
-    }
 
     private DiscountCoupon validateDiscountCoupon(String code) {
 

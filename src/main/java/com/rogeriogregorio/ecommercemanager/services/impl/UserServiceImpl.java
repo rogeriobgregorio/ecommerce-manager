@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserResponse findUserResponseById(UUID id) {
+    public UserResponse findUserById(UUID id) {
 
         return errorHandler.catchException(() -> userRepository.findById(id),
                         "Error while trying to fetch the user by ID: " + id)
@@ -70,8 +70,8 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = false)
     public UserResponse registerUser(UserRequest userRequest) {
 
-        String encodedPassword = validatePassword(userRequest.getPassword());
         User user = dataMapper.toEntity(userRequest, User.class);
+        String encodedPassword = validatePassword(userRequest.getPassword());
         user.setPassword(encodedPassword);
         user.setRole(UserRole.CLIENT);
 
@@ -89,22 +89,22 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = false)
     public UserResponse updateUser(UUID id, UserRequest userRequest) {
 
-        verifyUserExists(id);
+        User currentUser = getUserIfExists(id);
+        User updatedUser = dataMapper.copyTo(userRequest, currentUser);
         String encodedPassword = validatePassword(userRequest.getPassword());
-        User user = dataMapper.toEntity(userRequest, User.class);
-        user.setPassword(encodedPassword);
+        updatedUser.setPassword(encodedPassword);
 
-        errorHandler.catchException(() -> userRepository.save(user),
+        errorHandler.catchException(() -> userRepository.save(updatedUser),
                 "Error while trying to update the user: ");
-        logger.info("User updated: {}", user);
+        logger.info("User updated: {}", updatedUser);
 
-        return dataMapper.toResponse(user, UserResponse.class);
+        return dataMapper.toResponse(updatedUser, UserResponse.class);
     }
 
     @Transactional(readOnly = false)
     public UserResponse createAdminOrManagerUser(UserRequest userRequest) {
 
-        User user = findUserById(userRequest.getId());
+        User user = getUserIfExists(userRequest.getId());
         user.setRole(userRequest.getUserRole());
 
         errorHandler.catchException(() -> userRepository.save(user),
@@ -117,13 +117,13 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = false)
     public void deleteUser(UUID id) {
 
-        verifyUserExists(id);
+        User user = getUserIfExists(id);
 
         errorHandler.catchException(() -> {
-            userRepository.deleteById(id);
+            userRepository.delete(user);
             return null;
         }, "Error while trying to delete the user: ");
-        logger.warn("User removed: {}", id);
+        logger.warn("User removed: {}", user);
     }
 
     @Transactional(readOnly = true)
@@ -134,21 +134,16 @@ public class UserServiceImpl implements UserService {
                 map(user -> dataMapper.toResponse(user, UserResponse.class));
     }
 
-    public User findUserById(UUID id) {
+    public User getUserIfExists(UUID id) {
 
-        return errorHandler.catchException(() -> userRepository.findById(id),
-                        "Error while trying to fetch the user by ID: " + id)
-                .orElseThrow(() -> new NotFoundException("User not found with ID: " + id + "."));
-    }
+        return errorHandler.catchException(() -> {
 
-    private void verifyUserExists(UUID id) {
+            if (!userRepository.existsById(id)) {
+                throw new NotFoundException("User not exists with ID: " + id + ".");
+            }
 
-        boolean isUserExists = errorHandler.catchException(() -> userRepository.existsById(id),
-                "Error while trying to check the presence of the user: ");
-
-        if (!isUserExists) {
-            throw new NotFoundException("User not found with ID: " + id + ".");
-        }
+            return dataMapper.toEntity(userRepository.findById(id), User.class);
+        }, "Error while trying to verify the existence of the user by ID: ");
     }
 
     public void saveUserAddress(User user) {

@@ -138,7 +138,7 @@ class AddressServiceImplTest {
         AddressRequest addressRequest = new AddressRequest("Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
         AddressResponse expectedResponse = new AddressResponse(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
 
-        when(userService.findUserById(addressRequest.getUserId())).thenReturn(user);
+        when(userService.getUserIfExists(addressRequest.getUserId())).thenReturn(user);
         when(converter.toEntity(addressRequest, Address.class)).thenReturn(address);
         doNothing().when(userService).saveUserAddress(user);
         when(addressRepository.save(address)).thenReturn(address);
@@ -151,7 +151,7 @@ class AddressServiceImplTest {
         assertNotNull(actualResponse, "AddressResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(userService, times(1)).findUserById(addressRequest.getUserId());
+        verify(userService, times(1)).getUserIfExists(addressRequest.getUserId());
         verify(converter, times(1)).toEntity(addressRequest, Address.class);
         verify(userService, times(1)).saveUserAddress(user);
         verify(addressRepository, times(1)).save(address);
@@ -169,7 +169,7 @@ class AddressServiceImplTest {
 
         AddressRequest addressRequest = new AddressRequest("Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
 
-        when(userService.findUserById(addressRequest.getUserId())).thenReturn(user);
+        when(userService.getUserIfExists(addressRequest.getUserId())).thenReturn(user);
         when(converter.toEntity(addressRequest, Address.class)).thenReturn(address);
         doNothing().when(userService).saveUserAddress(user);
         when(addressRepository.save(address)).thenThrow(PersistenceException.class);
@@ -177,7 +177,7 @@ class AddressServiceImplTest {
         // Act and Assert
         assertThrows(RepositoryException.class, () -> addressService.createAddress(addressRequest), "Expected RepositoryException due to a PersistenceException");
 
-        verify(userService, times(1)).findUserById(addressRequest.getUserId());
+        verify(userService, times(1)).getUserIfExists(addressRequest.getUserId());
         verify(converter, times(1)).toEntity(addressRequest, Address.class);
         verify(userService, times(1)).saveUserAddress(user);
         verify(addressRepository, times(1)).save(address);
@@ -232,7 +232,7 @@ class AddressServiceImplTest {
         AddressResponse expectedResponse = new AddressResponse(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
 
         when(addressRepository.findById(address.getId())).thenReturn(Optional.of(address));
-        when(userService.findUserById(addressRequest.getUserId())).thenReturn(user);
+        when(userService.getUserIfExists(addressRequest.getUserId())).thenReturn(user);
         when(converter.toEntity(addressRequest, Address.class)).thenReturn(address);
         doNothing().when(userService).saveUserAddress(user);
         when(addressRepository.save(address)).thenReturn(address);
@@ -246,7 +246,7 @@ class AddressServiceImplTest {
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
         verify(addressRepository, times(1)).findById(address.getId());
-        verify(userService, times(1)).findUserById(addressRequest.getUserId());
+        verify(userService, times(1)).getUserIfExists(addressRequest.getUserId());
         verify(converter, times(1)).toEntity(addressRequest, Address.class);
         verify(userService, times(1)).saveUserAddress(user);
         verify(addressRepository, times(1)).save(address);

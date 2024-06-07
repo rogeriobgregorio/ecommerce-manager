@@ -7,9 +7,9 @@ import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.AddressRepository;
 import com.rogeriogregorio.ecommercemanager.services.AddressService;
+import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.util.DataMapper;
 import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
-import com.rogeriogregorio.ecommercemanager.services.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +61,11 @@ public class AddressServiceImpl implements AddressService {
     @Transactional(readOnly = false)
     public AddressResponse createAddress(AddressRequest addressRequest) {
 
-        Address address = buildAddress(addressRequest);
+        User user = userService.getUserIfExists(addressRequest.getUserId());
+        Address address = dataMapper.toEntity(addressRequest, Address.class);
+        address.setUser(user);
+        user.setAddress(address);
+        userService.saveUserAddress(user);
 
         errorHandler.catchException(() -> addressRepository.save(address),
                 "Error while trying to create the address: ");
@@ -73,49 +77,41 @@ public class AddressServiceImpl implements AddressService {
     @Transactional(readOnly = false)
     public AddressResponse updateAddress(UUID id, AddressRequest addressRequest) {
 
-        verifyAddressExists(id);
-        Address address = buildAddress(addressRequest);
+        User user = userService.getUserIfExists(addressRequest.getUserId());
+        Address currentAddress = getAddressIfExists(id);
+        Address updatedAddress = dataMapper.copyTo(addressRequest, currentAddress);
+        updatedAddress.setUser(user);
+        user.setAddress(updatedAddress);
+        userService.saveUserAddress(user);
 
-        errorHandler.catchException(() -> addressRepository.save(address),
+        errorHandler.catchException(() -> addressRepository.save(updatedAddress),
                 "Error while trying to update the address: ");
-        logger.info("Address updated: {}", address);
+        logger.info("Address updated: {}", updatedAddress);
 
-        return dataMapper.toResponse(address, AddressResponse.class);
+        return dataMapper.toResponse(updatedAddress, AddressResponse.class);
     }
 
     @Transactional(readOnly = false)
     public void deleteAddress(UUID id) {
 
-        verifyAddressExists(id);
+        Address address = getAddressIfExists(id);
 
         errorHandler.catchException(() -> {
-            addressRepository.deleteById(id);
+            addressRepository.delete(address);
             return null;
         }, "Error while trying to delete the address: ");
-        logger.warn("Address removed with ID: {}", id);
+        logger.warn("Address deleted: {}", address);
     }
 
-    private void verifyAddressExists(UUID id) {
+    private Address getAddressIfExists(UUID id) {
 
-        boolean isAddressExists = errorHandler.catchException(() -> addressRepository.existsById(id),
-                "Error while trying to check the presence of the address: ");
+        return errorHandler.catchException(() -> {
 
-        if (!isAddressExists) {
-            throw new NotFoundException("Address not found with ID: " + id + ".");
-        }
-    }
+            if (!addressRepository.existsById(id)) {
+                throw new NotFoundException("Address not exists with ID: " + id + ".");
+            }
 
-    private Address buildAddress(AddressRequest addressRequest) {
-
-        UUID userId = addressRequest.getUserId();
-        User user = userService.findUserById(userId);
-
-        Address address = dataMapper.toEntity(addressRequest, Address.class);
-        address.setUser(user);
-
-        user.setAddress(address);
-        userService.saveUserAddress(user);
-
-        return address;
+            return dataMapper.toEntity(addressRepository.findById(id), Address.class);
+        }, "Error while trying to verify the existence of the address by ID: ");
     }
 }

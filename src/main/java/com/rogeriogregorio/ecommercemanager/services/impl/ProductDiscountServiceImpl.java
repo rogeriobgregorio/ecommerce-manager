@@ -47,7 +47,6 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
     public ProductDiscountResponse createProductDiscount(ProductDiscountRequest productDiscountRequest) {
 
         validateProductDiscountDates(productDiscountRequest);
-
         ProductDiscount productDiscount = dataMapper.toEntity(productDiscountRequest, ProductDiscount.class);
 
         errorHandler.catchException(() -> productDiscountRepository.save(productDiscount),
@@ -58,7 +57,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
     }
 
     @Transactional(readOnly = true)
-    public ProductDiscountResponse findProductDiscountResponseById(Long id) {
+    public ProductDiscountResponse findProductDiscountById(Long id) {
 
         return errorHandler.catchException(() -> productDiscountRepository.findById(id),
                         "Error while trying to find the product discount by ID: ")
@@ -69,45 +68,39 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
     @Transactional(readOnly = false)
     public ProductDiscountResponse updateProductDiscount(Long id, ProductDiscountRequest productDiscountRequest) {
 
-        verifyProductDiscountExists(id);
         validateProductDiscountDates(productDiscountRequest);
+        ProductDiscount currentProductDiscount = getProductDiscountIfExists(id);
+        ProductDiscount updatedProductDiscount = dataMapper.copyTo(productDiscountRequest, currentProductDiscount);
 
-        ProductDiscount productDiscount = dataMapper.toEntity(productDiscountRequest, ProductDiscount.class);
-
-        errorHandler.catchException(() -> productDiscountRepository.save(productDiscount),
+        errorHandler.catchException(() -> productDiscountRepository.save(updatedProductDiscount),
                 "Error while trying to update the product discount: ");
-        logger.info("Product discount updated: {}", productDiscount);
+        logger.info("Product discount updated: {}", updatedProductDiscount);
 
-        return dataMapper.toResponse(productDiscount, ProductDiscountResponse.class);
+        return dataMapper.toResponse(updatedProductDiscount, ProductDiscountResponse.class);
     }
 
     @Transactional(readOnly = false)
     public void deleteProductDiscount(Long id) {
 
-        verifyProductDiscountExists(id);
+        ProductDiscount productDiscount = getProductDiscountIfExists(id);
 
         errorHandler.catchException(() -> {
-            productDiscountRepository.deleteById(id);
+            productDiscountRepository.delete(productDiscount);
             return null;
         }, "Error while trying to delete the product discount: ");
-        logger.warn("Product discount removed: {}", id);
+        logger.warn("Product discount deleted: {}", productDiscount);
     }
 
-    public ProductDiscount findProductDiscountById(Long id) {
+    public ProductDiscount getProductDiscountIfExists(Long id) {
 
-        return errorHandler.catchException(() -> productDiscountRepository.findById(id),
-                        "Error while trying to find the product discount by ID: ")
-                .orElseThrow(() -> new NotFoundException("Product discount not found with ID: " + id + "."));
-    }
+        return errorHandler.catchException(() -> {
 
-    private void verifyProductDiscountExists(Long id) {
+            if (!productDiscountRepository.existsById(id)) {
+                throw new NotFoundException("Product discount not exists with ID: " + id + ".");
+            }
 
-        boolean isProductDiscountExists = errorHandler.catchException(() -> productDiscountRepository.existsById(id),
-                "Error while trying to check the presence of the product discount: ");
-
-        if (!isProductDiscountExists) {
-            throw new NotFoundException("Product discount not found with ID: " + id + ".");
-        }
+            return dataMapper.toEntity(productDiscountRepository.findById(id), ProductDiscount.class);
+        }, "Error while trying to verify the existence of the product discount by ID: ");
     }
 
     private void validateProductDiscountDates(ProductDiscountRequest productDiscountRequest) {

@@ -68,7 +68,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Transactional(readOnly = true)
-    public ProductResponse findProductResponseById(Long id) {
+    public ProductResponse findProductById(Long id) {
 
         return errorHandler.catchException(() -> productRepository.findById(id),
                         "Error while trying to create the product: ")
@@ -79,28 +79,28 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = false)
     public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
 
-        verifyProductExists(id);
-        Product product = dataMapper.toEntity(productRequest, Product.class);
-        product.setProductDiscount(validateDiscount(productRequest));
-        product.setCategories(validateCategory(productRequest));
+        Product currentProduct = getProductIfExists(id);
+        Product updatedProduct = dataMapper.copyTo(productRequest, currentProduct);
+        updatedProduct.setProductDiscount(validateDiscount(productRequest));
+        updatedProduct.setCategories(validateCategory(productRequest));
 
-        errorHandler.catchException(() -> productRepository.save(product),
+        errorHandler.catchException(() -> productRepository.save(updatedProduct),
                 "Error while trying to update the product: ");
-        logger.info("Product updated: {}", product);
+        logger.info("Product updated: {}", updatedProduct);
 
-        return dataMapper.toResponse(product, ProductResponse.class);
+        return dataMapper.toResponse(updatedProduct, ProductResponse.class);
     }
 
     @Transactional(readOnly = false)
     public void deleteProduct(Long id) {
 
-        verifyProductExists(id);
+        Product product = getProductIfExists(id);
 
         errorHandler.catchException(() -> {
-            productRepository.deleteById(id);
+            productRepository.delete(product);
             return null;
         }, "Error while trying to delete the product: ");
-        logger.warn("Product removed: {}", id);
+        logger.warn("Product deleted: {}", product);
     }
 
     @Transactional(readOnly = true)
@@ -111,21 +111,16 @@ public class ProductServiceImpl implements ProductService {
                 .map(product -> dataMapper.toResponse(product, ProductResponse.class));
     }
 
-    public Product findProductById(Long id) {
+    public Product getProductIfExists(Long id) {
 
-        return errorHandler.catchException(() -> productRepository.findById(id),
-                        "Error while trying to fetch the product by ID: ")
-                .orElseThrow(() -> new NotFoundException("Product not found with ID: " + id + "."));
-    }
+        return errorHandler.catchException(() -> {
 
-    private void verifyProductExists(Long id) {
+            if (!productRepository.existsById(id)) {
+                throw new NotFoundException("Product not exists with ID: " + id + ".");
+            }
 
-        boolean isProductExists = errorHandler.catchException(() -> productRepository.existsById(id),
-                "Error while trying to check the presence of the product: ");
-
-        if (!isProductExists) {
-            throw new NotFoundException("Product not found with ID: " + id + ".");
-        }
+            return dataMapper.toEntity(productRepository.findById(id), Product.class);
+        }, "Error while trying to verify the existence of the product by ID: ");
     }
 
     private Set<Category> validateCategory(ProductRequest productRequest) {
@@ -141,7 +136,7 @@ public class ProductServiceImpl implements ProductService {
 
         Long discountId = productRequest.getDiscountId();
         if (discountId != null) {
-            return productDiscountService.findProductDiscountById(discountId);
+            return productDiscountService.getProductDiscountIfExists(discountId);
         }
         return null;
     }

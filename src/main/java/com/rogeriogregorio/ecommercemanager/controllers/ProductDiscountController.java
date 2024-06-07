@@ -45,7 +45,7 @@ public class ProductDiscountController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(productDiscountService.findProductDiscountResponseById(id));
+                .body(productDiscountService.findProductDiscountById(id));
     }
 
     @PutMapping(value = "/{id}")

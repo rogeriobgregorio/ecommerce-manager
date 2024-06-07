@@ -103,19 +103,21 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
     }
 
-    private void validateProductReview(User user, Product product) {
+    private ProductReview validateProductReview(ProductReview productReview) {
 
-        Set<Product> purchasedProducts = user.getPurchasedProducts();
+        Set<Product> purchasedProducts = productReview.getUser().getPurchasedProducts();
 
-        if (!purchasedProducts.contains(product)) {
+        if (!purchasedProducts.contains(productReview.getProduct())) {
             throw new IllegalStateException("Review available only after the product is delivered to the client");
         }
+
+        return productReview;
     }
 
     private ProductReviewPK buildProductReviewPK(Long productId, UUID userId) {
 
-        Product product = productService.findProductById(productId);
-        User user = userService.findUserById(userId);
+        Product product = productService.getProductIfExists(productId);
+        User user = userService.getUserIfExists(userId);
 
         ProductReviewPK id = new ProductReviewPK();
         id.setProduct(product);
@@ -126,16 +128,17 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
     private ProductReview buildProductReview(ProductReviewRequest productReviewRequest) {
 
-        Product product = productService.findProductById(productReviewRequest.getProductId());
-        User user = userService.findUserById(productReviewRequest.getUserId());
-        validateProductReview(user, product);
+        Product product = productService.getProductIfExists(productReviewRequest.getProductId());
+        User user = userService.getUserIfExists(productReviewRequest.getUserId());
 
-        return ProductReview.newBuilder()
+        ProductReview productReview = ProductReview.newBuilder()
                 .withProduct(product)
                 .withUser(user)
                 .withRating(productReviewRequest.getRating())
                 .withComment(productReviewRequest.getComment())
                 .withMoment(Instant.now())
                 .build();
+
+        return validateProductReview(productReview);
     }
 }

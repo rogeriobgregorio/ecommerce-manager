@@ -149,7 +149,7 @@ class OrderServiceImplTest {
         Order order = new Order(Instant.now(), OrderStatus.WAITING_PAYMENT, user);
         OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
 
-        when(userService.findUserById(orderRequest.getClientId())).thenReturn(user);
+        when(userService.getUserIfExists(orderRequest.getClientId())).thenReturn(user);
         when(converter.toResponse(order, OrderResponse.class)).thenReturn(expectedResponse);
         when(orderRepository.save(order)).thenReturn(order);
 
@@ -160,7 +160,7 @@ class OrderServiceImplTest {
         assertNotNull(actualResponse, "OrderResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(userService, times(1)).findUserById(orderRequest.getClientId());
+        verify(userService, times(1)).getUserIfExists(orderRequest.getClientId());
         verify(converter, times(1)).toResponse(order, OrderResponse.class);
         verify(orderRepository, times(1)).save(order);
     }
@@ -173,7 +173,7 @@ class OrderServiceImplTest {
         OrderRequest orderRequest = new OrderRequest(1L);
         Order order = new Order(Instant.now(), OrderStatus.WAITING_PAYMENT, user);
 
-        when(userService.findUserById(orderRequest.getClientId())).thenReturn(user);
+        when(userService.getUserIfExists(orderRequest.getClientId())).thenReturn(user);
         when(orderRepository.save(order)).thenThrow(PersistenceException.class);
 
         // Act and Assert
@@ -194,7 +194,7 @@ class OrderServiceImplTest {
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
 
         // Act
-        OrderResponse actualResponse = orderService.findOrderResponseById(1L);
+        OrderResponse actualResponse = orderService.findOrderById(1L);
 
         // Assert
         assertNotNull(actualResponse, "OrderResponse should not be null");
@@ -211,7 +211,7 @@ class OrderServiceImplTest {
         when(orderRepository.findById(1L)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(NotFoundException.class, () -> orderService.findOrderResponseById(1L), "Expected NotFoundException for non-existent order");
+        assertThrows(NotFoundException.class, () -> orderService.findOrderById(1L), "Expected NotFoundException for non-existent order");
 
         verify(orderRepository, times(1)).findById(1L);
     }

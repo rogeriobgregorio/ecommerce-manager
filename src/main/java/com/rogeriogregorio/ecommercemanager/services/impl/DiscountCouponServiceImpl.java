@@ -46,7 +46,8 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
     @Transactional(readOnly = false)
     public DiscountCouponResponse createDiscountCoupon(DiscountCouponRequest discountCouponRequest) {
 
-        DiscountCoupon discountCoupon = validateCouponDates(discountCouponRequest);
+        validateCouponDates(discountCouponRequest);
+        DiscountCoupon discountCoupon = dataMapper.toEntity(discountCouponRequest, DiscountCoupon.class);
 
         errorHandler.catchException(() -> discountCouponRepository.save(discountCoupon),
                 "Error while trying to create the discount coupon: ");
@@ -67,26 +68,27 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
     @Transactional(readOnly = false)
     public DiscountCouponResponse updateDiscountCoupon(Long id, DiscountCouponRequest discountCouponRequest) {
 
-        verifyDiscountCouponExists(id);
-        DiscountCoupon discountCoupon = validateCouponDates(discountCouponRequest);
+        validateCouponDates(discountCouponRequest);
+        DiscountCoupon currentDisCountCoupon = getDiscountCouponIfExists(id);
+        DiscountCoupon updatedDiscountCoupon = dataMapper.copyTo(discountCouponRequest, currentDisCountCoupon);
 
-        errorHandler.catchException(() -> discountCouponRepository.save(discountCoupon),
+        errorHandler.catchException(() -> discountCouponRepository.save(updatedDiscountCoupon),
                 "Error while trying to update the discount coupon: ");
-        logger.info("Discount Coupon updated: {}", discountCoupon);
+        logger.info("Discount Coupon updated: {}", updatedDiscountCoupon);
 
-        return dataMapper.toResponse(discountCoupon, DiscountCouponResponse.class);
+        return dataMapper.toResponse(updatedDiscountCoupon, DiscountCouponResponse.class);
     }
 
     @Transactional(readOnly = false)
     public void deleteDiscountCoupon(Long id) {
 
-        verifyDiscountCouponExists(id);
+        DiscountCoupon discountCoupon = getDiscountCouponIfExists(id);
 
         errorHandler.catchException(() -> {
-            discountCouponRepository.deleteById(id);
+            discountCouponRepository.delete(discountCoupon);
             return null;
         }, "Error while trying to delete the discount coupon: ");
-        logger.warn("Discount Coupon removed: {}", id);
+        logger.warn("Discount coupon deleted: {}", discountCoupon);
     }
 
     @Transactional(readOnly = true)
@@ -97,17 +99,19 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
                 .orElseThrow(() -> new NotFoundException("Discount coupon not found with code: " + code + "."));
     }
 
-    private void verifyDiscountCouponExists(Long id) {
+    private DiscountCoupon getDiscountCouponIfExists(Long id) {
 
-        boolean isExistsDiscountCoupon = errorHandler.catchException(() -> discountCouponRepository.existsById(id),
-                "Error while trying to check the presence of the discount coupon: ");
+        return errorHandler.catchException(() -> {
 
-        if (!isExistsDiscountCoupon) {
-            throw new NotFoundException("Discount coupon not found with ID: " + id + ".");
-        }
+            if (!discountCouponRepository.existsById(id)) {
+                throw new NotFoundException("Discount coupon not exists with ID: " + id + ".");
+            }
+
+            return dataMapper.toEntity(discountCouponRepository.findById(id), DiscountCoupon.class);
+        }, "Error while trying to verify the existence of the discount coupon by ID: ");
     }
 
-    private DiscountCoupon validateCouponDates(DiscountCouponRequest discountCouponRequest) {
+    private void validateCouponDates(DiscountCouponRequest discountCouponRequest) {
 
         Instant validFrom = discountCouponRequest.getValidFrom();
         Instant validUntil = discountCouponRequest.getValidUntil();
@@ -116,7 +120,5 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
         if (!isValidDate) {
             throw new IllegalStateException("The start date must be before the end date.");
         }
-
-        return dataMapper.toEntity(discountCouponRequest, DiscountCoupon.class);
     }
 }

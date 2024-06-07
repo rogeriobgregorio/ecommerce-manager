@@ -18,9 +18,9 @@ public interface UserService {
 
     UserResponse createAdminOrManagerUser(UserRequest userRequest);
 
-    UserResponse findUserResponseById(UUID id);
+    UserResponse findUserById(UUID id);
 
-    User findUserById(UUID id);
+    User getUserIfExists(UUID id);
 
     UserResponse updateUser(UUID id, UserRequest userRequest);
 

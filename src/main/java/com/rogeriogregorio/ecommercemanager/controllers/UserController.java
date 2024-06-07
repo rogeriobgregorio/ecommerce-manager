@@ -55,7 +55,7 @@ public class UserController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(userService.findUserResponseById(id));
+                .body(userService.findUserById(id));
     }
 
     @PutMapping(value = "/{id}")

@@ -45,7 +45,7 @@ public class InventoryItemController {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(inventoryItemService.findInventoryItemResponseById(id));
+                .body(inventoryItemService.findInventoryItemById(id));
     }
 
     @PutMapping(value = "/{id}")

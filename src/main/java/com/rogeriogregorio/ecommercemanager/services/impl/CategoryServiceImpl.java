@@ -74,26 +74,26 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = false)
     public CategoryResponse updateCategory(Long id, CategoryRequest categoryRequest) {
 
-        verifyCategoryExists(id);
-        Category category = dataMapper.toEntity(categoryRequest, Category.class);
+        Category currentCategory = getCategoryIfExists(id);
+        Category updatedCategory = dataMapper.copyTo(categoryRequest, currentCategory);
 
-        errorHandler.catchException(() -> categoryRepository.save(category),
+        errorHandler.catchException(() -> categoryRepository.save(updatedCategory),
                 "Error while trying to update the category: ");
-        logger.info("Category updated: {}", category);
+        logger.info("Category updated: {}", updatedCategory);
 
-        return dataMapper.toResponse(category, CategoryResponse.class);
+        return dataMapper.toResponse(updatedCategory, CategoryResponse.class);
     }
 
     @Transactional(readOnly = false)
     public void deleteCategory(Long id) {
 
-        verifyCategoryExists(id);
+        Category category = getCategoryIfExists(id);
 
         errorHandler.catchException(() -> {
-            categoryRepository.deleteById(id);
+            categoryRepository.delete(category);
             return null;
         }, "Error while trying to delete the category: ");
-        logger.warn("Category removed with ID: {}", id);
+        logger.warn("Category deleted: {}", category);
     }
 
     @Transactional(readOnly = true)
@@ -104,14 +104,15 @@ public class CategoryServiceImpl implements CategoryService {
                 .map(category -> dataMapper.toResponse(category, CategoryResponse.class));
     }
 
-    private void verifyCategoryExists(Long id) {
+    private Category getCategoryIfExists(Long id) {
 
-        boolean isCategoryExists = errorHandler.catchException(() -> categoryRepository.existsById(id),
-                "Error while trying to check the presence of the category: "
-        );
+        return errorHandler.catchException(() -> {
 
-        if (!isCategoryExists) {
-            throw new NotFoundException("Category not found with ID: " + id + ".");
-        }
+            if (!categoryRepository.existsById(id)) {
+                throw new NotFoundException("Category not exists with ID: " + id + ".");
+            }
+
+            return dataMapper.toEntity(categoryRepository.findById(id), Category.class);
+        }, "Error while trying to verify the existence of the category by ID: ");
     }
 }

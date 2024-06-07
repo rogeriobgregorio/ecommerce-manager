@@ -107,7 +107,7 @@ public class PixServiceImpl implements PixService {
             EfiPay efiPay = new EfiPay(credentials.getOptions());
             Map<String, Object> efiPayResponse = efiPay.call(GENERATE_QRCODE, params, new HashMap<>());
 
-            PixQRCodeDto pixQRCode = dataMapper.fromHashMap(efiPayResponse, PixQRCodeDto.class);
+            PixQRCodeDto pixQRCode = dataMapper.fromMap(efiPayResponse, PixQRCodeDto.class);
             logger.info("Generated QRCode Pix: {}", pixQRCode.toString());
 
             return pixQRCode;
