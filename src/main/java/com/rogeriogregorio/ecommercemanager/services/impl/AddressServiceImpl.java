@@ -46,23 +46,14 @@ public class AddressServiceImpl implements AddressService {
 
         return errorHandler.catchException(() -> addressRepository.findAll(pageable),
                         "Error while trying to fetch all addresses: ")
-                .map(address -> dataMapper.toResponse(address, AddressResponse.class));
-    }
-
-    @Transactional(readOnly = true)
-    public AddressResponse findAddressById(UUID id) {
-
-        return errorHandler.catchException(() -> addressRepository.findById(id),
-                        "Error while trying to find the address by ID: ")
-                .map(address -> dataMapper.toResponse(address, AddressResponse.class))
-                .orElseThrow(() -> new NotFoundException("Address not found with ID: " + id + "."));
+                .map(address -> dataMapper.map(address, AddressResponse.class));
     }
 
     @Transactional(readOnly = false)
     public AddressResponse createAddress(AddressRequest addressRequest) {
 
         User user = userService.getUserIfExists(addressRequest.getUserId());
-        Address address = dataMapper.toEntity(addressRequest, Address.class);
+        Address address = dataMapper.map(addressRequest, Address.class);
         address.setUser(user);
         user.setAddress(address);
         userService.saveUserAddress(user);
@@ -71,7 +62,16 @@ public class AddressServiceImpl implements AddressService {
                 "Error while trying to create the address: ");
         logger.info("Address created: {}", address);
 
-        return dataMapper.toResponse(address, AddressResponse.class);
+        return dataMapper.map(address, AddressResponse.class);
+    }
+
+    @Transactional(readOnly = true)
+    public AddressResponse findAddressById(UUID id) {
+
+        return errorHandler.catchException(() -> addressRepository.findById(id),
+                        "Error while trying to find the address by ID: ")
+                .map(address -> dataMapper.map(address, AddressResponse.class))
+                .orElseThrow(() -> new NotFoundException("Address not found with ID: " + id + "."));
     }
 
     @Transactional(readOnly = false)
@@ -79,7 +79,7 @@ public class AddressServiceImpl implements AddressService {
 
         User user = userService.getUserIfExists(addressRequest.getUserId());
         Address currentAddress = getAddressIfExists(id);
-        Address updatedAddress = dataMapper.copyTo(addressRequest, currentAddress);
+        Address updatedAddress = dataMapper.map(addressRequest, currentAddress);
         updatedAddress.setUser(user);
         user.setAddress(updatedAddress);
         userService.saveUserAddress(user);
@@ -88,7 +88,7 @@ public class AddressServiceImpl implements AddressService {
                 "Error while trying to update the address: ");
         logger.info("Address updated: {}", updatedAddress);
 
-        return dataMapper.toResponse(updatedAddress, AddressResponse.class);
+        return dataMapper.map(updatedAddress, AddressResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -111,7 +111,7 @@ public class AddressServiceImpl implements AddressService {
                 throw new NotFoundException("Address not exists with ID: " + id + ".");
             }
 
-            return dataMapper.toEntity(addressRepository.findById(id), Address.class);
+            return dataMapper.map(addressRepository.findById(id), Address.class);
         }, "Error while trying to verify the existence of the address by ID: ");
     }
 }

@@ -16,15 +16,15 @@ public interface UserService {
 
     UserResponse registerUser(UserRequest userRequest);
 
-    UserResponse createAdminOrManagerUser(UserRequest userRequest);
+    UserResponse createAdminOrManagerUser(UUID id, UserRequest userRequest);
 
     UserResponse findUserById(UUID id);
-
-    User getUserIfExists(UUID id);
 
     UserResponse updateUser(UUID id, UserRequest userRequest);
 
     void deleteUser(UUID id);
+
+    User getUserIfExists(UUID id);
 
     Page<UserResponse> findUserByName(String name, Pageable pageable);
 

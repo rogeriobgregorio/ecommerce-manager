@@ -40,20 +40,20 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
 
         return errorHandler.catchException(() -> discountCouponRepository.findAll(pageable),
                         "Error while trying to fetch all discount coupons: ")
-                .map(discountCoupon -> dataMapper.toResponse(discountCoupon, DiscountCouponResponse.class));
+                .map(discountCoupon -> dataMapper.map(discountCoupon, DiscountCouponResponse.class));
     }
 
     @Transactional(readOnly = false)
     public DiscountCouponResponse createDiscountCoupon(DiscountCouponRequest discountCouponRequest) {
 
         validateCouponDates(discountCouponRequest);
-        DiscountCoupon discountCoupon = dataMapper.toEntity(discountCouponRequest, DiscountCoupon.class);
+        DiscountCoupon discountCoupon = dataMapper.map(discountCouponRequest, DiscountCoupon.class);
 
         errorHandler.catchException(() -> discountCouponRepository.save(discountCoupon),
                 "Error while trying to create the discount coupon: ");
         logger.info("Discount coupon created: {}", discountCoupon);
 
-        return dataMapper.toResponse(discountCoupon, DiscountCouponResponse.class);
+        return dataMapper.map(discountCoupon, DiscountCouponResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -61,7 +61,7 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
 
         return errorHandler.catchException(() -> discountCouponRepository.findById(id),
                         "Error while trying to find the discount coupon by ID: ")
-                .map(discountCoupon -> dataMapper.toResponse(discountCoupon, DiscountCouponResponse.class))
+                .map(discountCoupon -> dataMapper.map(discountCoupon, DiscountCouponResponse.class))
                 .orElseThrow(() -> new NotFoundException("Discount coupon not found with ID: " + id + "."));
     }
 
@@ -70,13 +70,13 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
 
         validateCouponDates(discountCouponRequest);
         DiscountCoupon currentDisCountCoupon = getDiscountCouponIfExists(id);
-        DiscountCoupon updatedDiscountCoupon = dataMapper.copyTo(discountCouponRequest, currentDisCountCoupon);
+        DiscountCoupon updatedDiscountCoupon = dataMapper.map(discountCouponRequest, currentDisCountCoupon);
 
         errorHandler.catchException(() -> discountCouponRepository.save(updatedDiscountCoupon),
                 "Error while trying to update the discount coupon: ");
         logger.info("Discount Coupon updated: {}", updatedDiscountCoupon);
 
-        return dataMapper.toResponse(updatedDiscountCoupon, DiscountCouponResponse.class);
+        return dataMapper.map(updatedDiscountCoupon, DiscountCouponResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -107,7 +107,7 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
                 throw new NotFoundException("Discount coupon not exists with ID: " + id + ".");
             }
 
-            return dataMapper.toEntity(discountCouponRepository.findById(id), DiscountCoupon.class);
+            return dataMapper.map(discountCouponRepository.findById(id), DiscountCoupon.class);
         }, "Error while trying to verify the existence of the discount coupon by ID: ");
     }
 

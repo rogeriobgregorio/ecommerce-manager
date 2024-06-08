@@ -40,20 +40,20 @@ public class NotificationServiceImpl implements NotificationService {
 
         return errorHandler.catchException(() -> notificationRepository.findAll(pageable),
                         "Error while trying to fetch all notifications: ")
-                .map(notification -> dataMapper.toResponse(notification, NotificationResponse.class));
+                .map(notification -> dataMapper.map(notification, NotificationResponse.class));
     }
 
     @Transactional(readOnly = false)
     public NotificationResponse createNotification(NotificationRequest notificationRequest) {
 
         validateNotificationDates(notificationRequest);
-        Notification notification = dataMapper.toEntity(notificationRequest, Notification.class);
+        Notification notification = dataMapper.map(notificationRequest, Notification.class);
 
         errorHandler.catchException(() -> notificationRepository.save(notification),
                 "Error while trying to create the notification: ");
         logger.info("Notification created: {}", notification);
 
-        return dataMapper.toResponse(notification, NotificationResponse.class);
+        return dataMapper.map(notification, NotificationResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -61,7 +61,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         return errorHandler.catchException(() -> notificationRepository.findById(id),
                         "Error while trying to find the notification by ID: ")
-                .map(notification -> dataMapper.toResponse(notification, NotificationResponse.class))
+                .map(notification -> dataMapper.map(notification, NotificationResponse.class))
                 .orElseThrow(() -> new NotFoundException("Notification not found with ID: " + id + "."));
     }
 
@@ -70,13 +70,13 @@ public class NotificationServiceImpl implements NotificationService {
 
         validateNotificationDates(notificationRequest);
         Notification currentNotification = getNotificationIfExists(id);
-        Notification updatedNotification = dataMapper.copyTo(notificationRequest, currentNotification);
+        Notification updatedNotification = dataMapper.map(notificationRequest, currentNotification);
 
         errorHandler.catchException(() -> notificationRepository.save(updatedNotification),
                 "Error while trying to update the notification: ");
         logger.info("Notification update: {}", updatedNotification);
 
-        return dataMapper.toResponse(updatedNotification, NotificationResponse.class);
+        return dataMapper.map(updatedNotification, NotificationResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -99,7 +99,7 @@ public class NotificationServiceImpl implements NotificationService {
                 throw new NotFoundException("Notification not exists with ID: " + id + ".");
             }
 
-            return dataMapper.toEntity(notificationRepository.findById(id), Notification.class);
+            return dataMapper.map(notificationRepository.findById(id), Notification.class);
         }, "Error while trying to verify the existence of the notification by ID: ");
     }
 

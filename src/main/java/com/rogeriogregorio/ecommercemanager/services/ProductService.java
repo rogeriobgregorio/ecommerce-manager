@@ -16,11 +16,11 @@ public interface ProductService {
 
     ProductResponse findProductById(Long id);
 
-    Product getProductIfExists(Long id);
-
     ProductResponse updateProduct(Long id, ProductRequest productRequest);
 
     void deleteProduct(Long id);
+
+    Product getProductIfExists(Long id);
 
     Page<ProductResponse> findProductByName(String name, Pageable pageable);
 }

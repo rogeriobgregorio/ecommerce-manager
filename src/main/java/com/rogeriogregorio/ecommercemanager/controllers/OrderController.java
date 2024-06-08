@@ -76,7 +76,7 @@ public class OrderController {
                 .build();
     }
 
-    @GetMapping(value = "/{client-id}")
+    @GetMapping(value = "/client/{id}")
     public ResponseEntity<List<OrderResponse>> getOrdersByClientId(
             @PathVariable Long id, Pageable pageable) {
 

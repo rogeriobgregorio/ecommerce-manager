@@ -8,6 +8,9 @@ public interface TokenService {
 
     String generateAuthenticationToken(User user);
 
-    String validateToken(String token);
+    String validateAuthenticationToken(String token);
 
+    String generateEmailToken(User user);
+
+    User validateEmailToken(String token);
 }

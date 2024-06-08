@@ -54,7 +54,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         return errorHandler.catchException(() -> orderItemRepository.findAll(pageable),
                         "Error while trying to fetch all items of the order: ")
-                .map(orderItem -> dataMapper.toResponse(orderItem, OrderItemResponse.class));
+                .map(orderItem -> dataMapper.map(orderItem, OrderItemResponse.class));
     }
 
     @Transactional(readOnly = true)
@@ -64,7 +64,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         return errorHandler.catchException(() -> orderItemRepository.findById(id),
                         "Error while trying to fetch the order item by ID: ")
-                .map(orderItem -> dataMapper.toResponse(orderItem, OrderItemResponse.class))
+                .map(orderItem -> dataMapper.map(orderItem, OrderItemResponse.class))
                 .orElseThrow(() -> new NotFoundException("Item not found with ID: " + id + "."));
     }
 
@@ -77,7 +77,7 @@ public class OrderItemServiceImpl implements OrderItemService {
                 "Error while trying to create order item: ");
         logger.info("Order item created: {}", orderItem);
 
-        return dataMapper.toResponse(orderItem, OrderItemResponse.class);
+        return dataMapper.map(orderItem, OrderItemResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -89,7 +89,7 @@ public class OrderItemServiceImpl implements OrderItemService {
                 "Error while trying to update the order item: ");
         logger.info("Order item updated: {}", orderItem);
 
-        return dataMapper.toResponse(orderItem, OrderItemResponse.class);
+        return dataMapper.map(orderItem, OrderItemResponse.class);
     }
 
     @Transactional(readOnly = false)

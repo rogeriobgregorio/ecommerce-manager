@@ -72,7 +72,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         return errorHandler.catchException(() -> paymentRepository.findAll(pageable),
                         "Error while trying to fetch all payments: ")
-                .map(payment -> dataMapper.toResponse(payment, PaymentResponse.class));
+                .map(payment -> dataMapper.map(payment, PaymentResponse.class));
     }
 
     public PaymentResponse createPaymentProcess(PaymentRequest paymentRequest) {
@@ -86,7 +86,7 @@ public class PaymentServiceImpl implements PaymentService {
                 "Error while trying to create paid payment with charge: ");
         logger.info("Payment with charge saved: {}", payment);
 
-        return dataMapper.toResponse(payment, PaymentResponse.class);
+        return dataMapper.map(payment, PaymentResponse.class);
     }
 
     private PaymentStrategy getPaymentStrategy(PaymentRequest paymentRequest) {
@@ -126,7 +126,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         return errorHandler.catchException(() -> paymentRepository.findById(id),
                         "Error while trying to find the payment by ID: ")
-                .map(payment -> dataMapper.toResponse(payment, PaymentResponse.class))
+                .map(payment -> dataMapper.map(payment, PaymentResponse.class))
                 .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + "."));
     }
 
@@ -150,7 +150,7 @@ public class PaymentServiceImpl implements PaymentService {
                 throw new NotFoundException("Payment not exists with ID: " + id + ".");
             }
 
-            return dataMapper.toEntity(paymentRepository.findById(id), Payment.class);
+            return dataMapper.map(paymentRepository.findById(id), Payment.class);
         }, "Error while trying to verify the existence of the Payment by ID: ");
     }
 

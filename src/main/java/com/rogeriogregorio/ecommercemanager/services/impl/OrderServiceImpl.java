@@ -53,7 +53,7 @@ public class OrderServiceImpl implements OrderService {
 
         return errorHandler.catchException(() -> orderRepository.findAll(pageable),
                         "Error while trying to fetch all orders: ")
-                .map(order -> dataMapper.toResponse(order, OrderResponse.class));
+                .map(order -> dataMapper.map(order, OrderResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -71,17 +71,7 @@ public class OrderServiceImpl implements OrderService {
                 "Error while trying to create the order: ");
         logger.info("Order created: {}", order);
 
-        return dataMapper.toResponse(order, OrderResponse.class);
-    }
-
-    @Transactional(readOnly = false)
-    public void savePaidOrder(Order order) {
-
-        errorHandler.catchException(() -> {
-            orderRepository.save(order);
-            return null;
-        }, "Error while trying to save the paid order: ");
-        logger.info("Paid order saved: {}", order);
+        return dataMapper.map(order, OrderResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -89,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
 
         return errorHandler.catchException(() -> orderRepository.findById(id),
                         "Error while trying to find the order by ID: ")
-                .map(order -> dataMapper.toResponse(order, OrderResponse.class))
+                .map(order -> dataMapper.map(order, OrderResponse.class))
                 .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + "."));
     }
 
@@ -114,7 +104,7 @@ public class OrderServiceImpl implements OrderService {
                 "Error while trying to update the order: ");
         logger.info("Order updated: {}", order);
 
-        return dataMapper.toResponse(order, OrderResponse.class);
+        return dataMapper.map(order, OrderResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -128,10 +118,10 @@ public class OrderServiceImpl implements OrderService {
         statusValidators.forEach(strategy -> strategy.validateStatusChange(orderRequest, order));
 
         errorHandler.catchException(() -> orderRepository.save(order),
-                "Error while trying to update the order: ");
-        logger.info("Order updated: {}", order);
+                "Error while trying to update the order status: ");
+        logger.info("Order status updated: {}", order);
 
-        return dataMapper.toResponse(order, OrderResponse.class);
+        return dataMapper.map(order, OrderResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -155,7 +145,7 @@ public class OrderServiceImpl implements OrderService {
 
         return errorHandler.catchException(() -> orderRepository.findByClient_Id(id, pageable),
                         "Error while trying to fetch orders by customer ID: ")
-                .map(order -> dataMapper.toResponse(order, OrderResponse.class));
+                .map(order -> dataMapper.map(order, OrderResponse.class));
     }
 
     public Order getOrderIfExists(Long id) {
@@ -166,10 +156,19 @@ public class OrderServiceImpl implements OrderService {
                 throw new NotFoundException("Order not exists with ID: " + id + ".");
             }
 
-            return dataMapper.toEntity(orderRepository.findById(id), Order.class);
+            return dataMapper.map(orderRepository.findById(id), Order.class);
         }, "Error while trying to verify the existence of the order by ID: ");
     }
 
+    @Transactional(readOnly = false)
+    public void savePaidOrder(Order order) {
+
+        errorHandler.catchException(() -> {
+            orderRepository.save(order);
+            return null;
+        }, "Error while trying to save the paid order: ");
+        logger.info("Paid order saved: {}", order);
+    }
 
     private DiscountCoupon validateDiscountCoupon(String code) {
 

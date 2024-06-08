@@ -40,19 +40,19 @@ public class CategoryServiceImpl implements CategoryService {
 
         return errorHandler.catchException(() -> categoryRepository.findAll(pageable),
                         "Error while trying to fetch all categories: ")
-                .map(category -> dataMapper.toResponse(category, CategoryResponse.class));
+                .map(category -> dataMapper.map(category, CategoryResponse.class));
     }
 
     @Transactional(readOnly = false)
     public CategoryResponse createCategory(CategoryRequest categoryRequest) {
 
-        Category category = dataMapper.toEntity(categoryRequest, Category.class);
+        Category category = dataMapper.map(categoryRequest, Category.class);
 
         errorHandler.catchException(() -> categoryRepository.save(category),
                 "Error while trying to create the category: ");
         logger.info("Category created: {}", category);
 
-        return dataMapper.toResponse(category, CategoryResponse.class);
+        return dataMapper.map(category, CategoryResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -60,7 +60,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         return errorHandler.catchException(() -> categoryRepository.findById(id),
                         "Error while trying to find the category by ID: ")
-                .map(category -> dataMapper.toResponse(category, CategoryResponse.class))
+                .map(category -> dataMapper.map(category, CategoryResponse.class))
                 .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + "."));
     }
 
@@ -75,13 +75,13 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse updateCategory(Long id, CategoryRequest categoryRequest) {
 
         Category currentCategory = getCategoryIfExists(id);
-        Category updatedCategory = dataMapper.copyTo(categoryRequest, currentCategory);
+        Category updatedCategory = dataMapper.map(categoryRequest, currentCategory);
 
         errorHandler.catchException(() -> categoryRepository.save(updatedCategory),
                 "Error while trying to update the category: ");
         logger.info("Category updated: {}", updatedCategory);
 
-        return dataMapper.toResponse(updatedCategory, CategoryResponse.class);
+        return dataMapper.map(updatedCategory, CategoryResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -101,7 +101,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         return errorHandler.catchException(() -> categoryRepository.findByName(name, pageable),
                         "Error while trying to fetch category by name: ")
-                .map(category -> dataMapper.toResponse(category, CategoryResponse.class));
+                .map(category -> dataMapper.map(category, CategoryResponse.class));
     }
 
     private Category getCategoryIfExists(Long id) {
@@ -112,7 +112,7 @@ public class CategoryServiceImpl implements CategoryService {
                 throw new NotFoundException("Category not exists with ID: " + id + ".");
             }
 
-            return dataMapper.toEntity(categoryRepository.findById(id), Category.class);
+            return dataMapper.map(categoryRepository.findById(id), Category.class);
         }, "Error while trying to verify the existence of the category by ID: ");
     }
 }

@@ -52,7 +52,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         return errorHandler.catchException(() -> productReviewRepository.findAll(pageable),
                         "Error while trying to fetch all product reviews: ")
-                .map(productReview -> dataMapper.toResponse(productReview, ProductReviewResponse.class));
+                .map(productReview -> dataMapper.map(productReview, ProductReviewResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -64,7 +64,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
                 "Error while trying to create product review: ");
         logger.info("Product review created: {}", productReview);
 
-        return dataMapper.toResponse(productReview, ProductReviewResponse.class);
+        return dataMapper.map(productReview, ProductReviewResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -74,7 +74,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         return errorHandler.catchException(() -> productReviewRepository.findById(id),
                         "Error while trying to fetch the product review by ID: ")
-                .map(productReview -> dataMapper.toResponse(productReview, ProductReviewResponse.class))
+                .map(productReview -> dataMapper.map(productReview, ProductReviewResponse.class))
                 .orElseThrow(() -> new NotFoundException("Product review not found with ID: " + id + "."));
     }
 
@@ -87,7 +87,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
                 "Error while trying to update the product review: ");
         logger.info("Product review updated: {}", productReview);
 
-        return dataMapper.toResponse(productReview, ProductReviewResponse.class);
+        return dataMapper.map(productReview, ProductReviewResponse.class);
     }
 
     @Transactional(readOnly = false)

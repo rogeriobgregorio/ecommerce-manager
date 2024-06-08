@@ -52,7 +52,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         return errorHandler.catchException(() -> inventoryItemRepository.findAll(pageable),
                         "Error while trying to fetch all inventory items: ")
-                .map(inventoryItem -> dataMapper.toResponse(inventoryItem, InventoryItemResponse.class));
+                .map(inventoryItem -> dataMapper.map(inventoryItem, InventoryItemResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -71,7 +71,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         logger.info("Inventory item created: {}", inventoryItem);
 
         updateStockMovementEntrance(inventoryItem);
-        return dataMapper.toResponse(inventoryItem, InventoryItemResponse.class);
+        return dataMapper.map(inventoryItem, InventoryItemResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -79,7 +79,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         return errorHandler.catchException(() -> inventoryItemRepository.findById(id),
                         "Error while trying to find the inventory item by ID: ")
-                .map(inventoryItem -> dataMapper.toResponse(inventoryItem, InventoryItemResponse.class))
+                .map(inventoryItem -> dataMapper.map(inventoryItem, InventoryItemResponse.class))
                 .orElseThrow(() -> new NotFoundException("Inventory item response not found with ID: " + id + "."));
     }
 
@@ -95,7 +95,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 "Error while trying to update the inventory item: ");
         logger.info("Inventory item updated: {}", inventoryItem);
 
-        return dataMapper.toResponse(inventoryItem, InventoryItemResponse.class);
+        return dataMapper.map(inventoryItem, InventoryItemResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -211,7 +211,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 throw new NotFoundException("Inventory item not exists with ID: " + id + ".");
             }
 
-            return dataMapper.toEntity(inventoryItemRepository.findById(id), InventoryItem.class);
+            return dataMapper.map(inventoryItemRepository.findById(id), InventoryItem.class);
         }, "Error while trying to verify the existence of the inventory item by ID: ");
     }
 

@@ -18,13 +18,13 @@ public interface OrderService {
 
     OrderResponse findOrderById(Long id);
 
-    Order getOrderIfExists(Long id);
-
     OrderResponse updateOrder(Long id, OrderRequest orderRequest);
 
     OrderResponse updateOrderStatus(Long id, OrderRequest orderRequest);
 
     void deleteOrder(Long id);
+
+    Order getOrderIfExists(Long id);
 
     Page<OrderResponse> findOrderByClientId(Long id, Pageable pageable);
 }

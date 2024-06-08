@@ -45,7 +45,7 @@ public class StockMovementServiceImpl implements StockMovementService {
 
         return errorHandler.catchException(() -> stockMovementRepository.findAll(pageable),
                         "Error while trying to fetch all inventory movements: ")
-                .map(stockMovement -> dataMapper.toResponse(stockMovement, StockMovementResponse.class));
+                .map(stockMovement -> dataMapper.map(stockMovement, StockMovementResponse.class));
     }
 
     @Transactional(readOnly = false)
@@ -65,7 +65,7 @@ public class StockMovementServiceImpl implements StockMovementService {
                 "Error while trying to create the inventory movement:");
         logger.info("Inventory movement created: {}", stockMovement);
 
-        return dataMapper.toResponse(stockMovement, StockMovementResponse.class);
+        return dataMapper.map(stockMovement, StockMovementResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -73,7 +73,7 @@ public class StockMovementServiceImpl implements StockMovementService {
 
         return errorHandler.catchException(() -> stockMovementRepository.findById(id),
                         "Error while trying to fetch inventory movement by ID: " + id)
-                .map(stockMovement -> dataMapper.toResponse(stockMovement, StockMovementResponse.class))
+                .map(stockMovement -> dataMapper.map(stockMovement, StockMovementResponse.class))
                 .orElseThrow(() -> new NotFoundException("Inventory movement not found with ID: " + id + "."));
     }
 
@@ -95,7 +95,7 @@ public class StockMovementServiceImpl implements StockMovementService {
                 "Error while trying to update inventory movement: ");
         logger.info("Inventory movement updated: {}", updateStockMovement);
 
-        return dataMapper.toResponse(updateStockMovement, StockMovementResponse.class);
+        return dataMapper.map(updateStockMovement, StockMovementResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -118,7 +118,7 @@ public class StockMovementServiceImpl implements StockMovementService {
                 throw new NotFoundException("Stock movement not exists with ID: " + id + ".");
             }
 
-            return dataMapper.toEntity(stockMovementRepository.findById(id), StockMovement.class);
+            return dataMapper.map(stockMovementRepository.findById(id), StockMovement.class);
         }, "Error while trying to verify the existence of the stock movement by ID: ");
     }
 

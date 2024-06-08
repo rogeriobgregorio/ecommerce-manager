@@ -40,20 +40,20 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
 
         return errorHandler.catchException(() -> productDiscountRepository.findAll(pageable),
                         "Error while trying to fetch all products discounts: ")
-                .map(productDiscount -> dataMapper.toResponse(productDiscount, ProductDiscountResponse.class));
+                .map(productDiscount -> dataMapper.map(productDiscount, ProductDiscountResponse.class));
     }
 
     @Transactional(readOnly = false)
     public ProductDiscountResponse createProductDiscount(ProductDiscountRequest productDiscountRequest) {
 
         validateProductDiscountDates(productDiscountRequest);
-        ProductDiscount productDiscount = dataMapper.toEntity(productDiscountRequest, ProductDiscount.class);
+        ProductDiscount productDiscount = dataMapper.map(productDiscountRequest, ProductDiscount.class);
 
         errorHandler.catchException(() -> productDiscountRepository.save(productDiscount),
                 "Error while trying to create the product discount: ");
         logger.info("Product discount created: {}", productDiscount);
 
-        return dataMapper.toResponse(productDiscount, ProductDiscountResponse.class);
+        return dataMapper.map(productDiscount, ProductDiscountResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -61,7 +61,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
 
         return errorHandler.catchException(() -> productDiscountRepository.findById(id),
                         "Error while trying to find the product discount by ID: ")
-                .map(productDiscount -> dataMapper.toResponse(productDiscount, ProductDiscountResponse.class))
+                .map(productDiscount -> dataMapper.map(productDiscount, ProductDiscountResponse.class))
                 .orElseThrow(() -> new NotFoundException("Product discount response not found with ID: " + id + "."));
     }
 
@@ -70,13 +70,13 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
 
         validateProductDiscountDates(productDiscountRequest);
         ProductDiscount currentProductDiscount = getProductDiscountIfExists(id);
-        ProductDiscount updatedProductDiscount = dataMapper.copyTo(productDiscountRequest, currentProductDiscount);
+        ProductDiscount updatedProductDiscount = dataMapper.map(productDiscountRequest, currentProductDiscount);
 
         errorHandler.catchException(() -> productDiscountRepository.save(updatedProductDiscount),
                 "Error while trying to update the product discount: ");
         logger.info("Product discount updated: {}", updatedProductDiscount);
 
-        return dataMapper.toResponse(updatedProductDiscount, ProductDiscountResponse.class);
+        return dataMapper.map(updatedProductDiscount, ProductDiscountResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -99,7 +99,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
                 throw new NotFoundException("Product discount not exists with ID: " + id + ".");
             }
 
-            return dataMapper.toEntity(productDiscountRepository.findById(id), ProductDiscount.class);
+            return dataMapper.map(productDiscountRepository.findById(id), ProductDiscount.class);
         }, "Error while trying to verify the existence of the product discount by ID: ");
     }
 

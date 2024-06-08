@@ -50,13 +50,13 @@ public class ProductServiceImpl implements ProductService {
 
         return errorHandler.catchException(() -> productRepository.findAll(pageable),
                         "Error while trying to fetch all products: ")
-                .map(product -> dataMapper.toResponse(product, ProductResponse.class));
+                .map(product -> dataMapper.map(product, ProductResponse.class));
     }
 
     @Transactional(readOnly = false)
     public ProductResponse createProduct(ProductRequest productRequest) {
 
-        Product product = dataMapper.toEntity(productRequest, Product.class);
+        Product product = dataMapper.map(productRequest, Product.class);
         product.setProductDiscount(validateDiscount(productRequest));
         product.setCategories(validateCategory(productRequest));
 
@@ -64,7 +64,7 @@ public class ProductServiceImpl implements ProductService {
                 "Error while trying to create the product: ");
         logger.info("Product created: {}", product);
 
-        return dataMapper.toResponse(product, ProductResponse.class);
+        return dataMapper.map(product, ProductResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -72,7 +72,7 @@ public class ProductServiceImpl implements ProductService {
 
         return errorHandler.catchException(() -> productRepository.findById(id),
                         "Error while trying to create the product: ")
-                .map(product -> dataMapper.toResponse(product, ProductResponse.class))
+                .map(product -> dataMapper.map(product, ProductResponse.class))
                 .orElseThrow(() -> new NotFoundException("Product response not found with ID: " + id + "."));
     }
 
@@ -80,7 +80,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
 
         Product currentProduct = getProductIfExists(id);
-        Product updatedProduct = dataMapper.copyTo(productRequest, currentProduct);
+        Product updatedProduct = dataMapper.map(productRequest, currentProduct);
         updatedProduct.setProductDiscount(validateDiscount(productRequest));
         updatedProduct.setCategories(validateCategory(productRequest));
 
@@ -88,7 +88,7 @@ public class ProductServiceImpl implements ProductService {
                 "Error while trying to update the product: ");
         logger.info("Product updated: {}", updatedProduct);
 
-        return dataMapper.toResponse(updatedProduct, ProductResponse.class);
+        return dataMapper.map(updatedProduct, ProductResponse.class);
     }
 
     @Transactional(readOnly = false)
@@ -108,7 +108,7 @@ public class ProductServiceImpl implements ProductService {
 
         return errorHandler.catchException(() -> productRepository.findByName(name, pageable),
                         "Error while trying to fetch the product by name: ")
-                .map(product -> dataMapper.toResponse(product, ProductResponse.class));
+                .map(product -> dataMapper.map(product, ProductResponse.class));
     }
 
     public Product getProductIfExists(Long id) {
@@ -119,7 +119,7 @@ public class ProductServiceImpl implements ProductService {
                 throw new NotFoundException("Product not exists with ID: " + id + ".");
             }
 
-            return dataMapper.toEntity(productRepository.findById(id), Product.class);
+            return dataMapper.map(productRepository.findById(id), Product.class);
         }, "Error while trying to verify the existence of the product by ID: ");
     }
 

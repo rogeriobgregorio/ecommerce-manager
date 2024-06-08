@@ -41,13 +41,13 @@ public class UserController {
                 .body(userService.registerUser(userRequest));
     }
 
-    @PatchMapping(value = "/roles")
-    public ResponseEntity<UserResponse> patchAdminOrManagerUser(
+    @PatchMapping(value = "/roles/{id}")
+    public ResponseEntity<UserResponse> patchAdminOrManagerUser(@PathVariable UUID id,
             @Valid @RequestBody UserRequest userRequest) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(userService.createAdminOrManagerUser(userRequest));
+                .body(userService.createAdminOrManagerUser(id, userRequest));
     }
 
     @GetMapping(value = "/{id}")

@@ -19,11 +19,11 @@ public interface InventoryItemService {
 
     InventoryItemResponse findInventoryItemById(Long id);
 
-    InventoryItem getInventoryItemIfExists(Long id);
-
     InventoryItemResponse updateInventoryItem(Long id, InventoryItemRequest inventoryItemRequest);
 
     void deleteInventoryItem(Long id);
+
+    InventoryItem getInventoryItemIfExists(Long id);
 
     InventoryItem findInventoryItemByProduct(Product product);
 

@@ -22,26 +22,19 @@ public class DataMapperImpl implements DataMapper {
     }
 
     @Override
-    public <S, T> T toEntity(S object, Class<T> entity) {
+    public <S, T> T map(S object, Class<T> targetType) {
 
-        return errorHandler.catchException(() -> modelMapper.map(object, entity),
-                "Error while trying to convert from response to entity: ");
+        return errorHandler.catchException(() -> modelMapper.map(object, targetType),
+                "Error when trying to map data between objects: ");
     }
 
     @Override
-    public <S, T> T toResponse(S object, Class<T> response) {
-
-        return errorHandler.catchException(() -> modelMapper.map(object, response),
-                "Error while trying to convert from entity to response: ");
-    }
-
-    @Override
-    public <S, T> T copyTo(S source, T target) {
+    public <S, T> T map(S source, T target) {
 
         return errorHandler.catchException(() -> {
             modelMapper.map(source, target);
             return target;
-        }, "Error while trying to transfer data between objects: ");
+        }, "Error when trying to map data between objects: ");
     }
 
     @Override
@@ -50,13 +43,13 @@ public class DataMapperImpl implements DataMapper {
         return errorHandler.catchException(() -> {
             Map<String, Object> map = jsonObject.toMap();
             return modelMapper.map(map, targetClass);
-        }, "Error while trying to convert from JSONObject to object: ");
+        }, "Error while trying to map from JSONObject to object: ");
     }
 
     @Override
     public <T> T fromMap(Map<String, Object> map, Class<T> targetClass) {
 
         return errorHandler.catchException(() -> modelMapper.map(map, targetClass),
-                "Error while trying to convert from HashMap to object: ");
+                "Error while trying to map from HashMap to object: ");
     }
 }
