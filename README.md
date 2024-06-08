@@ -52,7 +52,7 @@ gerenciamento de:
 | Descrição                                                    | Método HTTP | Endpoint                                     | Autorizações                |
 |--------------------------------------------------------------|-------------|----------------------------------------------|-----------------------------|
 | Registro de usuário                                          | POST        | /api/v1/register                             | Não Requer Autorização      |
-| Login de autenticação                                        | POST        | /api/v1/authenticate                         | ADMIN, MANAGER, CLIENT      |
+| Login de autenticação                                        | POST        | /api/v1/authenticate                         | Não Requer Autorização      |
 | Listar endereços                                             | GET         | /api/v1/addresses                            | ADMIN, MANAGER              |
 | Adicionar endereço                                           | POST        | /api/v1/addresses                            | ADMIN, MANAGER, CLIENT      |
 | Atualizar endereço                                           | PUT         | /api/v1/addresses/{id}                       | ADMIN, MANAGER, CLIENT      |
@@ -124,7 +124,7 @@ gerenciamento de:
 | Excluir review do produto                                    | DELETE      | /api/v1/product-reviews/{productId}/{userId} | ADMIN, MANAGER              |
 | Detalhes de um review do produto específico                  | GET         | /api/v1/product-reviews/{productId/{userId}  | ADMIN, MANAGER, CLIENT      |
 | Validar o email do usuário                                   | GET         | /api/v1/email/validate/search                | ADMIN, MANAGER, CLIENT      |
-| Solicitar redefinição da senha                               | POST        | /api/v1/email/password-reset                 | ADMIN, MANAGER, CLIENT      |
+| Solicitar redefinição da senha                               | POST        | /api/v1/email/password-reset                 | Não Requer Autorização      |
 | Validar a redefinição da senha                               | PUT         | /api/v1/email/password-reset                 | ADMIN, MANAGER, CLIENT      |
 | Listar pix pagas                                             | GET         | /api/v1/pix/charges/search                   | ADMIN, MANAGER              |
 | Receber da API banco atualizações de pagamento das cobranças | GET         | /api/v1/webhook/pix                          | certificado de autenticação |
