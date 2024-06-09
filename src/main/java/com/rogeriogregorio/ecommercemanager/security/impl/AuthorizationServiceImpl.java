@@ -4,7 +4,7 @@ import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.security.AuthorizationService;
-import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,14 +36,14 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @PostConstruct
     private void createDefaultAdmin() {
 
-        String password = new BCryptPasswordEncoder().encode(secretPassword);
+        String encodedPassword = new BCryptPasswordEncoder().encode(secretPassword);
 
         User admin = User.newBuilder()
                 .withName("Admin")
                 .withEmail("admin@gmail.com")
                 .withPhone("11912345678")
                 .withCpf("72482581052")
-                .withPassword(password)
+                .withPassword(encodedPassword)
                 .withRole(UserRole.ADMIN)
                 .build();
 

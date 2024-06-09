@@ -10,9 +10,9 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.mail.MailService;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.security.TokenService;
-import com.rogeriogregorio.ecommercemanager.services.PasswordService;
-import com.rogeriogregorio.ecommercemanager.util.DataMapper;
-import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.PasswordHelper;
+import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
+import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
 import jakarta.mail.internet.MimeMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,7 +40,7 @@ public class MailServiceImpl implements MailService {
 
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
-    private final PasswordService passwordService;
+    private final PasswordHelper passwordHelper;
     private final TokenService tokenService;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
@@ -48,12 +48,12 @@ public class MailServiceImpl implements MailService {
 
     @Autowired
     public MailServiceImpl(JavaMailSender mailSender, UserRepository userRepository,
-                           PasswordService passwordService, TokenService tokenService,
+                           PasswordHelper passwordHelper, TokenService tokenService,
                            ErrorHandler errorHandler, DataMapper dataMapper) {
 
         this.mailSender = mailSender;
         this.userRepository = userRepository;
-        this.passwordService = passwordService;
+        this.passwordHelper = passwordHelper;
         this.tokenService = tokenService;
         this.errorHandler = errorHandler;
         this.dataMapper = dataMapper;
@@ -185,8 +185,8 @@ public class MailServiceImpl implements MailService {
     @Transactional(readOnly = false)
     public void saveNewPassword(User user) {
 
-        passwordService.validate(user.getPassword());
-        String passwordEncode = passwordService.enconde(user.getPassword());
+        passwordHelper.validate(user.getPassword());
+        String passwordEncode = passwordHelper.enconde(user.getPassword());
         user.setPassword(passwordEncode);
 
         errorHandler.catchException(() -> userRepository.save(user),

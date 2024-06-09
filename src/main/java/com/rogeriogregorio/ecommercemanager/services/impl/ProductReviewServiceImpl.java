@@ -11,8 +11,8 @@ import com.rogeriogregorio.ecommercemanager.repositories.ProductReviewRepository
 import com.rogeriogregorio.ecommercemanager.services.ProductReviewService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
-import com.rogeriogregorio.ecommercemanager.util.DataMapper;
-import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
+import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

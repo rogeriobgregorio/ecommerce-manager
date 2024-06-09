@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.util;
+package com.rogeriogregorio.ecommercemanager.utils;
 
 import org.springframework.stereotype.Component;
 

@@ -7,10 +7,10 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.mail.MailService;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
-import com.rogeriogregorio.ecommercemanager.services.PasswordService;
+import com.rogeriogregorio.ecommercemanager.utils.PasswordHelper;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
-import com.rogeriogregorio.ecommercemanager.util.DataMapper;
-import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
+import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final MailService mailService;
-    private final PasswordService passwordService;
+    private final PasswordHelper passwordHelper;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
     private final Logger logger = LogManager.getLogger(UserServiceImpl.class);
@@ -34,13 +34,13 @@ public class UserServiceImpl implements UserService {
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
                            MailService mailService,
-                           PasswordService passwordService,
+                           PasswordHelper passwordHelper,
                            ErrorHandler errorHandler,
                            DataMapper dataMapper) {
 
         this.userRepository = userRepository;
         this.mailService = mailService;
-        this.passwordService = passwordService;
+        this.passwordHelper = passwordHelper;
         this.errorHandler = errorHandler;
         this.dataMapper = dataMapper;
     }
@@ -65,8 +65,8 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = false)
     public UserResponse registerUser(UserRequest userRequest) {
 
-        passwordService.validate(userRequest.getPassword());
-        String encodedPassword = passwordService.enconde(userRequest.getPassword());
+        passwordHelper.validate(userRequest.getPassword());
+        String encodedPassword = passwordHelper.enconde(userRequest.getPassword());
         User user = dataMapper.map(userRequest, User.class);
         user.setPassword(encodedPassword);
         user.setRole(UserRole.CLIENT);
@@ -87,8 +87,8 @@ public class UserServiceImpl implements UserService {
 
         User currentUser = getUserIfExists(id);
         User updatedUser = dataMapper.map(userRequest, currentUser);
-        passwordService.validate(userRequest.getPassword());
-        String encodedPassword = passwordService.enconde(userRequest.getPassword());
+        passwordHelper.validate(userRequest.getPassword());
+        String encodedPassword = passwordHelper.enconde(userRequest.getPassword());
         updatedUser.setPassword(encodedPassword);
 
         errorHandler.catchException(() -> userRepository.save(updatedUser),

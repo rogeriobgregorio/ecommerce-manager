@@ -1,7 +1,7 @@
-package com.rogeriogregorio.ecommercemanager.util.impl;
+package com.rogeriogregorio.ecommercemanager.utils.impl;
 
 import com.rogeriogregorio.ecommercemanager.exceptions.*;
-import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ public class ErrorHandlerImpl implements ErrorHandler {
             return method.call();
 
         } catch (Exception ex) {
-            logger.error("{}: {}", ex.getClass().getSimpleName(), ex.getMessage());
+            logger.error("{}: {}, {}", ex.getClass().getSimpleName(), ex.getMessage(), ex.getCause());
 
             throw switch (ex.getClass().getSimpleName()) {
 

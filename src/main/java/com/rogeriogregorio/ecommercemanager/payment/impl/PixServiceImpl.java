@@ -6,9 +6,9 @@ import com.rogeriogregorio.ecommercemanager.entities.Order;
 import com.rogeriogregorio.ecommercemanager.exceptions.PaymentException;
 import com.rogeriogregorio.ecommercemanager.payment.CredentialService;
 import com.rogeriogregorio.ecommercemanager.payment.PixService;
-import com.rogeriogregorio.ecommercemanager.util.DataMapper;
-import com.rogeriogregorio.ecommercemanager.util.DateFormatter;
-import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
+import com.rogeriogregorio.ecommercemanager.utils.DateFormatter;
+import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -48,7 +48,8 @@ public class PixServiceImpl implements PixService {
         this.dataMapper = dataMapper;
     }
 
-    @Retryable(retryFor = { Exception.class }, maxAttempts = 10, backoff = @Backoff(delay = 5000, multiplier = 2))
+    @Retryable(retryFor = { Exception.class }, maxAttempts = 10,
+            backoff = @Backoff(delay = 5000, multiplier = 2))
     public EvpKeyDto createEvpKey() {
 
         return errorHandler.catchException(() -> {
@@ -63,14 +64,8 @@ public class PixServiceImpl implements PixService {
         }, "Error while trying to create EVP key: ");
     }
 
-    @Recover
-    public EvpKeyDto recoverCreateEvpKey(Exception ex) {
-
-        logger.error("Failed to create EVP after retries: {}", ex.getMessage());
-        throw new PaymentException("Unable to create EVP after multiple attempts", ex);
-    }
-
-    @Retryable(retryFor = { Exception.class }, maxAttempts = 10, backoff = @Backoff(delay = 5000, multiplier = 2))
+    @Retryable(retryFor = { Exception.class }, maxAttempts = 10,
+            backoff = @Backoff(delay = 5000, multiplier = 2))
     public PixChargeDto createImmediatePixCharge(Order order) {
 
         return errorHandler.catchException(() -> {
@@ -87,14 +82,8 @@ public class PixServiceImpl implements PixService {
         }, "Error while trying to create immediate Pix charge: ");
     }
 
-    @Recover
-    public PixChargeDto recoverCreateImmediatePixCharge(Exception ex, Order order) {
-
-        logger.error("Failed to create immediate Pix charge after retries: {}", ex.getMessage());
-        throw new PaymentException("Unable to create Pix charge after multiple attempts", ex);
-    }
-
-    @Retryable(retryFor = { Exception.class }, maxAttempts = 10, backoff = @Backoff(delay = 5000, multiplier = 2))
+    @Retryable(retryFor = { Exception.class }, maxAttempts = 10,
+            backoff = @Backoff(delay = 5000, multiplier = 2))
     public PixQRCodeDto generatePixQRCode(PixChargeDto pixCharge) {
 
         return errorHandler.catchException(() -> {
@@ -114,14 +103,8 @@ public class PixServiceImpl implements PixService {
         }, "Error while trying to generate Pix QRCode: ");
     }
 
-    @Recover
-    public PixQRCodeDto recoverGeneratePixQRCode(Exception ex, PixChargeDto pixCharge) {
-
-        logger.error("Failed to generate Pix QRCode link after retries: {}", ex.getMessage());
-        throw new PaymentException("Unable to generate Pix QRCode link after multiple attempts", ex);
-    }
-
-    @Retryable(retryFor = { Exception.class }, maxAttempts = 10, backoff = @Backoff(delay = 5000, multiplier = 2))
+    @Retryable(retryFor = { Exception.class }, maxAttempts = 10,
+            backoff = @Backoff(delay = 5000, multiplier = 2))
     public PixListChargeDto listPixCharges(String startDate, String endDate) {
 
         return errorHandler.catchException(() -> {
@@ -135,6 +118,27 @@ public class PixServiceImpl implements PixService {
 
             return dataMapper.fromJson(efiPayResponse, PixListChargeDto.class);
         }, "Error while trying to list pix charges: ");
+    }
+
+    @Recover
+    public EvpKeyDto recoverCreateEvpKey(Exception ex) {
+
+        logger.error("Failed to create EVP after retries: {}", ex.getMessage());
+        throw new PaymentException("Unable to create EVP after multiple attempts", ex);
+    }
+
+    @Recover
+    public PixChargeDto recoverCreateImmediatePixCharge(Exception ex, Order order) {
+
+        logger.error("Failed to create immediate Pix charge after retries: {}", ex.getMessage());
+        throw new PaymentException("Unable to create Pix charge after multiple attempts", ex);
+    }
+
+    @Recover
+    public PixQRCodeDto recoverGeneratePixQRCode(Exception ex, PixChargeDto pixCharge) {
+
+        logger.error("Failed to generate Pix QRCode link after retries: {}", ex.getMessage());
+        throw new PaymentException("Unable to generate Pix QRCode link after multiple attempts", ex);
     }
 
     @Recover

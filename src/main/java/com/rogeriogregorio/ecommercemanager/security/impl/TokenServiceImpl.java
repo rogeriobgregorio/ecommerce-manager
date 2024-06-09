@@ -9,7 +9,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.security.TokenService;
 import com.rogeriogregorio.ecommercemanager.services.strategy.validations.TokenStrategy;
-import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -42,7 +42,7 @@ public class TokenServiceImpl implements TokenService {
         this.errorHandler = errorHandler;
     }
 
-    private Algorithm algorithm() {
+    private Algorithm getAlgorithm() {
         return Algorithm.HMAC256(secretKey);
     }
 
@@ -53,14 +53,14 @@ public class TokenServiceImpl implements TokenService {
                         .withIssuer(ISSUER_NAME)
                         .withSubject(user.getEmail())
                         .withExpiresAt(EXPIRY_TIME)
-                        .sign(algorithm()),
+                        .sign(getAlgorithm()),
                 "Error while trying to generate token");
     }
 
     public String validateAuthenticationToken(String token) {
 
         return errorHandler.catchException(() -> JWT
-                        .require(algorithm())
+                        .require(getAlgorithm())
                         .withIssuer(ISSUER_NAME)
                         .build()
                         .verify(token)
@@ -78,7 +78,7 @@ public class TokenServiceImpl implements TokenService {
                         .withClaim("userEmail", user.getEmail())
                         .withClaim("userPassword", user.getPassword())
                         .withExpiresAt(EXPIRY_TIME)
-                        .sign(algorithm()),
+                        .sign(getAlgorithm()),
                 "Error while trying to generate email token"
         );
     }
@@ -86,7 +86,7 @@ public class TokenServiceImpl implements TokenService {
     public User validateEmailToken(String token) {
 
         DecodedJWT decodedJWT = errorHandler.catchException(() -> JWT
-                        .require(algorithm())
+                        .require(getAlgorithm())
                         .withIssuer(ISSUER_NAME)
                         .build()
                         .verify(token),

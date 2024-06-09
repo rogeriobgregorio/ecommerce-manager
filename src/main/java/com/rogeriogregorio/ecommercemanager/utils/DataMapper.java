@@ -1,4 +1,4 @@
-package com.rogeriogregorio.ecommercemanager.util;
+package com.rogeriogregorio.ecommercemanager.utils;
 
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
@@ -8,7 +8,7 @@ import java.util.Map;
 @Component
 public interface DataMapper {
 
-    <S, T> T map(S object, Class<T> targetType);
+    <S, T> T map(S source, Class<T> targetClass);
 
     <S, T> T map(S source, T target);
 

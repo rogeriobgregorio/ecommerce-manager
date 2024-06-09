@@ -1,7 +1,7 @@
-package com.rogeriogregorio.ecommercemanager.util.impl;
+package com.rogeriogregorio.ecommercemanager.utils.impl;
 
-import com.rogeriogregorio.ecommercemanager.util.ErrorHandler;
-import com.rogeriogregorio.ecommercemanager.util.DataMapper;
+import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +22,9 @@ public class DataMapperImpl implements DataMapper {
     }
 
     @Override
-    public <S, T> T map(S object, Class<T> targetType) {
+    public <S, T> T map(S source, Class<T> targetClass) {
 
-        return errorHandler.catchException(() -> modelMapper.map(object, targetType),
+        return errorHandler.catchException(() -> modelMapper.map(source, targetClass),
                 "Error when trying to map data between objects: ");
     }
 

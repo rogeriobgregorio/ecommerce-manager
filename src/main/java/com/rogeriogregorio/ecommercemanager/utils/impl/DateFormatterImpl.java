@@ -1,6 +1,6 @@
-package com.rogeriogregorio.ecommercemanager.util.impl;
+package com.rogeriogregorio.ecommercemanager.utils.impl;
 
-import com.rogeriogregorio.ecommercemanager.util.DateFormatter;
+import com.rogeriogregorio.ecommercemanager.utils.DateFormatter;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

@@ -1,9 +1,9 @@
-package com.rogeriogregorio.ecommercemanager.services;
+package com.rogeriogregorio.ecommercemanager.utils;
 
 import org.springframework.stereotype.Component;
 
 @Component
-public interface PasswordService {
+public interface PasswordHelper {
 
     void validate(String password);
 
