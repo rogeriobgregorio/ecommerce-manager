@@ -31,7 +31,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     private final ProductService productService;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger(InventoryItemServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(InventoryItemServiceImpl.class);
 
     @Autowired
     public InventoryItemServiceImpl(InventoryItemRepository inventoryItemRepository,
@@ -50,12 +50,14 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Transactional(readOnly = true)
     public Page<InventoryItemResponse> findAllInventoryItems(Pageable pageable) {
 
-        return errorHandler.catchException(() -> inventoryItemRepository.findAll(pageable),
-                        "Error while trying to fetch all inventory items: ")
-                .map(inventoryItem -> dataMapper.map(inventoryItem, InventoryItemResponse.class));
+        return errorHandler.catchException(
+                () -> inventoryItemRepository.findAll(pageable)
+                        .map(inventoryItem -> dataMapper.map(inventoryItem, InventoryItemResponse.class)),
+                "Error while trying to fetch all inventory items: "
+        );
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public InventoryItemResponse createInventoryItem(InventoryItemRequest inventoryItemRequest) {
 
         Product product = validateProductForInventory(inventoryItemRequest);
@@ -66,24 +68,28 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 .withStockStatus(inventoryItemRequest.getStockStatus())
                 .build();
 
-        errorHandler.catchException(() -> inventoryItemRepository.save(inventoryItem),
-                "Error while trying to create the inventory item: ");
-        logger.info("Inventory item created: {}", inventoryItem);
+        InventoryItem savedInventoryItem = errorHandler.catchException(
+                () -> inventoryItemRepository.save(inventoryItem),
+                "Error while trying to create the inventory item: "
+        );
 
-        updateStockMovementEntrance(inventoryItem);
-        return dataMapper.map(inventoryItem, InventoryItemResponse.class);
+        updateStockMovementEntrance(savedInventoryItem);
+        logger.info("Inventory item created: {}", savedInventoryItem);
+        return dataMapper.map(savedInventoryItem, InventoryItemResponse.class);
     }
 
     @Transactional(readOnly = true)
     public InventoryItemResponse findInventoryItemById(Long id) {
 
-        return errorHandler.catchException(() -> inventoryItemRepository.findById(id),
-                        "Error while trying to find the inventory item by ID: ")
-                .map(inventoryItem -> dataMapper.map(inventoryItem, InventoryItemResponse.class))
-                .orElseThrow(() -> new NotFoundException("Inventory item response not found with ID: " + id + "."));
+        return errorHandler.catchException(
+                () -> inventoryItemRepository.findById(id)
+                        .map(inventoryItem -> dataMapper.map(inventoryItem, InventoryItemResponse.class))
+                        .orElseThrow(() -> new NotFoundException("Inventory item not found with ID: " + id + ".")),
+                "Error while trying to find the inventory item by ID: "
+        );
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public InventoryItemResponse updateInventoryItem(Long id, InventoryItemRequest inventoryItemRequest) {
 
         InventoryItem inventoryItem = getInventoryItemIfExists(id).toBuilder()
@@ -91,14 +97,16 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 .withQuantityInStock(inventoryItemRequest.getQuantityInStock())
                 .build();
 
-        errorHandler.catchException(() -> inventoryItemRepository.save(inventoryItem),
-                "Error while trying to update the inventory item: ");
-        logger.info("Inventory item updated: {}", inventoryItem);
+        InventoryItem updatedInventoryItem = errorHandler.catchException(
+                () -> inventoryItemRepository.save(inventoryItem),
+                "Error while trying to update the inventory item: "
+        );
 
-        return dataMapper.map(inventoryItem, InventoryItemResponse.class);
+        logger.info("Inventory item updated: {}", updatedInventoryItem);
+        return dataMapper.map(updatedInventoryItem, InventoryItemResponse.class);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public void deleteInventoryItem(Long id) {
 
         InventoryItem inventoryItem = getInventoryItemIfExists(id);
@@ -112,9 +120,11 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
     public InventoryItem findInventoryItemByProduct(Product product) {
 
-        return errorHandler.catchException(() -> inventoryItemRepository.findByProduct(product),
-                        "Error while trying to find the inventory item: ")
-                .orElseThrow(() -> new NotFoundException("Item not found in the inventory: " + product + "."));
+        return errorHandler.catchException(
+                () -> inventoryItemRepository.findByProduct(product)
+                        .orElseThrow(() -> new NotFoundException("Item not found in the inventory: " + product + ".")),
+                "Error while trying to find the inventory item: "
+        );
     }
 
     public void validateItemListAvailability(Order order) {
@@ -182,9 +192,11 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             inventoryItem.setQuantityInStock(quantityInStockUpdated);
             inventoryItem.setQuantitySold(quantitySoldUpdated);
 
-            errorHandler.catchException(() -> inventoryItemRepository.save(inventoryItem),
-                    "Error while trying to save the inventory item: ");
-            logger.info("Inventory item quantity updated: {}", inventoryItem);
+            InventoryItem updatedInventoryItem = errorHandler.catchException(
+                    () -> inventoryItemRepository.save(inventoryItem),
+                    "Error while trying to save the inventory item: "
+            );
+            logger.info("Inventory item quantity updated: {}", updatedInventoryItem);
         }
     }
 
@@ -193,8 +205,10 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         Long productId = inventoryItemRequest.getProductId();
         Product product = productService.getProductIfExists(productId);
 
-        boolean isItemAlreadyAdded = errorHandler.catchException(() -> inventoryItemRepository.existsByProduct(product),
-                "Error while trying to check the presence of the item in the inventory: ");
+        boolean isItemAlreadyAdded = errorHandler.catchException(
+                () -> inventoryItemRepository.existsByProduct(product),
+                "Error while trying to check the presence of the item in the inventory: "
+        );
 
         if (isItemAlreadyAdded) {
             throw new IllegalStateException("Cannot add the item to the inventory: item already added.");
@@ -205,14 +219,11 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
     public InventoryItem getInventoryItemIfExists(Long id) {
 
-        return errorHandler.catchException(() -> {
-
-            if (!inventoryItemRepository.existsById(id)) {
-                throw new NotFoundException("Inventory item not exists with ID: " + id + ".");
-            }
-
-            return dataMapper.map(inventoryItemRepository.findById(id), InventoryItem.class);
-        }, "Error while trying to verify the existence of the inventory item by ID: ");
+        return errorHandler.catchException(
+                () -> inventoryItemRepository.findById(id)
+                        .orElseThrow(() -> new NotFoundException("Inventory item not found with ID: " + id + ".")),
+                "Error while trying to verify the existence of the inventory item by ID: "
+        );
     }
 
     private void updateStockMovementEntrance(InventoryItem inventoryItem) {
@@ -224,8 +235,11 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 .withQuantityMoved(inventoryItem.getQuantityInStock())
                 .build();
 
-        errorHandler.catchException(() -> stockMovementRepository.save(stockMovement),
-                "Error while trying to create the inventory movement: ");
-        logger.info("Inventory movement entrance: {}", stockMovement);
+        StockMovement stockMovementEntrance = errorHandler.catchException(
+                () -> stockMovementRepository.save(stockMovement),
+                "Error while trying to create the inventory movement: "
+        );
+
+        logger.info("Inventory movement entrance: {}", stockMovementEntrance);
     }
 }

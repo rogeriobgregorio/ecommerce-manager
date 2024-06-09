@@ -44,7 +44,7 @@ public class MailServiceImpl implements MailService {
     private final TokenService tokenService;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger(MailServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(MailServiceImpl.class);
 
     @Autowired
     public MailServiceImpl(JavaMailSender mailSender, UserRepository userRepository,
@@ -167,9 +167,11 @@ public class MailServiceImpl implements MailService {
     @Transactional(readOnly = true)
     private User findUserByEmail(String email) {
 
-        return errorHandler.catchException(() -> userRepository.findUserByEmail(email),
-                        "Error while trying to search for user by email: " + email)
-                .orElseThrow(() -> new NotFoundException("The user with the email was not found"));
+        return errorHandler.catchException(
+                () -> userRepository.findUserByEmail(email)
+                        .orElseThrow(() -> new NotFoundException("The user was not found with the email: " + email)),
+                "Error while trying to search for user by email: "
+        );
     }
 
     @Transactional(readOnly = false)
@@ -177,9 +179,12 @@ public class MailServiceImpl implements MailService {
 
         user.setEmailEnabled(true);
 
-        errorHandler.catchException(() -> userRepository.save(user),
-                "Error while trying to save verified email");
-        logger.info("User email {} verified and saved", user.getEmail());
+        User savedUser = errorHandler.catchException(
+                () -> userRepository.save(user),
+                "Error while trying to save verified email"
+        );
+
+        logger.info("User email verified and saved: {}", savedUser.getEmail());
     }
 
     @Transactional(readOnly = false)
@@ -189,8 +194,11 @@ public class MailServiceImpl implements MailService {
         String passwordEncode = passwordHelper.enconde(user.getPassword());
         user.setPassword(passwordEncode);
 
-        errorHandler.catchException(() -> userRepository.save(user),
-                "Error while trying to update user password: ");
-        logger.info("User password updated: {}", user.toString());
+        User savedUser = errorHandler.catchException(
+                () -> userRepository.save(user),
+                "Error while trying to update user password: "
+        );
+
+        logger.info("User password updated: {}", savedUser);
     }
 }

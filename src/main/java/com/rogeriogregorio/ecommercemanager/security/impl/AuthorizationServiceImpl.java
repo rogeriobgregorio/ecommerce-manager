@@ -29,8 +29,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Override
     public UserDetails loadUserByUsername(String email) {
 
-        return handler.catchException(() -> userRepository.findByEmail(email),
-                "Error while trying to fetch the user by login email: " + email);
+        return handler.catchException(
+                () -> userRepository.findByEmail(email),
+                "Error while trying to fetch the user by login email: "
+        );
     }
 
     @PostConstruct
@@ -40,14 +42,16 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         User admin = User.newBuilder()
                 .withName("Admin")
-                .withEmail("admin@gmail.com")
+                .withEmail("admin@email.com")
                 .withPhone("11912345678")
                 .withCpf("72482581052")
                 .withPassword(encodedPassword)
                 .withRole(UserRole.ADMIN)
                 .build();
 
-        handler.catchException(() -> userRepository.save(admin),
-                "An error occurred while creating the default admin user");
+        handler.catchException(
+                () -> userRepository.save(admin),
+                "An error occurred while creating the default admin user"
+        );
     }
 }

@@ -31,7 +31,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     private final OrderService orderService;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger(OrderItemServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(OrderItemServiceImpl.class);
 
     @Autowired
     public OrderItemServiceImpl(OrderItemRepository orderItemRepository,
@@ -52,9 +52,25 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = true)
     public Page<OrderItemResponse> findAllOrderItems(Pageable pageable) {
 
-        return errorHandler.catchException(() -> orderItemRepository.findAll(pageable),
-                        "Error while trying to fetch all items of the order: ")
-                .map(orderItem -> dataMapper.map(orderItem, OrderItemResponse.class));
+        return errorHandler.catchException(
+                () -> orderItemRepository.findAll(pageable)
+                        .map(orderItem -> dataMapper.map(orderItem, OrderItemResponse.class)),
+                "Error while trying to fetch all items of the order: "
+        );
+    }
+
+    @Transactional
+    public OrderItemResponse createOrderItem(OrderItemRequest orderItemRequest) {
+
+        OrderItem orderItem = buildOrderItem(orderItemRequest);
+
+        OrderItem savedOrderItem = errorHandler.catchException(
+                () -> orderItemRepository.save(orderItem),
+                "Error while trying to create order item: "
+        );
+
+        logger.info("Order item created: {}", savedOrderItem);
+        return dataMapper.map(savedOrderItem, OrderItemResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -62,37 +78,29 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         OrderItemPK id = buildOrderItemPK(orderId, itemId);
 
-        return errorHandler.catchException(() -> orderItemRepository.findById(id),
-                        "Error while trying to fetch the order item by ID: ")
-                .map(orderItem -> dataMapper.map(orderItem, OrderItemResponse.class))
-                .orElseThrow(() -> new NotFoundException("Item not found with ID: " + id + "."));
+        return errorHandler.catchException(
+                () -> orderItemRepository.findById(id)
+                        .map(orderItem -> dataMapper.map(orderItem, OrderItemResponse.class))
+                        .orElseThrow(() -> new NotFoundException("Item not found with ID: " + id + ".")),
+                "Error while trying to fetch the order item by ID: "
+        );
     }
 
-    @Transactional(readOnly = false)
-    public OrderItemResponse createOrderItem(OrderItemRequest orderItemRequest) {
-
-        OrderItem orderItem = buildOrderItem(orderItemRequest);
-
-        errorHandler.catchException(() -> orderItemRepository.save(orderItem),
-                "Error while trying to create order item: ");
-        logger.info("Order item created: {}", orderItem);
-
-        return dataMapper.map(orderItem, OrderItemResponse.class);
-    }
-
-    @Transactional(readOnly = false)
+    @Transactional
     public OrderItemResponse updateOrderItem(OrderItemRequest orderItemRequest) {
 
         OrderItem orderItem = buildOrderItem(orderItemRequest);
 
-        errorHandler.catchException(() -> orderItemRepository.save(orderItem),
-                "Error while trying to update the order item: ");
-        logger.info("Order item updated: {}", orderItem);
+        OrderItem updatedOrderItem = errorHandler.catchException(
+                () -> orderItemRepository.save(orderItem),
+                "Error while trying to update the order item: "
+        );
 
-        return dataMapper.map(orderItem, OrderItemResponse.class);
+        logger.info("Order item updated: {}", updatedOrderItem);
+        return dataMapper.map(updatedOrderItem, OrderItemResponse.class);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public void deleteOrderItem(Long orderId, Long itemId) {
 
         validateOrderChangeEligibility(orderId);

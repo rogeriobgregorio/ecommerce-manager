@@ -30,7 +30,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductDiscountService productDiscountService;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger(ProductServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(ProductServiceImpl.class);
 
     @Autowired
     public ProductServiceImpl(ProductRepository productRepository,
@@ -48,50 +48,58 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public Page<ProductResponse> findAllProducts(Pageable pageable) {
 
-        return errorHandler.catchException(() -> productRepository.findAll(pageable),
-                        "Error while trying to fetch all products: ")
-                .map(product -> dataMapper.map(product, ProductResponse.class));
+        return errorHandler.catchException(
+                () -> productRepository.findAll(pageable)
+                        .map(product -> dataMapper.map(product, ProductResponse.class)),
+                "Error while trying to fetch all products: "
+        );
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public ProductResponse createProduct(ProductRequest productRequest) {
 
         Product product = dataMapper.map(productRequest, Product.class);
         product.setProductDiscount(validateDiscount(productRequest));
         product.setCategories(validateCategory(productRequest));
 
-        errorHandler.catchException(() -> productRepository.save(product),
-                "Error while trying to create the product: ");
-        logger.info("Product created: {}", product);
+        Product savedProduct = errorHandler.catchException(
+                () -> productRepository.save(product),
+                "Error while trying to create the product: "
+        );
 
-        return dataMapper.map(product, ProductResponse.class);
+        logger.info("Product created: {}", savedProduct);
+        return dataMapper.map(savedProduct, ProductResponse.class);
     }
 
     @Transactional(readOnly = true)
     public ProductResponse findProductById(Long id) {
 
-        return errorHandler.catchException(() -> productRepository.findById(id),
-                        "Error while trying to create the product: ")
-                .map(product -> dataMapper.map(product, ProductResponse.class))
-                .orElseThrow(() -> new NotFoundException("Product response not found with ID: " + id + "."));
+        return errorHandler.catchException(
+                () -> productRepository.findById(id)
+                        .map(product -> dataMapper.map(product, ProductResponse.class))
+                        .orElseThrow(() -> new NotFoundException("Product response not found with ID: " + id + ".")),
+                "Error while trying to find the product with id: "
+        );
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
 
         Product currentProduct = getProductIfExists(id);
-        Product updatedProduct = dataMapper.map(productRequest, currentProduct);
-        updatedProduct.setProductDiscount(validateDiscount(productRequest));
-        updatedProduct.setCategories(validateCategory(productRequest));
+        dataMapper.map(productRequest, currentProduct);
+        currentProduct.setProductDiscount(validateDiscount(productRequest));
+        currentProduct.setCategories(validateCategory(productRequest));
 
-        errorHandler.catchException(() -> productRepository.save(updatedProduct),
-                "Error while trying to update the product: ");
+        Product updatedProduct = errorHandler.catchException(
+                () -> productRepository.save(currentProduct),
+                "Error while trying to update the product: "
+        );
+
         logger.info("Product updated: {}", updatedProduct);
-
         return dataMapper.map(updatedProduct, ProductResponse.class);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public void deleteProduct(Long id) {
 
         Product product = getProductIfExists(id);
@@ -106,21 +114,20 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public Page<ProductResponse> findProductByName(String name, Pageable pageable) {
 
-        return errorHandler.catchException(() -> productRepository.findByName(name, pageable),
-                        "Error while trying to fetch the product by name: ")
-                .map(product -> dataMapper.map(product, ProductResponse.class));
+        return errorHandler.catchException(
+                () -> productRepository.findByName(name, pageable)
+                        .map(product -> dataMapper.map(product, ProductResponse.class)),
+                "Error while trying to fetch the product by name: "
+        );
     }
 
     public Product getProductIfExists(Long id) {
 
-        return errorHandler.catchException(() -> {
-
-            if (!productRepository.existsById(id)) {
-                throw new NotFoundException("Product not exists with ID: " + id + ".");
-            }
-
-            return dataMapper.map(productRepository.findById(id), Product.class);
-        }, "Error while trying to verify the existence of the product by ID: ");
+        return errorHandler.catchException(
+                () -> productRepository.findById(id)
+                        .orElseThrow(() -> new NotFoundException("Product response not found with ID: " + id + ".")),
+                "Error while trying to verify the existence of the product by ID: "
+        );
     }
 
     private Set<Category> validateCategory(ProductRequest productRequest) {

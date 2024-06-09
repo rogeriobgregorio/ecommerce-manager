@@ -24,7 +24,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
     private final ProductDiscountRepository productDiscountRepository;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger(ProductDiscountServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(ProductDiscountServiceImpl.class);
 
     @Autowired
     public ProductDiscountServiceImpl(ProductDiscountRepository productDiscountRepository,
@@ -38,48 +38,56 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
     @Transactional(readOnly = true)
     public Page<ProductDiscountResponse> findAllProductDiscounts(Pageable pageable) {
 
-        return errorHandler.catchException(() -> productDiscountRepository.findAll(pageable),
-                        "Error while trying to fetch all products discounts: ")
-                .map(productDiscount -> dataMapper.map(productDiscount, ProductDiscountResponse.class));
+        return errorHandler.catchException(
+                () -> productDiscountRepository.findAll(pageable)
+                        .map(productDiscount -> dataMapper.map(productDiscount, ProductDiscountResponse.class)),
+                "Error while trying to fetch all products discounts: "
+        );
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public ProductDiscountResponse createProductDiscount(ProductDiscountRequest productDiscountRequest) {
 
         validateProductDiscountDates(productDiscountRequest);
         ProductDiscount productDiscount = dataMapper.map(productDiscountRequest, ProductDiscount.class);
 
-        errorHandler.catchException(() -> productDiscountRepository.save(productDiscount),
-                "Error while trying to create the product discount: ");
-        logger.info("Product discount created: {}", productDiscount);
+        ProductDiscount savedProductDiscount = errorHandler.catchException(
+                () -> productDiscountRepository.save(productDiscount),
+                "Error while trying to create the product discount: "
+        );
 
-        return dataMapper.map(productDiscount, ProductDiscountResponse.class);
+        logger.info("Product discount created: {}", savedProductDiscount);
+        return dataMapper.map(savedProductDiscount, ProductDiscountResponse.class);
     }
 
     @Transactional(readOnly = true)
     public ProductDiscountResponse findProductDiscountById(Long id) {
 
-        return errorHandler.catchException(() -> productDiscountRepository.findById(id),
-                        "Error while trying to find the product discount by ID: ")
-                .map(productDiscount -> dataMapper.map(productDiscount, ProductDiscountResponse.class))
-                .orElseThrow(() -> new NotFoundException("Product discount response not found with ID: " + id + "."));
+        return errorHandler.catchException(
+                () -> productDiscountRepository.findById(id)
+                        .map(productDiscount -> dataMapper.map(productDiscount, ProductDiscountResponse.class))
+                        .orElseThrow(() -> new NotFoundException("Product discount response not found with ID: " + id + ".")),
+                "Error while trying to find the product discount by ID: "
+        );
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public ProductDiscountResponse updateProductDiscount(Long id, ProductDiscountRequest productDiscountRequest) {
 
         validateProductDiscountDates(productDiscountRequest);
         ProductDiscount currentProductDiscount = getProductDiscountIfExists(id);
-        ProductDiscount updatedProductDiscount = dataMapper.map(productDiscountRequest, currentProductDiscount);
+        dataMapper.map(productDiscountRequest, currentProductDiscount);
 
-        errorHandler.catchException(() -> productDiscountRepository.save(updatedProductDiscount),
-                "Error while trying to update the product discount: ");
+        ProductDiscount updatedProductDiscount = errorHandler.catchException(
+                () -> productDiscountRepository.save(currentProductDiscount),
+                "Error while trying to update the product discount: "
+        );
+
         logger.info("Product discount updated: {}", updatedProductDiscount);
-
         return dataMapper.map(updatedProductDiscount, ProductDiscountResponse.class);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public void deleteProductDiscount(Long id) {
 
         ProductDiscount productDiscount = getProductDiscountIfExists(id);
@@ -93,14 +101,11 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
 
     public ProductDiscount getProductDiscountIfExists(Long id) {
 
-        return errorHandler.catchException(() -> {
-
-            if (!productDiscountRepository.existsById(id)) {
-                throw new NotFoundException("Product discount not exists with ID: " + id + ".");
-            }
-
-            return dataMapper.map(productDiscountRepository.findById(id), ProductDiscount.class);
-        }, "Error while trying to verify the existence of the product discount by ID: ");
+        return errorHandler.catchException(
+                () -> productDiscountRepository.findById(id)
+                        .orElseThrow(() -> new NotFoundException("Product discount response not found with ID: " + id + ".")),
+                "Error while trying to verify the existence of the product discount by ID: "
+        );
     }
 
     private void validateProductDiscountDates(ProductDiscountRequest productDiscountRequest) {

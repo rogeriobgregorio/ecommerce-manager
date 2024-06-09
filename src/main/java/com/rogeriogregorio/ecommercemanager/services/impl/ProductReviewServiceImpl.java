@@ -33,7 +33,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     private final UserService userService;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger(ProductReviewServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(ProductReviewServiceImpl.class);
 
     @Autowired
     public ProductReviewServiceImpl(ProductReviewRepository productReviewRepository,
@@ -50,21 +50,25 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     @Transactional(readOnly = true)
     public Page<ProductReviewResponse> findAllProductReviews(Pageable pageable) {
 
-        return errorHandler.catchException(() -> productReviewRepository.findAll(pageable),
-                        "Error while trying to fetch all product reviews: ")
-                .map(productReview -> dataMapper.map(productReview, ProductReviewResponse.class));
+        return errorHandler.catchException(
+                () -> productReviewRepository.findAll(pageable)
+                        .map(productReview -> dataMapper.map(productReview, ProductReviewResponse.class)),
+                "Error while trying to fetch all product reviews: "
+        );
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public ProductReviewResponse createProductReview(ProductReviewRequest productReviewRequest) {
 
         ProductReview productReview = buildProductReview(productReviewRequest);
 
-        errorHandler.catchException(() -> productReviewRepository.save(productReview),
-                "Error while trying to create product review: ");
-        logger.info("Product review created: {}", productReview);
+        ProductReview savedProductReview = errorHandler.catchException(
+                () -> productReviewRepository.save(productReview),
+                "Error while trying to create product review: "
+        );
 
-        return dataMapper.map(productReview, ProductReviewResponse.class);
+        logger.info("Product review created: {}", savedProductReview);
+        return dataMapper.map(savedProductReview, ProductReviewResponse.class);
     }
 
     @Transactional(readOnly = true)
@@ -72,25 +76,29 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         ProductReviewPK id = buildProductReviewPK(productId, userId);
 
-        return errorHandler.catchException(() -> productReviewRepository.findById(id),
-                        "Error while trying to fetch the product review by ID: ")
-                .map(productReview -> dataMapper.map(productReview, ProductReviewResponse.class))
-                .orElseThrow(() -> new NotFoundException("Product review not found with ID: " + id + "."));
+        return errorHandler.catchException(
+                () -> productReviewRepository.findById(id)
+                        .map(productReview -> dataMapper.map(productReview, ProductReviewResponse.class))
+                        .orElseThrow(() -> new NotFoundException("Product review not found with ID: " + id + ".")),
+                "Error while trying to fetch the product review by ID: "
+        );
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public ProductReviewResponse updateProductReview(ProductReviewRequest productReviewRequest) {
 
         ProductReview productReview = buildProductReview(productReviewRequest);
 
-        errorHandler.catchException(() -> productReviewRepository.save(productReview),
-                "Error while trying to update the product review: ");
-        logger.info("Product review updated: {}", productReview);
+        ProductReview updateProductReview = errorHandler.catchException(
+                () -> productReviewRepository.save(productReview),
+                "Error while trying to update the product review: "
+        );
 
-        return dataMapper.map(productReview, ProductReviewResponse.class);
+        logger.info("Product review updated: {}", updateProductReview);
+        return dataMapper.map(updateProductReview, ProductReviewResponse.class);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public void deleteProductReview(Long productId, UUID userId) {
 
         ProductReviewPK id = buildProductReviewPK(productId, userId);

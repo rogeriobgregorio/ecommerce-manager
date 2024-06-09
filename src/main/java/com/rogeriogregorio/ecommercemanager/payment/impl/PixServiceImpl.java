@@ -34,7 +34,7 @@ public class PixServiceImpl implements PixService {
     private final DateFormatter dateFormatter;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger(PixServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(PixServiceImpl.class);
 
     @Autowired
     public PixServiceImpl(CredentialService credentials,
@@ -58,7 +58,7 @@ public class PixServiceImpl implements PixService {
             JSONObject efiPayResponse = efiPay.call(CREATE_EVP, new HashMap<>(), new JSONObject());
 
             EvpKeyDto evpKey = dataMapper.fromJson(efiPayResponse, EvpKeyDto.class);
-            logger.info("EVP key created: {}", evpKey.toString());
+            logger.info("EVP key created: {}", evpKey);
 
             return evpKey;
         }, "Error while trying to create EVP key: ");
@@ -76,7 +76,7 @@ public class PixServiceImpl implements PixService {
             JSONObject efiPayResponse = efiPay.call(CREATE_IMMEDIATE_CHARGE, new HashMap<>(), body);
 
             PixChargeDto pixCharge = dataMapper.fromJson(efiPayResponse, PixChargeDto.class);
-            logger.info("Immediate charge Pix created: {}", pixCharge.toString());
+            logger.info("Immediate charge Pix created: {}", pixCharge);
 
             return pixCharge;
         }, "Error while trying to create immediate Pix charge: ");
@@ -97,7 +97,7 @@ public class PixServiceImpl implements PixService {
             Map<String, Object> efiPayResponse = efiPay.call(GENERATE_QRCODE, params, new HashMap<>());
 
             PixQRCodeDto pixQRCode = dataMapper.fromMap(efiPayResponse, PixQRCodeDto.class);
-            logger.info("Generated QRCode Pix: {}", pixQRCode.toString());
+            logger.info("Generated QRCode Pix: {}", pixQRCode);
 
             return pixQRCode;
         }, "Error while trying to generate Pix QRCode: ");

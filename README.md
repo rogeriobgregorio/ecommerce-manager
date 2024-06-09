@@ -126,6 +126,6 @@ gerenciamento de:
 | Validar o email do usuário                                   | GET         | /api/v1/email/validate/search                | ADMIN, MANAGER, CLIENT      |
 | Solicitar redefinição da senha                               | POST        | /api/v1/email/password-reset                 | Não Requer Autorização      |
 | Validar a redefinição da senha                               | PUT         | /api/v1/email/password-reset                 | ADMIN, MANAGER, CLIENT      |
-| Listar pix pagas                                             | GET         | /api/v1/pix/charges/search                   | ADMIN, MANAGER              |
+| Listar pix pagas                                             | GET         | /api/v1/pix/charges/search                   | ADMIN, MANAGER, CLIENT      |
 | Receber da API banco atualizações de pagamento das cobranças | GET         | /api/v1/webhook/pix                          | certificado de autenticação |
 | Receber da API do banco teste de conexão                     | GET         | /api/v1/webhook                              | certificado de autenticação |

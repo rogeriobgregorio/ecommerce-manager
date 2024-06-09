@@ -43,7 +43,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
 
-    private final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
 
     @Autowired
     public PaymentServiceImpl(PaymentRepository paymentRepository,
@@ -70,11 +70,14 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional(readOnly = true)
     public Page<PaymentResponse> findAllPayments(Pageable pageable) {
 
-        return errorHandler.catchException(() -> paymentRepository.findAll(pageable),
-                        "Error while trying to fetch all payments: ")
-                .map(payment -> dataMapper.map(payment, PaymentResponse.class));
+        return errorHandler.catchException(
+                () -> paymentRepository.findAll(pageable)
+                        .map(payment -> dataMapper.map(payment, PaymentResponse.class)),
+                "Error while trying to fetch all payments: "
+        );
     }
 
+    @Transactional
     public PaymentResponse createPaymentProcess(PaymentRequest paymentRequest) {
 
         Order order = orderService.getOrderIfExists(paymentRequest.getOrderId());
@@ -82,11 +85,13 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment payment = getPaymentStrategy(paymentRequest).createPayment(order);
 
-        errorHandler.catchException(() -> paymentRepository.save(payment),
-                "Error while trying to create paid payment with charge: ");
-        logger.info("Payment with charge saved: {}", payment);
+        Payment savedPayment = errorHandler.catchException(
+                () -> paymentRepository.save(payment),
+                "Error while trying to create paid payment with charge: "
+        );
 
-        return dataMapper.map(payment, PaymentResponse.class);
+        logger.info("Payment with charge saved: {}", savedPayment);
+        return dataMapper.map(savedPayment, PaymentResponse.class);
     }
 
     private PaymentStrategy getPaymentStrategy(PaymentRequest paymentRequest) {
@@ -99,38 +104,35 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(() -> new IllegalArgumentException("Payment method not supported: " + paymentType));
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public void savePaidPixCharges(PixWebhookDto pixWebhook) {
 
         List<Payment> paidPixChargeList = buildPaidPixCharges(pixWebhook);
 
         for (Payment paymentPix : paidPixChargeList) {
-            errorHandler.catchException(() -> paymentRepository.save(paymentPix),
-                    "Error while trying to save paymentPix with paid charge: ");
-            logger.info("Payment pix with paid charge saved: {}", paymentPix);
+            Payment savedPaymentPix = errorHandler.catchException(
+                    () -> paymentRepository.save(paymentPix),
+                    "Error while trying to save paymentPix with paid charge: "
+            );
 
-            updateInventoryStock(paymentPix);
-            //CompletableFuture.runAsync(() -> mailService.sendPaymentReceiptEmail(paymentPix));// TODO reativar método
+            updateInventoryStock(savedPaymentPix);
+            logger.info("Payment pix with paid charge saved: {}", savedPaymentPix);
+            //CompletableFuture.runAsync(() -> mailService.sendPaymentReceiptEmail(savedPaymentPix));// TODO reativar método
         }
-    }
-
-    private void updateInventoryStock(Payment payment) {
-
-        Order orderPaid = payment.getOrder();
-        inventoryItemService.updateInventoryItemQuantity(orderPaid);
-        stockMovementService.updateStockMovementExit(orderPaid);
     }
 
     @Transactional(readOnly = true)
     public PaymentResponse findPaymentById(Long id) {
 
-        return errorHandler.catchException(() -> paymentRepository.findById(id),
-                        "Error while trying to find the payment by ID: ")
-                .map(payment -> dataMapper.map(payment, PaymentResponse.class))
-                .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + "."));
+        return errorHandler.catchException(
+                () -> paymentRepository.findById(id)
+                        .map(payment -> dataMapper.map(payment, PaymentResponse.class))
+                        .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + ".")),
+                "Error while trying to find the payment by ID: "
+        );
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public void deletePayment(Long id) {
 
         Payment payment = getPaymentIfExists(id);
@@ -142,23 +144,30 @@ public class PaymentServiceImpl implements PaymentService {
         logger.warn("Payment deleted: {}", payment);
     }
 
-    public Payment getPaymentIfExists(Long id) {
-
-        return errorHandler.catchException(() -> {
-
-            if (!paymentRepository.existsById(id)) {
-                throw new NotFoundException("Payment not exists with ID: " + id + ".");
-            }
-
-            return dataMapper.map(paymentRepository.findById(id), Payment.class);
-        }, "Error while trying to verify the existence of the Payment by ID: ");
-    }
-
+    @Transactional(readOnly = true)
     private Payment findByTxId(String txId) {
 
-        return errorHandler.catchException(() -> paymentRepository.findByTxId(txId),
-                        "Error while trying to find the payment by txId: ")
-                .orElseThrow(() -> new NotFoundException("Payment not found with txId: " + txId + "."));
+        return errorHandler.catchException(
+                () -> paymentRepository.findByTxId(txId)
+                        .orElseThrow(() -> new NotFoundException("Payment not found with txId: " + txId + ".")),
+                "Error while trying to find the payment by txId: "
+        );
+    }
+
+    public Payment getPaymentIfExists(Long id) {
+
+        return errorHandler.catchException(
+                () -> paymentRepository.findById(id)
+                        .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + ".")),
+                "Error while trying to verify the existence of the Payment by ID: "
+        );
+    }
+
+    private void updateInventoryStock(Payment payment) {
+
+        Order orderPaid = payment.getOrder();
+        inventoryItemService.updateInventoryItemQuantity(orderPaid);
+        stockMovementService.updateStockMovementExit(orderPaid);
     }
 
     private List<Payment> buildPaidPixCharges(PixWebhookDto pixWebhook) {

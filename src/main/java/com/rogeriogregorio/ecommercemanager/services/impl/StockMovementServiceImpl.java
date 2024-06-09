@@ -27,7 +27,7 @@ public class StockMovementServiceImpl implements StockMovementService {
     private final InventoryItemService inventoryItemService;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger(StockMovementServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(StockMovementServiceImpl.class);
 
     @Autowired
     public StockMovementServiceImpl(StockMovementRepository stockMovementRepository,
@@ -43,12 +43,14 @@ public class StockMovementServiceImpl implements StockMovementService {
     @Transactional(readOnly = true)
     public Page<StockMovementResponse> findAllStockMovements(Pageable pageable) {
 
-        return errorHandler.catchException(() -> stockMovementRepository.findAll(pageable),
-                        "Error while trying to fetch all inventory movements: ")
-                .map(stockMovement -> dataMapper.map(stockMovement, StockMovementResponse.class));
+        return errorHandler.catchException(
+                () -> stockMovementRepository.findAll(pageable)
+                        .map(stockMovement -> dataMapper.map(stockMovement, StockMovementResponse.class)),
+                "Error while trying to fetch all inventory movements: "
+        );
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public StockMovementResponse createStockMovement(StockMovementRequest stockMovementRequest) {
 
         Long inventoryItemId = stockMovementRequest.getInventoryItemId();
@@ -59,46 +61,51 @@ public class StockMovementServiceImpl implements StockMovementService {
                 .withInventoryItem(inventoryItem)
                 .withMovementType(stockMovementRequest.getMovementType())
                 .withQuantityMoved(stockMovementRequest.getQuantityMoved())
-                .build();;
+                .build();
 
-        errorHandler.catchException(() -> stockMovementRepository.save(stockMovement),
-                "Error while trying to create the inventory movement:");
-        logger.info("Inventory movement created: {}", stockMovement);
+        StockMovement savedStockMovement = errorHandler.catchException(
+                () -> stockMovementRepository.save(stockMovement),
+                "Error while trying to create the inventory movement:"
+        );
 
-        return dataMapper.map(stockMovement, StockMovementResponse.class);
+        logger.info("Inventory movement created: {}", savedStockMovement);
+        return dataMapper.map(savedStockMovement, StockMovementResponse.class);
     }
 
     @Transactional(readOnly = true)
     public StockMovementResponse findStockMovementById(Long id) {
 
-        return errorHandler.catchException(() -> stockMovementRepository.findById(id),
-                        "Error while trying to fetch inventory movement by ID: " + id)
-                .map(stockMovement -> dataMapper.map(stockMovement, StockMovementResponse.class))
-                .orElseThrow(() -> new NotFoundException("Inventory movement not found with ID: " + id + "."));
+        return errorHandler.catchException(
+                () -> stockMovementRepository.findById(id)
+                        .map(stockMovement -> dataMapper.map(stockMovement, StockMovementResponse.class))
+                        .orElseThrow(() -> new NotFoundException("Inventory movement not found with ID: " + id + ".")),
+                "Error while trying to fetch inventory movement by ID: "
+        );
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public StockMovementResponse updateStockMovement(Long id, StockMovementRequest stockMovementRequest) {
 
-        StockMovement currentStockMovement = getUserIfExists(id);
         Long inventoryItemId = stockMovementRequest.getInventoryItemId();
         InventoryItem inventoryItem = inventoryItemService.getInventoryItemIfExists(inventoryItemId);
 
-        StockMovement updateStockMovement = currentStockMovement.toBuilder()
+        StockMovement currentStockMovement = getUserIfExists(id).toBuilder()
                 .withMoment(Instant.now())
                 .withInventoryItem(inventoryItem)
                 .withMovementType(stockMovementRequest.getMovementType())
                 .withQuantityMoved(stockMovementRequest.getQuantityMoved())
                 .build();
 
-        errorHandler.catchException(() -> stockMovementRepository.save(updateStockMovement),
-                "Error while trying to update inventory movement: ");
-        logger.info("Inventory movement updated: {}", updateStockMovement);
+        StockMovement updateStockMovement = errorHandler.catchException(
+                () -> stockMovementRepository.save(currentStockMovement),
+                "Error while trying to update inventory movement: "
+        );
 
+        logger.info("Inventory movement updated: {}", updateStockMovement);
         return dataMapper.map(updateStockMovement, StockMovementResponse.class);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public void deleteStockMovement(Long id) {
 
         StockMovement stockMovement = getUserIfExists(id);
@@ -112,14 +119,11 @@ public class StockMovementServiceImpl implements StockMovementService {
 
     public StockMovement getUserIfExists(Long id) {
 
-        return errorHandler.catchException(() -> {
-
-            if (!stockMovementRepository.existsById(id)) {
-                throw new NotFoundException("Stock movement not exists with ID: " + id + ".");
-            }
-
-            return dataMapper.map(stockMovementRepository.findById(id), StockMovement.class);
-        }, "Error while trying to verify the existence of the stock movement by ID: ");
+        return errorHandler.catchException(
+                () -> stockMovementRepository.findById(id)
+                        .orElseThrow(() -> new NotFoundException("Inventory movement not found with ID: " + id + ".")),
+                "Error while trying to verify the existence of the stock movement by ID: "
+        );
     }
 
     public void updateStockMovementExit(Order order) {
@@ -135,9 +139,12 @@ public class StockMovementServiceImpl implements StockMovementService {
                     .withQuantityMoved(orderItem.getQuantity())
                     .build();
 
-            errorHandler.catchException(() -> stockMovementRepository.save(stockMovement),
-                    "Error while trying to save inventory movement: ");
-            logger.info("Inventory movement exit: {}", stockMovement);
+            StockMovement stockMovementExit = errorHandler.catchException(
+                    () -> stockMovementRepository.save(stockMovement),
+                    "Error while trying to save inventory movement: "
+            );
+
+            logger.info("Inventory movement exit: {}", stockMovementExit);
         }
     }
 }

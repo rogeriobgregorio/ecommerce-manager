@@ -24,11 +24,12 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger(CategoryServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(CategoryServiceImpl.class);
 
     @Autowired
     public CategoryServiceImpl(CategoryRepository categoryRepository,
-                               ErrorHandler errorHandler, DataMapper dataMapper) {
+                               ErrorHandler errorHandler,
+                               DataMapper dataMapper) {
 
         this.categoryRepository = categoryRepository;
         this.errorHandler = errorHandler;
@@ -38,53 +39,62 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     public Page<CategoryResponse> findAllCategories(Pageable pageable) {
 
-        return errorHandler.catchException(() -> categoryRepository.findAll(pageable),
-                        "Error while trying to fetch all categories: ")
-                .map(category -> dataMapper.map(category, CategoryResponse.class));
+        return errorHandler.catchException(
+                () -> categoryRepository.findAll(pageable)
+                        .map(category -> dataMapper.map(category, CategoryResponse.class)),
+                "Error while trying to fetch all categories: "
+        );
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public CategoryResponse createCategory(CategoryRequest categoryRequest) {
 
         Category category = dataMapper.map(categoryRequest, Category.class);
 
-        errorHandler.catchException(() -> categoryRepository.save(category),
-                "Error while trying to create the category: ");
-        logger.info("Category created: {}", category);
+        Category savedCategory = errorHandler.catchException(
+                () -> categoryRepository.save(category),
+                "Error while trying to create the category: "
+        );
 
-        return dataMapper.map(category, CategoryResponse.class);
+        logger.info("Category created: {}", savedCategory);
+        return dataMapper.map(savedCategory, CategoryResponse.class);
     }
 
     @Transactional(readOnly = true)
     public CategoryResponse findCategoryById(Long id) {
 
-        return errorHandler.catchException(() -> categoryRepository.findById(id),
-                        "Error while trying to find the category by ID: ")
-                .map(category -> dataMapper.map(category, CategoryResponse.class))
-                .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + "."));
+        return errorHandler.catchException(
+                () -> categoryRepository.findById(id)
+                        .map(category -> dataMapper.map(category, CategoryResponse.class))
+                        .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + ".")),
+                "Error while trying to find the category by ID: "
+        );
     }
 
     @Transactional(readOnly = true)
     public List<Category> findAllCategoriesByIds(List<Long> id) {
 
-        return errorHandler.catchException(() -> categoryRepository.findAllById(id),
-                "Error while trying to fetch all categories by ID: ");
+        return errorHandler.catchException(
+                () -> categoryRepository.findAllById(id),
+                "Error while trying to fetch all categories by ID: "
+        );
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public CategoryResponse updateCategory(Long id, CategoryRequest categoryRequest) {
 
         Category currentCategory = getCategoryIfExists(id);
-        Category updatedCategory = dataMapper.map(categoryRequest, currentCategory);
+        dataMapper.map(categoryRequest, currentCategory);
 
-        errorHandler.catchException(() -> categoryRepository.save(updatedCategory),
+        Category updatedCategory = errorHandler.catchException(
+                () -> categoryRepository.save(currentCategory),
                 "Error while trying to update the category: ");
-        logger.info("Category updated: {}", updatedCategory);
 
+        logger.info("Category updated: {}", updatedCategory);
         return dataMapper.map(updatedCategory, CategoryResponse.class);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public void deleteCategory(Long id) {
 
         Category category = getCategoryIfExists(id);
@@ -99,20 +109,19 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     public Page<CategoryResponse> findCategoryByName(String name, Pageable pageable) {
 
-        return errorHandler.catchException(() -> categoryRepository.findByName(name, pageable),
-                        "Error while trying to fetch category by name: ")
-                .map(category -> dataMapper.map(category, CategoryResponse.class));
+        return errorHandler.catchException(
+                () -> categoryRepository.findByName(name, pageable)
+                        .map(category -> dataMapper.map(category, CategoryResponse.class)),
+                "Error while trying to fetch category by name: "
+        );
     }
 
     private Category getCategoryIfExists(Long id) {
 
-        return errorHandler.catchException(() -> {
-
-            if (!categoryRepository.existsById(id)) {
-                throw new NotFoundException("Category not exists with ID: " + id + ".");
-            }
-
-            return dataMapper.map(categoryRepository.findById(id), Category.class);
-        }, "Error while trying to verify the existence of the category by ID: ");
+        return errorHandler.catchException(
+                () -> categoryRepository.findById(id)
+                        .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + ".")),
+                "Error while trying to verify the existence of the category by ID: "
+        );
     }
 }

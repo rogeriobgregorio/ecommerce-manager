@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordHelper passwordHelper;
     private final ErrorHandler errorHandler;
     private final DataMapper dataMapper;
-    private final Logger logger = LogManager.getLogger(UserServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
@@ -48,21 +48,14 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public Page<UserResponse> findAllUsers(Pageable pageable) {
 
-        return errorHandler.catchException(() -> userRepository.findAll(pageable),
-                        "Error while trying to fetch all users: ")
-                .map(user -> dataMapper.map(user, UserResponse.class));
+        return errorHandler.catchException(
+                () -> userRepository.findAll(pageable)
+                        .map(user -> dataMapper.map(user, UserResponse.class)),
+                "Error while trying to fetch all users: "
+        );
     }
 
-    @Transactional(readOnly = true)
-    public UserResponse findUserById(UUID id) {
-
-        return errorHandler.catchException(() -> userRepository.findById(id),
-                        "Error while trying to fetch the user by ID: " + id)
-                .map(user -> dataMapper.map(user, UserResponse.class))
-                .orElseThrow(() -> new NotFoundException("User response not found with ID: " + id + "."));
-    }
-
-    @Transactional(readOnly = false)
+    @Transactional
     public UserResponse registerUser(UserRequest userRequest) {
 
         passwordHelper.validate(userRequest.getPassword());
@@ -73,45 +66,60 @@ public class UserServiceImpl implements UserService {
 
         user.setEmailEnabled(true);// TODO remover essa linha
 
-        errorHandler.catchException(() -> userRepository.save(user),
+        User savedUser = errorHandler.catchException(() -> userRepository.save(user),
                 "Error while trying to register the user: ");
-        logger.info("User registered: {}", user);
 
         //CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user));// TODO reativar método
 
-        return dataMapper.map(user, UserResponse.class);
+        logger.info("User registered: {}", savedUser);
+        return dataMapper.map(savedUser, UserResponse.class);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional(readOnly = true)
+    public UserResponse findUserById(UUID id) {
+
+        return errorHandler.catchException(
+                () -> userRepository.findById(id)
+                        .map(user -> dataMapper.map(user, UserResponse.class))
+                        .orElseThrow(() -> new NotFoundException("User response not found with ID: " + id + ".")),
+                "Error while trying to fetch the user by ID: "
+        );
+    }
+
+    @Transactional
     public UserResponse updateUser(UUID id, UserRequest userRequest) {
 
         User currentUser = getUserIfExists(id);
-        User updatedUser = dataMapper.map(userRequest, currentUser);
+        dataMapper.map(userRequest, currentUser);
         passwordHelper.validate(userRequest.getPassword());
         String encodedPassword = passwordHelper.enconde(userRequest.getPassword());
-        updatedUser.setPassword(encodedPassword);
+        currentUser.setPassword(encodedPassword);
 
-        errorHandler.catchException(() -> userRepository.save(updatedUser),
-                "Error while trying to update the user: ");
+        User updatedUser = errorHandler.catchException(
+                () -> userRepository.save(currentUser),
+                "Error while trying to update the user: "
+        );
+
         logger.info("User updated: {}", updatedUser);
-
         return dataMapper.map(updatedUser, UserResponse.class);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public UserResponse createAdminOrManagerUser(UUID id, UserRequest userRequest) {
 
         User user = getUserIfExists(id);
         user.setRole(userRequest.getUserRole());
 
-        errorHandler.catchException(() -> userRepository.save(user),
-                "Error trying to update user role: ");
-        logger.info("User role updated: {}", user);
+        User updatedUser = errorHandler.catchException(
+                () -> userRepository.save(user),
+                "Error trying to update user role: "
+        );
 
-        return dataMapper.map(user, UserResponse.class);
+        logger.info("User role updated: {}", updatedUser);
+        return dataMapper.map(updatedUser, UserResponse.class);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     public void deleteUser(UUID id) {
 
         User user = getUserIfExists(id);
@@ -126,29 +134,28 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public Page<UserResponse> findUserByName(String name, Pageable pageable) {
 
-        return errorHandler.catchException(() -> userRepository.findByName(name, pageable),
-                        "Error while trying to fetch the user by name: ").
-                map(user -> dataMapper.map(user, UserResponse.class));
+        return errorHandler.catchException(
+                () -> userRepository.findByName(name, pageable)
+                        .map(user -> dataMapper.map(user, UserResponse.class)),
+                "Error while trying to fetch the user by name: "
+        );
     }
 
     public User getUserIfExists(UUID id) {
 
-        return errorHandler.catchException(() -> {
-
-            if (!userRepository.existsById(id)) {
-                throw new NotFoundException("User not exists with ID: " + id + ".");
-            }
-
-            return dataMapper.map(userRepository.findById(id), User.class);
-        }, "Error while trying to verify the existence of the user by ID: ");
+        return errorHandler.catchException(
+                () -> userRepository.findById(id)
+                        .orElseThrow(() -> new NotFoundException("User response not found with ID: " + id + ".")),
+                "Error while trying to verify the existence of the user by ID: "
+        );
     }
 
     public void saveUserAddress(User user) {
 
-        errorHandler.catchException(() -> {
+        User savedUser = errorHandler.catchException(() -> {
             userRepository.save(user);
             return null;
         }, "Error while trying to update the user's address: ");
-        logger.info("User's address updated: {}", user);
+        logger.info("User's address updated: {}", savedUser);
     }
 }

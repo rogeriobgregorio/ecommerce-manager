@@ -11,7 +11,7 @@ import java.util.concurrent.Callable;
 @Component
 public class ErrorHandlerImpl implements ErrorHandler {
 
-    private final Logger logger = LogManager.getLogger(ErrorHandlerImpl.class);
+    private static final Logger logger = LogManager.getLogger(ErrorHandlerImpl.class);
 
     @Override
     public <T> T catchException(Callable<T> method, String errorMessage) {

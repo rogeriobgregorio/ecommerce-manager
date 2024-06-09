@@ -24,8 +24,10 @@ public class DataMapperImpl implements DataMapper {
     @Override
     public <S, T> T map(S source, Class<T> targetClass) {
 
-        return errorHandler.catchException(() -> modelMapper.map(source, targetClass),
-                "Error when trying to map data between objects: ");
+        return errorHandler.catchException(
+                () -> modelMapper.map(source, targetClass),
+                "Error when trying to map data between objects: "
+        );
     }
 
     @Override
@@ -49,7 +51,9 @@ public class DataMapperImpl implements DataMapper {
     @Override
     public <T> T fromMap(Map<String, Object> map, Class<T> targetClass) {
 
-        return errorHandler.catchException(() -> modelMapper.map(map, targetClass),
-                "Error while trying to map from HashMap to object: ");
+        return errorHandler.catchException(
+                () -> modelMapper.map(map, targetClass),
+                "Error while trying to map from HashMap to object: "
+        );
     }
 }

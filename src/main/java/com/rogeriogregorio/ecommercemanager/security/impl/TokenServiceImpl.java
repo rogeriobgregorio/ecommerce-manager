@@ -48,30 +48,32 @@ public class TokenServiceImpl implements TokenService {
 
     public String generateAuthenticationToken(User user) {
 
-        return errorHandler.catchException(() -> JWT
-                        .create()
+        return errorHandler.catchException(
+                () -> JWT.create()
                         .withIssuer(ISSUER_NAME)
                         .withSubject(user.getEmail())
                         .withExpiresAt(EXPIRY_TIME)
                         .sign(getAlgorithm()),
-                "Error while trying to generate token");
+                "Error while trying to generate token"
+        );
     }
 
     public String validateAuthenticationToken(String token) {
 
-        return errorHandler.catchException(() -> JWT
-                        .require(getAlgorithm())
+        return errorHandler.catchException(
+                () -> JWT.require(getAlgorithm())
                         .withIssuer(ISSUER_NAME)
                         .build()
                         .verify(token)
                         .getSubject(),
-                "Error while trying to validate token");
+                "Error while trying to validate token"
+        );
     }
 
     public String generateEmailToken(User user) {
 
-        return errorHandler.catchException(() -> JWT
-                        .create()
+        return errorHandler.catchException(
+                () -> JWT.create()
                         .withIssuer(ISSUER_NAME)
                         .withSubject(user.getEmail())
                         .withClaim("userId", String.valueOf(user.getId()))
@@ -85,8 +87,8 @@ public class TokenServiceImpl implements TokenService {
 
     public User validateEmailToken(String token) {
 
-        DecodedJWT decodedJWT = errorHandler.catchException(() -> JWT
-                        .require(getAlgorithm())
+        DecodedJWT decodedJWT = errorHandler.catchException(
+                () -> JWT.require(getAlgorithm())
                         .withIssuer(ISSUER_NAME)
                         .build()
                         .verify(token),
@@ -105,8 +107,10 @@ public class TokenServiceImpl implements TokenService {
     @Transactional(readOnly = true)
     private User findUserByIdFromToken(String userIdFromToken) {
 
-        return errorHandler.catchException(() -> userRepository.findById(UUID.fromString(userIdFromToken)),
-                        "Error while trying to search for user by token ID: " + userIdFromToken)
-                .orElseThrow(() -> new NotFoundException("The user with the token ID was not found"));
+        return errorHandler.catchException(
+                () -> userRepository.findById(UUID.fromString(userIdFromToken))
+                        .orElseThrow(() -> new NotFoundException("The user with the token ID was not found")),
+                "Error while trying to search for user by token ID: " + userIdFromToken
+        );
     }
 }
