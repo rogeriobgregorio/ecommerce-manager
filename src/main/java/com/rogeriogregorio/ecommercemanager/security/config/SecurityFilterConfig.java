@@ -2,14 +2,12 @@ package com.rogeriogregorio.ecommercemanager.security.config;
 
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.security.TokenService;
-import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.catchError;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.NonNullApi;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,16 +19,16 @@ public class SecurityFilterConfig extends OncePerRequestFilter {
 
     private final TokenService tokenService;
     private final UserRepository userRepository;
-    private final ErrorHandler errorHandler;
+    private final catchError catchError;
 
     @Autowired
     public SecurityFilterConfig(TokenService tokenService,
                                 UserRepository userRepository,
-                                ErrorHandler errorHandler) {
+                                catchError catchError) {
 
         this.tokenService = tokenService;
         this.userRepository = userRepository;
-        this.errorHandler = errorHandler;
+        this.catchError = catchError;
     }
 
     @Override
@@ -50,7 +48,7 @@ public class SecurityFilterConfig extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
-        errorHandler.catchException(() -> {
+        catchError.run(() -> {
             filterChain.doFilter(request, response);
             return null;
         }, "Error during execution of the 'doFilter' method: ");

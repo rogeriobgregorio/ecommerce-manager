@@ -18,7 +18,7 @@ import com.rogeriogregorio.ecommercemanager.services.StockMovementService;
 import com.rogeriogregorio.ecommercemanager.services.strategy.payments.PaymentStrategy;
 import com.rogeriogregorio.ecommercemanager.services.strategy.validations.OrderStrategy;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.catchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final OrderService orderService;
     private final List<OrderStrategy> orderValidators;
     private final List<PaymentStrategy> paymentMethods;
-    private final ErrorHandler errorHandler;
+    private final catchError catchError;
     private final DataMapper dataMapper;
 
     private static final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
@@ -53,7 +53,7 @@ public class PaymentServiceImpl implements PaymentService {
                               OrderService orderService,
                               List<OrderStrategy> orderValidators,
                               List<PaymentStrategy> paymentMethods,
-                              ErrorHandler errorHandler,
+                              catchError catchError,
                               DataMapper dataMapper) {
 
         this.paymentRepository = paymentRepository;
@@ -63,14 +63,14 @@ public class PaymentServiceImpl implements PaymentService {
         this.orderService = orderService;
         this.orderValidators = orderValidators;
         this.paymentMethods = paymentMethods;
-        this.errorHandler = errorHandler;
+        this.catchError = catchError;
         this.dataMapper = dataMapper;
     }
 
     @Transactional(readOnly = true)
     public Page<PaymentResponse> findAllPayments(Pageable pageable) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> paymentRepository.findAll(pageable)
                         .map(payment -> dataMapper.map(payment, PaymentResponse.class)),
                 "Error while trying to fetch all payments: "
@@ -85,7 +85,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment payment = getPaymentStrategy(paymentRequest).createPayment(order);
 
-        Payment savedPayment = errorHandler.catchException(
+        Payment savedPayment = catchError.run(
                 () -> paymentRepository.save(payment),
                 "Error while trying to create paid payment with charge: "
         );
@@ -110,7 +110,7 @@ public class PaymentServiceImpl implements PaymentService {
         List<Payment> paidPixChargeList = buildPaidPixCharges(pixWebhook);
 
         for (Payment paymentPix : paidPixChargeList) {
-            Payment savedPaymentPix = errorHandler.catchException(
+            Payment savedPaymentPix = catchError.run(
                     () -> paymentRepository.save(paymentPix),
                     "Error while trying to save paymentPix with paid charge: "
             );
@@ -124,7 +124,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional(readOnly = true)
     public PaymentResponse findPaymentById(Long id) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> paymentRepository.findById(id)
                         .map(payment -> dataMapper.map(payment, PaymentResponse.class))
                         .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + ".")),
@@ -137,17 +137,18 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment payment = getPaymentIfExists(id);
 
-        errorHandler.catchException(() -> {
+        catchError.run(() -> {
             paymentRepository.delete(payment);
             return null;
         }, "Error while trying to delete the payment: ");
+
         logger.warn("Payment deleted: {}", payment);
     }
 
     @Transactional(readOnly = true)
     private Payment findByTxId(String txId) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> paymentRepository.findByTxId(txId)
                         .orElseThrow(() -> new NotFoundException("Payment not found with txId: " + txId + ".")),
                 "Error while trying to find the payment by txId: "
@@ -156,7 +157,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     public Payment getPaymentIfExists(Long id) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> paymentRepository.findById(id)
                         .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + ".")),
                 "Error while trying to verify the existence of the Payment by ID: "

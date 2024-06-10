@@ -7,7 +7,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.DiscountCouponRepository;
 import com.rogeriogregorio.ecommercemanager.services.DiscountCouponService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.catchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,23 +22,23 @@ import java.time.Instant;
 public class DiscountCouponServiceImpl implements DiscountCouponService {
 
     private final DiscountCouponRepository discountCouponRepository;
-    private final ErrorHandler errorHandler;
+    private final catchError catchError;
     private final DataMapper dataMapper;
     private static final Logger logger = LogManager.getLogger(DiscountCouponServiceImpl.class);
 
     @Autowired
     public DiscountCouponServiceImpl(DiscountCouponRepository discountCouponRepository,
-                                     ErrorHandler errorHandler, DataMapper dataMapper) {
+                                     catchError catchError, DataMapper dataMapper) {
 
         this.discountCouponRepository = discountCouponRepository;
-        this.errorHandler = errorHandler;
+        this.catchError = catchError;
         this.dataMapper = dataMapper;
     }
 
     @Transactional(readOnly = true)
     public Page<DiscountCouponResponse> findAllDiscountCoupons(Pageable pageable) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> discountCouponRepository.findAll(pageable)
                         .map(discountCoupon -> dataMapper.map(discountCoupon, DiscountCouponResponse.class)),
                 "Error while trying to fetch all discount coupons: "
@@ -51,7 +51,7 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
         validateCouponDates(discountCouponRequest);
         DiscountCoupon discountCoupon = dataMapper.map(discountCouponRequest, DiscountCoupon.class);
 
-        DiscountCoupon savedDiscountCoupon = errorHandler.catchException(
+        DiscountCoupon savedDiscountCoupon = catchError.run(
                 () -> discountCouponRepository.save(discountCoupon),
                 "Error while trying to create the discount coupon: "
         );
@@ -63,7 +63,7 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
     @Transactional(readOnly = true)
     public DiscountCouponResponse findDiscountCouponById(Long id) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> discountCouponRepository.findById(id)
                         .map(discountCoupon -> dataMapper.map(discountCoupon, DiscountCouponResponse.class))
                         .orElseThrow(() -> new NotFoundException("Discount coupon not found with ID: " + id + ".")),
@@ -78,7 +78,7 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
         DiscountCoupon currentDisCountCoupon = getDiscountCouponIfExists(id);
         dataMapper.map(discountCouponRequest, currentDisCountCoupon);
 
-        DiscountCoupon updatedDiscountCoupon = errorHandler.catchException(
+        DiscountCoupon updatedDiscountCoupon = catchError.run(
                 () -> discountCouponRepository.save(currentDisCountCoupon),
                 "Error while trying to update the discount coupon: "
         );
@@ -92,17 +92,18 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
 
         DiscountCoupon discountCoupon = getDiscountCouponIfExists(id);
 
-        errorHandler.catchException(() -> {
+        catchError.run(() -> {
             discountCouponRepository.delete(discountCoupon);
             return null;
         }, "Error while trying to delete the discount coupon: ");
+
         logger.warn("Discount coupon deleted: {}", discountCoupon);
     }
 
     @Transactional(readOnly = true)
     public DiscountCoupon findDiscountCouponByCode(String code) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> discountCouponRepository.findByCode(code)
                         .orElseThrow(() -> new NotFoundException("Discount coupon not found with code: " + code + ".")),
                 "Error while trying to fetch discount coupon by code: "
@@ -111,7 +112,7 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
 
     private DiscountCoupon getDiscountCouponIfExists(Long id) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> discountCouponRepository.findById(id)
                         .orElseThrow(() -> new NotFoundException("Discount coupon not found with ID: " + id + ".")),
                 "Error while trying to verify the existence of the discount coupon by ID: "

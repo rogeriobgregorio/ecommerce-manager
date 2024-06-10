@@ -12,7 +12,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.catchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     private final InventoryItemRepository inventoryItemRepository;
     private final StockMovementRepository stockMovementRepository;
     private final ProductService productService;
-    private final ErrorHandler errorHandler;
+    private final catchError catchError;
     private final DataMapper dataMapper;
     private static final Logger logger = LogManager.getLogger(InventoryItemServiceImpl.class);
 
@@ -37,20 +37,20 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     public InventoryItemServiceImpl(InventoryItemRepository inventoryItemRepository,
                                     StockMovementRepository stockMovementRepository,
                                     ProductService productService,
-                                    ErrorHandler errorHandler,
+                                    catchError catchError,
                                     DataMapper dataMapper) {
 
         this.inventoryItemRepository = inventoryItemRepository;
         this.stockMovementRepository = stockMovementRepository;
         this.productService = productService;
-        this.errorHandler = errorHandler;
+        this.catchError = catchError;
         this.dataMapper = dataMapper;
     }
 
     @Transactional(readOnly = true)
     public Page<InventoryItemResponse> findAllInventoryItems(Pageable pageable) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> inventoryItemRepository.findAll(pageable)
                         .map(inventoryItem -> dataMapper.map(inventoryItem, InventoryItemResponse.class)),
                 "Error while trying to fetch all inventory items: "
@@ -68,7 +68,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 .withStockStatus(inventoryItemRequest.getStockStatus())
                 .build();
 
-        InventoryItem savedInventoryItem = errorHandler.catchException(
+        InventoryItem savedInventoryItem = catchError.run(
                 () -> inventoryItemRepository.save(inventoryItem),
                 "Error while trying to create the inventory item: "
         );
@@ -81,7 +81,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Transactional(readOnly = true)
     public InventoryItemResponse findInventoryItemById(Long id) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> inventoryItemRepository.findById(id)
                         .map(inventoryItem -> dataMapper.map(inventoryItem, InventoryItemResponse.class))
                         .orElseThrow(() -> new NotFoundException("Inventory item not found with ID: " + id + ".")),
@@ -97,7 +97,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 .withQuantityInStock(inventoryItemRequest.getQuantityInStock())
                 .build();
 
-        InventoryItem updatedInventoryItem = errorHandler.catchException(
+        InventoryItem updatedInventoryItem = catchError.run(
                 () -> inventoryItemRepository.save(inventoryItem),
                 "Error while trying to update the inventory item: "
         );
@@ -111,16 +111,17 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
         InventoryItem inventoryItem = getInventoryItemIfExists(id);
 
-        errorHandler.catchException(() -> {
+        catchError.run(() -> {
             inventoryItemRepository.delete(inventoryItem);
             return null;
         }, "Error while trying to delete the inventory item: ");
+
         logger.warn("Inventory item deleted: {}", inventoryItem);
     }
 
     public InventoryItem findInventoryItemByProduct(Product product) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> inventoryItemRepository.findByProduct(product)
                         .orElseThrow(() -> new NotFoundException("Item not found in the inventory: " + product + ".")),
                 "Error while trying to find the inventory item: "
@@ -192,10 +193,11 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             inventoryItem.setQuantityInStock(quantityInStockUpdated);
             inventoryItem.setQuantitySold(quantitySoldUpdated);
 
-            InventoryItem updatedInventoryItem = errorHandler.catchException(
+            InventoryItem updatedInventoryItem = catchError.run(
                     () -> inventoryItemRepository.save(inventoryItem),
                     "Error while trying to save the inventory item: "
             );
+
             logger.info("Inventory item quantity updated: {}", updatedInventoryItem);
         }
     }
@@ -205,7 +207,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         Long productId = inventoryItemRequest.getProductId();
         Product product = productService.getProductIfExists(productId);
 
-        boolean isItemAlreadyAdded = errorHandler.catchException(
+        boolean isItemAlreadyAdded = catchError.run(
                 () -> inventoryItemRepository.existsByProduct(product),
                 "Error while trying to check the presence of the item in the inventory: "
         );
@@ -219,7 +221,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
     public InventoryItem getInventoryItemIfExists(Long id) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> inventoryItemRepository.findById(id)
                         .orElseThrow(() -> new NotFoundException("Inventory item not found with ID: " + id + ".")),
                 "Error while trying to verify the existence of the inventory item by ID: "
@@ -235,7 +237,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 .withQuantityMoved(inventoryItem.getQuantityInStock())
                 .build();
 
-        StockMovement stockMovementEntrance = errorHandler.catchException(
+        StockMovement stockMovementEntrance = catchError.run(
                 () -> stockMovementRepository.save(stockMovement),
                 "Error while trying to create the inventory movement: "
         );

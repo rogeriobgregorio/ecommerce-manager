@@ -11,7 +11,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.services.*;
 import com.rogeriogregorio.ecommercemanager.services.strategy.validations.OrderStatusStrategy;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.catchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class OrderServiceImpl implements OrderService {
     private final UserService userService;
     private final DiscountCouponService discountCouponService;
     private final List<OrderStatusStrategy> statusValidators;
-    private final ErrorHandler errorHandler;
+    private final catchError catchError;
     private final DataMapper dataMapper;
     private static final Logger logger = LogManager.getLogger(OrderServiceImpl.class);
 
@@ -38,20 +38,20 @@ public class OrderServiceImpl implements OrderService {
     public OrderServiceImpl(OrderRepository orderRepository, UserService userService,
                             DiscountCouponService discountCouponService,
                             List<OrderStatusStrategy> statusValidators,
-                            ErrorHandler errorHandler, DataMapper dataMapper) {
+                            catchError catchError, DataMapper dataMapper) {
 
         this.orderRepository = orderRepository;
         this.userService = userService;
         this.discountCouponService = discountCouponService;
         this.statusValidators = statusValidators;
-        this.errorHandler = errorHandler;
+        this.catchError = catchError;
         this.dataMapper = dataMapper;
     }
 
     @Transactional(readOnly = true)
     public Page<OrderResponse> findAllOrders(Pageable pageable) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> orderRepository.findAll(pageable)
                         .map(order -> dataMapper.map(order, OrderResponse.class)),
                 "Error while trying to fetch all orders: "
@@ -69,7 +69,7 @@ public class OrderServiceImpl implements OrderService {
                 .withClient(client)
                 .build();
 
-        Order savedOrder = errorHandler.catchException(
+        Order savedOrder = catchError.run(
                 () -> orderRepository.save(order),
                 "Error while trying to create the order: "
         );
@@ -81,7 +81,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public OrderResponse findOrderById(Long id) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> orderRepository.findById(id)
                         .map(order -> dataMapper.map(order, OrderResponse.class))
                         .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + ".")),
@@ -106,7 +106,7 @@ public class OrderServiceImpl implements OrderService {
                 .withCoupon(discountCoupon)
                 .build();
 
-        Order uodatedOrder = errorHandler.catchException(
+        Order uodatedOrder = catchError.run(
                 () -> orderRepository.save(order),
                 "Error while trying to update the order: "
         );
@@ -125,7 +125,7 @@ public class OrderServiceImpl implements OrderService {
 
         statusValidators.forEach(strategy -> strategy.validateStatusChange(orderRequest, order));
 
-        Order uodatedOrder = errorHandler.catchException(
+        Order uodatedOrder = catchError.run(
                 () -> orderRepository.save(order),
                 "Error while trying to update the order status: "
         );
@@ -143,17 +143,18 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalStateException("Paid order cannot be deleted.");
         }
 
-        errorHandler.catchException(() -> {
+        catchError.run(() -> {
             orderRepository.delete(order);
             return null;
         }, "Error while trying to delete the order: ");
+
         logger.warn("Order deleted: {}", order);
     }
 
     @Transactional(readOnly = true)
     public Page<OrderResponse> findOrderByClientId(Long id, Pageable pageable) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> orderRepository.findByClient_Id(id, pageable)
                         .map(order -> dataMapper.map(order, OrderResponse.class)),
                 "Error while trying to fetch orders by customer ID: "
@@ -162,7 +163,7 @@ public class OrderServiceImpl implements OrderService {
 
     public Order getOrderIfExists(Long id) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> orderRepository.findById(id)
                         .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + ".")),
                 "Error while trying to verify the existence of the order by ID: "
@@ -172,10 +173,11 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public void savePaidOrder(Order order) {
 
-        errorHandler.catchException(() -> {
+        catchError.run(() -> {
             orderRepository.save(order);
             return null;
         }, "Error while trying to save the paid order: ");
+
         logger.info("Paid order saved: {}", order);
     }
 

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.Callable;
 
 @Component
-public interface ErrorHandler {
+public interface catchError {
 
-    <T> T catchException(Callable<T> method, String errorMessage);
+    <T> T run(Callable<T> method, String errorMessage);
 }

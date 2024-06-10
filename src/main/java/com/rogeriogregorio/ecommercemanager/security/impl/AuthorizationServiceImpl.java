@@ -4,7 +4,7 @@ import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.security.AuthorizationService;
-import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.catchError;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,10 +18,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Value("${api.security.password.secret}")
     private String secretPassword;
     private final UserRepository userRepository;
-    private final ErrorHandler handler;
+    private final catchError handler;
 
     @Autowired
-    public AuthorizationServiceImpl(UserRepository userRepository, ErrorHandler handler) {
+    public AuthorizationServiceImpl(UserRepository userRepository,
+                                    catchError handler) {
+
         this.userRepository = userRepository;
         this.handler = handler;
     }
@@ -29,7 +31,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Override
     public UserDetails loadUserByUsername(String email) {
 
-        return handler.catchException(
+        return handler.run(
                 () -> userRepository.findByEmail(email),
                 "Error while trying to fetch the user by login email: "
         );
@@ -49,7 +51,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 .withRole(UserRole.ADMIN)
                 .build();
 
-        handler.catchException(
+        handler.run(
                 () -> userRepository.save(admin),
                 "An error occurred while creating the default admin user"
         );

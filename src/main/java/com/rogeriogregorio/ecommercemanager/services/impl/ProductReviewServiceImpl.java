@@ -12,7 +12,7 @@ import com.rogeriogregorio.ecommercemanager.services.ProductReviewService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.catchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,26 +31,26 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     private final ProductReviewRepository productReviewRepository;
     private final ProductService productService;
     private final UserService userService;
-    private final ErrorHandler errorHandler;
+    private final catchError catchError;
     private final DataMapper dataMapper;
     private static final Logger logger = LogManager.getLogger(ProductReviewServiceImpl.class);
 
     @Autowired
     public ProductReviewServiceImpl(ProductReviewRepository productReviewRepository,
                                     ProductService productService, UserService userService,
-                                    ErrorHandler errorHandler, DataMapper dataMapper) {
+                                    catchError catchError, DataMapper dataMapper) {
 
         this.productReviewRepository = productReviewRepository;
         this.productService = productService;
         this.userService = userService;
-        this.errorHandler = errorHandler;
+        this.catchError = catchError;
         this.dataMapper = dataMapper;
     }
 
     @Transactional(readOnly = true)
     public Page<ProductReviewResponse> findAllProductReviews(Pageable pageable) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> productReviewRepository.findAll(pageable)
                         .map(productReview -> dataMapper.map(productReview, ProductReviewResponse.class)),
                 "Error while trying to fetch all product reviews: "
@@ -62,7 +62,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         ProductReview productReview = buildProductReview(productReviewRequest);
 
-        ProductReview savedProductReview = errorHandler.catchException(
+        ProductReview savedProductReview = catchError.run(
                 () -> productReviewRepository.save(productReview),
                 "Error while trying to create product review: "
         );
@@ -76,7 +76,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         ProductReviewPK id = buildProductReviewPK(productId, userId);
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> productReviewRepository.findById(id)
                         .map(productReview -> dataMapper.map(productReview, ProductReviewResponse.class))
                         .orElseThrow(() -> new NotFoundException("Product review not found with ID: " + id + ".")),
@@ -89,7 +89,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         ProductReview productReview = buildProductReview(productReviewRequest);
 
-        ProductReview updateProductReview = errorHandler.catchException(
+        ProductReview updateProductReview = catchError.run(
                 () -> productReviewRepository.save(productReview),
                 "Error while trying to update the product review: "
         );
@@ -103,12 +103,12 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         ProductReviewPK id = buildProductReviewPK(productId, userId);
 
-        errorHandler.catchException(() -> {
+        catchError.run(() -> {
             productReviewRepository.deleteById(id);
             return null;
         }, "Error while trying to delete product review: ");
-        logger.warn("Product review removed: {}", id.getProduct());
 
+        logger.warn("Product review removed: {}", id.getProduct());
     }
 
     private ProductReview validateProductReview(ProductReview productReview) {
@@ -116,7 +116,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         Set<Product> purchasedProducts = productReview.getUser().getPurchasedProducts();
 
         if (!purchasedProducts.contains(productReview.getProduct())) {
-            throw new IllegalStateException("Review available only after the product is delivered to the client");
+            throw new IllegalStateException("Review available only after the product is delivered");
         }
 
         return productReview;

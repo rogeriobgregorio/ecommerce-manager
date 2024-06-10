@@ -9,7 +9,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.AddressRepository;
 import com.rogeriogregorio.ecommercemanager.services.AddressService;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.catchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,26 +25,26 @@ public class AddressServiceImpl implements AddressService {
 
     private final AddressRepository addressRepository;
     private final UserService userService;
-    private final ErrorHandler errorHandler;
+    private final catchError catchError;
     private final DataMapper dataMapper;
     private static final Logger logger = LogManager.getLogger(AddressServiceImpl.class);
 
     @Autowired
     public AddressServiceImpl(AddressRepository addressRepository,
                               UserService userService,
-                              ErrorHandler errorHandler,
+                              catchError catchError,
                               DataMapper dataMapper) {
 
         this.addressRepository = addressRepository;
         this.userService = userService;
-        this.errorHandler = errorHandler;
+        this.catchError = catchError;
         this.dataMapper = dataMapper;
     }
 
     @Transactional(readOnly = true)
     public Page<AddressResponse> findAllAddresses(Pageable pageable) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> addressRepository.findAll(pageable)
                         .map(address -> dataMapper.map(address, AddressResponse.class)),
                 "Error while trying to fetch all addresses: "
@@ -60,9 +60,10 @@ public class AddressServiceImpl implements AddressService {
         user.setAddress(address);
         userService.saveUserAddress(user);
 
-        Address savedAddress = errorHandler.catchException(
+        Address savedAddress = catchError.run(
                 () -> addressRepository.save(address),
-                "Error while trying to create the address: ");
+                "Error while trying to create the address: "
+        );
 
         logger.info("Address created: {}", savedAddress);
         return dataMapper.map(savedAddress, AddressResponse.class);
@@ -71,7 +72,7 @@ public class AddressServiceImpl implements AddressService {
     @Transactional(readOnly = true)
     public AddressResponse findAddressById(UUID id) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> addressRepository.findById(id)
                         .map(address -> dataMapper.map(address, AddressResponse.class))
                         .orElseThrow(() -> new NotFoundException("Address not found with ID: " + id + ".")),
@@ -89,7 +90,7 @@ public class AddressServiceImpl implements AddressService {
         user.setAddress(currentAddress);
         userService.saveUserAddress(user);
 
-        Address updatedAddress = errorHandler.catchException(
+        Address updatedAddress = catchError.run(
                 () -> addressRepository.save(currentAddress),
                 "Error while trying to update the address: "
         );
@@ -103,16 +104,17 @@ public class AddressServiceImpl implements AddressService {
 
         Address address = getAddressIfExists(id);
 
-        errorHandler.catchException(() -> {
+        catchError.run(() -> {
             addressRepository.delete(address);
             return null;
         }, "Error while trying to delete the address: ");
+
         logger.warn("Address deleted: {}", address);
     }
 
     private Address getAddressIfExists(UUID id) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> addressRepository.findById(id)
                         .orElseThrow(() -> new NotFoundException("Address not found with ID: " + id + ".")),
                 "Error while trying to verify the existence of the address by ID: "

@@ -9,7 +9,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.security.TokenService;
 import com.rogeriogregorio.ecommercemanager.services.strategy.validations.TokenStrategy;
-import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.catchError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -30,16 +30,16 @@ public class TokenServiceImpl implements TokenService {
     private String secretKey;
     private final UserRepository userRepository;
     private final List<TokenStrategy> tokenValidators;
-    private final ErrorHandler errorHandler;
+    private final catchError catchError;
 
     @Autowired
     public TokenServiceImpl(UserRepository userRepository,
                             List<TokenStrategy> tokenValidators,
-                            ErrorHandler errorHandler) {
+                            catchError catchError) {
 
         this.userRepository = userRepository;
         this.tokenValidators = tokenValidators;
-        this.errorHandler = errorHandler;
+        this.catchError = catchError;
     }
 
     private Algorithm getAlgorithm() {
@@ -48,7 +48,7 @@ public class TokenServiceImpl implements TokenService {
 
     public String generateAuthenticationToken(User user) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> JWT.create()
                         .withIssuer(ISSUER_NAME)
                         .withSubject(user.getEmail())
@@ -60,7 +60,7 @@ public class TokenServiceImpl implements TokenService {
 
     public String validateAuthenticationToken(String token) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> JWT.require(getAlgorithm())
                         .withIssuer(ISSUER_NAME)
                         .build()
@@ -72,7 +72,7 @@ public class TokenServiceImpl implements TokenService {
 
     public String generateEmailToken(User user) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> JWT.create()
                         .withIssuer(ISSUER_NAME)
                         .withSubject(user.getEmail())
@@ -87,7 +87,7 @@ public class TokenServiceImpl implements TokenService {
 
     public User validateEmailToken(String token) {
 
-        DecodedJWT decodedJWT = errorHandler.catchException(
+        DecodedJWT decodedJWT = catchError.run(
                 () -> JWT.require(getAlgorithm())
                         .withIssuer(ISSUER_NAME)
                         .build()
@@ -107,7 +107,7 @@ public class TokenServiceImpl implements TokenService {
     @Transactional(readOnly = true)
     private User findUserByIdFromToken(String userIdFromToken) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> userRepository.findById(UUID.fromString(userIdFromToken))
                         .orElseThrow(() -> new NotFoundException("The user with the token ID was not found")),
                 "Error while trying to search for user by token ID: " + userIdFromToken

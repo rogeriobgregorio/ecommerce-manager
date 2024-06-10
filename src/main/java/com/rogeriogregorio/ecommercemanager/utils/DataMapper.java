@@ -14,5 +14,5 @@ public interface DataMapper {
 
     <T> T fromJson(JSONObject jsonObject, Class<T> targetClass);
 
-    <T> T fromMap(Map<String, Object> map, Class<T> targetClass);
+    <T> T fromMap(Map<String, Object> source, Class<T> targetClass);
 }

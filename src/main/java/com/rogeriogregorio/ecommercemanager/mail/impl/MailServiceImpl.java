@@ -12,7 +12,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.security.TokenService;
 import com.rogeriogregorio.ecommercemanager.utils.PasswordHelper;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.catchError;
 import jakarta.mail.internet.MimeMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,26 +42,26 @@ public class MailServiceImpl implements MailService {
     private final UserRepository userRepository;
     private final PasswordHelper passwordHelper;
     private final TokenService tokenService;
-    private final ErrorHandler errorHandler;
+    private final catchError catchError;
     private final DataMapper dataMapper;
     private static final Logger logger = LogManager.getLogger(MailServiceImpl.class);
 
     @Autowired
     public MailServiceImpl(JavaMailSender mailSender, UserRepository userRepository,
                            PasswordHelper passwordHelper, TokenService tokenService,
-                           ErrorHandler errorHandler, DataMapper dataMapper) {
+                           catchError catchError, DataMapper dataMapper) {
 
         this.mailSender = mailSender;
         this.userRepository = userRepository;
         this.passwordHelper = passwordHelper;
         this.tokenService = tokenService;
-        this.errorHandler = errorHandler;
+        this.catchError = catchError;
         this.dataMapper = dataMapper;
     }
 
     private void sendEmail(EmailDetailsDto emailDetails) {
 
-        errorHandler.catchException(() -> {
+        catchError.run(() -> {
 
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper messageHelper = new MimeMessageHelper(message, true);
@@ -141,7 +141,7 @@ public class MailServiceImpl implements MailService {
 
         ClassPathResource pathResource = new ClassPathResource(path);
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> new String(pathResource.getInputStream()
                         .readAllBytes(), StandardCharsets.UTF_8),
                 "Error while trying to get email template: " + path
@@ -167,7 +167,7 @@ public class MailServiceImpl implements MailService {
     @Transactional(readOnly = true)
     private User findUserByEmail(String email) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> userRepository.findUserByEmail(email)
                         .orElseThrow(() -> new NotFoundException("The user was not found with the email: " + email)),
                 "Error while trying to search for user by email: "
@@ -179,7 +179,7 @@ public class MailServiceImpl implements MailService {
 
         user.setEmailEnabled(true);
 
-        User savedUser = errorHandler.catchException(
+        User savedUser = catchError.run(
                 () -> userRepository.save(user),
                 "Error while trying to save verified email"
         );
@@ -194,7 +194,7 @@ public class MailServiceImpl implements MailService {
         String passwordEncode = passwordHelper.enconde(user.getPassword());
         user.setPassword(passwordEncode);
 
-        User savedUser = errorHandler.catchException(
+        User savedUser = catchError.run(
                 () -> userRepository.save(user),
                 "Error while trying to update user password: "
         );

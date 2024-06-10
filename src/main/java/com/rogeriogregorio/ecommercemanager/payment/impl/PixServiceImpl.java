@@ -8,7 +8,7 @@ import com.rogeriogregorio.ecommercemanager.payment.CredentialService;
 import com.rogeriogregorio.ecommercemanager.payment.PixService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
 import com.rogeriogregorio.ecommercemanager.utils.DateFormatter;
-import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.catchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -32,19 +32,19 @@ public class PixServiceImpl implements PixService {
 
     private final CredentialService credentials;
     private final DateFormatter dateFormatter;
-    private final ErrorHandler errorHandler;
+    private final catchError catchError;
     private final DataMapper dataMapper;
     private static final Logger logger = LogManager.getLogger(PixServiceImpl.class);
 
     @Autowired
     public PixServiceImpl(CredentialService credentials,
                           DateFormatter dateFormatter,
-                          ErrorHandler errorHandler,
+                          catchError catchError,
                           DataMapper dataMapper) {
 
         this.credentials = credentials;
         this.dateFormatter = dateFormatter;
-        this.errorHandler = errorHandler;
+        this.catchError = catchError;
         this.dataMapper = dataMapper;
     }
 
@@ -52,7 +52,7 @@ public class PixServiceImpl implements PixService {
             backoff = @Backoff(delay = 5000, multiplier = 2))
     public EvpKeyDto createEvpKey() {
 
-        return errorHandler.catchException(() -> {
+        return catchError.run(() -> {
 
             EfiPay efiPay = new EfiPay(credentials.getOptions());
             JSONObject efiPayResponse = efiPay.call(CREATE_EVP, new HashMap<>(), new JSONObject());
@@ -68,7 +68,7 @@ public class PixServiceImpl implements PixService {
             backoff = @Backoff(delay = 5000, multiplier = 2))
     public PixChargeDto createImmediatePixCharge(Order order) {
 
-        return errorHandler.catchException(() -> {
+        return catchError.run(() -> {
 
             JSONObject body = buildChargeBody(order);
 
@@ -86,7 +86,7 @@ public class PixServiceImpl implements PixService {
             backoff = @Backoff(delay = 5000, multiplier = 2))
     public PixQRCodeDto generatePixQRCode(PixChargeDto pixCharge) {
 
-        return errorHandler.catchException(() -> {
+        return catchError.run(() -> {
 
             String locId = String.valueOf(pixCharge.getLoc().getId());
 
@@ -107,7 +107,7 @@ public class PixServiceImpl implements PixService {
             backoff = @Backoff(delay = 5000, multiplier = 2))
     public PixListChargeDto listPixCharges(String startDate, String endDate) {
 
-        return errorHandler.catchException(() -> {
+        return catchError.run(() -> {
 
             Map<String, String> params = new HashMap<>();
             params.put("inicio", dateFormatter.toISO8601(startDate));

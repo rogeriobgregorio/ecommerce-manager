@@ -7,7 +7,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.NotificationRepository;
 import com.rogeriogregorio.ecommercemanager.services.NotificationService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.catchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,23 +22,23 @@ import java.time.Instant;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final ErrorHandler errorHandler;
+    private final catchError catchError;
     private final DataMapper dataMapper;
     private static final Logger logger = LogManager.getLogger(NotificationServiceImpl.class);
 
     @Autowired
     public NotificationServiceImpl(NotificationRepository notificationRepository,
-                                   ErrorHandler errorHandler, DataMapper dataMapper) {
+                                   catchError catchError, DataMapper dataMapper) {
 
         this.notificationRepository = notificationRepository;
-        this.errorHandler = errorHandler;
+        this.catchError = catchError;
         this.dataMapper = dataMapper;
     }
 
     @Transactional(readOnly = true)
     public Page<NotificationResponse> findAllNotifications(Pageable pageable) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> notificationRepository.findAll(pageable)
                         .map(notification -> dataMapper.map(notification, NotificationResponse.class)),
                 "Error while trying to fetch all notifications: "
@@ -51,7 +51,7 @@ public class NotificationServiceImpl implements NotificationService {
         validateNotificationDates(notificationRequest);
         Notification notification = dataMapper.map(notificationRequest, Notification.class);
 
-        Notification savedNotification = errorHandler.catchException(
+        Notification savedNotification = catchError.run(
                 () -> notificationRepository.save(notification),
                 "Error while trying to create the notification: "
         );
@@ -63,7 +63,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional(readOnly = true)
     public NotificationResponse findNotificationById(Long id) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> notificationRepository.findById(id)
                         .map(notification -> dataMapper.map(notification, NotificationResponse.class))
                         .orElseThrow(() -> new NotFoundException("Notification not found with ID: " + id + ".")),
@@ -78,7 +78,7 @@ public class NotificationServiceImpl implements NotificationService {
         Notification currentNotification = getNotificationIfExists(id);
         dataMapper.map(notificationRequest, currentNotification);
 
-        Notification updatedNotification = errorHandler.catchException(
+        Notification updatedNotification = catchError.run(
                 () -> notificationRepository.save(currentNotification),
                 "Error while trying to update the notification: "
         );
@@ -92,16 +92,17 @@ public class NotificationServiceImpl implements NotificationService {
 
         Notification notification = getNotificationIfExists(id);
 
-        errorHandler.catchException(() -> {
+        catchError.run(() -> {
             notificationRepository.delete(notification);
             return null;
         }, "Error while trying to delete the notification: ");
+        
         logger.warn("Notification deleted: {}", notification);
     }
 
     private Notification getNotificationIfExists(Long id) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> notificationRepository.findById(id)
                         .orElseThrow(() -> new NotFoundException("Notification not found with ID: " + id + ".")),
                 "Error while trying to verify the existence of the notification by ID: "

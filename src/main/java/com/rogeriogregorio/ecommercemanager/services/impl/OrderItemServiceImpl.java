@@ -13,7 +13,7 @@ import com.rogeriogregorio.ecommercemanager.services.OrderItemService;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.catchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     private final InventoryItemService inventoryItemService;
     private final ProductService productService;
     private final OrderService orderService;
-    private final ErrorHandler errorHandler;
+    private final catchError catchError;
     private final DataMapper dataMapper;
     private static final Logger logger = LogManager.getLogger(OrderItemServiceImpl.class);
 
@@ -38,21 +38,21 @@ public class OrderItemServiceImpl implements OrderItemService {
                                 InventoryItemService inventoryItemService,
                                 ProductService productService,
                                 OrderService orderService,
-                                ErrorHandler errorHandler,
+                                catchError catchError,
                                 DataMapper dataMapper) {
 
         this.orderItemRepository = orderItemRepository;
         this.inventoryItemService = inventoryItemService;
         this.productService = productService;
         this.orderService = orderService;
-        this.errorHandler = errorHandler;
+        this.catchError = catchError;
         this.dataMapper = dataMapper;
     }
 
     @Transactional(readOnly = true)
     public Page<OrderItemResponse> findAllOrderItems(Pageable pageable) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> orderItemRepository.findAll(pageable)
                         .map(orderItem -> dataMapper.map(orderItem, OrderItemResponse.class)),
                 "Error while trying to fetch all items of the order: "
@@ -64,7 +64,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         OrderItem orderItem = buildOrderItem(orderItemRequest);
 
-        OrderItem savedOrderItem = errorHandler.catchException(
+        OrderItem savedOrderItem = catchError.run(
                 () -> orderItemRepository.save(orderItem),
                 "Error while trying to create order item: "
         );
@@ -78,7 +78,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         OrderItemPK id = buildOrderItemPK(orderId, itemId);
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> orderItemRepository.findById(id)
                         .map(orderItem -> dataMapper.map(orderItem, OrderItemResponse.class))
                         .orElseThrow(() -> new NotFoundException("Item not found with ID: " + id + ".")),
@@ -91,7 +91,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         OrderItem orderItem = buildOrderItem(orderItemRequest);
 
-        OrderItem updatedOrderItem = errorHandler.catchException(
+        OrderItem updatedOrderItem = catchError.run(
                 () -> orderItemRepository.save(orderItem),
                 "Error while trying to update the order item: "
         );
@@ -107,10 +107,11 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         OrderItemPK id = buildOrderItemPK(orderId, itemId);
 
-        errorHandler.catchException(() -> {
+        catchError.run(() -> {
             orderItemRepository.deleteById(id);
             return null;
         }, "Error while trying to delete order item: ");
+
         logger.warn("Order item removed: {}", id.getProduct());
     }
 

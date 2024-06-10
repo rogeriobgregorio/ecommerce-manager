@@ -1,6 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.utils.impl;
 
-import com.rogeriogregorio.ecommercemanager.utils.ErrorHandler;
+import com.rogeriogregorio.ecommercemanager.utils.catchError;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
@@ -13,18 +13,18 @@ import java.util.Map;
 public class DataMapperImpl implements DataMapper {
 
     private final ModelMapper modelMapper;
-    private final ErrorHandler errorHandler;
+    private final catchError catchError;
 
     @Autowired
-    public DataMapperImpl(ModelMapper modelMapper, ErrorHandler errorHandler) {
+    public DataMapperImpl(ModelMapper modelMapper, catchError catchError) {
         this.modelMapper = modelMapper;
-        this.errorHandler = errorHandler;
+        this.catchError = catchError;
     }
 
     @Override
     public <S, T> T map(S source, Class<T> targetClass) {
 
-        return errorHandler.catchException(
+        return catchError.run(
                 () -> modelMapper.map(source, targetClass),
                 "Error when trying to map data between objects: "
         );
@@ -33,7 +33,7 @@ public class DataMapperImpl implements DataMapper {
     @Override
     public <S, T> T map(S source, T target) {
 
-        return errorHandler.catchException(() -> {
+        return catchError.run(() -> {
             modelMapper.map(source, target);
             return target;
         }, "Error when trying to map data between objects: ");
@@ -42,17 +42,17 @@ public class DataMapperImpl implements DataMapper {
     @Override
     public <T> T fromJson(JSONObject jsonObject, Class<T> targetClass) {
 
-        return errorHandler.catchException(() -> {
-            Map<String, Object> map = jsonObject.toMap();
-            return modelMapper.map(map, targetClass);
-        }, "Error while trying to map from JSONObject to object: ");
+        return catchError.run(
+                () -> modelMapper.map(jsonObject.toMap(), targetClass),
+                "Error while trying to map from JSONObject to object: "
+        );
     }
 
     @Override
-    public <T> T fromMap(Map<String, Object> map, Class<T> targetClass) {
+    public <T> T fromMap(Map<String, Object> source, Class<T> targetClass) {
 
-        return errorHandler.catchException(
-                () -> modelMapper.map(map, targetClass),
+        return catchError.run(
+                () -> modelMapper.map(source, targetClass),
                 "Error while trying to map from HashMap to object: "
         );
     }
