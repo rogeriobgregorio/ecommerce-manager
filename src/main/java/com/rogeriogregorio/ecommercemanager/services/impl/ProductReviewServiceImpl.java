@@ -50,11 +50,8 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     @Transactional(readOnly = true)
     public Page<ProductReviewResponse> findAllProductReviews(Pageable pageable) {
 
-        return catchError.run(
-                () -> productReviewRepository.findAll(pageable)
-                        .map(productReview -> dataMapper.map(productReview, ProductReviewResponse.class)),
-                "Error while trying to fetch all product reviews: "
-        );
+        return catchError.run(() -> productReviewRepository.findAll(pageable)
+                .map(productReview -> dataMapper.map(productReview, ProductReviewResponse.class)));
     }
 
     @Transactional
@@ -62,11 +59,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         ProductReview productReview = buildProductReview(productReviewRequest);
 
-        ProductReview savedProductReview = catchError.run(
-                () -> productReviewRepository.save(productReview),
-                "Error while trying to create product review: "
-        );
-
+        ProductReview savedProductReview = catchError.run(() -> productReviewRepository.save(productReview));
         logger.info("Product review created: {}", savedProductReview);
         return dataMapper.map(savedProductReview, ProductReviewResponse.class);
     }
@@ -76,12 +69,9 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         ProductReviewPK id = buildProductReviewPK(productId, userId);
 
-        return catchError.run(
-                () -> productReviewRepository.findById(id)
-                        .map(productReview -> dataMapper.map(productReview, ProductReviewResponse.class))
-                        .orElseThrow(() -> new NotFoundException("Product review not found with ID: " + id + ".")),
-                "Error while trying to fetch the product review by ID: "
-        );
+        return catchError.run(() -> productReviewRepository.findById(id)
+                .map(productReview -> dataMapper.map(productReview, ProductReviewResponse.class))
+                .orElseThrow(() -> new NotFoundException("Product review not found with ID: " + id + ".")));
     }
 
     @Transactional
@@ -89,11 +79,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         ProductReview productReview = buildProductReview(productReviewRequest);
 
-        ProductReview updateProductReview = catchError.run(
-                () -> productReviewRepository.save(productReview),
-                "Error while trying to update the product review: "
-        );
-
+        ProductReview updateProductReview = catchError.run(() -> productReviewRepository.save(productReview));
         logger.info("Product review updated: {}", updateProductReview);
         return dataMapper.map(updateProductReview, ProductReviewResponse.class);
     }
@@ -103,11 +89,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         ProductReviewPK id = buildProductReviewPK(productId, userId);
 
-        catchError.run(() -> {
-            productReviewRepository.deleteById(id);
-            return null;
-        }, "Error while trying to delete product review: ");
-
+        catchError.run(() -> productReviewRepository.deleteById(id));
         logger.warn("Product review removed: {}", id.getProduct());
     }
 

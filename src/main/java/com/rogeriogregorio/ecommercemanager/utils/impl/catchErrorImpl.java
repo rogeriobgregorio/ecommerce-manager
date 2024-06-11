@@ -6,34 +6,65 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.Callable;
-
 @Component
 public class catchErrorImpl implements catchError {
 
     private static final Logger logger = LogManager.getLogger(catchErrorImpl.class);
 
     @Override
-    public <T> T run(Callable<T> method, String errorMessage) {
+    public <T> T run(FunctionWithException<T> method) {
 
         try {
-            return method.call();
+            return method.run();
 
         } catch (Exception ex) {
-            logger.error("{}: {}, {}", ex.getClass().getSimpleName(), ex.getMessage(), ex.getCause());
-
-            throw switch (ex.getClass().getSimpleName()) {
-
-                case "JWTVerificationException", "JWTCreationException" -> new TokenJwtException(errorMessage, ex);
-                case "TransactionException", "DataAccessException" -> new RepositoryException(errorMessage, ex);
-                case "UsernameNotFoundException" -> new NotFoundException(errorMessage, ex);
-                case "ServletException" -> new HttpServletException(errorMessage, ex);
-                case "MappingException" -> new DataMapperException(errorMessage, ex);
-                case "MessagingException" -> new MailException(errorMessage, ex);
-                case "EfiPayException" -> new PaymentException(errorMessage, ex);
-                case "IOException" -> new IOProcessException(errorMessage, ex);
-                default -> new UnexpectedException(errorMessage, ex);
-            };
+            handleException(ex);
+            return null; // This line is never executed, but is required to satisfy the return type.
         }
     }
+
+    @Override
+    public void run(ProcedureWithException method) {
+
+        try {
+            method.run();
+
+        } catch (Exception ex) {
+            handleException(ex);
+        }
+    }
+
+    private void handleException(Exception ex) {
+
+        String errorMessage = "Error while trying to execute method " + getCallerMethodName() + ": ";
+        logger.error(errorMessage, "{}: {}, {}", ex.getClass().getSimpleName(), ex.getMessage(), ex.getCause());
+
+        throw switch (ex.getClass().getSimpleName()) {
+            case "JWTVerificationException", "JWTCreationException" -> new TokenJwtException(errorMessage, ex);
+            case "TransactionException", "DataAccessException" -> new RepositoryException(errorMessage, ex);
+            case "UsernameNotFoundException" -> new NotFoundException(errorMessage, ex);
+            case "ServletException" -> new HttpServletException(errorMessage, ex);
+            case "MappingException" -> new DataMapperException(errorMessage, ex);
+            case "MessagingException" -> new MailException(errorMessage, ex);
+            case "EfiPayException" -> new PaymentException(errorMessage, ex);
+            case "IOException" -> new IOProcessException(errorMessage, ex);
+            default -> new UnexpectedException(errorMessage, ex);
+        };
+    }
+
+    private String getCallerMethodName() {
+
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+
+        for (StackTraceElement element : stackTrace) {
+            String methodName = element.getMethodName();
+
+            if (!methodName.equals("getStackTrace") && !methodName.equals("getCallerMethodName")) {
+                return methodName;
+            }
+        }
+
+        return "unidentified";
+    }
 }
+

@@ -13,7 +13,6 @@ public class EmailDetailsDto implements Serializable {
     private String subject;
     private String templateName;
     private Map<String, String> replacements;
-    private String errorMessage;
 
     public EmailDetailsDto() {
     }
@@ -23,7 +22,6 @@ public class EmailDetailsDto implements Serializable {
         setSubject(builder.subject);
         setTemplateName(builder.templateName);
         setReplacements(builder.replacements);
-        setErrorMessage(builder.errorMessage);
     }
 
     public static Builder newBuilder() {
@@ -62,20 +60,11 @@ public class EmailDetailsDto implements Serializable {
         this.replacements = replacements;
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
     public static final class Builder {
         private String recipient;
         private String subject;
         private String templateName;
         private Map<String, String> replacements;
-        private String errorMessage;
 
         private Builder() {
         }
@@ -97,11 +86,6 @@ public class EmailDetailsDto implements Serializable {
 
         public Builder withReplacements(Map<String, String> replacements) {
             this.replacements = replacements;
-            return this;
-        }
-
-        public Builder withErrorMessage(String errorMessage) {
-            this.errorMessage = errorMessage;
             return this;
         }
 

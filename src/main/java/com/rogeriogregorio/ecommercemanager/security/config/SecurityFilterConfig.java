@@ -51,7 +51,7 @@ public class SecurityFilterConfig extends OncePerRequestFilter {
         catchError.run(() -> {
             filterChain.doFilter(request, response);
             return null;
-        }, "Error during execution of the 'doFilter' method: ");
+        });
     }
 
     private String recoverToken(HttpServletRequest httpServletRequest) {

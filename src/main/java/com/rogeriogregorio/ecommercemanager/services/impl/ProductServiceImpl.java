@@ -48,11 +48,8 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public Page<ProductResponse> findAllProducts(Pageable pageable) {
 
-        return catchError.run(
-                () -> productRepository.findAll(pageable)
-                        .map(product -> dataMapper.map(product, ProductResponse.class)),
-                "Error while trying to fetch all products: "
-        );
+        return catchError.run(() -> productRepository.findAll(pageable)
+                .map(product -> dataMapper.map(product, ProductResponse.class)));
     }
 
     @Transactional
@@ -62,11 +59,7 @@ public class ProductServiceImpl implements ProductService {
         product.setProductDiscount(validateDiscount(productRequest));
         product.setCategories(validateCategory(productRequest));
 
-        Product savedProduct = catchError.run(
-                () -> productRepository.save(product),
-                "Error while trying to create the product: "
-        );
-
+        Product savedProduct = catchError.run(() -> productRepository.save(product));
         logger.info("Product created: {}", savedProduct);
         return dataMapper.map(savedProduct, ProductResponse.class);
     }
@@ -74,12 +67,9 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public ProductResponse findProductById(Long id) {
 
-        return catchError.run(
-                () -> productRepository.findById(id)
-                        .map(product -> dataMapper.map(product, ProductResponse.class))
-                        .orElseThrow(() -> new NotFoundException("Product response not found with ID: " + id + ".")),
-                "Error while trying to find the product with id: "
-        );
+        return catchError.run(() -> productRepository.findById(id)
+                .map(product -> dataMapper.map(product, ProductResponse.class))
+                .orElseThrow(() -> new NotFoundException("Product response not found with ID: " + id + ".")));
     }
 
     @Transactional
@@ -90,11 +80,7 @@ public class ProductServiceImpl implements ProductService {
         currentProduct.setProductDiscount(validateDiscount(productRequest));
         currentProduct.setCategories(validateCategory(productRequest));
 
-        Product updatedProduct = catchError.run(
-                () -> productRepository.save(currentProduct),
-                "Error while trying to update the product: "
-        );
-
+        Product updatedProduct = catchError.run(() -> productRepository.save(currentProduct));
         logger.info("Product updated: {}", updatedProduct);
         return dataMapper.map(updatedProduct, ProductResponse.class);
     }
@@ -104,31 +90,21 @@ public class ProductServiceImpl implements ProductService {
 
         Product product = getProductIfExists(id);
 
-        catchError.run(() -> {
-            productRepository.delete(product);
-            return null;
-        }, "Error while trying to delete the product: ");
-
+        catchError.run(() -> productRepository.delete(product));
         logger.warn("Product deleted: {}", product);
     }
 
     @Transactional(readOnly = true)
     public Page<ProductResponse> findProductByName(String name, Pageable pageable) {
 
-        return catchError.run(
-                () -> productRepository.findByName(name, pageable)
-                        .map(product -> dataMapper.map(product, ProductResponse.class)),
-                "Error while trying to fetch the product by name: "
-        );
+        return catchError.run(() -> productRepository.findByName(name, pageable)
+                .map(product -> dataMapper.map(product, ProductResponse.class)));
     }
 
     public Product getProductIfExists(Long id) {
 
-        return catchError.run(
-                () -> productRepository.findById(id)
-                        .orElseThrow(() -> new NotFoundException("Product response not found with ID: " + id + ".")),
-                "Error while trying to verify the existence of the product by ID: "
-        );
+        return catchError.run(() -> productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Product response not found with ID: " + id + ".")));
     }
 
     private Set<Category> validateCategory(ProductRequest productRequest) {

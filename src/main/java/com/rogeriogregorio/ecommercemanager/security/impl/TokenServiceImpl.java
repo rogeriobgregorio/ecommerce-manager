@@ -48,52 +48,40 @@ public class TokenServiceImpl implements TokenService {
 
     public String generateAuthenticationToken(User user) {
 
-        return catchError.run(
-                () -> JWT.create()
-                        .withIssuer(ISSUER_NAME)
-                        .withSubject(user.getEmail())
-                        .withExpiresAt(EXPIRY_TIME)
-                        .sign(getAlgorithm()),
-                "Error while trying to generate token"
-        );
+        return catchError.run(() -> JWT.create()
+                .withIssuer(ISSUER_NAME)
+                .withSubject(user.getEmail())
+                .withExpiresAt(EXPIRY_TIME)
+                .sign(getAlgorithm()));
     }
 
     public String validateAuthenticationToken(String token) {
 
-        return catchError.run(
-                () -> JWT.require(getAlgorithm())
-                        .withIssuer(ISSUER_NAME)
-                        .build()
-                        .verify(token)
-                        .getSubject(),
-                "Error while trying to validate token"
-        );
+        return catchError.run(() -> JWT.require(getAlgorithm())
+                .withIssuer(ISSUER_NAME)
+                .build()
+                .verify(token)
+                .getSubject());
     }
 
     public String generateEmailToken(User user) {
 
-        return catchError.run(
-                () -> JWT.create()
-                        .withIssuer(ISSUER_NAME)
-                        .withSubject(user.getEmail())
-                        .withClaim("userId", String.valueOf(user.getId()))
-                        .withClaim("userEmail", user.getEmail())
-                        .withClaim("userPassword", user.getPassword())
-                        .withExpiresAt(EXPIRY_TIME)
-                        .sign(getAlgorithm()),
-                "Error while trying to generate email token"
-        );
+        return catchError.run(() -> JWT.create()
+                .withIssuer(ISSUER_NAME)
+                .withSubject(user.getEmail())
+                .withClaim("userId", String.valueOf(user.getId()))
+                .withClaim("userEmail", user.getEmail())
+                .withClaim("userPassword", user.getPassword())
+                .withExpiresAt(EXPIRY_TIME)
+                .sign(getAlgorithm()));
     }
 
     public User validateEmailToken(String token) {
 
-        DecodedJWT decodedJWT = catchError.run(
-                () -> JWT.require(getAlgorithm())
-                        .withIssuer(ISSUER_NAME)
-                        .build()
-                        .verify(token),
-                "Error while trying to validate the token"
-        );
+        DecodedJWT decodedJWT = catchError.run(() -> JWT.require(getAlgorithm())
+                .withIssuer(ISSUER_NAME)
+                .build()
+                .verify(token));
 
         String userIdFromToken = decodedJWT.getClaim("userId").asString();
         User user = findUserByIdFromToken(userIdFromToken);
@@ -107,10 +95,7 @@ public class TokenServiceImpl implements TokenService {
     @Transactional(readOnly = true)
     private User findUserByIdFromToken(String userIdFromToken) {
 
-        return catchError.run(
-                () -> userRepository.findById(UUID.fromString(userIdFromToken))
-                        .orElseThrow(() -> new NotFoundException("The user with the token ID was not found")),
-                "Error while trying to search for user by token ID: " + userIdFromToken
-        );
+        return catchError.run(() -> userRepository.findById(UUID.fromString(userIdFromToken))
+                .orElseThrow(() -> new NotFoundException("The user with the token ID was not found")));
     }
 }

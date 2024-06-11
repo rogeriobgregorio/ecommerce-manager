@@ -80,7 +80,7 @@ public class MailServiceImpl implements MailService {
             logger.info("Email sent to: {}", emailDetails.getRecipient());
 
             return null;
-        }, emailDetails.getErrorMessage());
+        });
     }
 
     public void sendVerificationEmail(User user) {
@@ -96,7 +96,6 @@ public class MailServiceImpl implements MailService {
                 .withRecipient(user.getEmail())
                 .withTemplateName(VERIFICATION_EMAIL_HTML)
                 .withReplacements(replacements)
-                .withErrorMessage("Error while trying to send verification email")
                 .build()
         );
     }
@@ -113,7 +112,6 @@ public class MailServiceImpl implements MailService {
                 .withRecipient(receiptPayment.getClienteEmail())
                 .withTemplateName(RECEIPT_PAYMENT_HTML)
                 .withReplacements(replacements)
-                .withErrorMessage("Error while trying to send email with payment receipt")
                 .build()
         );
     }
@@ -132,7 +130,6 @@ public class MailServiceImpl implements MailService {
                 .withRecipient(user.getEmail())
                 .withTemplateName(PASSWORD_RESET_HTML)
                 .withReplacements(replacements)
-                .withErrorMessage("Error while trying to send password reset email")
                 .build()
         );
     }
@@ -141,11 +138,8 @@ public class MailServiceImpl implements MailService {
 
         ClassPathResource pathResource = new ClassPathResource(path);
 
-        return catchError.run(
-                () -> new String(pathResource.getInputStream()
-                        .readAllBytes(), StandardCharsets.UTF_8),
-                "Error while trying to get email template: " + path
-        );
+        return catchError.run(() -> new String(pathResource.getInputStream()
+                .readAllBytes(), StandardCharsets.UTF_8));
     }
 
     public UserResponse validateEmailVerificationToken(String token) {
@@ -167,11 +161,8 @@ public class MailServiceImpl implements MailService {
     @Transactional(readOnly = true)
     private User findUserByEmail(String email) {
 
-        return catchError.run(
-                () -> userRepository.findUserByEmail(email)
-                        .orElseThrow(() -> new NotFoundException("The user was not found with the email: " + email)),
-                "Error while trying to search for user by email: "
-        );
+        return catchError.run(() -> userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new NotFoundException("The user was not found with the email: " + email)));
     }
 
     @Transactional(readOnly = false)
@@ -179,11 +170,7 @@ public class MailServiceImpl implements MailService {
 
         user.setEmailEnabled(true);
 
-        User savedUser = catchError.run(
-                () -> userRepository.save(user),
-                "Error while trying to save verified email"
-        );
-
+        User savedUser = catchError.run(() -> userRepository.save(user));
         logger.info("User email verified and saved: {}", savedUser.getEmail());
     }
 
@@ -194,11 +181,7 @@ public class MailServiceImpl implements MailService {
         String passwordEncode = passwordHelper.enconde(user.getPassword());
         user.setPassword(passwordEncode);
 
-        User savedUser = catchError.run(
-                () -> userRepository.save(user),
-                "Error while trying to update user password: "
-        );
-
+        User savedUser = catchError.run(() -> userRepository.save(user));
         logger.info("User password updated: {}", savedUser);
     }
 }

@@ -38,11 +38,8 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional(readOnly = true)
     public Page<NotificationResponse> findAllNotifications(Pageable pageable) {
 
-        return catchError.run(
-                () -> notificationRepository.findAll(pageable)
-                        .map(notification -> dataMapper.map(notification, NotificationResponse.class)),
-                "Error while trying to fetch all notifications: "
-        );
+        return catchError.run(() -> notificationRepository.findAll(pageable)
+                .map(notification -> dataMapper.map(notification, NotificationResponse.class)));
     }
 
     @Transactional
@@ -51,11 +48,7 @@ public class NotificationServiceImpl implements NotificationService {
         validateNotificationDates(notificationRequest);
         Notification notification = dataMapper.map(notificationRequest, Notification.class);
 
-        Notification savedNotification = catchError.run(
-                () -> notificationRepository.save(notification),
-                "Error while trying to create the notification: "
-        );
-
+        Notification savedNotification = catchError.run(() -> notificationRepository.save(notification));
         logger.info("Notification created: {}", savedNotification);
         return dataMapper.map(savedNotification, NotificationResponse.class);
     }
@@ -63,12 +56,9 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional(readOnly = true)
     public NotificationResponse findNotificationById(Long id) {
 
-        return catchError.run(
-                () -> notificationRepository.findById(id)
-                        .map(notification -> dataMapper.map(notification, NotificationResponse.class))
-                        .orElseThrow(() -> new NotFoundException("Notification not found with ID: " + id + ".")),
-                "Error while trying to find the notification by ID: "
-        );
+        return catchError.run(() -> notificationRepository.findById(id)
+                .map(notification -> dataMapper.map(notification, NotificationResponse.class))
+                .orElseThrow(() -> new NotFoundException("Notification not found with ID: " + id + ".")));
     }
 
     @Transactional
@@ -78,11 +68,7 @@ public class NotificationServiceImpl implements NotificationService {
         Notification currentNotification = getNotificationIfExists(id);
         dataMapper.map(notificationRequest, currentNotification);
 
-        Notification updatedNotification = catchError.run(
-                () -> notificationRepository.save(currentNotification),
-                "Error while trying to update the notification: "
-        );
-
+        Notification updatedNotification = catchError.run(() -> notificationRepository.save(currentNotification));
         logger.info("Notification update: {}", updatedNotification);
         return dataMapper.map(updatedNotification, NotificationResponse.class);
     }
@@ -92,21 +78,14 @@ public class NotificationServiceImpl implements NotificationService {
 
         Notification notification = getNotificationIfExists(id);
 
-        catchError.run(() -> {
-            notificationRepository.delete(notification);
-            return null;
-        }, "Error while trying to delete the notification: ");
-        
+        catchError.run(() -> notificationRepository.delete(notification));
         logger.warn("Notification deleted: {}", notification);
     }
 
     private Notification getNotificationIfExists(Long id) {
 
-        return catchError.run(
-                () -> notificationRepository.findById(id)
-                        .orElseThrow(() -> new NotFoundException("Notification not found with ID: " + id + ".")),
-                "Error while trying to verify the existence of the notification by ID: "
-        );
+        return catchError.run(() -> notificationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Notification not found with ID: " + id + ".")));
     }
 
     private void validateNotificationDates(NotificationRequest notificationRequest) {

@@ -38,11 +38,8 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
     @Transactional(readOnly = true)
     public Page<ProductDiscountResponse> findAllProductDiscounts(Pageable pageable) {
 
-        return catchError.run(
-                () -> productDiscountRepository.findAll(pageable)
-                        .map(productDiscount -> dataMapper.map(productDiscount, ProductDiscountResponse.class)),
-                "Error while trying to fetch all products discounts: "
-        );
+        return catchError.run(() -> productDiscountRepository.findAll(pageable)
+                .map(productDiscount -> dataMapper.map(productDiscount, ProductDiscountResponse.class)));
     }
 
     @Transactional
@@ -51,11 +48,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
         validateProductDiscountDates(productDiscountRequest);
         ProductDiscount productDiscount = dataMapper.map(productDiscountRequest, ProductDiscount.class);
 
-        ProductDiscount savedProductDiscount = catchError.run(
-                () -> productDiscountRepository.save(productDiscount),
-                "Error while trying to create the product discount: "
-        );
-
+        ProductDiscount savedProductDiscount = catchError.run(() -> productDiscountRepository.save(productDiscount));
         logger.info("Product discount created: {}", savedProductDiscount);
         return dataMapper.map(savedProductDiscount, ProductDiscountResponse.class);
     }
@@ -63,12 +56,9 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
     @Transactional(readOnly = true)
     public ProductDiscountResponse findProductDiscountById(Long id) {
 
-        return catchError.run(
-                () -> productDiscountRepository.findById(id)
-                        .map(productDiscount -> dataMapper.map(productDiscount, ProductDiscountResponse.class))
-                        .orElseThrow(() -> new NotFoundException("Product discount not found with ID: " + id + ".")),
-                "Error while trying to find the product discount by ID: "
-        );
+        return catchError.run(() -> productDiscountRepository.findById(id)
+                .map(productDiscount -> dataMapper.map(productDiscount, ProductDiscountResponse.class))
+                .orElseThrow(() -> new NotFoundException("Product discount not found with ID: " + id + ".")));
     }
 
     @Transactional
@@ -78,11 +68,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
         ProductDiscount currentProductDiscount = getProductDiscountIfExists(id);
         dataMapper.map(productDiscountRequest, currentProductDiscount);
 
-        ProductDiscount updatedProductDiscount = catchError.run(
-                () -> productDiscountRepository.save(currentProductDiscount),
-                "Error while trying to update the product discount: "
-        );
-
+        ProductDiscount updatedProductDiscount = catchError.run(() -> productDiscountRepository.save(currentProductDiscount));
         logger.info("Product discount updated: {}", updatedProductDiscount);
         return dataMapper.map(updatedProductDiscount, ProductDiscountResponse.class);
     }
@@ -92,21 +78,14 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
 
         ProductDiscount productDiscount = getProductDiscountIfExists(id);
 
-        catchError.run(() -> {
-            productDiscountRepository.delete(productDiscount);
-            return null;
-        }, "Error while trying to delete the product discount: ");
-
+        catchError.run(() -> productDiscountRepository.delete(productDiscount));
         logger.warn("Product discount deleted: {}", productDiscount);
     }
 
     public ProductDiscount getProductDiscountIfExists(Long id) {
 
-        return catchError.run(
-                () -> productDiscountRepository.findById(id)
-                        .orElseThrow(() -> new NotFoundException("Product discount response not found with ID: " + id + ".")),
-                "Error while trying to verify the existence of the product discount by ID: "
-        );
+        return catchError.run(() -> productDiscountRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Product discount response not found with ID: " + id + ".")));
     }
 
     private void validateProductDiscountDates(ProductDiscountRequest productDiscountRequest) {

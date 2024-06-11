@@ -51,11 +51,8 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public Page<OrderResponse> findAllOrders(Pageable pageable) {
 
-        return catchError.run(
-                () -> orderRepository.findAll(pageable)
-                        .map(order -> dataMapper.map(order, OrderResponse.class)),
-                "Error while trying to fetch all orders: "
-        );
+        return catchError.run(() -> orderRepository.findAll(pageable)
+                .map(order -> dataMapper.map(order, OrderResponse.class)));
     }
 
     @Transactional
@@ -69,11 +66,7 @@ public class OrderServiceImpl implements OrderService {
                 .withClient(client)
                 .build();
 
-        Order savedOrder = catchError.run(
-                () -> orderRepository.save(order),
-                "Error while trying to create the order: "
-        );
-
+        Order savedOrder = catchError.run(() -> orderRepository.save(order));
         logger.info("Order created: {}", savedOrder);
         return dataMapper.map(savedOrder, OrderResponse.class);
     }
@@ -81,12 +74,9 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public OrderResponse findOrderById(Long id) {
 
-        return catchError.run(
-                () -> orderRepository.findById(id)
-                        .map(order -> dataMapper.map(order, OrderResponse.class))
-                        .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + ".")),
-                "Error while trying to find the order by ID: "
-        );
+        return catchError.run(() -> orderRepository.findById(id)
+                .map(order -> dataMapper.map(order, OrderResponse.class))
+                .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + ".")));
     }
 
     @Transactional
@@ -106,11 +96,7 @@ public class OrderServiceImpl implements OrderService {
                 .withCoupon(discountCoupon)
                 .build();
 
-        Order uodatedOrder = catchError.run(
-                () -> orderRepository.save(order),
-                "Error while trying to update the order: "
-        );
-
+        Order uodatedOrder = catchError.run(() -> orderRepository.save(order));
         logger.info("Order updated: {}", uodatedOrder);
         return dataMapper.map(uodatedOrder, OrderResponse.class);
     }
@@ -125,11 +111,7 @@ public class OrderServiceImpl implements OrderService {
 
         statusValidators.forEach(strategy -> strategy.validateStatusChange(orderRequest, order));
 
-        Order uodatedOrder = catchError.run(
-                () -> orderRepository.save(order),
-                "Error while trying to update the order status: "
-        );
-
+        Order uodatedOrder = catchError.run(() -> orderRepository.save(order));
         logger.info("Order status updated: {}", uodatedOrder);
         return dataMapper.map(uodatedOrder, OrderResponse.class);
     }
@@ -143,41 +125,27 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalStateException("Paid order cannot be deleted.");
         }
 
-        catchError.run(() -> {
-            orderRepository.delete(order);
-            return null;
-        }, "Error while trying to delete the order: ");
-
+        catchError.run(() -> orderRepository.delete(order));
         logger.warn("Order deleted: {}", order);
     }
 
     @Transactional(readOnly = true)
     public Page<OrderResponse> findOrderByClientId(Long id, Pageable pageable) {
 
-        return catchError.run(
-                () -> orderRepository.findByClient_Id(id, pageable)
-                        .map(order -> dataMapper.map(order, OrderResponse.class)),
-                "Error while trying to fetch orders by customer ID: "
-        );
+        return catchError.run(() -> orderRepository.findByClient_Id(id, pageable)
+                .map(order -> dataMapper.map(order, OrderResponse.class)));
     }
 
     public Order getOrderIfExists(Long id) {
 
-        return catchError.run(
-                () -> orderRepository.findById(id)
-                        .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + ".")),
-                "Error while trying to verify the existence of the order by ID: "
-        );
+        return catchError.run(() -> orderRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + ".")));
     }
 
     @Transactional
     public void savePaidOrder(Order order) {
 
-        catchError.run(() -> {
-            orderRepository.save(order);
-            return null;
-        }, "Error while trying to save the paid order: ");
-
+        catchError.run(() -> orderRepository.save(order));
         logger.info("Paid order saved: {}", order);
     }
 

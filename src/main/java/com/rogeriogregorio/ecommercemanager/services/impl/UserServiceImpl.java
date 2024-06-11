@@ -7,9 +7,9 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.mail.MailService;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
-import com.rogeriogregorio.ecommercemanager.utils.PasswordHelper;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
+import com.rogeriogregorio.ecommercemanager.utils.PasswordHelper;
 import com.rogeriogregorio.ecommercemanager.utils.catchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,11 +48,8 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public Page<UserResponse> findAllUsers(Pageable pageable) {
 
-        return catchError.run(
-                () -> userRepository.findAll(pageable)
-                        .map(user -> dataMapper.map(user, UserResponse.class)),
-                "Error while trying to fetch all users: "
-        );
+        return catchError.run(() -> userRepository.findAll(pageable)
+                .map(user -> dataMapper.map(user, UserResponse.class)));
     }
 
     @Transactional
@@ -66,24 +63,19 @@ public class UserServiceImpl implements UserService {
 
         user.setEmailEnabled(true);// TODO remover essa linha
 
-        User savedUser = catchError.run(() -> userRepository.save(user),
-                "Error while trying to register the user: ");
+        User savedUser = catchError.run(() -> userRepository.save(user));
+        logger.info("User registered: {}", savedUser);
 
         //CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user));// TODO reativar método
-
-        logger.info("User registered: {}", savedUser);
         return dataMapper.map(savedUser, UserResponse.class);
     }
 
     @Transactional(readOnly = true)
     public UserResponse findUserById(UUID id) {
 
-        return catchError.run(
-                () -> userRepository.findById(id)
-                        .map(user -> dataMapper.map(user, UserResponse.class))
-                        .orElseThrow(() -> new NotFoundException("User response not found with ID: " + id + ".")),
-                "Error while trying to fetch the user by ID: "
-        );
+        return catchError.run(() -> userRepository.findById(id)
+                .map(user -> dataMapper.map(user, UserResponse.class))
+                .orElseThrow(() -> new NotFoundException("User response not found with ID: " + id + ".")));
     }
 
     @Transactional
@@ -95,11 +87,7 @@ public class UserServiceImpl implements UserService {
         String encodedPassword = passwordHelper.enconde(userRequest.getPassword());
         currentUser.setPassword(encodedPassword);
 
-        User updatedUser = catchError.run(
-                () -> userRepository.save(currentUser),
-                "Error while trying to update the user: "
-        );
-
+        User updatedUser = catchError.run(() -> userRepository.save(currentUser));
         logger.info("User updated: {}", updatedUser);
         return dataMapper.map(updatedUser, UserResponse.class);
     }
@@ -110,11 +98,7 @@ public class UserServiceImpl implements UserService {
         User user = getUserIfExists(id);
         user.setRole(userRequest.getUserRole());
 
-        User updatedUser = catchError.run(
-                () -> userRepository.save(user),
-                "Error trying to update user role: "
-        );
-
+        User updatedUser = catchError.run(() -> userRepository.save(user));
         logger.info("User role updated: {}", updatedUser);
         return dataMapper.map(updatedUser, UserResponse.class);
     }
@@ -124,40 +108,26 @@ public class UserServiceImpl implements UserService {
 
         User user = getUserIfExists(id);
 
-        catchError.run(() -> {
-            userRepository.delete(user);
-            return null;
-        }, "Error while trying to delete the user: ");
-
+        catchError.run(() -> userRepository.delete(user));
         logger.warn("User removed: {}", user);
     }
 
     @Transactional(readOnly = true)
     public Page<UserResponse> findUserByName(String name, Pageable pageable) {
 
-        return catchError.run(
-                () -> userRepository.findByName(name, pageable)
-                        .map(user -> dataMapper.map(user, UserResponse.class)),
-                "Error while trying to fetch the user by name: "
-        );
+        return catchError.run(() -> userRepository.findByName(name, pageable)
+                .map(user -> dataMapper.map(user, UserResponse.class)));
     }
 
     public User getUserIfExists(UUID id) {
 
-        return catchError.run(
-                () -> userRepository.findById(id)
-                        .orElseThrow(() -> new NotFoundException("User response not found with ID: " + id + ".")),
-                "Error while trying to verify the existence of the user by ID: "
-        );
+        return catchError.run(() -> userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User response not found with ID: " + id + ".")));
     }
 
     public void saveUserAddress(User user) {
 
-        User savedUser = catchError.run(() -> {
-            userRepository.save(user);
-            return null;
-        }, "Error while trying to update the user's address: ");
-
+        User savedUser = catchError.run(() -> userRepository.save(user));
         logger.info("User's address updated: {}", savedUser);
     }
 }

@@ -37,10 +37,8 @@ public class PixServiceImpl implements PixService {
     private static final Logger logger = LogManager.getLogger(PixServiceImpl.class);
 
     @Autowired
-    public PixServiceImpl(CredentialService credentials,
-                          DateFormatter dateFormatter,
-                          catchError catchError,
-                          DataMapper dataMapper) {
+    public PixServiceImpl(CredentialService credentials, DateFormatter dateFormatter,
+                          catchError catchError, DataMapper dataMapper) {
 
         this.credentials = credentials;
         this.dateFormatter = dateFormatter;
@@ -59,9 +57,8 @@ public class PixServiceImpl implements PixService {
 
             EvpKeyDto evpKey = dataMapper.fromJson(efiPayResponse, EvpKeyDto.class);
             logger.info("EVP key created: {}", evpKey);
-
             return evpKey;
-        }, "Error while trying to create EVP key: ");
+        });
     }
 
     @Retryable(retryFor = { Exception.class }, maxAttempts = 10,
@@ -77,9 +74,8 @@ public class PixServiceImpl implements PixService {
 
             PixChargeDto pixCharge = dataMapper.fromJson(efiPayResponse, PixChargeDto.class);
             logger.info("Immediate charge Pix created: {}", pixCharge);
-
             return pixCharge;
-        }, "Error while trying to create immediate Pix charge: ");
+        });
     }
 
     @Retryable(retryFor = { Exception.class }, maxAttempts = 10,
@@ -98,9 +94,8 @@ public class PixServiceImpl implements PixService {
 
             PixQRCodeDto pixQRCode = dataMapper.fromMap(efiPayResponse, PixQRCodeDto.class);
             logger.info("Generated QRCode Pix: {}", pixQRCode);
-
             return pixQRCode;
-        }, "Error while trying to generate Pix QRCode: ");
+        });
     }
 
     @Retryable(retryFor = { Exception.class }, maxAttempts = 10,
@@ -115,9 +110,8 @@ public class PixServiceImpl implements PixService {
 
             EfiPay efiPay = new EfiPay(credentials.getOptions());
             JSONObject efiPayResponse = efiPay.call(LIST_CHARGES, params, new JSONObject());
-
             return dataMapper.fromJson(efiPayResponse, PixListChargeDto.class);
-        }, "Error while trying to list pix charges: ");
+        });
     }
 
     @Recover

@@ -39,11 +39,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     public Page<CategoryResponse> findAllCategories(Pageable pageable) {
 
-        return catchError.run(
-                () -> categoryRepository.findAll(pageable)
-                        .map(category -> dataMapper.map(category, CategoryResponse.class)),
-                "Error while trying to fetch all categories: "
-        );
+        return catchError.run(() -> categoryRepository.findAll(pageable)
+                .map(category -> dataMapper.map(category, CategoryResponse.class)));
     }
 
     @Transactional
@@ -51,11 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category category = dataMapper.map(categoryRequest, Category.class);
 
-        Category savedCategory = catchError.run(
-                () -> categoryRepository.save(category),
-                "Error while trying to create the category: "
-        );
-
+        Category savedCategory = catchError.run(() -> categoryRepository.save(category));
         logger.info("Category created: {}", savedCategory);
         return dataMapper.map(savedCategory, CategoryResponse.class);
     }
@@ -63,21 +56,15 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     public CategoryResponse findCategoryById(Long id) {
 
-        return catchError.run(
-                () -> categoryRepository.findById(id)
-                        .map(category -> dataMapper.map(category, CategoryResponse.class))
-                        .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + ".")),
-                "Error while trying to find the category by ID: "
-        );
+        return catchError.run(() -> categoryRepository.findById(id)
+                .map(category -> dataMapper.map(category, CategoryResponse.class))
+                .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + ".")));
     }
 
     @Transactional(readOnly = true)
     public List<Category> findAllCategoriesByIds(List<Long> id) {
 
-        return catchError.run(
-                () -> categoryRepository.findAllById(id),
-                "Error while trying to fetch all categories by ID: "
-        );
+        return catchError.run(() -> categoryRepository.findAllById(id));
     }
 
     @Transactional
@@ -86,10 +73,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category currentCategory = getCategoryIfExists(id);
         dataMapper.map(categoryRequest, currentCategory);
 
-        Category updatedCategory = catchError.run(
-                () -> categoryRepository.save(currentCategory),
-                "Error while trying to update the category: ");
-
+        Category updatedCategory = catchError.run(() -> categoryRepository.save(currentCategory));
         logger.info("Category updated: {}", updatedCategory);
         return dataMapper.map(updatedCategory, CategoryResponse.class);
     }
@@ -99,30 +83,20 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category category = getCategoryIfExists(id);
 
-        catchError.run(() -> {
-            categoryRepository.delete(category);
-            return null;
-        }, "Error while trying to delete the category: ");
-
+        catchError.run(() -> categoryRepository.delete(category));
         logger.warn("Category deleted: {}", category);
     }
 
     @Transactional(readOnly = true)
     public Page<CategoryResponse> findCategoryByName(String name, Pageable pageable) {
 
-        return catchError.run(
-                () -> categoryRepository.findByName(name, pageable)
-                        .map(category -> dataMapper.map(category, CategoryResponse.class)),
-                "Error while trying to fetch category by name: "
-        );
+        return catchError.run(() -> categoryRepository.findByName(name, pageable)
+                .map(category -> dataMapper.map(category, CategoryResponse.class)));
     }
 
     private Category getCategoryIfExists(Long id) {
 
-        return catchError.run(
-                () -> categoryRepository.findById(id)
-                        .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + ".")),
-                "Error while trying to verify the existence of the category by ID: "
-        );
+        return catchError.run(() -> categoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + ".")));
     }
 }

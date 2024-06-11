@@ -52,11 +52,8 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = true)
     public Page<OrderItemResponse> findAllOrderItems(Pageable pageable) {
 
-        return catchError.run(
-                () -> orderItemRepository.findAll(pageable)
-                        .map(orderItem -> dataMapper.map(orderItem, OrderItemResponse.class)),
-                "Error while trying to fetch all items of the order: "
-        );
+        return catchError.run(() -> orderItemRepository.findAll(pageable)
+                .map(orderItem -> dataMapper.map(orderItem, OrderItemResponse.class)));
     }
 
     @Transactional
@@ -64,11 +61,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         OrderItem orderItem = buildOrderItem(orderItemRequest);
 
-        OrderItem savedOrderItem = catchError.run(
-                () -> orderItemRepository.save(orderItem),
-                "Error while trying to create order item: "
-        );
-
+        OrderItem savedOrderItem = catchError.run(() -> orderItemRepository.save(orderItem));
         logger.info("Order item created: {}", savedOrderItem);
         return dataMapper.map(savedOrderItem, OrderItemResponse.class);
     }
@@ -78,12 +71,9 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         OrderItemPK id = buildOrderItemPK(orderId, itemId);
 
-        return catchError.run(
-                () -> orderItemRepository.findById(id)
-                        .map(orderItem -> dataMapper.map(orderItem, OrderItemResponse.class))
-                        .orElseThrow(() -> new NotFoundException("Item not found with ID: " + id + ".")),
-                "Error while trying to fetch the order item by ID: "
-        );
+        return catchError.run(() -> orderItemRepository.findById(id)
+                .map(orderItem -> dataMapper.map(orderItem, OrderItemResponse.class))
+                .orElseThrow(() -> new NotFoundException("Item not found with ID: " + id + ".")));
     }
 
     @Transactional
@@ -91,11 +81,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         OrderItem orderItem = buildOrderItem(orderItemRequest);
 
-        OrderItem updatedOrderItem = catchError.run(
-                () -> orderItemRepository.save(orderItem),
-                "Error while trying to update the order item: "
-        );
-
+        OrderItem updatedOrderItem = catchError.run(() -> orderItemRepository.save(orderItem));
         logger.info("Order item updated: {}", updatedOrderItem);
         return dataMapper.map(updatedOrderItem, OrderItemResponse.class);
     }
@@ -104,14 +90,9 @@ public class OrderItemServiceImpl implements OrderItemService {
     public void deleteOrderItem(Long orderId, Long itemId) {
 
         validateOrderChangeEligibility(orderId);
-
         OrderItemPK id = buildOrderItemPK(orderId, itemId);
 
-        catchError.run(() -> {
-            orderItemRepository.deleteById(id);
-            return null;
-        }, "Error while trying to delete order item: ");
-
+        catchError.run(() -> orderItemRepository.deleteById(id));
         logger.warn("Order item removed: {}", id.getProduct());
     }
 

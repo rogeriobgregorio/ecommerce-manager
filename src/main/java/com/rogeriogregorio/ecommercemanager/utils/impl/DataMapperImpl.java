@@ -1,7 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.utils.impl;
 
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
+import com.rogeriogregorio.ecommercemanager.utils.catchError;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +24,7 @@ public class DataMapperImpl implements DataMapper {
     @Override
     public <S, T> T map(S source, Class<T> targetClass) {
 
-        return catchError.run(
-                () -> modelMapper.map(source, targetClass),
-                "Error when trying to map data between objects: "
-        );
+        return catchError.run(() -> modelMapper.map(source, targetClass));
     }
 
     @Override
@@ -36,24 +33,18 @@ public class DataMapperImpl implements DataMapper {
         return catchError.run(() -> {
             modelMapper.map(source, target);
             return target;
-        }, "Error when trying to map data between objects: ");
+        });
     }
 
     @Override
     public <T> T fromJson(JSONObject jsonObject, Class<T> targetClass) {
 
-        return catchError.run(
-                () -> modelMapper.map(jsonObject.toMap(), targetClass),
-                "Error while trying to map from JSONObject to object: "
-        );
+        return catchError.run(() -> modelMapper.map(jsonObject.toMap(), targetClass));
     }
 
     @Override
     public <T> T fromMap(Map<String, Object> source, Class<T> targetClass) {
 
-        return catchError.run(
-                () -> modelMapper.map(source, targetClass),
-                "Error while trying to map from HashMap to object: "
-        );
+        return catchError.run(() -> modelMapper.map(source, targetClass));
     }
 }

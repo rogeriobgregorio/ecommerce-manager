@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public interface PaymentStrategy {
 
-    Payment createPayment(Order order);
-
     PaymentType getSupportedPaymentMethod();
+
+    Payment createPayment(Order order);
 }

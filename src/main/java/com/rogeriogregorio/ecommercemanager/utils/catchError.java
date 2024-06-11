@@ -1,11 +1,22 @@
 package com.rogeriogregorio.ecommercemanager.utils;
 
-import org.springframework.stereotype.Component;
 
-import java.util.concurrent.Callable;
+import org.springframework.stereotype.Component;
 
 @Component
 public interface catchError {
 
-    <T> T run(Callable<T> method, String errorMessage);
+    @FunctionalInterface
+    interface FunctionWithException<T> {
+        T run() throws Exception;
+    }
+
+    <T> T run(FunctionWithException<T> method);
+
+    @FunctionalInterface
+    interface ProcedureWithException {
+        void run() throws Exception;
+    }
+
+    void run(ProcedureWithException method);
 }

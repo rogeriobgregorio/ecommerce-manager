@@ -25,6 +25,11 @@ public class PixPayment implements PaymentStrategy {
     }
 
     @Override
+    public PaymentType getSupportedPaymentMethod() {
+        return PaymentType.PIX;
+    }
+
+    @Override
     public Payment createPayment(Order order) {
 
         PixChargeDto pixCharge = pixService.createImmediatePixCharge(order);
@@ -37,10 +42,5 @@ public class PixPayment implements PaymentStrategy {
                 .withPaymentType(PIX_PAYMENT)
                 .withChargeLink(pixQRCode.getLinkVisualizacao())
                 .build();
-    }
-
-    @Override
-    public PaymentType getSupportedPaymentMethod() {
-        return PaymentType.PIX;
     }
 }

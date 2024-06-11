@@ -70,11 +70,8 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional(readOnly = true)
     public Page<PaymentResponse> findAllPayments(Pageable pageable) {
 
-        return catchError.run(
-                () -> paymentRepository.findAll(pageable)
-                        .map(payment -> dataMapper.map(payment, PaymentResponse.class)),
-                "Error while trying to fetch all payments: "
-        );
+        return catchError.run(() -> paymentRepository.findAll(pageable)
+                .map(payment -> dataMapper.map(payment, PaymentResponse.class)));
     }
 
     @Transactional
@@ -85,11 +82,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment payment = getPaymentStrategy(paymentRequest).createPayment(order);
 
-        Payment savedPayment = catchError.run(
-                () -> paymentRepository.save(payment),
-                "Error while trying to create paid payment with charge: "
-        );
-
+        Payment savedPayment = catchError.run(() -> paymentRepository.save(payment));
         logger.info("Payment with charge saved: {}", savedPayment);
         return dataMapper.map(savedPayment, PaymentResponse.class);
     }
@@ -110,13 +103,10 @@ public class PaymentServiceImpl implements PaymentService {
         List<Payment> paidPixChargeList = buildPaidPixCharges(pixWebhook);
 
         for (Payment paymentPix : paidPixChargeList) {
-            Payment savedPaymentPix = catchError.run(
-                    () -> paymentRepository.save(paymentPix),
-                    "Error while trying to save paymentPix with paid charge: "
-            );
+            Payment savedPaymentPix = catchError.run(() -> paymentRepository.save(paymentPix));
+            logger.info("Payment pix with paid charge saved: {}", savedPaymentPix);
 
             updateInventoryStock(savedPaymentPix);
-            logger.info("Payment pix with paid charge saved: {}", savedPaymentPix);
             //CompletableFuture.runAsync(() -> mailService.sendPaymentReceiptEmail(savedPaymentPix));// TODO reativar método
         }
     }
@@ -124,12 +114,9 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional(readOnly = true)
     public PaymentResponse findPaymentById(Long id) {
 
-        return catchError.run(
-                () -> paymentRepository.findById(id)
-                        .map(payment -> dataMapper.map(payment, PaymentResponse.class))
-                        .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + ".")),
-                "Error while trying to find the payment by ID: "
-        );
+        return catchError.run(() -> paymentRepository.findById(id)
+                .map(payment -> dataMapper.map(payment, PaymentResponse.class))
+                .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + ".")));
     }
 
     @Transactional
@@ -137,31 +124,21 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment payment = getPaymentIfExists(id);
 
-        catchError.run(() -> {
-            paymentRepository.delete(payment);
-            return null;
-        }, "Error while trying to delete the payment: ");
-
+        catchError.run(() -> paymentRepository.delete(payment));
         logger.warn("Payment deleted: {}", payment);
     }
 
     @Transactional(readOnly = true)
     private Payment findByTxId(String txId) {
 
-        return catchError.run(
-                () -> paymentRepository.findByTxId(txId)
-                        .orElseThrow(() -> new NotFoundException("Payment not found with txId: " + txId + ".")),
-                "Error while trying to find the payment by txId: "
-        );
+        return catchError.run(() -> paymentRepository.findByTxId(txId)
+                .orElseThrow(() -> new NotFoundException("Payment not found with txId: " + txId + ".")));
     }
 
     public Payment getPaymentIfExists(Long id) {
 
-        return catchError.run(
-                () -> paymentRepository.findById(id)
-                        .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + ".")),
-                "Error while trying to verify the existence of the Payment by ID: "
-        );
+        return catchError.run(() -> paymentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + ".")));
     }
 
     private void updateInventoryStock(Payment payment) {
