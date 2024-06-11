@@ -12,7 +12,7 @@ import com.rogeriogregorio.ecommercemanager.services.ProductReviewService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +31,14 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     private final ProductReviewRepository productReviewRepository;
     private final ProductService productService;
     private final UserService userService;
-    private final catchError catchError;
+    private final CatchError catchError;
     private final DataMapper dataMapper;
-    private static final Logger logger = LogManager.getLogger(ProductReviewServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(ProductReviewServiceImpl.class);
 
     @Autowired
     public ProductReviewServiceImpl(ProductReviewRepository productReviewRepository,
                                     ProductService productService, UserService userService,
-                                    catchError catchError, DataMapper dataMapper) {
+                                    CatchError catchError, DataMapper dataMapper) {
 
         this.productReviewRepository = productReviewRepository;
         this.productService = productService;
@@ -60,7 +60,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         ProductReview productReview = buildProductReview(productReviewRequest);
 
         ProductReview savedProductReview = catchError.run(() -> productReviewRepository.save(productReview));
-        logger.info("Product review created: {}", savedProductReview);
+        LOGGER.info("Product review created: {}", savedProductReview);
         return dataMapper.map(savedProductReview, ProductReviewResponse.class);
     }
 
@@ -80,7 +80,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         ProductReview productReview = buildProductReview(productReviewRequest);
 
         ProductReview updateProductReview = catchError.run(() -> productReviewRepository.save(productReview));
-        logger.info("Product review updated: {}", updateProductReview);
+        LOGGER.info("Product review updated: {}", updateProductReview);
         return dataMapper.map(updateProductReview, ProductReviewResponse.class);
     }
 
@@ -90,7 +90,7 @@ public class ProductReviewServiceImpl implements ProductReviewService {
         ProductReviewPK id = buildProductReviewPK(productId, userId);
 
         catchError.run(() -> productReviewRepository.deleteById(id));
-        logger.warn("Product review removed: {}", id.getProduct());
+        LOGGER.warn("Product review removed: {}", id.getProduct());
     }
 
     private ProductReview validateProductReview(ProductReview productReview) {

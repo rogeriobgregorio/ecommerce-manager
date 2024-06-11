@@ -7,7 +7,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.NotificationRepository;
 import com.rogeriogregorio.ecommercemanager.services.NotificationService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +22,13 @@ import java.time.Instant;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final catchError catchError;
+    private final CatchError catchError;
     private final DataMapper dataMapper;
-    private static final Logger logger = LogManager.getLogger(NotificationServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(NotificationServiceImpl.class);
 
     @Autowired
     public NotificationServiceImpl(NotificationRepository notificationRepository,
-                                   catchError catchError, DataMapper dataMapper) {
+                                   CatchError catchError, DataMapper dataMapper) {
 
         this.notificationRepository = notificationRepository;
         this.catchError = catchError;
@@ -49,7 +49,7 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = dataMapper.map(notificationRequest, Notification.class);
 
         Notification savedNotification = catchError.run(() -> notificationRepository.save(notification));
-        logger.info("Notification created: {}", savedNotification);
+        LOGGER.info("Notification created: {}", savedNotification);
         return dataMapper.map(savedNotification, NotificationResponse.class);
     }
 
@@ -69,7 +69,7 @@ public class NotificationServiceImpl implements NotificationService {
         dataMapper.map(notificationRequest, currentNotification);
 
         Notification updatedNotification = catchError.run(() -> notificationRepository.save(currentNotification));
-        logger.info("Notification update: {}", updatedNotification);
+        LOGGER.info("Notification update: {}", updatedNotification);
         return dataMapper.map(updatedNotification, NotificationResponse.class);
     }
 
@@ -79,7 +79,7 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = getNotificationIfExists(id);
 
         catchError.run(() -> notificationRepository.delete(notification));
-        logger.warn("Notification deleted: {}", notification);
+        LOGGER.warn("Notification deleted: {}", notification);
     }
 
     private Notification getNotificationIfExists(Long id) {

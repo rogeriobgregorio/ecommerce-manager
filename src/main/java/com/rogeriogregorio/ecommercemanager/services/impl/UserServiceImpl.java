@@ -10,7 +10,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
 import com.rogeriogregorio.ecommercemanager.utils.PasswordHelper;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,15 +27,15 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final MailService mailService;
     private final PasswordHelper passwordHelper;
-    private final catchError catchError;
+    private final CatchError catchError;
     private final DataMapper dataMapper;
-    private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(UserServiceImpl.class);
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
                            MailService mailService,
                            PasswordHelper passwordHelper,
-                           catchError catchError,
+                           CatchError catchError,
                            DataMapper dataMapper) {
 
         this.userRepository = userRepository;
@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
         user.setEmailEnabled(true);// TODO remover essa linha
 
         User savedUser = catchError.run(() -> userRepository.save(user));
-        logger.info("User registered: {}", savedUser);
+        LOGGER.info("User registered: {}", savedUser);
 
         //CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user));// TODO reativar método
         return dataMapper.map(savedUser, UserResponse.class);
@@ -88,7 +88,7 @@ public class UserServiceImpl implements UserService {
         currentUser.setPassword(encodedPassword);
 
         User updatedUser = catchError.run(() -> userRepository.save(currentUser));
-        logger.info("User updated: {}", updatedUser);
+        LOGGER.info("User updated: {}", updatedUser);
         return dataMapper.map(updatedUser, UserResponse.class);
     }
 
@@ -99,7 +99,7 @@ public class UserServiceImpl implements UserService {
         user.setRole(userRequest.getUserRole());
 
         User updatedUser = catchError.run(() -> userRepository.save(user));
-        logger.info("User role updated: {}", updatedUser);
+        LOGGER.info("User role updated: {}", updatedUser);
         return dataMapper.map(updatedUser, UserResponse.class);
     }
 
@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService {
         User user = getUserIfExists(id);
 
         catchError.run(() -> userRepository.delete(user));
-        logger.warn("User removed: {}", user);
+        LOGGER.warn("User removed: {}", user);
     }
 
     @Transactional(readOnly = true)
@@ -128,6 +128,6 @@ public class UserServiceImpl implements UserService {
     public void saveUserAddress(User user) {
 
         User savedUser = catchError.run(() -> userRepository.save(user));
-        logger.info("User's address updated: {}", savedUser);
+        LOGGER.info("User's address updated: {}", savedUser);
     }
 }

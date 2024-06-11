@@ -13,7 +13,7 @@ import com.rogeriogregorio.ecommercemanager.services.OrderItemService;
 import com.rogeriogregorio.ecommercemanager.services.OrderService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +29,16 @@ public class OrderItemServiceImpl implements OrderItemService {
     private final InventoryItemService inventoryItemService;
     private final ProductService productService;
     private final OrderService orderService;
-    private final catchError catchError;
+    private final CatchError catchError;
     private final DataMapper dataMapper;
-    private static final Logger logger = LogManager.getLogger(OrderItemServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(OrderItemServiceImpl.class);
 
     @Autowired
     public OrderItemServiceImpl(OrderItemRepository orderItemRepository,
                                 InventoryItemService inventoryItemService,
                                 ProductService productService,
                                 OrderService orderService,
-                                catchError catchError,
+                                CatchError catchError,
                                 DataMapper dataMapper) {
 
         this.orderItemRepository = orderItemRepository;
@@ -62,7 +62,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         OrderItem orderItem = buildOrderItem(orderItemRequest);
 
         OrderItem savedOrderItem = catchError.run(() -> orderItemRepository.save(orderItem));
-        logger.info("Order item created: {}", savedOrderItem);
+        LOGGER.info("Order item created: {}", savedOrderItem);
         return dataMapper.map(savedOrderItem, OrderItemResponse.class);
     }
 
@@ -82,7 +82,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         OrderItem orderItem = buildOrderItem(orderItemRequest);
 
         OrderItem updatedOrderItem = catchError.run(() -> orderItemRepository.save(orderItem));
-        logger.info("Order item updated: {}", updatedOrderItem);
+        LOGGER.info("Order item updated: {}", updatedOrderItem);
         return dataMapper.map(updatedOrderItem, OrderItemResponse.class);
     }
 
@@ -93,7 +93,7 @@ public class OrderItemServiceImpl implements OrderItemService {
         OrderItemPK id = buildOrderItemPK(orderId, itemId);
 
         catchError.run(() -> orderItemRepository.deleteById(id));
-        logger.warn("Order item removed: {}", id.getProduct());
+        LOGGER.warn("Order item removed: {}", id.getProduct());
     }
 
     private Order validateOrderChangeEligibility(Long orderId) {

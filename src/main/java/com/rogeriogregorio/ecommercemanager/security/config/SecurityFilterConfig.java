@@ -2,7 +2,7 @@ package com.rogeriogregorio.ecommercemanager.security.config;
 
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.security.TokenService;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,12 +19,12 @@ public class SecurityFilterConfig extends OncePerRequestFilter {
 
     private final TokenService tokenService;
     private final UserRepository userRepository;
-    private final catchError catchError;
+    private final CatchError catchError;
 
     @Autowired
     public SecurityFilterConfig(TokenService tokenService,
                                 UserRepository userRepository,
-                                catchError catchError) {
+                                CatchError catchError) {
 
         this.tokenService = tokenService;
         this.userRepository = userRepository;

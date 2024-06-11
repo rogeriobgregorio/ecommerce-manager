@@ -11,7 +11,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.services.*;
 import com.rogeriogregorio.ecommercemanager.services.strategy.validations.OrderStatusStrategy;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,15 +30,15 @@ public class OrderServiceImpl implements OrderService {
     private final UserService userService;
     private final DiscountCouponService discountCouponService;
     private final List<OrderStatusStrategy> statusValidators;
-    private final catchError catchError;
+    private final CatchError catchError;
     private final DataMapper dataMapper;
-    private static final Logger logger = LogManager.getLogger(OrderServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(OrderServiceImpl.class);
 
     @Autowired
     public OrderServiceImpl(OrderRepository orderRepository, UserService userService,
                             DiscountCouponService discountCouponService,
                             List<OrderStatusStrategy> statusValidators,
-                            catchError catchError, DataMapper dataMapper) {
+                            CatchError catchError, DataMapper dataMapper) {
 
         this.orderRepository = orderRepository;
         this.userService = userService;
@@ -67,7 +67,7 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         Order savedOrder = catchError.run(() -> orderRepository.save(order));
-        logger.info("Order created: {}", savedOrder);
+        LOGGER.info("Order created: {}", savedOrder);
         return dataMapper.map(savedOrder, OrderResponse.class);
     }
 
@@ -97,7 +97,7 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         Order uodatedOrder = catchError.run(() -> orderRepository.save(order));
-        logger.info("Order updated: {}", uodatedOrder);
+        LOGGER.info("Order updated: {}", uodatedOrder);
         return dataMapper.map(uodatedOrder, OrderResponse.class);
     }
 
@@ -112,7 +112,7 @@ public class OrderServiceImpl implements OrderService {
         statusValidators.forEach(strategy -> strategy.validateStatusChange(orderRequest, order));
 
         Order uodatedOrder = catchError.run(() -> orderRepository.save(order));
-        logger.info("Order status updated: {}", uodatedOrder);
+        LOGGER.info("Order status updated: {}", uodatedOrder);
         return dataMapper.map(uodatedOrder, OrderResponse.class);
     }
 
@@ -126,7 +126,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         catchError.run(() -> orderRepository.delete(order));
-        logger.warn("Order deleted: {}", order);
+        LOGGER.warn("Order deleted: {}", order);
     }
 
     @Transactional(readOnly = true)
@@ -146,7 +146,7 @@ public class OrderServiceImpl implements OrderService {
     public void savePaidOrder(Order order) {
 
         catchError.run(() -> orderRepository.save(order));
-        logger.info("Paid order saved: {}", order);
+        LOGGER.info("Paid order saved: {}", order);
     }
 
     private DiscountCoupon validateDiscountCoupon(String code) {

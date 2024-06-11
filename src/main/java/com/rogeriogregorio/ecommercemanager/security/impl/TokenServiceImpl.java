@@ -9,7 +9,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.security.TokenService;
 import com.rogeriogregorio.ecommercemanager.services.strategy.validations.TokenStrategy;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -30,12 +30,12 @@ public class TokenServiceImpl implements TokenService {
     private String secretKey;
     private final UserRepository userRepository;
     private final List<TokenStrategy> tokenValidators;
-    private final catchError catchError;
+    private final CatchError catchError;
 
     @Autowired
     public TokenServiceImpl(UserRepository userRepository,
                             List<TokenStrategy> tokenValidators,
-                            catchError catchError) {
+                            CatchError catchError) {
 
         this.userRepository = userRepository;
         this.tokenValidators = tokenValidators;

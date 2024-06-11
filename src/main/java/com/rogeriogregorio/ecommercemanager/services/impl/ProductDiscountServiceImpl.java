@@ -7,7 +7,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductDiscountRepository;
 import com.rogeriogregorio.ecommercemanager.services.ProductDiscountService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +22,13 @@ import java.time.Instant;
 public class ProductDiscountServiceImpl implements ProductDiscountService {
 
     private final ProductDiscountRepository productDiscountRepository;
-    private final catchError catchError;
+    private final CatchError catchError;
     private final DataMapper dataMapper;
-    private static final Logger logger = LogManager.getLogger(ProductDiscountServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(ProductDiscountServiceImpl.class);
 
     @Autowired
     public ProductDiscountServiceImpl(ProductDiscountRepository productDiscountRepository,
-                                      catchError catchError, DataMapper dataMapper) {
+                                      CatchError catchError, DataMapper dataMapper) {
 
         this.productDiscountRepository = productDiscountRepository;
         this.catchError = catchError;
@@ -49,7 +49,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
         ProductDiscount productDiscount = dataMapper.map(productDiscountRequest, ProductDiscount.class);
 
         ProductDiscount savedProductDiscount = catchError.run(() -> productDiscountRepository.save(productDiscount));
-        logger.info("Product discount created: {}", savedProductDiscount);
+        LOGGER.info("Product discount created: {}", savedProductDiscount);
         return dataMapper.map(savedProductDiscount, ProductDiscountResponse.class);
     }
 
@@ -69,7 +69,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
         dataMapper.map(productDiscountRequest, currentProductDiscount);
 
         ProductDiscount updatedProductDiscount = catchError.run(() -> productDiscountRepository.save(currentProductDiscount));
-        logger.info("Product discount updated: {}", updatedProductDiscount);
+        LOGGER.info("Product discount updated: {}", updatedProductDiscount);
         return dataMapper.map(updatedProductDiscount, ProductDiscountResponse.class);
     }
 
@@ -79,7 +79,7 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
         ProductDiscount productDiscount = getProductDiscountIfExists(id);
 
         catchError.run(() -> productDiscountRepository.delete(productDiscount));
-        logger.warn("Product discount deleted: {}", productDiscount);
+        LOGGER.warn("Product discount deleted: {}", productDiscount);
     }
 
     public ProductDiscount getProductDiscountIfExists(Long id) {

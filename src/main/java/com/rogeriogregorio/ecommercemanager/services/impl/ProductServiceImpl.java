@@ -11,7 +11,7 @@ import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import com.rogeriogregorio.ecommercemanager.services.ProductDiscountService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,15 +28,15 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
     private final ProductDiscountService productDiscountService;
-    private final catchError catchError;
+    private final CatchError catchError;
     private final DataMapper dataMapper;
-    private static final Logger logger = LogManager.getLogger(ProductServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(ProductServiceImpl.class);
 
     @Autowired
     public ProductServiceImpl(ProductRepository productRepository,
                               CategoryService categoryService,
                               ProductDiscountService productDiscountService,
-                              catchError catchError, DataMapper dataMapper) {
+                              CatchError catchError, DataMapper dataMapper) {
 
         this.productRepository = productRepository;
         this.categoryService = categoryService;
@@ -60,7 +60,7 @@ public class ProductServiceImpl implements ProductService {
         product.setCategories(validateCategory(productRequest));
 
         Product savedProduct = catchError.run(() -> productRepository.save(product));
-        logger.info("Product created: {}", savedProduct);
+        LOGGER.info("Product created: {}", savedProduct);
         return dataMapper.map(savedProduct, ProductResponse.class);
     }
 
@@ -81,7 +81,7 @@ public class ProductServiceImpl implements ProductService {
         currentProduct.setCategories(validateCategory(productRequest));
 
         Product updatedProduct = catchError.run(() -> productRepository.save(currentProduct));
-        logger.info("Product updated: {}", updatedProduct);
+        LOGGER.info("Product updated: {}", updatedProduct);
         return dataMapper.map(updatedProduct, ProductResponse.class);
     }
 
@@ -91,7 +91,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = getProductIfExists(id);
 
         catchError.run(() -> productRepository.delete(product));
-        logger.warn("Product deleted: {}", product);
+        LOGGER.warn("Product deleted: {}", product);
     }
 
     @Transactional(readOnly = true)

@@ -8,7 +8,7 @@ import com.rogeriogregorio.ecommercemanager.payment.CredentialService;
 import com.rogeriogregorio.ecommercemanager.payment.PixService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
 import com.rogeriogregorio.ecommercemanager.utils.DateFormatter;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -32,13 +32,13 @@ public class PixServiceImpl implements PixService {
 
     private final CredentialService credentials;
     private final DateFormatter dateFormatter;
-    private final catchError catchError;
+    private final CatchError catchError;
     private final DataMapper dataMapper;
-    private static final Logger logger = LogManager.getLogger(PixServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(PixServiceImpl.class);
 
     @Autowired
     public PixServiceImpl(CredentialService credentials, DateFormatter dateFormatter,
-                          catchError catchError, DataMapper dataMapper) {
+                          CatchError catchError, DataMapper dataMapper) {
 
         this.credentials = credentials;
         this.dateFormatter = dateFormatter;
@@ -56,7 +56,7 @@ public class PixServiceImpl implements PixService {
             JSONObject efiPayResponse = efiPay.call(CREATE_EVP, new HashMap<>(), new JSONObject());
 
             EvpKeyDto evpKey = dataMapper.fromJson(efiPayResponse, EvpKeyDto.class);
-            logger.info("EVP key created: {}", evpKey);
+            LOGGER.info("EVP key created: {}", evpKey);
             return evpKey;
         });
     }
@@ -73,7 +73,7 @@ public class PixServiceImpl implements PixService {
             JSONObject efiPayResponse = efiPay.call(CREATE_IMMEDIATE_CHARGE, new HashMap<>(), body);
 
             PixChargeDto pixCharge = dataMapper.fromJson(efiPayResponse, PixChargeDto.class);
-            logger.info("Immediate charge Pix created: {}", pixCharge);
+            LOGGER.info("Immediate charge Pix created: {}", pixCharge);
             return pixCharge;
         });
     }
@@ -93,7 +93,7 @@ public class PixServiceImpl implements PixService {
             Map<String, Object> efiPayResponse = efiPay.call(GENERATE_QRCODE, params, new HashMap<>());
 
             PixQRCodeDto pixQRCode = dataMapper.fromMap(efiPayResponse, PixQRCodeDto.class);
-            logger.info("Generated QRCode Pix: {}", pixQRCode);
+            LOGGER.info("Generated QRCode Pix: {}", pixQRCode);
             return pixQRCode;
         });
     }
@@ -117,28 +117,28 @@ public class PixServiceImpl implements PixService {
     @Recover
     public EvpKeyDto recoverCreateEvpKey(Exception ex) {
 
-        logger.error("Failed to create EVP after retries: {}", ex.getMessage());
+        LOGGER.error("Failed to create EVP after retries: {}", ex.getMessage());
         throw new PaymentException("Unable to create EVP after multiple attempts", ex);
     }
 
     @Recover
     public PixChargeDto recoverCreateImmediatePixCharge(Exception ex, Order order) {
 
-        logger.error("Failed to create immediate Pix charge after retries: {}", ex.getMessage());
+        LOGGER.error("Failed to create immediate Pix charge after retries: {}", ex.getMessage());
         throw new PaymentException("Unable to create Pix charge after multiple attempts", ex);
     }
 
     @Recover
     public PixQRCodeDto recoverGeneratePixQRCode(Exception ex, PixChargeDto pixCharge) {
 
-        logger.error("Failed to generate Pix QRCode link after retries: {}", ex.getMessage());
+        LOGGER.error("Failed to generate Pix QRCode link after retries: {}", ex.getMessage());
         throw new PaymentException("Unable to generate Pix QRCode link after multiple attempts", ex);
     }
 
     @Recover
     public PixListChargeDto recoverListPixCharges(Exception ex, String startDate, String endDate) {
 
-        logger.error("Failed to list Pix charges after retries: {}", ex.getMessage());
+        LOGGER.error("Failed to list Pix charges after retries: {}", ex.getMessage());
         throw new PaymentException("Unable to list Pix charges after multiple attempts", ex);
     }
 

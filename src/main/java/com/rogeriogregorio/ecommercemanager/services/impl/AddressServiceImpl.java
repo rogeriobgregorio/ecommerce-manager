@@ -9,7 +9,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.AddressRepository;
 import com.rogeriogregorio.ecommercemanager.services.AddressService;
 import com.rogeriogregorio.ecommercemanager.services.UserService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,14 +25,14 @@ public class AddressServiceImpl implements AddressService {
 
     private final AddressRepository addressRepository;
     private final UserService userService;
-    private final catchError catchError;
+    private final CatchError catchError;
     private final DataMapper dataMapper;
-    private static final Logger logger = LogManager.getLogger(AddressServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(AddressServiceImpl.class);
 
     @Autowired
     public AddressServiceImpl(AddressRepository addressRepository,
                               UserService userService,
-                              catchError catchError,
+                              CatchError catchError,
                               DataMapper dataMapper) {
 
         this.addressRepository = addressRepository;
@@ -58,7 +58,7 @@ public class AddressServiceImpl implements AddressService {
         userService.saveUserAddress(user);
 
         Address savedAddress = catchError.run(() -> addressRepository.save(address));
-        logger.info("Address created: {}", savedAddress);
+        LOGGER.info("Address created: {}", savedAddress);
         return dataMapper.map(savedAddress, AddressResponse.class);
     }
 
@@ -81,7 +81,7 @@ public class AddressServiceImpl implements AddressService {
         userService.saveUserAddress(user);
 
         Address updatedAddress = catchError.run(() -> addressRepository.save(currentAddress));
-        logger.info("Address updated: {}", updatedAddress);
+        LOGGER.info("Address updated: {}", updatedAddress);
         return dataMapper.map(updatedAddress, AddressResponse.class);
     }
 
@@ -90,7 +90,7 @@ public class AddressServiceImpl implements AddressService {
 
         Address address = getAddressIfExists(id);
         catchError.run(() -> addressRepository.delete(address));
-        logger.warn("Address deleted: {}", address);
+        LOGGER.warn("Address deleted: {}", address);
     }
 
     private Address getAddressIfExists(UUID id) {

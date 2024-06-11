@@ -1,6 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.security.config;
 
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,10 +22,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final SecurityFilterConfig securityFilterConfig;
-    private final catchError catchError;
+    private final CatchError catchError;
 
     @Autowired
-    public SecurityConfig(SecurityFilterConfig securityFilterConfig, catchError catchError) {
+    public SecurityConfig(SecurityFilterConfig securityFilterConfig, CatchError catchError) {
 
         this.securityFilterConfig = securityFilterConfig;
         this.catchError = catchError;

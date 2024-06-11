@@ -7,7 +7,7 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.MovementType;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.StockMovementService;
 import org.apache.logging.log4j.LogManager;
@@ -25,14 +25,14 @@ public class StockMovementServiceImpl implements StockMovementService {
 
     private final StockMovementRepository stockMovementRepository;
     private final InventoryItemService inventoryItemService;
-    private final catchError catchError;
+    private final CatchError catchError;
     private final DataMapper dataMapper;
-    private static final Logger logger = LogManager.getLogger(StockMovementServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(StockMovementServiceImpl.class);
 
     @Autowired
     public StockMovementServiceImpl(StockMovementRepository stockMovementRepository,
                                     InventoryItemService inventoryItemService,
-                                    catchError catchError, DataMapper dataMapper) {
+                                    CatchError catchError, DataMapper dataMapper) {
 
         this.stockMovementRepository = stockMovementRepository;
         this.inventoryItemService = inventoryItemService;
@@ -60,7 +60,7 @@ public class StockMovementServiceImpl implements StockMovementService {
                 .build();
 
         StockMovement savedStockMovement = catchError.run(() -> stockMovementRepository.save(stockMovement));
-        logger.info("Inventory movement created: {}", savedStockMovement);
+        LOGGER.info("Inventory movement created: {}", savedStockMovement);
         return dataMapper.map(savedStockMovement, StockMovementResponse.class);
     }
 
@@ -85,7 +85,7 @@ public class StockMovementServiceImpl implements StockMovementService {
                 .build();
 
         StockMovement updateStockMovement = catchError.run(() -> stockMovementRepository.save(currentStockMovement));
-        logger.info("Inventory movement updated: {}", updateStockMovement);
+        LOGGER.info("Inventory movement updated: {}", updateStockMovement);
         return dataMapper.map(updateStockMovement, StockMovementResponse.class);
     }
 
@@ -95,7 +95,7 @@ public class StockMovementServiceImpl implements StockMovementService {
         StockMovement stockMovement = getUserIfExists(id);
 
         catchError.run(() -> stockMovementRepository.delete(stockMovement));
-        logger.info("Stock movement deleted: {}", stockMovement);
+        LOGGER.info("Stock movement deleted: {}", stockMovement);
     }
 
     public StockMovement getUserIfExists(Long id) {
@@ -118,7 +118,7 @@ public class StockMovementServiceImpl implements StockMovementService {
                     .build();
 
             StockMovement stockMovementExit = catchError.run(() -> stockMovementRepository.save(stockMovement));
-            logger.info("Inventory movement exit: {}", stockMovementExit);
+            LOGGER.info("Inventory movement exit: {}", stockMovementExit);
         }
     }
 }

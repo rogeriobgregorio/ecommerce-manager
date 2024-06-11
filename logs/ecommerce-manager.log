@@ -442,7 +442,7 @@
 2024-06-09T03:34:25,326 INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
 2024-06-09T03:34:25,581 INFO  org.springframework.data.jpa.repository.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
 2024-06-09T03:34:25,903 DEBUG com.rogeriogregorio.ecommercemanager.security.config.SecurityFilterConfig - Filter 'securityFilterConfig' configured for use
-2024-06-09T03:34:26,139 ERROR com.rogeriogregorio.ecommercemanager.utils.impl.catchErrorImpl - TransactionSystemException: Could not commit JPA transaction, jakarta.persistence.RollbackException: Error while committing the transaction
+2024-06-09T03:34:26,139 ERROR com.rogeriogregorio.ecommercemanager.utils.impl.CatchErrorImpl - TransactionSystemException: Could not commit JPA transaction, jakarta.persistence.RollbackException: Error while committing the transaction
 2024-06-09T03:34:26,140 WARN  org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'authenticationController' defined in file [/home/rogerio/projetos/ecommerce-manager/target/classes/com/rogeriogregorio/ecommercemanager/controllers/AuthenticationController.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'authenticationServiceImpl' defined in file [/home/rogerio/projetos/ecommerce-manager/target/classes/com/rogeriogregorio/ecommercemanager/security/impl/AuthenticationServiceImpl.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'authenticationManager' defined in class path resource [com/rogeriogregorio/ecommercemanager/security/config/SecurityConfig.class]: Failed to instantiate [org.springframework.security.authentication.AuthenticationManager]: Factory method 'authenticationManager' threw exception with message: Error during execution of the 'getAuthenticationManager' method
 2024-06-09T03:34:26,141 INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
 2024-06-09T03:34:26,152 WARN  org.springframework.beans.factory.support.DisposableBeanAdapter - Invocation of destroy method failed on bean with name 'inMemoryDatabaseShutdownExecutor': org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database is already closed (to disable automatic closing at VM shutdown, add ";DB_CLOSE_ON_EXIT=FALSE" to the db URL) [90121-224]
@@ -661,7 +661,7 @@ Caused by: org.springframework.beans.factory.BeanCreationException: Error creati
 	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:789) ~[spring-beans-6.1.2.jar:6.1.2]
 	... 24 more
 Caused by: com.rogeriogregorio.ecommercemanager.exceptions.UnexpectedException: An error occurred while creating the default admin user
-	at com.rogeriogregorio.ecommercemanager.utils.impl.catchErrorImpl.catchError(ErrorHandlerImpl.java:35) ~[classes/:?]
+	at com.rogeriogregorio.ecommercemanager.utils.impl.CatchErrorImpl.catchError(ErrorHandlerImpl.java:35) ~[classes/:?]
 	at com.rogeriogregorio.ecommercemanager.security.impl.AuthorizationServiceImpl.createDefaultAdmin(AuthorizationServiceImpl.java:52) ~[classes/:?]
 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
@@ -744,7 +744,7 @@ Caused by: org.springframework.transaction.TransactionSystemException: Could not
 	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:249) ~[spring-aop-6.1.2.jar:6.1.2]
 	at jdk.proxy4/jdk.proxy4.$Proxy169.save(Unknown Source) ~[?:?]
 	at com.rogeriogregorio.ecommercemanager.security.impl.AuthorizationServiceImpl.lambda$createDefaultAdmin$1(AuthorizationServiceImpl.java:52) ~[classes/:?]
-	at com.rogeriogregorio.ecommercemanager.utils.impl.catchErrorImpl.catchError(ErrorHandlerImpl.java:20) ~[classes/:?]
+	at com.rogeriogregorio.ecommercemanager.utils.impl.CatchErrorImpl.catchError(ErrorHandlerImpl.java:20) ~[classes/:?]
 	at com.rogeriogregorio.ecommercemanager.security.impl.AuthorizationServiceImpl.createDefaultAdmin(AuthorizationServiceImpl.java:52) ~[classes/:?]
 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
@@ -829,7 +829,7 @@ Caused by: jakarta.persistence.RollbackException: Error while committing the tra
 	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:249) ~[spring-aop-6.1.2.jar:6.1.2]
 	at jdk.proxy4/jdk.proxy4.$Proxy169.save(Unknown Source) ~[?:?]
 	at com.rogeriogregorio.ecommercemanager.security.impl.AuthorizationServiceImpl.lambda$createDefaultAdmin$1(AuthorizationServiceImpl.java:52) ~[classes/:?]
-	at com.rogeriogregorio.ecommercemanager.utils.impl.catchErrorImpl.catchError(ErrorHandlerImpl.java:20) ~[classes/:?]
+	at com.rogeriogregorio.ecommercemanager.utils.impl.CatchErrorImpl.catchError(ErrorHandlerImpl.java:20) ~[classes/:?]
 	at com.rogeriogregorio.ecommercemanager.security.impl.AuthorizationServiceImpl.createDefaultAdmin(AuthorizationServiceImpl.java:52) ~[classes/:?]
 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
@@ -937,7 +937,7 @@ List of constraint violations:[
 	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:249) ~[spring-aop-6.1.2.jar:6.1.2]
 	at jdk.proxy4/jdk.proxy4.$Proxy169.save(Unknown Source) ~[?:?]
 	at com.rogeriogregorio.ecommercemanager.security.impl.AuthorizationServiceImpl.lambda$createDefaultAdmin$1(AuthorizationServiceImpl.java:52) ~[classes/:?]
-	at com.rogeriogregorio.ecommercemanager.utils.impl.catchErrorImpl.catchError(ErrorHandlerImpl.java:20) ~[classes/:?]
+	at com.rogeriogregorio.ecommercemanager.utils.impl.CatchErrorImpl.catchError(ErrorHandlerImpl.java:20) ~[classes/:?]
 	at com.rogeriogregorio.ecommercemanager.security.impl.AuthorizationServiceImpl.createDefaultAdmin(AuthorizationServiceImpl.java:52) ~[classes/:?]
 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
@@ -1029,7 +1029,7 @@ List of constraint violations:[
 2024-06-09T03:35:33,458 INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
 2024-06-09T03:35:33,720 INFO  org.springframework.data.jpa.repository.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
 2024-06-09T03:35:34,065 DEBUG com.rogeriogregorio.ecommercemanager.security.config.SecurityFilterConfig - Filter 'securityFilterConfig' configured for use
-2024-06-09T03:35:34,315 ERROR com.rogeriogregorio.ecommercemanager.utils.impl.catchErrorImpl - TransactionSystemException: Could not commit JPA transaction, jakarta.persistence.RollbackException: Error while committing the transaction
+2024-06-09T03:35:34,315 ERROR com.rogeriogregorio.ecommercemanager.utils.impl.CatchErrorImpl - TransactionSystemException: Could not commit JPA transaction, jakarta.persistence.RollbackException: Error while committing the transaction
 2024-06-09T03:35:34,317 WARN  org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'authenticationController' defined in file [/home/rogerio/projetos/ecommerce-manager/target/classes/com/rogeriogregorio/ecommercemanager/controllers/AuthenticationController.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'authenticationServiceImpl' defined in file [/home/rogerio/projetos/ecommerce-manager/target/classes/com/rogeriogregorio/ecommercemanager/security/impl/AuthenticationServiceImpl.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'authenticationManager' defined in class path resource [com/rogeriogregorio/ecommercemanager/security/config/SecurityConfig.class]: Failed to instantiate [org.springframework.security.authentication.AuthenticationManager]: Factory method 'authenticationManager' threw exception with message: Error during execution of the 'getAuthenticationManager' method
 2024-06-09T03:35:34,318 INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
 2024-06-09T03:35:34,330 WARN  org.springframework.beans.factory.support.DisposableBeanAdapter - Invocation of destroy method failed on bean with name 'inMemoryDatabaseShutdownExecutor': org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database is already closed (to disable automatic closing at VM shutdown, add ";DB_CLOSE_ON_EXIT=FALSE" to the db URL) [90121-224]
@@ -1248,7 +1248,7 @@ Caused by: org.springframework.beans.factory.BeanCreationException: Error creati
 	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:789) ~[spring-beans-6.1.2.jar:6.1.2]
 	... 24 more
 Caused by: com.rogeriogregorio.ecommercemanager.exceptions.UnexpectedException: An error occurred while creating the default admin user
-	at com.rogeriogregorio.ecommercemanager.utils.impl.catchErrorImpl.catchError(ErrorHandlerImpl.java:35) ~[classes/:?]
+	at com.rogeriogregorio.ecommercemanager.utils.impl.CatchErrorImpl.catchError(ErrorHandlerImpl.java:35) ~[classes/:?]
 	at com.rogeriogregorio.ecommercemanager.security.impl.AuthorizationServiceImpl.createDefaultAdmin(AuthorizationServiceImpl.java:52) ~[classes/:?]
 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
@@ -1331,7 +1331,7 @@ Caused by: org.springframework.transaction.TransactionSystemException: Could not
 	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:249) ~[spring-aop-6.1.2.jar:6.1.2]
 	at jdk.proxy4/jdk.proxy4.$Proxy169.save(Unknown Source) ~[?:?]
 	at com.rogeriogregorio.ecommercemanager.security.impl.AuthorizationServiceImpl.lambda$createDefaultAdmin$1(AuthorizationServiceImpl.java:52) ~[classes/:?]
-	at com.rogeriogregorio.ecommercemanager.utils.impl.catchErrorImpl.catchError(ErrorHandlerImpl.java:20) ~[classes/:?]
+	at com.rogeriogregorio.ecommercemanager.utils.impl.CatchErrorImpl.catchError(ErrorHandlerImpl.java:20) ~[classes/:?]
 	at com.rogeriogregorio.ecommercemanager.security.impl.AuthorizationServiceImpl.createDefaultAdmin(AuthorizationServiceImpl.java:52) ~[classes/:?]
 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
@@ -1416,7 +1416,7 @@ Caused by: jakarta.persistence.RollbackException: Error while committing the tra
 	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:249) ~[spring-aop-6.1.2.jar:6.1.2]
 	at jdk.proxy4/jdk.proxy4.$Proxy169.save(Unknown Source) ~[?:?]
 	at com.rogeriogregorio.ecommercemanager.security.impl.AuthorizationServiceImpl.lambda$createDefaultAdmin$1(AuthorizationServiceImpl.java:52) ~[classes/:?]
-	at com.rogeriogregorio.ecommercemanager.utils.impl.catchErrorImpl.catchError(ErrorHandlerImpl.java:20) ~[classes/:?]
+	at com.rogeriogregorio.ecommercemanager.utils.impl.CatchErrorImpl.catchError(ErrorHandlerImpl.java:20) ~[classes/:?]
 	at com.rogeriogregorio.ecommercemanager.security.impl.AuthorizationServiceImpl.createDefaultAdmin(AuthorizationServiceImpl.java:52) ~[classes/:?]
 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
@@ -1524,7 +1524,7 @@ List of constraint violations:[
 	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:249) ~[spring-aop-6.1.2.jar:6.1.2]
 	at jdk.proxy4/jdk.proxy4.$Proxy169.save(Unknown Source) ~[?:?]
 	at com.rogeriogregorio.ecommercemanager.security.impl.AuthorizationServiceImpl.lambda$createDefaultAdmin$1(AuthorizationServiceImpl.java:52) ~[classes/:?]
-	at com.rogeriogregorio.ecommercemanager.utils.impl.catchErrorImpl.catchError(ErrorHandlerImpl.java:20) ~[classes/:?]
+	at com.rogeriogregorio.ecommercemanager.utils.impl.CatchErrorImpl.catchError(ErrorHandlerImpl.java:20) ~[classes/:?]
 	at com.rogeriogregorio.ecommercemanager.security.impl.AuthorizationServiceImpl.createDefaultAdmin(AuthorizationServiceImpl.java:52) ~[classes/:?]
 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
@@ -1740,10 +1740,10 @@ List of constraint violations:[
 2024-06-09T04:14:31,011 INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
 2024-06-09T04:14:31,012 INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 1 ms
 2024-06-09T04:14:31,172 INFO  com.rogeriogregorio.ecommercemanager.services.impl.UserServiceImpl - User registered: [User: id= 9537acb1-1a15-447c-9492-8d1dd3756ac5, name= Rogerio Bernardo Gregório, email= rogeriodevjava@gmail.com, phone= 988888888, CPF= 40910678839, role= CLIENT, email enabled= true]
-2024-06-09T04:14:34,212 ERROR com.rogeriogregorio.ecommercemanager.utils.impl.catchErrorImpl - ServletException: Request processing failed: org.springframework.beans.NotReadablePropertyException: Invalid property 'accountNonLocked' of bean class [com.rogeriogregorio.ecommercemanager.entities.User]: Could not find field for property during fallback access, org.springframework.beans.NotReadablePropertyException: Invalid property 'accountNonLocked' of bean class [com.rogeriogregorio.ecommercemanager.entities.User]: Could not find field for property during fallback access
+2024-06-09T04:14:34,212 ERROR com.rogeriogregorio.ecommercemanager.utils.impl.CatchErrorImpl - ServletException: Request processing failed: org.springframework.beans.NotReadablePropertyException: Invalid property 'accountNonLocked' of bean class [com.rogeriogregorio.ecommercemanager.entities.User]: Could not find field for property during fallback access, org.springframework.beans.NotReadablePropertyException: Invalid property 'accountNonLocked' of bean class [com.rogeriogregorio.ecommercemanager.entities.User]: Could not find field for property during fallback access
 2024-06-09T04:14:34,213 ERROR org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/api/v1].[dispatcherServlet] - Servlet.service() for servlet [dispatcherServlet] in context with path [/api/v1] threw exception
 com.rogeriogregorio.ecommercemanager.exceptions.HttpServletException: Error during execution of the 'doFilter' method: 
-	at com.rogeriogregorio.ecommercemanager.utils.impl.catchErrorImpl.catchError(ErrorHandlerImpl.java:30) ~[classes/:?]
+	at com.rogeriogregorio.ecommercemanager.utils.impl.CatchErrorImpl.catchError(ErrorHandlerImpl.java:30) ~[classes/:?]
 	at com.rogeriogregorio.ecommercemanager.security.config.SecurityFilterConfig.doFilterInternal(SecurityFilterConfig.java:48) ~[classes/:?]
 	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.1.2.jar:6.1.2]
 	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.3.jar:6.2.3]
@@ -1837,7 +1837,7 @@ Caused by: jakarta.servlet.ServletException: Request processing failed: org.spri
 	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63) ~[spring-security-web-6.2.3.jar:6.2.3]
 	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.3.jar:6.2.3]
 	at com.rogeriogregorio.ecommercemanager.security.config.SecurityFilterConfig.lambda$doFilterInternal$0(SecurityFilterConfig.java:49) ~[classes/:?]
-	at com.rogeriogregorio.ecommercemanager.utils.impl.catchErrorImpl.catchError(ErrorHandlerImpl.java:20) ~[classes/:?]
+	at com.rogeriogregorio.ecommercemanager.utils.impl.CatchErrorImpl.catchError(ErrorHandlerImpl.java:20) ~[classes/:?]
 	... 61 more
 Caused by: org.springframework.beans.NotReadablePropertyException: Invalid property 'accountNonLocked' of bean class [com.rogeriogregorio.ecommercemanager.entities.User]: Could not find field for property during fallback access
 	at org.springframework.data.util.DirectFieldAccessFallbackBeanWrapper.getPropertyValue(DirectFieldAccessFallbackBeanWrapper.java:55) ~[spring-data-commons-3.2.1.jar:3.2.1]
@@ -1896,7 +1896,7 @@ Caused by: org.springframework.beans.NotReadablePropertyException: Invalid prope
 	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63) ~[spring-security-web-6.2.3.jar:6.2.3]
 	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.2.3.jar:6.2.3]
 	at com.rogeriogregorio.ecommercemanager.security.config.SecurityFilterConfig.lambda$doFilterInternal$0(SecurityFilterConfig.java:49) ~[classes/:?]
-	at com.rogeriogregorio.ecommercemanager.utils.impl.catchErrorImpl.catchError(ErrorHandlerImpl.java:20) ~[classes/:?]
+	at com.rogeriogregorio.ecommercemanager.utils.impl.CatchErrorImpl.catchError(ErrorHandlerImpl.java:20) ~[classes/:?]
 	... 61 more
 2024-06-09T04:15:42,600 INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
 2024-06-09T04:15:42,611 WARN  org.springframework.beans.factory.support.DisposableBeanAdapter - Invocation of destroy method failed on bean with name 'inMemoryDatabaseShutdownExecutor': org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database is already closed (to disable automatic closing at VM shutdown, add ";DB_CLOSE_ON_EXIT=FALSE" to the db URL) [90121-224]

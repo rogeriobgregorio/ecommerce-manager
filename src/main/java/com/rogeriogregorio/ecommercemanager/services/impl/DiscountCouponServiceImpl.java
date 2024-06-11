@@ -7,7 +7,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.DiscountCouponRepository;
 import com.rogeriogregorio.ecommercemanager.services.DiscountCouponService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +22,13 @@ import java.time.Instant;
 public class DiscountCouponServiceImpl implements DiscountCouponService {
 
     private final DiscountCouponRepository discountCouponRepository;
-    private final catchError catchError;
+    private final CatchError catchError;
     private final DataMapper dataMapper;
-    private static final Logger logger = LogManager.getLogger(DiscountCouponServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(DiscountCouponServiceImpl.class);
 
     @Autowired
     public DiscountCouponServiceImpl(DiscountCouponRepository discountCouponRepository,
-                                     catchError catchError, DataMapper dataMapper) {
+                                     CatchError catchError, DataMapper dataMapper) {
 
         this.discountCouponRepository = discountCouponRepository;
         this.catchError = catchError;
@@ -49,7 +49,7 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
         DiscountCoupon discountCoupon = dataMapper.map(discountCouponRequest, DiscountCoupon.class);
 
         DiscountCoupon savedDiscountCoupon = catchError.run(() -> discountCouponRepository.save(discountCoupon));
-        logger.info("Discount coupon created: {}", savedDiscountCoupon);
+        LOGGER.info("Discount coupon created: {}", savedDiscountCoupon);
         return dataMapper.map(savedDiscountCoupon, DiscountCouponResponse.class);
     }
 
@@ -69,7 +69,7 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
         dataMapper.map(discountCouponRequest, currentDisCountCoupon);
 
         DiscountCoupon updatedDiscountCoupon = catchError.run(() -> discountCouponRepository.save(currentDisCountCoupon));
-        logger.info("Discount Coupon updated: {}", updatedDiscountCoupon);
+        LOGGER.info("Discount Coupon updated: {}", updatedDiscountCoupon);
         return dataMapper.map(updatedDiscountCoupon, DiscountCouponResponse.class);
     }
 
@@ -79,7 +79,7 @@ public class DiscountCouponServiceImpl implements DiscountCouponService {
         DiscountCoupon discountCoupon = getDiscountCouponIfExists(id);
 
         catchError.run(() -> discountCouponRepository.delete(discountCoupon));
-        logger.warn("Discount coupon deleted: {}", discountCoupon);
+        LOGGER.warn("Discount coupon deleted: {}", discountCoupon);
     }
 
     @Transactional(readOnly = true)

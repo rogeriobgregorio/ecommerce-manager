@@ -12,7 +12,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository
 import com.rogeriogregorio.ecommercemanager.services.InventoryItemService;
 import com.rogeriogregorio.ecommercemanager.services.ProductService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +29,15 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     private final InventoryItemRepository inventoryItemRepository;
     private final StockMovementRepository stockMovementRepository;
     private final ProductService productService;
-    private final catchError catchError;
+    private final CatchError catchError;
     private final DataMapper dataMapper;
-    private static final Logger logger = LogManager.getLogger(InventoryItemServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(InventoryItemServiceImpl.class);
 
     @Autowired
     public InventoryItemServiceImpl(InventoryItemRepository inventoryItemRepository,
                                     StockMovementRepository stockMovementRepository,
                                     ProductService productService,
-                                    catchError catchError,
+                                    CatchError catchError,
                                     DataMapper dataMapper) {
 
         this.inventoryItemRepository = inventoryItemRepository;
@@ -66,7 +66,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 .build();
 
         InventoryItem savedInventoryItem = catchError.run(() -> inventoryItemRepository.save(inventoryItem));
-        logger.info("Inventory item created: {}", savedInventoryItem);
+        LOGGER.info("Inventory item created: {}", savedInventoryItem);
         updateStockMovementEntrance(savedInventoryItem);
         return dataMapper.map(savedInventoryItem, InventoryItemResponse.class);
     }
@@ -88,7 +88,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 .build();
 
         InventoryItem updatedInventoryItem = catchError.run(() -> inventoryItemRepository.save(inventoryItem));
-        logger.info("Inventory item updated: {}", updatedInventoryItem);
+        LOGGER.info("Inventory item updated: {}", updatedInventoryItem);
         return dataMapper.map(updatedInventoryItem, InventoryItemResponse.class);
     }
 
@@ -98,7 +98,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
         InventoryItem inventoryItem = getInventoryItemIfExists(id);
 
         catchError.run(() -> inventoryItemRepository.delete(inventoryItem));
-        logger.warn("Inventory item deleted: {}", inventoryItem);
+        LOGGER.warn("Inventory item deleted: {}", inventoryItem);
     }
 
     public InventoryItem findInventoryItemByProduct(Product product) {
@@ -173,7 +173,7 @@ public class InventoryItemServiceImpl implements InventoryItemService {
             inventoryItem.setQuantitySold(quantitySoldUpdated);
 
             InventoryItem updatedInventoryItem = catchError.run(() -> inventoryItemRepository.save(inventoryItem));
-            logger.info("Inventory item quantity updated: {}", updatedInventoryItem);
+            LOGGER.info("Inventory item quantity updated: {}", updatedInventoryItem);
         }
     }
 
@@ -207,6 +207,6 @@ public class InventoryItemServiceImpl implements InventoryItemService {
                 .build();
 
         StockMovement stockMovementEntrance = catchError.run(() -> stockMovementRepository.save(stockMovement));
-        logger.info("Inventory movement entrance: {}", stockMovementEntrance);
+        LOGGER.info("Inventory movement entrance: {}", stockMovementEntrance);
     }
 }

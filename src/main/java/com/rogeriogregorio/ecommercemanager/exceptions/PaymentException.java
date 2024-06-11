@@ -1,5 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.exceptions;
 
+import br.com.efi.efisdk.exceptions.EfiPayException;
+
 import java.io.Serial;
 import java.io.Serializable;
 

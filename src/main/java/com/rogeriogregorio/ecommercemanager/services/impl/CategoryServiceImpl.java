@@ -7,7 +7,7 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.CategoryRepository;
 import com.rogeriogregorio.ecommercemanager.services.CategoryService;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +22,13 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
-    private final catchError catchError;
+    private final CatchError catchError;
     private final DataMapper dataMapper;
-    private static final Logger logger = LogManager.getLogger(CategoryServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(CategoryServiceImpl.class);
 
     @Autowired
     public CategoryServiceImpl(CategoryRepository categoryRepository,
-                               catchError catchError,
+                               CatchError catchError,
                                DataMapper dataMapper) {
 
         this.categoryRepository = categoryRepository;
@@ -49,7 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = dataMapper.map(categoryRequest, Category.class);
 
         Category savedCategory = catchError.run(() -> categoryRepository.save(category));
-        logger.info("Category created: {}", savedCategory);
+        LOGGER.info("Category created: {}", savedCategory);
         return dataMapper.map(savedCategory, CategoryResponse.class);
     }
 
@@ -74,7 +74,7 @@ public class CategoryServiceImpl implements CategoryService {
         dataMapper.map(categoryRequest, currentCategory);
 
         Category updatedCategory = catchError.run(() -> categoryRepository.save(currentCategory));
-        logger.info("Category updated: {}", updatedCategory);
+        LOGGER.info("Category updated: {}", updatedCategory);
         return dataMapper.map(updatedCategory, CategoryResponse.class);
     }
 
@@ -84,7 +84,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = getCategoryIfExists(id);
 
         catchError.run(() -> categoryRepository.delete(category));
-        logger.warn("Category deleted: {}", category);
+        LOGGER.warn("Category deleted: {}", category);
     }
 
     @Transactional(readOnly = true)

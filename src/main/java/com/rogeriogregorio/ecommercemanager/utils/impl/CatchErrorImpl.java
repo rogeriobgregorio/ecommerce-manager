@@ -1,15 +1,15 @@
 package com.rogeriogregorio.ecommercemanager.utils.impl;
 
 import com.rogeriogregorio.ecommercemanager.exceptions.*;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 @Component
-public class catchErrorImpl implements catchError {
+public class CatchErrorImpl implements CatchError {
 
-    private static final Logger logger = LogManager.getLogger(catchErrorImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(CatchErrorImpl.class);
 
     @Override
     public <T> T run(FunctionWithException<T> method) {
@@ -36,8 +36,8 @@ public class catchErrorImpl implements catchError {
 
     private void handleException(Exception ex) {
 
-        String errorMessage = "Error while trying to execute method " + getCallerMethodName() + ": ";
-        logger.error(errorMessage, "{}: {}, {}", ex.getClass().getSimpleName(), ex.getMessage(), ex.getCause());
+        String errorMessage = "Error while trying to execute method " + getCallerMethodName() + ": " + ex.getMessage();
+        LOGGER.error(errorMessage, ex);
 
         throw switch (ex.getClass().getSimpleName()) {
             case "JWTVerificationException", "JWTCreationException" -> new TokenJwtException(errorMessage, ex);

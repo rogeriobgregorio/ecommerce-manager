@@ -18,7 +18,7 @@ import com.rogeriogregorio.ecommercemanager.services.StockMovementService;
 import com.rogeriogregorio.ecommercemanager.services.strategy.payments.PaymentStrategy;
 import com.rogeriogregorio.ecommercemanager.services.strategy.validations.OrderStrategy;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +40,10 @@ public class PaymentServiceImpl implements PaymentService {
     private final OrderService orderService;
     private final List<OrderStrategy> orderValidators;
     private final List<PaymentStrategy> paymentMethods;
-    private final catchError catchError;
+    private final CatchError catchError;
     private final DataMapper dataMapper;
 
-    private static final Logger logger = LogManager.getLogger(PaymentServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(PaymentServiceImpl.class);
 
     @Autowired
     public PaymentServiceImpl(PaymentRepository paymentRepository,
@@ -53,7 +53,7 @@ public class PaymentServiceImpl implements PaymentService {
                               OrderService orderService,
                               List<OrderStrategy> orderValidators,
                               List<PaymentStrategy> paymentMethods,
-                              catchError catchError,
+                              CatchError catchError,
                               DataMapper dataMapper) {
 
         this.paymentRepository = paymentRepository;
@@ -83,7 +83,7 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = getPaymentStrategy(paymentRequest).createPayment(order);
 
         Payment savedPayment = catchError.run(() -> paymentRepository.save(payment));
-        logger.info("Payment with charge saved: {}", savedPayment);
+        LOGGER.info("Payment with charge saved: {}", savedPayment);
         return dataMapper.map(savedPayment, PaymentResponse.class);
     }
 
@@ -104,7 +104,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         for (Payment paymentPix : paidPixChargeList) {
             Payment savedPaymentPix = catchError.run(() -> paymentRepository.save(paymentPix));
-            logger.info("Payment pix with paid charge saved: {}", savedPaymentPix);
+            LOGGER.info("Payment pix with paid charge saved: {}", savedPaymentPix);
 
             updateInventoryStock(savedPaymentPix);
             //CompletableFuture.runAsync(() -> mailService.sendPaymentReceiptEmail(savedPaymentPix));// TODO reativar método
@@ -125,7 +125,7 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = getPaymentIfExists(id);
 
         catchError.run(() -> paymentRepository.delete(payment));
-        logger.warn("Payment deleted: {}", payment);
+        LOGGER.warn("Payment deleted: {}", payment);
     }
 
     @Transactional(readOnly = true)

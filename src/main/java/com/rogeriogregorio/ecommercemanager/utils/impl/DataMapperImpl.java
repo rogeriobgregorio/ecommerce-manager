@@ -1,7 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.utils.impl;
 
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +13,10 @@ import java.util.Map;
 public class DataMapperImpl implements DataMapper {
 
     private final ModelMapper modelMapper;
-    private final catchError catchError;
+    private final CatchError catchError;
 
     @Autowired
-    public DataMapperImpl(ModelMapper modelMapper, catchError catchError) {
+    public DataMapperImpl(ModelMapper modelMapper, CatchError catchError) {
         this.modelMapper = modelMapper;
         this.catchError = catchError;
     }

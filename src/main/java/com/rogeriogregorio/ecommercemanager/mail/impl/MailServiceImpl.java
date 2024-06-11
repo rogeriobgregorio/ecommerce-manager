@@ -12,7 +12,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.security.TokenService;
 import com.rogeriogregorio.ecommercemanager.utils.PasswordHelper;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import com.rogeriogregorio.ecommercemanager.utils.catchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import jakarta.mail.internet.MimeMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,14 +42,14 @@ public class MailServiceImpl implements MailService {
     private final UserRepository userRepository;
     private final PasswordHelper passwordHelper;
     private final TokenService tokenService;
-    private final catchError catchError;
+    private final CatchError catchError;
     private final DataMapper dataMapper;
-    private static final Logger logger = LogManager.getLogger(MailServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(MailServiceImpl.class);
 
     @Autowired
     public MailServiceImpl(JavaMailSender mailSender, UserRepository userRepository,
                            PasswordHelper passwordHelper, TokenService tokenService,
-                           catchError catchError, DataMapper dataMapper) {
+                           CatchError catchError, DataMapper dataMapper) {
 
         this.mailSender = mailSender;
         this.userRepository = userRepository;
@@ -77,7 +77,7 @@ public class MailServiceImpl implements MailService {
 
             messageHelper.setText(emailTemplate, true);
             mailSender.send(message);
-            logger.info("Email sent to: {}", emailDetails.getRecipient());
+            LOGGER.info("Email sent to: {}", emailDetails.getRecipient());
 
             return null;
         });
@@ -171,7 +171,7 @@ public class MailServiceImpl implements MailService {
         user.setEmailEnabled(true);
 
         User savedUser = catchError.run(() -> userRepository.save(user));
-        logger.info("User email verified and saved: {}", savedUser.getEmail());
+        LOGGER.info("User email verified and saved: {}", savedUser.getEmail());
     }
 
     @Transactional(readOnly = false)
@@ -182,6 +182,6 @@ public class MailServiceImpl implements MailService {
         user.setPassword(passwordEncode);
 
         User savedUser = catchError.run(() -> userRepository.save(user));
-        logger.info("User password updated: {}", savedUser);
+        LOGGER.info("User password updated: {}", savedUser);
     }
 }

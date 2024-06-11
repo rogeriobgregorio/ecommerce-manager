@@ -4,7 +4,7 @@ package com.rogeriogregorio.ecommercemanager.utils;
 import org.springframework.stereotype.Component;
 
 @Component
-public interface catchError {
+public interface CatchError {
 
     @FunctionalInterface
     interface FunctionWithException<T> {
