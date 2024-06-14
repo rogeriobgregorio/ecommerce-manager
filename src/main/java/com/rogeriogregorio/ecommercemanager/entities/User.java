@@ -16,9 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "tb_users", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "email", name = "unique_email_constraint")
-})
+@Table(name = "tb_users")
 public class User implements Serializable, UserDetails {
 
     @Serial
@@ -190,19 +188,12 @@ public class User implements Serializable, UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
-        List<GrantedAuthority> authorities = new ArrayList<>();
+        Map<UserRole, SimpleGrantedAuthority> roleAuthorityMap = new HashMap<>();
+        roleAuthorityMap.put(UserRole.CLIENT, new SimpleGrantedAuthority("ROLE_CLIENT"));
+        roleAuthorityMap.put(UserRole.MANAGER, new SimpleGrantedAuthority("ROLE_MANAGER"));
+        roleAuthorityMap.put(UserRole.ADMIN, new SimpleGrantedAuthority("ROLE_ADMIN"));
 
-        authorities.add(new SimpleGrantedAuthority("ROLE_CLIENT"));
-
-        if (this.role == UserRole.MANAGER || this.role == UserRole.ADMIN) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_MANAGER"));
-        }
-
-        if (this.role == UserRole.ADMIN) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        }
-
-        return authorities;
+        return Collections.<GrantedAuthority>singleton(roleAuthorityMap.get(this.role));
     }
 
     @JsonIgnore

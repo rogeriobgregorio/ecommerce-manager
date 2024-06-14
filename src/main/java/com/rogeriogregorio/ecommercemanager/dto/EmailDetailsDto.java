@@ -9,6 +9,7 @@ public class EmailDetailsDto implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    private String sender;
     private String recipient;
     private String subject;
     private String templateName;
@@ -18,6 +19,7 @@ public class EmailDetailsDto implements Serializable {
     }
 
     private EmailDetailsDto(Builder builder) {
+        setSender(builder.sender);
         setRecipient(builder.recipient);
         setSubject(builder.subject);
         setTemplateName(builder.templateName);
@@ -26,6 +28,14 @@ public class EmailDetailsDto implements Serializable {
 
     public static Builder newBuilder() {
         return new Builder();
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
     }
 
     public String getRecipient() {
@@ -61,12 +71,18 @@ public class EmailDetailsDto implements Serializable {
     }
 
     public static final class Builder {
+        private String sender;
         private String recipient;
         private String subject;
         private String templateName;
         private Map<String, String> replacements;
 
         private Builder() {
+        }
+
+        public Builder withSender(String sender) {
+            this.sender = sender;
+            return this;
         }
 
         public Builder withRecipient(String recipient) {

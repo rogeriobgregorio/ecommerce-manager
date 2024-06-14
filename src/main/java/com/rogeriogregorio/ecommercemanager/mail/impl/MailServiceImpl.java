@@ -65,8 +65,7 @@ public class MailServiceImpl implements MailService {
 
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper messageHelper = new MimeMessageHelper(message, true);
-
-            messageHelper.setFrom(SENDER_EMAIL);
+            messageHelper.setFrom(emailDetails.getSender());
             messageHelper.setSubject(emailDetails.getSubject());
             messageHelper.setTo(emailDetails.getRecipient());
 
@@ -78,8 +77,6 @@ public class MailServiceImpl implements MailService {
             messageHelper.setText(emailTemplate, true);
             mailSender.send(message);
             LOGGER.info("Email sent to: {}", emailDetails.getRecipient());
-
-            return null;
         });
     }
 
@@ -92,6 +89,7 @@ public class MailServiceImpl implements MailService {
         replacements.put("#{token}", token);
 
         sendEmail(EmailDetailsDto.newBuilder()
+                .withSender(SENDER_EMAIL)
                 .withSubject(EMAIL_VERIFICATION_PROCESS)
                 .withRecipient(user.getEmail())
                 .withTemplateName(VERIFICATION_EMAIL_HTML)
@@ -108,6 +106,7 @@ public class MailServiceImpl implements MailService {
         replacements.put("#{receipt}", receiptPayment.toString());
 
         sendEmail(EmailDetailsDto.newBuilder()
+                .withSender(SENDER_EMAIL)
                 .withSubject(RECEIPT_PAYMENT)
                 .withRecipient(receiptPayment.getClienteEmail())
                 .withTemplateName(RECEIPT_PAYMENT_HTML)
@@ -126,6 +125,7 @@ public class MailServiceImpl implements MailService {
         replacements.put("#{token}", token);
 
         sendEmail(EmailDetailsDto.newBuilder()
+                .withSender(SENDER_EMAIL)
                 .withSubject(PASSWORD_RESET_PROCESS)
                 .withRecipient(user.getEmail())
                 .withTemplateName(PASSWORD_RESET_HTML)
@@ -137,7 +137,6 @@ public class MailServiceImpl implements MailService {
     private String getEmailTemplate(String path) {
 
         ClassPathResource pathResource = new ClassPathResource(path);
-
         return catchError.run(() -> new String(pathResource.getInputStream()
                 .readAllBytes(), StandardCharsets.UTF_8));
     }
@@ -145,7 +144,6 @@ public class MailServiceImpl implements MailService {
     public UserResponse validateEmailVerificationToken(String token) {
 
         User user = tokenService.validateEmailToken(token);
-
         saveEmailAsEnabled(user);
         return dataMapper.map(user, UserResponse.class);
     }
@@ -153,7 +151,6 @@ public class MailServiceImpl implements MailService {
     public void validatePasswordResetToken(PasswordResetDto passwordReset) {
 
         User user = tokenService.validateEmailToken(passwordReset.getToken());
-
         user.setPassword(passwordReset.getPassword());
         saveNewPassword(user);
     }
@@ -169,7 +166,6 @@ public class MailServiceImpl implements MailService {
     private void saveEmailAsEnabled(User user) {
 
         user.setEmailEnabled(true);
-
         User savedUser = catchError.run(() -> userRepository.save(user));
         LOGGER.info("User email verified and saved: {}", savedUser.getEmail());
     }
@@ -180,7 +176,6 @@ public class MailServiceImpl implements MailService {
         passwordHelper.validate(user.getPassword());
         String passwordEncode = passwordHelper.enconde(user.getPassword());
         user.setPassword(passwordEncode);
-
         User savedUser = catchError.run(() -> userRepository.save(user));
         LOGGER.info("User password updated: {}", savedUser);
     }

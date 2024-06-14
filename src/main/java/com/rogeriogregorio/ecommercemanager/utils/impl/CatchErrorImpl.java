@@ -64,9 +64,7 @@ public class CatchErrorImpl implements CatchError {
 
         String errorMessage = "Error while executing method " + getCallerMethodName() + ": " + ex.getMessage();
         LOGGER.error(errorMessage, ex);
-
-        ExceptionCreator exception = exceptionMap.getOrDefault(ex.getClass(), UnexpectedException::new);
-        throw exception.create(errorMessage, ex);
+        throw exceptionMap.getOrDefault(ex.getClass(), UnexpectedException::new).create(errorMessage, ex);
     }
 
     private String getCallerMethodName() {
