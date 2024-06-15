@@ -48,10 +48,7 @@ public class SecurityFilterConfig extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
-        catchError.run(() -> {
-            filterChain.doFilter(request, response);
-            return null;
-        });
+        catchError.run(() -> filterChain.doFilter(request, response));
     }
 
     private String recoverToken(HttpServletRequest httpServletRequest) {

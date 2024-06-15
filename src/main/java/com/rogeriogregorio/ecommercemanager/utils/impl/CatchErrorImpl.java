@@ -16,27 +16,28 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionException;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 public class CatchErrorImpl implements CatchError {
 
     private static final Logger LOGGER = LogManager.getLogger(CatchErrorImpl.class);
-    private final Map<Class<? extends Exception>, ExceptionCreator> exceptionMap;
+    private static final Map<Class<? extends Exception>, ExceptionCreator> EXCEPTION_MAP = new HashMap<>();
 
-    public CatchErrorImpl() {
-        exceptionMap = new HashMap<>();
-        exceptionMap.put(JWTVerificationException.class, TokenJwtException::new);
-        exceptionMap.put(JWTCreationException.class, TokenJwtException::new);
-        exceptionMap.put(TransactionException.class, RepositoryException::new);
-        exceptionMap.put(DataAccessException.class, RepositoryException::new);
-        exceptionMap.put(UsernameNotFoundException.class, NotFoundException::new);
-        exceptionMap.put(ServletException.class, HttpServletException::new);
-        exceptionMap.put(MappingException.class, DataMapperException::new);
-        exceptionMap.put(MessagingException.class, MailException::new);
-        exceptionMap.put(EfiPayException.class, PaymentException::new);
-        exceptionMap.put(IOException.class, IOProcessException::new);
+    static {
+        EXCEPTION_MAP.put(JWTVerificationException.class, TokenJwtException::new);
+        EXCEPTION_MAP.put(JWTCreationException.class, TokenJwtException::new);
+        EXCEPTION_MAP.put(TransactionException.class, RepositoryException::new);
+        EXCEPTION_MAP.put(DataAccessException.class, RepositoryException::new);
+        EXCEPTION_MAP.put(UsernameNotFoundException.class, NotFoundException::new);
+        EXCEPTION_MAP.put(ServletException.class, HttpServletException::new);
+        EXCEPTION_MAP.put(MappingException.class, DataMapperException::new);
+        EXCEPTION_MAP.put(MessagingException.class, MailException::new);
+        EXCEPTION_MAP.put(EfiPayException.class, PaymentException::new);
+        EXCEPTION_MAP.put(IOException.class, IOProcessException::new);
     }
 
     @Override
@@ -45,7 +46,7 @@ public class CatchErrorImpl implements CatchError {
         try {
             return method.run();
         } catch (Exception ex) {
-            handleException(ex);
+            throwException(ex);
             return null;
         }
     }
@@ -56,28 +57,25 @@ public class CatchErrorImpl implements CatchError {
         try {
             method.run();
         } catch (Exception ex) {
-            handleException(ex);
+            throwException(ex);
         }
     }
 
-    private void handleException(Exception ex) {
+    private void throwException(Exception ex) {
 
         String errorMessage = "Error while executing method " + getCallerMethodName() + ": " + ex.getMessage();
         LOGGER.error(errorMessage, ex);
-        throw exceptionMap.getOrDefault(ex.getClass(), UnexpectedException::new).create(errorMessage, ex);
+        throw EXCEPTION_MAP.getOrDefault(ex.getClass(), UnexpectedException::new).create(errorMessage, ex);
     }
 
     private String getCallerMethodName() {
 
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-
-        for (StackTraceElement element : stackTrace) {
-            String methodName = element.getMethodName();
-            if (!methodName.equals("getStackTrace") && !methodName.equals("getCallerMethodName")) {
-                return methodName;
-            }
-        }
-
-        return "unidentified";
+        Set<String> excludedMethods = Set.of("getStackTrace", "getCallerMethodName");
+        return Arrays.stream(Thread.currentThread().getStackTrace())
+                .filter(element -> !excludedMethods.contains(element.getMethodName()))
+                .skip(1)
+                .findFirst()
+                .map(StackTraceElement::getMethodName)
+                .orElse("unidentified");
     }
 }
