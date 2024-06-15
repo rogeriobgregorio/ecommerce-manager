@@ -48,8 +48,8 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public Page<ProductResponse> findAllProducts(Pageable pageable) {
 
-        return catchError.run(() -> productRepository.findAll(pageable)
-                .map(product -> dataMapper.map(product, ProductResponse.class)));
+        return catchError.run(() -> productRepository.findAll(pageable))
+                .map(product -> dataMapper.map(product, ProductResponse.class));
     }
 
     @Transactional
@@ -67,9 +67,9 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public ProductResponse findProductById(Long id) {
 
-        return catchError.run(() -> productRepository.findById(id)
+        return catchError.run(() -> productRepository.findById(id))
                 .map(product -> dataMapper.map(product, ProductResponse.class))
-                .orElseThrow(() -> new NotFoundException("Product response not found with ID: " + id + ".")));
+                .orElseThrow(() -> new NotFoundException("Product response not found with ID: " + id + "."));
     }
 
     @Transactional
@@ -97,14 +97,14 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public Page<ProductResponse> findProductByName(String name, Pageable pageable) {
 
-        return catchError.run(() -> productRepository.findByName(name, pageable)
-                .map(product -> dataMapper.map(product, ProductResponse.class)));
+        return catchError.run(() -> productRepository.findByName(name, pageable))
+                .map(product -> dataMapper.map(product, ProductResponse.class));
     }
 
     public Product getProductIfExists(Long id) {
 
-        return catchError.run(() -> productRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Product response not found with ID: " + id + ".")));
+        return catchError.run(() -> productRepository.findById(id))
+                .orElseThrow(() -> new NotFoundException("Product response not found with ID: " + id + "."));
     }
 
     private Set<Category> validateCategory(ProductRequest productRequest) {

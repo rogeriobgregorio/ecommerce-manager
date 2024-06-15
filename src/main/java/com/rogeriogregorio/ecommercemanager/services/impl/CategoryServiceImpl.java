@@ -39,8 +39,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     public Page<CategoryResponse> findAllCategories(Pageable pageable) {
 
-        return catchError.run(() -> categoryRepository.findAll(pageable)
-                .map(category -> dataMapper.map(category, CategoryResponse.class)));
+        return catchError.run(() -> categoryRepository.findAll(pageable))
+                .map(category -> dataMapper.map(category, CategoryResponse.class));
     }
 
     @Transactional
@@ -56,9 +56,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     public CategoryResponse findCategoryById(Long id) {
 
-        return catchError.run(() -> categoryRepository.findById(id)
+        return catchError.run(() -> categoryRepository.findById(id))
                 .map(category -> dataMapper.map(category, CategoryResponse.class))
-                .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + ".")));
+                .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + "."));
     }
 
     @Transactional(readOnly = true)
@@ -90,13 +90,13 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional(readOnly = true)
     public Page<CategoryResponse> findCategoryByName(String name, Pageable pageable) {
 
-        return catchError.run(() -> categoryRepository.findByName(name, pageable)
-                .map(category -> dataMapper.map(category, CategoryResponse.class)));
+        return catchError.run(() -> categoryRepository.findByName(name, pageable))
+                .map(category -> dataMapper.map(category, CategoryResponse.class));
     }
 
     private Category getCategoryIfExists(Long id) {
 
-        return catchError.run(() -> categoryRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + ".")));
+        return catchError.run(() -> categoryRepository.findById(id))
+                .orElseThrow(() -> new NotFoundException("Category not found with ID: " + id + "."));
     }
 }

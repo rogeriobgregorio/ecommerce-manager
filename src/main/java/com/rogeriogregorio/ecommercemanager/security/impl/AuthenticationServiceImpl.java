@@ -1,8 +1,8 @@
 package com.rogeriogregorio.ecommercemanager.security.impl;
 
+import com.rogeriogregorio.ecommercemanager.dto.UserAuthDetailsDto;
 import com.rogeriogregorio.ecommercemanager.dto.requests.LoginRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.LoginResponse;
-import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.security.AuthenticationService;
 import com.rogeriogregorio.ecommercemanager.security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,14 +29,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
-
-        UsernamePasswordAuthenticationToken usernamePassword =
-                new UsernamePasswordAuthenticationToken(email, password);
+        UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(email, password);
 
         Authentication authenticate = authenticationManager.authenticate(usernamePassword);
-
-        String token = tokenService.generateAuthenticationToken((User) authenticate.getPrincipal());
-
+        String token = tokenService.generateAuthenticationToken((UserAuthDetailsDto) authenticate.getPrincipal());
         return new LoginResponse(token);
     }
 }

@@ -158,8 +158,8 @@ public class MailServiceImpl implements MailService {
     @Transactional(readOnly = true)
     private User findUserByEmail(String email) {
 
-        return catchError.run(() -> userRepository.findUserByEmail(email)
-                .orElseThrow(() -> new NotFoundException("The user was not found with the email: " + email)));
+        return catchError.run(() -> userRepository.findUserByEmail(email)).
+                orElseThrow(() -> new NotFoundException("The user was not found with the email: " + email));
     }
 
     @Transactional(readOnly = false)

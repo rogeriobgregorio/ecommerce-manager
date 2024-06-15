@@ -44,8 +44,8 @@ public class AddressServiceImpl implements AddressService {
     @Transactional(readOnly = true)
     public Page<AddressResponse> findAllAddresses(Pageable pageable) {
 
-        return catchError.run(() -> addressRepository.findAll(pageable)
-                .map(address -> dataMapper.map(address, AddressResponse.class)));
+        return catchError.run(() -> addressRepository.findAll(pageable))
+                .map(address -> dataMapper.map(address, AddressResponse.class));
     }
 
     @Transactional
@@ -65,9 +65,9 @@ public class AddressServiceImpl implements AddressService {
     @Transactional(readOnly = true)
     public AddressResponse findAddressById(UUID id) {
 
-        return catchError.run(() -> addressRepository.findById(id)
+        return catchError.run(() -> addressRepository.findById(id))
                 .map(address -> dataMapper.map(address, AddressResponse.class))
-                .orElseThrow(() -> new NotFoundException("Address not found with ID: " + id + ".")));
+                .orElseThrow(() -> new NotFoundException("Address not found with ID: " + id + "."));
     }
 
     @Transactional
@@ -95,7 +95,7 @@ public class AddressServiceImpl implements AddressService {
 
     private Address getAddressIfExists(UUID id) {
 
-        return catchError.run(() -> addressRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Address not found with ID: " + id + ".")));
+        return catchError.run(() -> addressRepository.findById(id))
+                .orElseThrow(() -> new NotFoundException("Address not found with ID: " + id + "."));
     }
 }

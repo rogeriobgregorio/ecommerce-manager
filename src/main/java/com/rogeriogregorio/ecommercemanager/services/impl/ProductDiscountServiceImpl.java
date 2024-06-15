@@ -38,8 +38,8 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
     @Transactional(readOnly = true)
     public Page<ProductDiscountResponse> findAllProductDiscounts(Pageable pageable) {
 
-        return catchError.run(() -> productDiscountRepository.findAll(pageable)
-                .map(productDiscount -> dataMapper.map(productDiscount, ProductDiscountResponse.class)));
+        return catchError.run(() -> productDiscountRepository.findAll(pageable))
+                .map(productDiscount -> dataMapper.map(productDiscount, ProductDiscountResponse.class));
     }
 
     @Transactional
@@ -56,9 +56,9 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
     @Transactional(readOnly = true)
     public ProductDiscountResponse findProductDiscountById(Long id) {
 
-        return catchError.run(() -> productDiscountRepository.findById(id)
+        return catchError.run(() -> productDiscountRepository.findById(id))
                 .map(productDiscount -> dataMapper.map(productDiscount, ProductDiscountResponse.class))
-                .orElseThrow(() -> new NotFoundException("Product discount not found with ID: " + id + ".")));
+                .orElseThrow(() -> new NotFoundException("Product discount not found with ID: " + id + "."));
     }
 
     @Transactional
@@ -84,8 +84,8 @@ public class ProductDiscountServiceImpl implements ProductDiscountService {
 
     public ProductDiscount getProductDiscountIfExists(Long id) {
 
-        return catchError.run(() -> productDiscountRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Product discount response not found with ID: " + id + ".")));
+        return catchError.run(() -> productDiscountRepository.findById(id))
+                .orElseThrow(() -> new NotFoundException("Product discount response not found with ID: " + id + "."));
     }
 
     private void validateProductDiscountDates(ProductDiscountRequest productDiscountRequest) {

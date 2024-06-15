@@ -34,7 +34,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) {
 
-        return catchError.run(() -> httpSecurity.cors(Customizer.withDefaults()).csrf(AbstractHttpConfigurer::disable)
+        return catchError.run(() -> httpSecurity.cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/register").permitAll()
@@ -115,7 +116,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/product-reviews").hasAnyRole("ADMIN", "MANAGER", "CLIENT")
                         .requestMatchers(HttpMethod.DELETE, "/product-reviews/{productId}/{userId}").hasAnyRole("ADMIN", "MANAGER")
                         .requestMatchers(HttpMethod.GET, "/product-reviews/{productId}/{userId}").hasAnyRole("ADMIN", "MANAGER", "CLIENT")
-                        .anyRequest().authenticated()).addFilterBefore(securityFilterConfig, UsernamePasswordAuthenticationFilter.class)
+                        .anyRequest()
+                        .authenticated())
+                .addFilterBefore(securityFilterConfig, UsernamePasswordAuthenticationFilter.class)
                 .build());
     }
 

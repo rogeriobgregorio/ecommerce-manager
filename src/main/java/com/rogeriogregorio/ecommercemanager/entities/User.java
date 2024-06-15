@@ -6,9 +6,6 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.br.CPF;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -17,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "tb_users")
-public class User implements Serializable, UserDetails {
+public class User implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -131,6 +128,11 @@ public class User implements Serializable, UserDetails {
         this.cpf = cpf;
     }
 
+    @JsonIgnore
+    public String getPassword() {
+        return password;
+    }
+
     public void setPassword(String password) {
         this.password = password;
     }
@@ -182,53 +184,6 @@ public class User implements Serializable, UserDetails {
     @JsonIgnore
     public Set<ProductReview> getProductReviews() {
         return reviews;
-    }
-
-    @JsonIgnore
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-
-        Map<UserRole, SimpleGrantedAuthority> roleAuthorityMap = new HashMap<>();
-        roleAuthorityMap.put(UserRole.CLIENT, new SimpleGrantedAuthority("ROLE_CLIENT"));
-        roleAuthorityMap.put(UserRole.MANAGER, new SimpleGrantedAuthority("ROLE_MANAGER"));
-        roleAuthorityMap.put(UserRole.ADMIN, new SimpleGrantedAuthority("ROLE_ADMIN"));
-
-        return Collections.<GrantedAuthority>singleton(roleAuthorityMap.get(this.role));
-    }
-
-    @JsonIgnore
-    public String getPassword() {
-        return password;
-    }
-
-    @JsonIgnore
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isEnabled() {
-        return true;
     }
 
     @Override

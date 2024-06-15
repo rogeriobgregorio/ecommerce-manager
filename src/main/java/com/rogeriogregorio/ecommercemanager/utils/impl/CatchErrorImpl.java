@@ -70,7 +70,7 @@ public class CatchErrorImpl implements CatchError {
 
     private String getCallerMethodName() {
 
-        Set<String> excludedMethods = Set.of("getStackTrace", "getCallerMethodName");
+        Set<String> excludedMethods = Set.of("getStackTrace", "getCallerMethodName", "run");
         return Arrays.stream(Thread.currentThread().getStackTrace())
                 .filter(element -> !excludedMethods.contains(element.getMethodName()))
                 .skip(1)

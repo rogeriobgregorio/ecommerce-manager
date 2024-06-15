@@ -51,8 +51,8 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public Page<OrderResponse> findAllOrders(Pageable pageable) {
 
-        return catchError.run(() -> orderRepository.findAll(pageable)
-                .map(order -> dataMapper.map(order, OrderResponse.class)));
+        return catchError.run(() -> orderRepository.findAll(pageable))
+                .map(order -> dataMapper.map(order, OrderResponse.class));
     }
 
     @Transactional
@@ -74,9 +74,9 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public OrderResponse findOrderById(Long id) {
 
-        return catchError.run(() -> orderRepository.findById(id)
+        return catchError.run(() -> orderRepository.findById(id))
                 .map(order -> dataMapper.map(order, OrderResponse.class))
-                .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + ".")));
+                .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + "."));
     }
 
     @Transactional
@@ -132,14 +132,14 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public Page<OrderResponse> findOrderByClientId(Long id, Pageable pageable) {
 
-        return catchError.run(() -> orderRepository.findByClient_Id(id, pageable)
-                .map(order -> dataMapper.map(order, OrderResponse.class)));
+        return catchError.run(() -> orderRepository.findByClient_Id(id, pageable))
+                .map(order -> dataMapper.map(order, OrderResponse.class));
     }
 
     public Order getOrderIfExists(Long id) {
 
-        return catchError.run(() -> orderRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + ".")));
+        return catchError.run(() -> orderRepository.findById(id))
+                .orElseThrow(() -> new NotFoundException("Order not found with ID: " + id + "."));
     }
 
     @Transactional

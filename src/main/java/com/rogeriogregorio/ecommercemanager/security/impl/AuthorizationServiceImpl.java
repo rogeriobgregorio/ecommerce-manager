@@ -1,5 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.security.impl;
 
+import com.rogeriogregorio.ecommercemanager.dto.UserAuthDetailsDto;
 import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
@@ -8,7 +9,6 @@ import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,20 +18,22 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Value("${api.security.password.secret}")
     private String secretPassword;
     private final UserRepository userRepository;
-    private final CatchError handler;
+    private final CatchError catchError;
 
     @Autowired
     public AuthorizationServiceImpl(UserRepository userRepository,
                                     CatchError handler) {
 
         this.userRepository = userRepository;
-        this.handler = handler;
+        this.catchError = handler;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) {
+    public UserAuthDetailsDto loadUserByUsername(String email) {
 
-        return handler.run(() -> userRepository.findByEmail(email));
+        return catchError.run(() -> userRepository.findByEmail(email))
+                .map(UserAuthDetailsDto::new)
+                .orElseThrow(() -> new RuntimeException("User cannot be loaded by email"));
     }
 
     @PostConstruct
@@ -48,6 +50,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 .withRole(UserRole.ADMIN)
                 .build();
 
-        handler.run(() -> userRepository.save(admin));
+        catchError.run(() -> userRepository.save(admin));
     }
 }

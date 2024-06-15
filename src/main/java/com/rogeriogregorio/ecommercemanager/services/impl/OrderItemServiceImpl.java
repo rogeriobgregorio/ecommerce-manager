@@ -71,9 +71,9 @@ public class OrderItemServiceImpl implements OrderItemService {
 
         OrderItemPK id = buildOrderItemPK(orderId, itemId);
 
-        return catchError.run(() -> orderItemRepository.findById(id)
+        return catchError.run(() -> orderItemRepository.findById(id))
                 .map(orderItem -> dataMapper.map(orderItem, OrderItemResponse.class))
-                .orElseThrow(() -> new NotFoundException("Item not found with ID: " + id + ".")));
+                .orElseThrow(() -> new NotFoundException("Item not found with ID: " + id + "."));
     }
 
     @Transactional

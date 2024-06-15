@@ -70,8 +70,8 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional(readOnly = true)
     public Page<PaymentResponse> findAllPayments(Pageable pageable) {
 
-        return catchError.run(() -> paymentRepository.findAll(pageable)
-                .map(payment -> dataMapper.map(payment, PaymentResponse.class)));
+        return catchError.run(() -> paymentRepository.findAll(pageable))
+                .map(payment -> dataMapper.map(payment, PaymentResponse.class));
     }
 
     @Transactional
@@ -114,9 +114,9 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional(readOnly = true)
     public PaymentResponse findPaymentById(Long id) {
 
-        return catchError.run(() -> paymentRepository.findById(id)
+        return catchError.run(() -> paymentRepository.findById(id))
                 .map(payment -> dataMapper.map(payment, PaymentResponse.class))
-                .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + ".")));
+                .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + "."));
     }
 
     @Transactional
@@ -131,14 +131,14 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional(readOnly = true)
     private Payment findByTxId(String txId) {
 
-        return catchError.run(() -> paymentRepository.findByTxId(txId)
-                .orElseThrow(() -> new NotFoundException("Payment not found with txId: " + txId + ".")));
+        return catchError.run(() -> paymentRepository.findByTxId(txId))
+                .orElseThrow(() -> new NotFoundException("Payment not found with txId: " + txId + "."));
     }
 
     public Payment getPaymentIfExists(Long id) {
 
-        return catchError.run(() -> paymentRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + ".")));
+        return catchError.run(() -> paymentRepository.findById(id))
+                .orElseThrow(() -> new NotFoundException("Payment not found with ID: " + id + "."));
     }
 
     private void updateInventoryStock(Payment payment) {

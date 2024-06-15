@@ -43,8 +43,8 @@ public class StockMovementServiceImpl implements StockMovementService {
     @Transactional(readOnly = true)
     public Page<StockMovementResponse> findAllStockMovements(Pageable pageable) {
 
-        return catchError.run(() -> stockMovementRepository.findAll(pageable)
-                .map(stockMovement -> dataMapper.map(stockMovement, StockMovementResponse.class)));
+        return catchError.run(() -> stockMovementRepository.findAll(pageable))
+                .map(stockMovement -> dataMapper.map(stockMovement, StockMovementResponse.class));
     }
 
     @Transactional
@@ -67,9 +67,9 @@ public class StockMovementServiceImpl implements StockMovementService {
     @Transactional(readOnly = true)
     public StockMovementResponse findStockMovementById(Long id) {
 
-        return catchError.run(() -> stockMovementRepository.findById(id)
+        return catchError.run(() -> stockMovementRepository.findById(id))
                 .map(stockMovement -> dataMapper.map(stockMovement, StockMovementResponse.class))
-                .orElseThrow(() -> new NotFoundException("Inventory movement not found with ID: " + id + ".")));
+                .orElseThrow(() -> new NotFoundException("Inventory movement not found with ID: " + id + "."));
     }
 
     @Transactional
@@ -100,8 +100,8 @@ public class StockMovementServiceImpl implements StockMovementService {
 
     public StockMovement getUserIfExists(Long id) {
 
-        return catchError.run(() -> stockMovementRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Inventory movement not found with ID: " + id + ".")));
+        return catchError.run(() -> stockMovementRepository.findById(id))
+                .orElseThrow(() -> new NotFoundException("Inventory movement not found with ID: " + id + "."));
     }
 
     public void updateStockMovementExit(Order order) {

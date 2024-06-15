@@ -50,8 +50,8 @@ public class ProductReviewServiceImpl implements ProductReviewService {
     @Transactional(readOnly = true)
     public Page<ProductReviewResponse> findAllProductReviews(Pageable pageable) {
 
-        return catchError.run(() -> productReviewRepository.findAll(pageable)
-                .map(productReview -> dataMapper.map(productReview, ProductReviewResponse.class)));
+        return catchError.run(() -> productReviewRepository.findAll(pageable))
+                .map(productReview -> dataMapper.map(productReview, ProductReviewResponse.class));
     }
 
     @Transactional
@@ -69,9 +69,9 @@ public class ProductReviewServiceImpl implements ProductReviewService {
 
         ProductReviewPK id = buildProductReviewPK(productId, userId);
 
-        return catchError.run(() -> productReviewRepository.findById(id)
+        return catchError.run(() -> productReviewRepository.findById(id))
                 .map(productReview -> dataMapper.map(productReview, ProductReviewResponse.class))
-                .orElseThrow(() -> new NotFoundException("Product review not found with ID: " + id + ".")));
+                .orElseThrow(() -> new NotFoundException("Product review not found with ID: " + id + "."));
     }
 
     @Transactional

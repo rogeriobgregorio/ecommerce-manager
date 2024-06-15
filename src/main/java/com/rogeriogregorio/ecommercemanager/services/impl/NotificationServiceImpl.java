@@ -38,8 +38,8 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional(readOnly = true)
     public Page<NotificationResponse> findAllNotifications(Pageable pageable) {
 
-        return catchError.run(() -> notificationRepository.findAll(pageable)
-                .map(notification -> dataMapper.map(notification, NotificationResponse.class)));
+        return catchError.run(() -> notificationRepository.findAll(pageable))
+                .map(notification -> dataMapper.map(notification, NotificationResponse.class));
     }
 
     @Transactional
@@ -56,9 +56,9 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional(readOnly = true)
     public NotificationResponse findNotificationById(Long id) {
 
-        return catchError.run(() -> notificationRepository.findById(id)
+        return catchError.run(() -> notificationRepository.findById(id))
                 .map(notification -> dataMapper.map(notification, NotificationResponse.class))
-                .orElseThrow(() -> new NotFoundException("Notification not found with ID: " + id + ".")));
+                .orElseThrow(() -> new NotFoundException("Notification not found with ID: " + id + "."));
     }
 
     @Transactional
@@ -84,8 +84,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     private Notification getNotificationIfExists(Long id) {
 
-        return catchError.run(() -> notificationRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Notification not found with ID: " + id + ".")));
+        return catchError.run(() -> notificationRepository.findById(id))
+                .orElseThrow(() -> new NotFoundException("Notification not found with ID: " + id + "."));
     }
 
     private void validateNotificationDates(NotificationRequest notificationRequest) {

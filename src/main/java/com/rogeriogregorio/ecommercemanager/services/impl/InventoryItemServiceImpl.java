@@ -50,8 +50,8 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Transactional(readOnly = true)
     public Page<InventoryItemResponse> findAllInventoryItems(Pageable pageable) {
 
-        return catchError.run(() -> inventoryItemRepository.findAll(pageable)
-                .map(inventoryItem -> dataMapper.map(inventoryItem, InventoryItemResponse.class)));
+        return catchError.run(() -> inventoryItemRepository.findAll(pageable))
+                .map(inventoryItem -> dataMapper.map(inventoryItem, InventoryItemResponse.class));
     }
 
     @Transactional
@@ -74,9 +74,9 @@ public class InventoryItemServiceImpl implements InventoryItemService {
     @Transactional(readOnly = true)
     public InventoryItemResponse findInventoryItemById(Long id) {
 
-        return catchError.run(() -> inventoryItemRepository.findById(id)
+        return catchError.run(() -> inventoryItemRepository.findById(id))
                 .map(inventoryItem -> dataMapper.map(inventoryItem, InventoryItemResponse.class))
-                .orElseThrow(() -> new NotFoundException("Inventory item not found with ID: " + id + ".")));
+                .orElseThrow(() -> new NotFoundException("Inventory item not found with ID: " + id + "."));
     }
 
     @Transactional
@@ -103,8 +103,8 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
     public InventoryItem findInventoryItemByProduct(Product product) {
 
-        return catchError.run(() -> inventoryItemRepository.findByProduct(product)
-                .orElseThrow(() -> new NotFoundException("Item not found in the inventory: " + product + ".")));
+        return catchError.run(() -> inventoryItemRepository.findByProduct(product))
+                .orElseThrow(() -> new NotFoundException("Item not found in the inventory: " + product + "."));
     }
 
     public void validateItemListAvailability(Order order) {
@@ -193,8 +193,8 @@ public class InventoryItemServiceImpl implements InventoryItemService {
 
     public InventoryItem getInventoryItemIfExists(Long id) {
 
-        return catchError.run(() -> inventoryItemRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Inventory item not found with ID: " + id + ".")));
+        return catchError.run(() -> inventoryItemRepository.findById(id))
+                .orElseThrow(() -> new NotFoundException("Inventory item not found with ID: " + id + "."));
     }
 
     private void updateStockMovementEntrance(InventoryItem inventoryItem) {

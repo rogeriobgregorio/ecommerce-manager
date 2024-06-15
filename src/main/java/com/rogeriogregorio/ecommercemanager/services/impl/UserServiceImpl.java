@@ -48,8 +48,8 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public Page<UserResponse> findAllUsers(Pageable pageable) {
 
-        return catchError.run(() -> userRepository.findAll(pageable)
-                .map(user -> dataMapper.map(user, UserResponse.class)));
+        return catchError.run(() -> userRepository.findAll(pageable))
+                .map(user -> dataMapper.map(user, UserResponse.class));
     }
 
     @Transactional
@@ -73,9 +73,9 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserResponse findUserById(UUID id) {
 
-        return catchError.run(() -> userRepository.findById(id)
+        return catchError.run(() -> userRepository.findById(id))
                 .map(user -> dataMapper.map(user, UserResponse.class))
-                .orElseThrow(() -> new NotFoundException("User response not found with ID: " + id + ".")));
+                .orElseThrow(() -> new NotFoundException("User response not found with ID: " + id + "."));
     }
 
     @Transactional
@@ -115,14 +115,14 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public Page<UserResponse> findUserByName(String name, Pageable pageable) {
 
-        return catchError.run(() -> userRepository.findByName(name, pageable)
-                .map(user -> dataMapper.map(user, UserResponse.class)));
+        return catchError.run(() -> userRepository.findByName(name, pageable))
+                .map(user -> dataMapper.map(user, UserResponse.class));
     }
 
     public User getUserIfExists(UUID id) {
 
-        return catchError.run(() -> userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User response not found with ID: " + id + ".")));
+        return catchError.run(() -> userRepository.findById(id))
+                .orElseThrow(() -> new NotFoundException("User response not found with ID: " + id + "."));
     }
 
     public void saveUserAddress(User user) {

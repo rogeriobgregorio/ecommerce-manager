@@ -3,12 +3,13 @@ package com.rogeriogregorio.ecommercemanager.security.impl;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.rogeriogregorio.ecommercemanager.dto.UserAuthDetailsDto;
 import com.rogeriogregorio.ecommercemanager.dto.UserTokenDetailsDto;
 import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.security.TokenService;
-import com.rogeriogregorio.ecommercemanager.services.strategy.validations.TokenStrategy;
+import com.rogeriogregorio.ecommercemanager.services.strategy.validations.TokenClaimStrategy;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,12 +30,12 @@ public class TokenServiceImpl implements TokenService {
     @Value("${api.security.token.secret}")
     private String secretKey;
     private final UserRepository userRepository;
-    private final List<TokenStrategy> tokenValidators;
+    private final List<TokenClaimStrategy> tokenValidators;
     private final CatchError catchError;
 
     @Autowired
     public TokenServiceImpl(UserRepository userRepository,
-                            List<TokenStrategy> tokenValidators,
+                            List<TokenClaimStrategy> tokenValidators,
                             CatchError catchError) {
 
         this.userRepository = userRepository;
@@ -46,11 +47,11 @@ public class TokenServiceImpl implements TokenService {
         return Algorithm.HMAC256(secretKey);
     }
 
-    public String generateAuthenticationToken(User user) {
+    public String generateAuthenticationToken(UserAuthDetailsDto userAuthDetailsDto) {
 
         return catchError.run(() -> JWT.create()
                 .withIssuer(ISSUER_NAME)
-                .withSubject(user.getEmail())
+                .withSubject(userAuthDetailsDto.getUsername())
                 .withExpiresAt(EXPIRY_TIME)
                 .sign(getAlgorithm()));
     }
@@ -95,7 +96,7 @@ public class TokenServiceImpl implements TokenService {
     @Transactional(readOnly = true)
     private User findUserByIdFromToken(String userIdFromToken) {
 
-        return catchError.run(() -> userRepository.findById(UUID.fromString(userIdFromToken))
-                .orElseThrow(() -> new NotFoundException("The user with the token ID was not found")));
+        return catchError.run(() -> userRepository.findById(UUID.fromString(userIdFromToken)))
+                .orElseThrow(() -> new NotFoundException("The user with the token ID was not found"));
     }
 }
