@@ -6,6 +6,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.rogeriogregorio.ecommercemanager.exceptions.*;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import jakarta.mail.MessagingException;
+import jakarta.persistence.PersistenceException;
 import jakarta.servlet.ServletException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,11 +29,12 @@ public class CatchErrorImpl implements CatchError {
     private static final Map<Class<? extends Exception>, ExceptionCreator> EXCEPTION_MAP = new HashMap<>();
 
     static {
-        EXCEPTION_MAP.put(JWTVerificationException.class, TokenJwtException::new);
-        EXCEPTION_MAP.put(JWTCreationException.class, TokenJwtException::new);
-        EXCEPTION_MAP.put(TransactionException.class, RepositoryException::new);
-        EXCEPTION_MAP.put(DataAccessException.class, RepositoryException::new);
         EXCEPTION_MAP.put(UsernameNotFoundException.class, NotFoundException::new);
+        EXCEPTION_MAP.put(JWTVerificationException.class, TokenJwtException::new);
+        EXCEPTION_MAP.put(TransactionException.class, RepositoryException::new);
+        EXCEPTION_MAP.put(PersistenceException.class, RepositoryException::new);
+        EXCEPTION_MAP.put(DataAccessException.class, RepositoryException::new);
+        EXCEPTION_MAP.put(JWTCreationException.class, TokenJwtException::new);
         EXCEPTION_MAP.put(ServletException.class, HttpServletException::new);
         EXCEPTION_MAP.put(MappingException.class, DataMapperException::new);
         EXCEPTION_MAP.put(MessagingException.class, MailException::new);

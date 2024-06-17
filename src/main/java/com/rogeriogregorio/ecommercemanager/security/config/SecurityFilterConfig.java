@@ -40,10 +40,10 @@ public class SecurityFilterConfig extends OncePerRequestFilter {
 
         if (token != null) {
             String emailLogin = tokenService.validateAuthenticationToken(token);
-            UserAuthDetailsDto userAuthDetailsDto = findUserByEmail(emailLogin);
+            UserAuthDetailsDto userAuthDetails = findUserByEmail(emailLogin);
 
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(userAuthDetailsDto, null, userAuthDetailsDto.getAuthorities());
+                    new UsernamePasswordAuthenticationToken(userAuthDetails, null, userAuthDetails.getAuthorities());
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

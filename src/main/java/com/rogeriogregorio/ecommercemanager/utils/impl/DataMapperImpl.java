@@ -30,10 +30,8 @@ public class DataMapperImpl implements DataMapper {
     @Override
     public <S, T> T map(S source, T target) {
 
-        return catchError.run(() -> {
-            modelMapper.map(source, target);
-            return target;
-        });
+        catchError.run(() -> modelMapper.map(source, target));
+        return target;
     }
 
     @Override
