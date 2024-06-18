@@ -11,16 +11,16 @@ public interface CatchError {
     }
 
     @FunctionalInterface
-    interface FunctionWithException<T> {
-        T run() throws Exception;
+    interface Function<T> {
+        T execute() throws Exception;
     }
 
     @FunctionalInterface
-    interface ProcedureWithException {
-        void run() throws Exception;
+    interface Procedure {
+        void execute() throws Exception;
     }
 
-    <T> T run(FunctionWithException<T> method);
+    <T> T run(Function<T> method);
 
-    void run(ProcedureWithException method);
+    void run(Procedure method);
 }

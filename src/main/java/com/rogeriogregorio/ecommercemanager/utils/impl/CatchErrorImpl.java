@@ -43,10 +43,10 @@ public class CatchErrorImpl implements CatchError {
     }
 
     @Override
-    public <T> T run(FunctionWithException<T> method) {
+    public <T> T run(Function<T> method) {
 
         try {
-            return method.run();
+            return method.execute();
         } catch (Exception ex) {
             throwException(ex);
             return null;
@@ -54,10 +54,10 @@ public class CatchErrorImpl implements CatchError {
     }
 
     @Override
-    public void run(ProcedureWithException method) {
+    public void run(Procedure method) {
 
         try {
-            method.run();
+            method.execute();
         } catch (Exception ex) {
             throwException(ex);
         }
