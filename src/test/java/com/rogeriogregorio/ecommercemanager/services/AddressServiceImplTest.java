@@ -11,7 +11,9 @@ import com.rogeriogregorio.ecommercemanager.repositories.AddressRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.AddressServiceImpl;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError.FunctionWithException;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.ProcedureWithException;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
+import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -103,7 +105,8 @@ class AddressServiceImplTest {
 
         when(dataMapper.map(address, AddressResponse.class)).thenReturn(addressResponse);
         when(addressRepository.findAll(pageable)).thenReturn(page);
-        when(catchError.run(any(FunctionWithException.class))).thenAnswer(invocation -> addressRepository.findAll(pageable));
+        when(catchError.run(any(FunctionWithException.class)))
+                .thenAnswer(invocation -> addressRepository.findAll(pageable));
 
         // Act
         Page<AddressResponse> actualResponse = addressService.findAllAddresses(pageable);
@@ -123,7 +126,8 @@ class AddressServiceImplTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         when(addressRepository.findAll()).thenThrow(RepositoryException.class);
-        doAnswer(invocation -> addressRepository.findAll()).when(catchError).run(any(FunctionWithException.class));
+        when(catchError.run(any(FunctionWithException.class)))
+                .thenAnswer(invocation -> addressRepository.findAll());
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> addressService.findAllAddresses(pageable),
@@ -139,7 +143,8 @@ class AddressServiceImplTest {
 
         when(userService.getUserIfExists(addressRequest.getUserId())).thenReturn(user);
         when(dataMapper.map(addressRequest, Address.class)).thenReturn(address);
-        when(catchError.run(any(FunctionWithException.class))).thenAnswer(invocation -> addressRepository.save(address));
+        when(catchError.run(any(FunctionWithException.class)))
+                .thenAnswer(invocation -> addressRepository.save(address));
         when(addressRepository.save(address)).thenReturn(address);
         when(dataMapper.map(address, AddressResponse.class)).thenReturn(expectedResponse);
 
@@ -162,12 +167,13 @@ class AddressServiceImplTest {
         // Arrange
         when(userService.getUserIfExists(addressRequest.getUserId())).thenReturn(user);
         when(dataMapper.map(addressRequest, Address.class)).thenReturn(address);
-        doAnswer(invocation -> addressRepository.save(address)).when(catchError).run(any(FunctionWithException.class));
+        when(catchError.run(any(FunctionWithException.class)))
+                .thenAnswer(invocation -> addressRepository.save(address));
         when(addressRepository.save(address)).thenThrow(RepositoryException.class);
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> addressService.createAddress(addressRequest),
-                "Expected RepositoryException due to a PersistenceException");
+                "Expected RepositoryException");
         verify(userService, times(1)).getUserIfExists(addressRequest.getUserId());
         verify(dataMapper, times(1)).map(addressRequest, Address.class);
         verify(userService, times(1)).saveUserAddress(user);
@@ -176,13 +182,14 @@ class AddressServiceImplTest {
 
     @Test
     @DisplayName("findAddressById - Busca bem-sucedida retorna endereço")
-    void findAddressById_SuccessfulSearch_ReturnsOrder() {
+    void findAddressById_SuccessfulSearch_ReturnsAddress() {
         // Arrange
         AddressResponse expectedResponse = addressResponse;
 
         when(addressRepository.findById(address.getId())).thenReturn(Optional.of(address));
         when(dataMapper.map(address, AddressResponse.class)).thenReturn(expectedResponse);
-        when(catchError.run(any(FunctionWithException.class))).thenAnswer(invocation -> addressRepository.findById(address.getId()));
+        when(catchError.run(any(FunctionWithException.class)))
+                .thenAnswer(invocation -> addressRepository.findById(address.getId()));
 
         // Act
         AddressResponse actualResponse = addressService.findAddressById(address.getId());
@@ -199,11 +206,26 @@ class AddressServiceImplTest {
     void findAddressById_NotFoundExceptionHandling() {
         // Arrange
         when(addressRepository.findById(address.getId())).thenReturn(Optional.empty());
-        doAnswer(invocation ->addressRepository.findById(address.getId())).when(catchError).run(any(FunctionWithException.class));
+        when(catchError.run(any(FunctionWithException.class)))
+                .thenAnswer(invocation -> addressRepository.findById(address.getId()));
 
         // Assert and Assert
         assertThrows(NotFoundException.class, () -> addressService.findAddressById(address.getId()),
-                "Expected NotFoundException for non-existent address");
+                "Expected NotFoundException");
+        verify(addressRepository, times(1)).findById(address.getId());
+    }
+
+    @Test
+    @DisplayName("findAddressById - Exceção no repositório ao tentar buscar endereço")
+    void findAddressById_RepositoryExceptionHandling() {
+        // Arrange
+        when(addressRepository.findById(address.getId())).thenThrow(RepositoryException.class);
+        when(catchError.run(any(FunctionWithException.class)))
+                .thenAnswer(invocation -> addressRepository.findById(address.getId()));
+
+        // Assert and Assert
+        assertThrows(RepositoryException.class, () -> addressService.findAddressById(address.getId()),
+                "Expected RepositoryException");
         verify(addressRepository, times(1)).findById(address.getId());
     }
 
@@ -215,10 +237,11 @@ class AddressServiceImplTest {
 
         when(userService.getUserIfExists(addressRequest.getUserId())).thenReturn(user);
         when(addressRepository.findById(address.getId())).thenReturn(Optional.of(address));
-        when(dataMapper.map(addressRequest, Address.class)).thenReturn(address);
+        when(catchError.run(any(FunctionWithException.class)))
+                .then(invocation -> invocation.getArgument(0, FunctionWithException.class).run());
+        when(dataMapper.map(eq(addressRequest), any(Address.class))).thenReturn(address);
         when(addressRepository.save(address)).thenReturn(address);
-        when(catchError.run(any(FunctionWithException.class))).thenAnswer(invocation -> addressRepository.save(address));
-        when(dataMapper.map(address, AddressResponse.class)).thenReturn(expectedResponse);
+        when(dataMapper.map(eq(address), eq(AddressResponse.class))).thenReturn(expectedResponse);
 
         // Act
         AddressResponse actualResponse = addressService.updateAddress(address.getId(), addressRequest);
@@ -228,81 +251,95 @@ class AddressServiceImplTest {
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(addressRepository, times(1)).findById(address.getId());
         verify(userService, times(1)).getUserIfExists(addressRequest.getUserId());
-        verify(dataMapper, times(1)).map(addressRequest, Address.class);
+        verify(dataMapper, times(1)).map(eq(addressRequest), any(Address.class));
         verify(addressRepository, times(1)).save(address);
-        verify(dataMapper, times(1)).map(address, AddressResponse.class);
+        verify(dataMapper, times(1)).map(eq(address), eq(AddressResponse.class));
     }
 
-//
-//    @Test
-//    @DisplayName("updateAddress - Exceção ao tentar atualizar endereço inexistente")
-//    void updateAddress_NotFoundExceptionHandling() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//
-//        Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-//        address.setUser(user);
-//
-//        AddressRequest addressRequest = new AddressRequest(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
-//
-//        when(addressRepository.findById(address.getId())).thenReturn(Optional.empty());
-//
-//        // Act and Assert
-//        assertThrows(NotFoundException.class, () -> addressService.updateAddress(addressRequest), "Expected NotFoundException for update failure");
-//
-//        verify(addressRepository, times(1)).findById(address.getId());
-//    }
-//
-//    @Test
-//    @DisplayName("deleteAddress - Exclusão bem-sucedida do endereço")
-//    void deleteAddress_DeletesAddressSuccessfully() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//
-//        Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-//        address.setUser(user);
-//
-//        when(addressRepository.findById(1L)).thenReturn(Optional.of(address));
-//
-//        // Act
-//        addressService.deleteAddress(1L);
-//
-//        // Assert
-//        verify(addressRepository, times(1)).findById(1L);
-//        verify(addressRepository, times(1)).deleteById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("deleteAddress - Exceção ao tentar excluir endereço inexistente")
-//    void deleteAddress_NotFoundExceptionHandling() {
-//        // Arrange
-//
-//        when(addressRepository.findById(1L)).thenReturn(Optional.empty());
-//
-//        // Act
-//        assertThrows(NotFoundException.class, () -> addressService.deleteAddress(1L), "Expected NotFoundException for non-existent address");
-//
-//        // Assert
-//        verify(addressRepository, times(1)).findById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("deleteAddress - Exceção no repositório ao tentar excluir endereço inexistente")
-//    void deleteAddress_RepositoryExceptionHandling() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//
-//        Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-//        address.setUser(user);
-//
-//        AddressRequest addressRequest = new AddressRequest(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", 1L);
-//
-//        when(addressRepository.findById(address.getId())).thenReturn(Optional.of(address));
-//        doThrow(PersistenceException.class).when(addressRepository).deleteById(1L);
-//
-//        // Act and Assert
-//        assertThrows(RepositoryException.class, () -> addressService.deleteAddress(1L), "Expected RepositoryException for delete failure");
-//
-//        verify(addressRepository, times(1)).findById(address.getId());
-//    }
+    @Test
+    @DisplayName("updateAddress - Exceção ao tentar atualizar endereço inexistente")
+    void updateAddress_NotFoundExceptionHandling() {
+        // Arrange
+        when(addressRepository.findById(address.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(FunctionWithException.class)))
+                .then(invocation -> addressRepository.findById(address.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> addressService.updateAddress(address.getId(), addressRequest),
+                "Expected NotFoundException");
+        verify(addressRepository, times(1)).findById(address.getId());
+    }
+
+    @Test
+    @DisplayName("updateAddress - Exceção no repositório ao tentar atualizar endereço")
+    void updateAddress_RepositoryExceptionHandling() {
+        // Arrange
+        when(userService.getUserIfExists(addressRequest.getUserId())).thenReturn(user);
+        when(addressRepository.findById(address.getId())).thenReturn(Optional.of(address));
+        when(catchError.run(any(FunctionWithException.class)))
+                .then(invocation -> invocation.getArgument(0, FunctionWithException.class).run());
+        when(dataMapper.map(eq(addressRequest), any(Address.class))).thenReturn(address);
+        when(addressRepository.save(address)).thenThrow(RepositoryException.class);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> addressService.updateAddress(address.getId(), addressRequest),
+                "Expected RepositoryException");
+        verify(addressRepository, times(1)).findById(address.getId());
+    }
+
+    @Test
+    @DisplayName("deleteAddress - Exclusão bem-sucedida do endereço")
+    void deleteAddress_DeletesAddressSuccessfully() {
+        // Arrange
+        when(addressRepository.findById(address.getId())).thenReturn(Optional.of(address));
+        when(catchError.run(any(FunctionWithException.class)))
+                .then(invocation -> addressRepository.findById(address.getId()));
+        doAnswer(invocation -> {
+            addressRepository.delete(address);
+            return null;
+        }).when(catchError).run(any(ProcedureWithException.class));
+        doNothing().when(addressRepository).delete(address);
+
+        // Act
+        addressService.deleteAddress(address.getId());
+
+        // Assert
+        verify(addressRepository, times(1)).findById(address.getId());
+        verify(addressRepository, times(1)).delete(address);
+    }
+
+
+    @Test
+    @DisplayName("deleteAddress - Exceção ao tentar excluir endereço inexistente")
+    void deleteAddress_NotFoundExceptionHandling() {
+        // Arrange
+        when(addressRepository.findById(address.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(FunctionWithException.class)))
+                .then(invocation -> addressRepository.findById(address.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> addressService.deleteAddress(address.getId()),
+                "Expected NotFoundException");
+        verify(addressRepository, times(1)).findById(address.getId());
+    }
+
+    @Test
+    @DisplayName("deleteAddress - Exceção no repositório ao tentar excluir endereço inexistente")
+    void deleteAddress_RepositoryExceptionHandling() {
+        // Arrange
+        when(addressRepository.findById(address.getId())).thenReturn(Optional.of(address));
+        when(catchError.run(any(FunctionWithException.class)))
+                .then(invocation -> addressRepository.findById(address.getId()));
+        doAnswer(invocation -> {
+            addressRepository.delete(address);
+            return null;
+        }).when(catchError).run(any(ProcedureWithException.class));
+        doThrow(RepositoryException.class).when(addressRepository).delete(address);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> addressService.deleteAddress(address.getId()),
+                "Expected RepositoryException");
+        verify(addressRepository, times(1)).findById(address.getId());
+        verify(addressRepository, times(1)).delete(address);
+    }
 }
