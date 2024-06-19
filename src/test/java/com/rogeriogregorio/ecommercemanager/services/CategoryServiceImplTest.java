@@ -4,12 +4,12 @@ import com.rogeriogregorio.ecommercemanager.dto.requests.CategoryRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.CategoryResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Address;
 import com.rogeriogregorio.ecommercemanager.entities.Category;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.CategoryRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.CategoryServiceImpl;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
-import com.rogeriogregorio.ecommercemanager.utils.CatchError.Function;
-import com.rogeriogregorio.ecommercemanager.utils.CatchError.Procedure;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeFunction;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
 import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,9 +25,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -73,18 +73,17 @@ class CategoryServiceImplTest {
 
         when(dataMapper.map(category, CategoryResponse.class)).thenReturn(categoryResponse);
         when(categoryRepository.findAll(pageable)).thenReturn(page);
-        when(catchError.run(any(Function.class))).thenAnswer(invocation -> categoryRepository.findAll(pageable));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> categoryRepository.findAll(pageable));
 
         // Act
         Page<CategoryResponse> actualResponses = categoryService.findAllCategories(pageable);
 
         // Assert
-        assertEquals(expectedResponses.size(), actualResponses.getContent().size(), "Expected a list with one category");
-        assertIterableEquals(expectedResponses, actualResponses, "Expected a list with one categories");
-
+        assertEquals(expectedResponses.size(), actualResponses.getContent().size(), "Expected a list with one object");
+        assertIterableEquals(expectedResponses, actualResponses, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(category, CategoryResponse.class);
         verify(categoryRepository, times(1)).findAll(pageable);
-        verify(catchError, times(1)).run(any(Function.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -94,85 +93,87 @@ class CategoryServiceImplTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         when(categoryRepository.findAll(pageable)).thenThrow(RepositoryException.class);
-        when(catchError.run(any(Function.class))).thenAnswer(invocation -> categoryRepository.findAll(pageable));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> categoryRepository.findAll(pageable));
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> categoryService.findAllCategories(pageable),
                 "Expected RepositoryException to be thrown");
         verify(categoryRepository, times(1)).findAll(pageable);
-        verify(catchError, times(1)).run(any(Function.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
     @DisplayName("createCategory - Criação bem-sucedida retorna categoria criada")
     void createCategory_SuccessfulCreation_ReturnsCategoryResponse() {
         // Arrange
-        CategoryRequest categoryRequest = new CategoryRequest("Computers");
-        Category category = new Category("Computers");
-        CategoryResponse expectedResponse = new CategoryResponse(1L, "Computers");
+        CategoryResponse expectedResponse = categoryResponse;
 
-        when(converter.toResponse(category, CategoryResponse.class)).thenReturn(expectedResponse);
+        when(dataMapper.map(categoryRequest, Category.class)).thenReturn(category);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> categoryRepository.save(category));
         when(categoryRepository.save(category)).thenReturn(category);
+        when(dataMapper.map(category, CategoryResponse.class)).thenReturn(expectedResponse);
 
         // Act
         CategoryResponse actualResponse = categoryService.createCategory(categoryRequest);
 
         // Assert
-        assertNotNull(actualResponse, "CategoryResponse should not be null");
+        assertNotNull(actualResponse, "Category should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(converter, times(1)).toResponse(category, CategoryResponse.class);
+        verify(dataMapper, times(1)).map(category, CategoryResponse.class);
+        verify(dataMapper, times(1)).map(categoryRequest, Category.class);
         verify(categoryRepository, times(1)).save(category);
     }
-//
-//    @Test
-//    @DisplayName("createCategory - Exceção no repositório ao tentar criar categoria")
-//    void createCategory_RepositoryExceptionHandling() {
-//        // Arrange
-//        CategoryRequest categoryRequest = new CategoryRequest(1L, "Computers");
-//        Category category = new Category("Computers");
-//
-//        when(categoryRepository.save(category)).thenThrow(PersistenceException.class);
-//
-//        // Act and Assert
-//        assertThrows(RepositoryException.class, () -> categoryService.createCategory(categoryRequest), "Expected RepositoryException due to a PersistenceException");
-//
-//        verify(categoryRepository, times(1)).save(category);
-//    }
-//
-//    @Test
-//    @DisplayName("findCategoryById - Busca bem-sucedida retorna pedido")
-//    void findCategoryById_SuccessfulSearch_ReturnsOrderResponse() {
-//        // Arrange
-//        Category category = new Category(1L, "Computers");
-//        CategoryResponse expectedResponse = new CategoryResponse(1L, "Computers");
-//
-//        when(converter.toResponse(category, CategoryResponse.class)).thenReturn(expectedResponse);
-//        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
-//
-//        // Act
-//        CategoryResponse actualResponse = categoryService.findCategoryById(1L);
-//
-//        // Assert
-//        assertNotNull(actualResponse, "categoryResponse should not be null");
-//        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
-//
-//        verify(converter, times(1)).toResponse(category, CategoryResponse.class);
-//        verify(categoryRepository, times(1)).findById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("findCategoryById - Exceção ao tentar buscar categoria inexistente")
-//    void findCategory_NotFoundExceptionHandling() {
-//        // Arrange
-//        when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
-//
-//        // Act and Assert
-//        assertThrows(NotFoundException.class, () -> categoryService.findCategoryById(1L), "Expected NotFoundException for non-existent category");
-//
-//        verify(categoryRepository, times(1)).findById(1L);
-//    }
-//
+
+    @Test
+    @DisplayName("createCategory - Exceção no repositório ao tentar criar categoria")
+    void createCategory_RepositoryExceptionHandling() {
+        // Arrange
+        when(dataMapper.map(categoryRequest, Category.class)).thenReturn(category);
+        when(categoryRepository.save(category)).thenThrow(RepositoryException.class);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> categoryRepository.save(category));
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> categoryService.createCategory(categoryRequest),
+                "Expected RepositoryException to be thrown");
+        verify(dataMapper, times(1)).map(categoryRequest, Category.class);
+        verify(categoryRepository, times(1)).save(category);
+    }
+
+    @Test
+    @DisplayName("findCategoryById - Busca bem-sucedida retorna pedido")
+    void findCategoryById_SuccessfulSearch_ReturnsOrderResponse() {
+        // Arrange
+        CategoryResponse expectedResponse = categoryResponse;
+
+        when(dataMapper.map(category, CategoryResponse.class)).thenReturn(expectedResponse);
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> categoryRepository.findById(category.getId()));
+
+        // Act
+        CategoryResponse actualResponse = categoryService.findCategoryById(category.getId());
+
+        // Assert
+        assertNotNull(actualResponse, "category should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(dataMapper, times(1)).map(category, CategoryResponse.class);
+        verify(categoryRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    @DisplayName("findCategoryById - Exceção ao tentar buscar categoria inexistente")
+    void findCategory_NotFoundExceptionHandling() {
+        // Arrange
+        when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> categoryRepository.findById(category.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> categoryService.findCategoryById(1L),
+                "Expected NotFoundException to be thrown");
+        verify(categoryRepository, times(1)).findById(1L);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
 //    @Test
 //    @DisplayName("updateCategory - Atualização bem-sucedida retorna categoria atualizada")
 //    void updateCategory_SuccessfulUpdate_ReturnsCategoryResponse() {

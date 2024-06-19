@@ -43,7 +43,7 @@ public class CatchErrorImpl implements CatchError {
     }
 
     @Override
-    public <T> T run(Function<T> method) {
+    public <T> T run(SafeFunction<T> method) {
 
         try {
             return method.execute();
@@ -54,7 +54,7 @@ public class CatchErrorImpl implements CatchError {
     }
 
     @Override
-    public void run(Procedure method) {
+    public void run(SafeProcedure method) {
 
         try {
             method.execute();

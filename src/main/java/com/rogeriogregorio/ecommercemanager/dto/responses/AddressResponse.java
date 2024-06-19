@@ -24,8 +24,8 @@ public class AddressResponse implements Serializable {
     public AddressResponse() {
     }
 
-    public AddressResponse(UUID id, String street, String city,
-                           String state, String cep, String country) {
+    public AddressResponse(UUID id, String street, String city, String state,
+                           String cep, String country, User user) {
 
         this.id = id;
         this.street = street;
@@ -33,20 +33,7 @@ public class AddressResponse implements Serializable {
         this.state = state;
         this.cep = cep;
         this.country = country;
-    }
-
-    private AddressResponse(Builder builder) {
-        setId(builder.id);
-        setStreet(builder.street);
-        setCity(builder.city);
-        setState(builder.state);
-        setCep(builder.cep);
-        setCountry(builder.country);
-        setUser(builder.user);
-    }
-
-    public static Builder newBuilder() {
-        return new Builder();
+        this.user = user;
     }
 
     public UUID getId() {
@@ -103,68 +90,5 @@ public class AddressResponse implements Serializable {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public Builder toBuilder() {
-        return new Builder()
-                .withId(this.id)
-                .withStreet(this.street)
-                .withCity(this.city)
-                .withState(this.state)
-                .withCep(this.cep)
-                .withCountry(this.country)
-                .withUser(this.user);
-    }
-
-    public static final class Builder {
-        private UUID id;
-        private String street;
-        private String city;
-        private String state;
-        private String cep;
-        private String country;
-        private User user;
-
-        private Builder() {
-        }
-
-        public Builder withId(UUID id) {
-            this.id = id;
-            return this;
-        }
-
-        public Builder withStreet(String street) {
-            this.street = street;
-            return this;
-        }
-
-        public Builder withCity(String city) {
-            this.city = city;
-            return this;
-        }
-
-        public Builder withState(String state) {
-            this.state = state;
-            return this;
-        }
-
-        public Builder withCep(String cep) {
-            this.cep = cep;
-            return this;
-        }
-
-        public Builder withCountry(String country) {
-            this.country = country;
-            return this;
-        }
-
-        public Builder withUser(User user) {
-            this.user = user;
-            return this;
-        }
-
-        public AddressResponse build() {
-            return new AddressResponse(this);
-        }
     }
 }
