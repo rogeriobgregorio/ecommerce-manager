@@ -174,63 +174,66 @@ class CategoryServiceImplTest {
         verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
-//    @Test
-//    @DisplayName("updateCategory - Atualização bem-sucedida retorna categoria atualizada")
-//    void updateCategory_SuccessfulUpdate_ReturnsCategoryResponse() {
-//        // Arrange
-//        CategoryRequest categoryRequest = new CategoryRequest(1L,"Computers");
-//        Category category = new Category(1L, "Computers");
-//        CategoryResponse expectedResponse = new CategoryResponse(1L, "Computers");
-//
-//        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
-//        when(converter.toResponse(category, CategoryResponse.class)).thenReturn(expectedResponse);
-//        when(categoryRepository.save(category)).thenReturn(category);
-//
-//        // Act
-//        CategoryResponse actualResponse = categoryService.updateCategory(categoryRequest);
-//
-//        // Assert
-//        assertNotNull(actualResponse,"categoryResponse should not be null");
-//        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
-//        assertEquals(expectedResponse.getName(), actualResponse.getName(), "Names should match");
-//
-//        verify(categoryRepository, times(1)).findById(1L);
-//        verify(categoryRepository, times(1)).save(category);
-//        verify(converter, times(1)).toResponse(category, CategoryResponse.class);
-//    }
-//
-//    @Test
-//    @DisplayName("updateCategory - Exceção ao tentar atualizar categoria inexistente")
-//    void updateCategory_NotFoundExceptionHandling() {
-//        // Arrange
-//        CategoryRequest categoryRequest = new CategoryRequest(1L, "Computers");
-//
-//        when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
-//
-//        // Act and Assert
-//        assertThrows(NotFoundException.class, () -> categoryService.updateCategory(categoryRequest), "Expected NotFoundException for update failure");
-//
-//        verify(categoryRepository, times(1)).findById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("updateCategory - Exceção no repositório ao tentar atualizar a categoria")
-//    void updateCategory_RepositoryExceptionHandling() {
-//        // Arrange
-//        CategoryRequest categoryRequest = new CategoryRequest(1L,"Computers");
-//        Category category = new Category(1L, "Computers");
-//
-//        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
-//        when(categoryRepository.save(category)).thenThrow(PersistenceException.class);
-//
-//        // Act
-//        assertThrows(RepositoryException.class, () -> categoryService.updateCategory(categoryRequest), "Expected RepositoryException due to a generic runtime exception");
-//
-//        // Assert
-//        verify(categoryRepository, times(1)).findById(1L);
-//        verify(categoryRepository, times(1)).save(category);
-//    }
-//
+    @Test
+    @DisplayName("updateCategory - Atualização bem-sucedida retorna categoria atualizada")
+    void updateCategory_SuccessfulUpdate_ReturnsCategoryResponse() {
+        // Arrange
+        CategoryResponse expectedResponse = categoryResponse;
+
+        when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
+        when(dataMapper.map(eq(categoryRequest), any(Category.class))).thenReturn(category);
+        when(dataMapper.map(eq(category), eq(CategoryResponse.class))).thenReturn(expectedResponse);
+        when(categoryRepository.save(category)).thenReturn(category);
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation.getArgument(0, SafeFunction.class).execute());
+
+        // Act
+        CategoryResponse actualResponse = categoryService.updateCategory(category.getId(), categoryRequest);
+
+        // Assert
+        assertNotNull(actualResponse,"category should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        assertEquals(expectedResponse.getName(), actualResponse.getName(), "Names should match");
+        verify(categoryRepository, times(1)).findById(category.getId());
+        verify(categoryRepository, times(1)).save(category);
+        verify(dataMapper, times(1)).map(eq(categoryRequest), any(Category.class));
+        verify(dataMapper, times(1)).map(eq(category), eq(CategoryResponse.class));
+        verify(catchError, times(2)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateCategory - Exceção ao tentar atualizar categoria inexistente")
+    void updateCategory_NotFoundExceptionHandling() {
+        // Arrange
+        when(categoryRepository.findById(category.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation.getArgument(0, SafeFunction.class).execute());
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> categoryService.updateCategory(category.getId(), categoryRequest),
+                "Expected NotFoundException for update failure");
+        verify(categoryRepository, times(1)).findById(category.getId());
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(categoryRepository, never()).save(category);
+    }
+
+    @Test
+    @DisplayName("updateCategory - Exceção no repositório ao tentar atualizar a categoria")
+    void updateCategory_RepositoryExceptionHandling() {
+        // Arrange
+        when(dataMapper.map(eq(categoryRequest), any(Category.class))).thenReturn(category);
+        when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation.getArgument(0, SafeFunction.class).execute());
+        when(categoryRepository.save(category)).thenThrow(RepositoryException.class);
+
+        // Act
+        assertThrows(RepositoryException.class, () -> categoryService.updateCategory(category.getId(), categoryRequest),
+                "Expected RepositoryException to be thrown");
+
+        // Assert
+        verify(categoryRepository, times(1)).findById(category.getId());
+        verify(categoryRepository, times(1)).save(category);
+        verify(catchError, times(2)).run(any(SafeFunction.class));
+    }
+
 //    @Test
 //    @DisplayName("deleteCategory - Exclusão bem-sucedida da categoria")
 //    void deleteCategory_DeletesCategorySuccessfully() {

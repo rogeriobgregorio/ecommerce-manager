@@ -278,6 +278,8 @@ class AddressServiceImplTest {
                 "Expected RepositoryException to be thrown");
         verify(addressRepository, times(1)).findById(address.getId());
         verify(catchError, times(2)).run(any(SafeFunction.class));
+        verify(dataMapper, times(1)).map(eq(addressRequest), any(Address.class));
+        verify(addressRepository, times(1)).save(address);
     }
 
     @Test
