@@ -234,47 +234,61 @@ class CategoryServiceImplTest {
         verify(catchError, times(2)).run(any(SafeFunction.class));
     }
 
-//    @Test
-//    @DisplayName("deleteCategory - Exclusão bem-sucedida da categoria")
-//    void deleteCategory_DeletesCategorySuccessfully() {
-//        // Arrange
-//        Category category = new Category(1L, "Computers");
-//
-//        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
-//
-//        // Act
-//        categoryService.deleteCategory(1L);
-//
-//        // Assert
-//        verify(categoryRepository, times(1)).findById(1L);
-//        verify(categoryRepository, times(1)).deleteById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("deleteCategory - Exceção ao tentar excluir categoria inexistente")
-//    void deleteCategory_NotFoundExceptionHandling() {
-//        // Arrange
-//        when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
-//
-//        // Act and Assert
-//        assertThrows(NotFoundException.class, () -> categoryService.deleteCategory(1L), "Expected NotFoundException for non-existent category");
-//
-//        verify(categoryRepository, times(1)).findById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("deleteCategory - Exceção no repositório ao tentar excluir categoria")
-//    void deleteCategory_RepositoryExceptionHandling() {
-//        // Arrange
-//        Category category = new Category(1L, "Computers");
-//
-//        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
-//        doThrow(PersistenceException.class).when(categoryRepository).deleteById(1L);
-//
-//        // Act and Assert
-//        assertThrows(RepositoryException.class, () -> categoryService.deleteCategory(1L), "Expected RepositoryException for delete failure");
-//
-//        verify(categoryRepository, times(1)).findById(1L);
-//        verify(categoryRepository, times(1)).deleteById(1L);
-//    }
+    @Test
+    @DisplayName("deleteCategory - Exclusão bem-sucedida da categoria")
+    void deleteCategory_DeletesCategorySuccessfully() {
+        // Arrange
+        when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> categoryRepository.findById(category.getId()));
+        doAnswer(invocation -> {
+            categoryRepository.delete(category);
+            return null;
+        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        doNothing().when(categoryRepository).delete(category);
+
+        // Act
+        categoryService.deleteCategory(category.getId());
+
+        // Assert
+        verify(categoryRepository, times(1)).findById(category.getId());
+        verify(categoryRepository, times(1)).delete(category);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+    }
+
+    @Test
+    @DisplayName("deleteCategory - Exceção ao tentar excluir categoria inexistente")
+    void deleteCategory_NotFoundExceptionHandling() {
+        // Arrange
+        when(categoryRepository.findById(category.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> categoryRepository.findById(category.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> categoryService.deleteCategory(category.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(categoryRepository, times(1)).findById(category.getId());
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(categoryRepository, never()).delete(category);
+    }
+
+    @Test
+    @DisplayName("deleteCategory - Exceção no repositório ao tentar excluir categoria")
+    void deleteCategory_RepositoryExceptionHandling() {
+        // Arrange
+        when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> categoryRepository.findById(category.getId()));
+        doAnswer(invocation -> {
+            categoryRepository.delete(category);
+            return null;
+        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        doThrow(RepositoryException.class).when(categoryRepository).delete(category);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> categoryService.deleteCategory(category.getId()),
+                "Expected RepositoryException to be thrown");
+        verify(categoryRepository, times(1)).findById(category.getId());
+        verify(categoryRepository, times(1)).delete(category);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+    }
 }
