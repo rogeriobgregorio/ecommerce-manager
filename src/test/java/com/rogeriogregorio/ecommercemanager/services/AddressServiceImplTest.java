@@ -59,9 +59,6 @@ class AddressServiceImplTest {
     private static AddressRequest addressRequest;
     private static AddressResponse addressResponse;
 
-    AddressServiceImplTest() {
-    }
-
     @BeforeEach
     void setUp() {
 
@@ -303,7 +300,6 @@ class AddressServiceImplTest {
         verify(catchError, times(1)).run(any(SafeFunction.class));
         verify(catchError, times(1)).run(any(SafeProcedure.class));
     }
-
 
     @Test
     @DisplayName("deleteAddress - Exceção ao tentar excluir endereço inexistente")

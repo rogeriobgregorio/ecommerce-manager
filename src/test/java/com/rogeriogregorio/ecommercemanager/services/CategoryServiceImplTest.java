@@ -2,7 +2,6 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.CategoryRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.CategoryResponse;
-import com.rogeriogregorio.ecommercemanager.entities.Address;
 import com.rogeriogregorio.ecommercemanager.entities.Category;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
@@ -11,7 +10,6 @@ import com.rogeriogregorio.ecommercemanager.services.impl.CategoryServiceImpl;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeFunction;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -104,7 +102,7 @@ class CategoryServiceImplTest {
 
     @Test
     @DisplayName("createCategory - Criação bem-sucedida retorna categoria criada")
-    void createCategory_SuccessfulCreation_ReturnsCategoryResponse() {
+    void createCategory_SuccessfulCreation_ReturnsCategory() {
         // Arrange
         CategoryResponse expectedResponse = categoryResponse;
 
@@ -119,7 +117,6 @@ class CategoryServiceImplTest {
         // Assert
         assertNotNull(actualResponse, "Category should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
-
         verify(dataMapper, times(1)).map(category, CategoryResponse.class);
         verify(dataMapper, times(1)).map(categoryRequest, Category.class);
         verify(categoryRepository, times(1)).save(category);
@@ -142,7 +139,7 @@ class CategoryServiceImplTest {
 
     @Test
     @DisplayName("findCategoryById - Busca bem-sucedida retorna pedido")
-    void findCategoryById_SuccessfulSearch_ReturnsOrderResponse() {
+    void findCategoryById_SuccessfulSearch_ReturnsOrder() {
         // Arrange
         CategoryResponse expectedResponse = categoryResponse;
 
@@ -171,6 +168,20 @@ class CategoryServiceImplTest {
         assertThrows(NotFoundException.class, () -> categoryService.findCategoryById(1L),
                 "Expected NotFoundException to be thrown");
         verify(categoryRepository, times(1)).findById(1L);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findCategoryById - Exceção no repositório ao tentar buscar categoria")
+    void findCategory_RepositoryExceptionHandling() {
+        // Arrange
+        when(categoryRepository.findById(category.getId())).thenThrow(RepositoryException.class);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> categoryRepository.findById(category.getId()));
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> categoryService.findCategoryById(category.getId()),
+                "Expected RepositoryException to be thrown");
+        verify(categoryRepository, times(1)).findById(category.getId());
         verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 

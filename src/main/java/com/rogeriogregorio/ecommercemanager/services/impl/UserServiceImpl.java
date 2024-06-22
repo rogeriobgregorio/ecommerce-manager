@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -61,12 +62,12 @@ public class UserServiceImpl implements UserService {
         user.setPassword(encodedPassword);
         user.setRole(UserRole.CLIENT);
 
-        user.setEmailEnabled(true);// TODO remover essa linha
+        user.setEmailEnabled(true); // TODO remover essa linha
 
         User savedUser = catchError.run(() -> userRepository.save(user));
         LOGGER.info("User registered: {}", savedUser);
 
-        //CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user));// TODO reativar método
+//        CompletableFuture.runAsync(() -> mailService.sendVerificationEmail(user)); // TODO reativar método
         return dataMapper.map(savedUser, UserResponse.class);
     }
 
