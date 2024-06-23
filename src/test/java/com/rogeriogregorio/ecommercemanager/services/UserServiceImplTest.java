@@ -15,6 +15,7 @@ import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeFunction;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeProcedure;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
 import com.rogeriogregorio.ecommercemanager.utils.PasswordHelper;
+import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -377,51 +378,18 @@ class UserServiceImplTest {
         verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
-//    @Test
-//    @DisplayName("findUserByName - Busca bem-sucedida pelo nome retorna lista contendo múltiplos usuários")
-//    void findUserByName_SuccessfulSearch_ReturnsListResponse_MultipleUsers() {
-//        // Arrange
-//        String userName = "João Silva";
-//
-//        List<User> userList = new ArrayList<>();
-//        List<UserResponse> expectedResponses = new ArrayList<>();
-//
-//        for (long i = 1; i <= 10; i++) {
-//            User user = new User(i, "João Silva", "joao" + i + "@email.com",
-//                    "1191234567" + i, "senha123");
-//            userList.add(user);
-//
-//            UserResponse userResponse = new UserResponse(i, "João Silva", "joao" + i + "@email.com",
-//                    "1191234567" + i);
-//            expectedResponses.add(userResponse);
-//
-//            when(converter.toResponse(eq(user), eq(UserResponse.class))).thenReturn(userResponse);
-//        }
-//
-//        when(userRepository.findByName(eq(userName))).thenReturn(userList);
-//
-//        // Act
-//        List<UserResponse> actualResponses = userService.findUserByName("João Silva");
-//
-//        // Assert
-//        assertNotNull(actualResponses, "UserResponses should not be null");
-//        assertEquals(expectedResponses, actualResponses, "Size of UserResponses should match size of UserEntities");
-//
-//        verify(userRepository, times(1)).findByName(eq(userName));
-//        verify(converter, times(10)).toResponse(any(User.class), eq(UserResponse.class));
-//    }
-//
-//    @Test
-//    @DisplayName("findUserByName - Exceção no repositório ao tentar buscar usuário pelo nome")
-//    void findUserByName_RepositoryExceptionHandling() {
-//        // Arrange
-//        String userName = "Erro";
-//
-//        when(userRepository.findByName(userName)).thenThrow(PersistenceException.class);
-//
-//        // Act and Assert
-//        assertThrows(RepositoryException.class, () -> userService.findUserByName("Erro"), "Expected RepositoryException for repository error");
-//
-//        verify(userRepository, times(1)).findByName(userName);
-//    }
+    @Test
+    @DisplayName("findUserByName - Exceção no repositório ao tentar buscar usuário pelo nome")
+    void findUserByName_RepositoryExceptionHandling() {
+        // Arrange
+        Pageable pageable = PageRequest.of(0, 10);
+        when(userRepository.findByName(user.getName(), pageable)).thenThrow(RepositoryException.class);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> userRepository.findByName(user.getName(), pageable));
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> userService.findUserByName(user.getName(), pageable),
+                "Expected RepositoryException to be thrown");
+        verify(userRepository, times(1)).findByName(user.getName(), pageable);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
 }
