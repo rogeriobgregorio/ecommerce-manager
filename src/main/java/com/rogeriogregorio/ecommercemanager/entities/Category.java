@@ -13,9 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "tb_categories", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "name", name = "unique_name_constraint")
-})
+@Table(name = "tb_categories")
 public class Category implements Serializable {
 
     @Serial

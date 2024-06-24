@@ -111,7 +111,7 @@ class UserServiceImplTest {
 
         // Assert
         assertEquals(expectedResponses.size(), actualResponses.getContent().size(), "Expected a list with one object");
-        assertIterableEquals(expectedResponses, actualResponses.getContent(), "Expected and actual responses should be equal");
+        assertIterableEquals(expectedResponses, actualResponses, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(user, UserResponse.class);
         verify(userRepository, times(1)).findAll(pageable);
         verify(catchError, times(1)).run(any(SafeFunction.class));

@@ -13,9 +13,7 @@ import java.time.Instant;
 import java.util.Objects;
 
 @Entity
-@Table(name = "tb_discount_coupons", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "code", name = "unique_code_constraint")
-})
+@Table(name = "tb_discount_coupons")
 public class DiscountCoupon implements Serializable {
 
     @Serial

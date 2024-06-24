@@ -102,7 +102,7 @@ class AddressServiceImplTest {
 
         // Assert
         assertEquals(expectedResponses.size(), actualResponse.getContent().size(), "Expected a list with one object");
-        assertIterableEquals(expectedResponses, actualResponse.getContent(), "Expected and actual responses should be equal");
+        assertIterableEquals(expectedResponses, actualResponse, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(address, AddressResponse.class);
         verify(addressRepository, times(1)).findAll(pageable);
         verify(catchError, times(1)).run(any(SafeFunction.class));
