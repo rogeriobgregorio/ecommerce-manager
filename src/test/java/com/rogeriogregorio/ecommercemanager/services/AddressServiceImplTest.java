@@ -184,6 +184,7 @@ class AddressServiceImplTest {
 
         // Assert
         assertNotNull(actualResponse, "Address should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(addressRepository, times(1)).findById(address.getId());
         verify(dataMapper, times(1)).map(address, AddressResponse.class);
@@ -236,6 +237,7 @@ class AddressServiceImplTest {
 
         // Assert
         assertNotNull(actualResponse, "Address should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(addressRepository, times(1)).findById(address.getId());
         verify(userService, times(1)).getUserIfExists(addressRequest.getUserId());
@@ -256,8 +258,8 @@ class AddressServiceImplTest {
         assertThrows(NotFoundException.class, () -> addressService.updateAddress(address.getId(), addressRequest),
                 "Expected NotFoundException to be thrown");
         verify(addressRepository, times(1)).findById(address.getId());
-        verify(catchError, times(1)).run(any(SafeFunction.class));
         verify(addressRepository, never()).save(address);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -274,9 +276,9 @@ class AddressServiceImplTest {
         assertThrows(RepositoryException.class, () -> addressService.updateAddress(address.getId(), addressRequest),
                 "Expected RepositoryException to be thrown");
         verify(addressRepository, times(1)).findById(address.getId());
-        verify(catchError, times(2)).run(any(SafeFunction.class));
         verify(dataMapper, times(1)).map(eq(addressRequest), any(Address.class));
         verify(addressRepository, times(1)).save(address);
+        verify(catchError, times(2)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -312,8 +314,8 @@ class AddressServiceImplTest {
         assertThrows(NotFoundException.class, () -> addressService.deleteAddress(address.getId()),
                 "Expected NotFoundException to be thrown");
         verify(addressRepository, times(1)).findById(address.getId());
-        verify(catchError, times(1)).run(any(SafeFunction.class));
         verify(addressRepository, never()).delete(address);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test

@@ -9,6 +9,7 @@ import com.rogeriogregorio.ecommercemanager.repositories.CategoryRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.CategoryServiceImpl;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeFunction;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeProcedure;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -120,6 +121,7 @@ class CategoryServiceImplTest {
         verify(dataMapper, times(1)).map(category, CategoryResponse.class);
         verify(dataMapper, times(1)).map(categoryRequest, Category.class);
         verify(categoryRepository, times(1)).save(category);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -135,6 +137,7 @@ class CategoryServiceImplTest {
                 "Expected RepositoryException to be thrown");
         verify(dataMapper, times(1)).map(categoryRequest, Category.class);
         verify(categoryRepository, times(1)).save(category);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -144,7 +147,7 @@ class CategoryServiceImplTest {
         CategoryResponse expectedResponse = categoryResponse;
 
         when(dataMapper.map(category, CategoryResponse.class)).thenReturn(expectedResponse);
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
         when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> categoryRepository.findById(category.getId()));
 
         // Act
@@ -152,22 +155,24 @@ class CategoryServiceImplTest {
 
         // Assert
         assertNotNull(actualResponse, "category should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(category, CategoryResponse.class);
-        verify(categoryRepository, times(1)).findById(1L);
+        verify(categoryRepository, times(1)).findById(category.getId());
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
     @DisplayName("findCategoryById - Exceção ao tentar buscar categoria inexistente")
     void findCategory_NotFoundExceptionHandling() {
         // Arrange
-        when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
+        when(categoryRepository.findById(category.getId())).thenReturn(Optional.empty());
         when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> categoryRepository.findById(category.getId()));
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> categoryService.findCategoryById(1L),
                 "Expected NotFoundException to be thrown");
-        verify(categoryRepository, times(1)).findById(1L);
+        verify(categoryRepository, times(1)).findById(category.getId());
         verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
@@ -222,8 +227,8 @@ class CategoryServiceImplTest {
         assertThrows(NotFoundException.class, () -> categoryService.updateCategory(category.getId(), categoryRequest),
                 "Expected NotFoundException for update failure");
         verify(categoryRepository, times(1)).findById(category.getId());
-        verify(catchError, times(1)).run(any(SafeFunction.class));
         verify(categoryRepository, never()).save(category);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -235,11 +240,10 @@ class CategoryServiceImplTest {
         when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation.getArgument(0, SafeFunction.class).execute());
         when(categoryRepository.save(category)).thenThrow(RepositoryException.class);
 
-        // Act
+        // Act and Assert
         assertThrows(RepositoryException.class, () -> categoryService.updateCategory(category.getId(), categoryRequest),
                 "Expected RepositoryException to be thrown");
-
-        // Assert
+        verify(dataMapper, times(1)).map(eq(categoryRequest), any(Category.class));
         verify(categoryRepository, times(1)).findById(category.getId());
         verify(categoryRepository, times(1)).save(category);
         verify(catchError, times(2)).run(any(SafeFunction.class));
@@ -254,7 +258,7 @@ class CategoryServiceImplTest {
         doAnswer(invocation -> {
             categoryRepository.delete(category);
             return null;
-        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        }).when(catchError).run(any(SafeProcedure.class));
         doNothing().when(categoryRepository).delete(category);
 
         // Act
@@ -264,7 +268,7 @@ class CategoryServiceImplTest {
         verify(categoryRepository, times(1)).findById(category.getId());
         verify(categoryRepository, times(1)).delete(category);
         verify(catchError, times(1)).run(any(SafeFunction.class));
-        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
     }
 
     @Test
@@ -278,8 +282,8 @@ class CategoryServiceImplTest {
         assertThrows(NotFoundException.class, () -> categoryService.deleteCategory(category.getId()),
                 "Expected NotFoundException to be thrown");
         verify(categoryRepository, times(1)).findById(category.getId());
-        verify(catchError, times(1)).run(any(SafeFunction.class));
         verify(categoryRepository, never()).delete(category);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -291,7 +295,7 @@ class CategoryServiceImplTest {
         doAnswer(invocation -> {
             categoryRepository.delete(category);
             return null;
-        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        }).when(catchError).run(any(SafeProcedure.class));
         doThrow(RepositoryException.class).when(categoryRepository).delete(category);
 
         // Act and Assert
@@ -300,6 +304,6 @@ class CategoryServiceImplTest {
         verify(categoryRepository, times(1)).findById(category.getId());
         verify(categoryRepository, times(1)).delete(category);
         verify(catchError, times(1)).run(any(SafeFunction.class));
-        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
     }
 }

@@ -195,6 +195,7 @@ class UserServiceImplTest {
 
         // Assert
         assertNotNull(actualResponse, "User should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(user, UserResponse.class);
         verify(userRepository, times(1)).findById(user.getId());
@@ -248,6 +249,7 @@ class UserServiceImplTest {
 
         // Assert
         assertNotNull(actualResponse, "User should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
         assertEquals(expectedResponse, actualResponse, "Expected and actual should match");
         verify(passwordHelper, times(1)).validate(userRequest.getPassword());
         verify(passwordHelper, times(1)).enconde(userRequest.getPassword());
@@ -328,8 +330,8 @@ class UserServiceImplTest {
         assertThrows(NotFoundException.class, () -> userService.deleteUser(user.getId()),
                 "Expected NotFoundException to be thrown");
         verify(userRepository, times(1)).findById(user.getId());
-        verify(catchError, times(1)).run(any(SafeFunction.class));
         verify(userRepository, never()).delete(user);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test

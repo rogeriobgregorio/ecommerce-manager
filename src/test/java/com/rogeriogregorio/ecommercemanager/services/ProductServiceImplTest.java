@@ -1,5 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.services;
 
+import com.rogeriogregorio.ecommercemanager.dto.requests.CategoryRequest;
 import com.rogeriogregorio.ecommercemanager.dto.requests.ProductRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Category;
@@ -10,6 +11,8 @@ import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.ProductServiceImpl;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeFunction;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeProcedure;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
 import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,11 +75,8 @@ class ProductServiceImplTest {
                 Instant.parse("2024-06-07T00:00:00Z"));
 
         product = Product.newBuilder()
-                .withId(1L)
-                .withName("Intel i5-10400F")
-                .withDescription("Intel Core Processor")
-                .withPrice(BigDecimal.valueOf(579.99))
-                .withCategories(categoryList)
+                .withId(1L).withName("Intel i5-10400F").withDescription("Intel Core Processor")
+                .withPrice(BigDecimal.valueOf(579.99)).withCategories(categoryList)
                 .withImgUrl("https://example.com/i5-10400F.jpg")
                 .withProductDiscount(productDiscount)
                 .build();
@@ -105,7 +105,7 @@ class ProductServiceImplTest {
 
         when(dataMapper.map(product, ProductResponse.class)).thenReturn(productResponse);
         when(productRepository.findAll(pageable)).thenReturn(page);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productRepository.findAll(pageable));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productRepository.findAll(pageable));
 
         // Act
         Page<ProductResponse> actualResponses = productService.findAllProducts(pageable);
@@ -115,247 +115,172 @@ class ProductServiceImplTest {
         assertIterableEquals(expectedResponses, actualResponses, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(product, ProductResponse.class);
         verify(productRepository, times(1)).findAll(pageable);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
-//    @Test
-//    @DisplayName("findAllProducts - Busca bem-sucedida retorna lista contendo múltiplos produtos")
-//    void findAllProducts_SuccessfulSearch_ReturnsListResponse_MultipleProducts() {
-//        // Arrange
-//        List<Product> productList = new ArrayList<>();
-//        List<ProductResponse> expectedResponses = new ArrayList<>();
-//
-//        for (long i = 1; i <= 10; i++) {
-//            Product product = new Product(i, "Produto" + i, "Descrição" + i, 100.0 + i, "www.url" +i+ ".com");
-//            productList.add(product);
-//
-//            ProductResponse productResponse = new ProductResponse(i, "Produto" + i, "Descrição" + i, 100.0 + i, "www.url" +i+ ".com");
-//            expectedResponses.add(productResponse);
-//
-//            when(converter.toResponse(product, ProductResponse.class)).thenReturn(productResponse);
-//        }
-//
-//        when(productRepository.findAll()).thenReturn(productList);
-//
-//        // Act
-//        List<ProductResponse> actualResponses = productService.findAllProducts();
-//
-//        // Assert
-//        assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with one product");
-//        assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with one product");
-//
-//        verify(converter, times(10)).toResponse(any(Product.class), eq(ProductResponse.class));
-//        verify(productRepository, times(1)).findAll();
-//    }
-//
-//    @Test
-//    @DisplayName("findAllProducts - Busca bem-sucedida retorna lista de produtos vazia")
-//    void findAllProducts_SuccessfulSearch_ReturnsEmptyList() {
-//        // Arrange
-//        List<Product> emptyProductList = Collections.emptyList();
-//
-//        when(productRepository.findAll()).thenReturn(emptyProductList);
-//
-//        // Act
-//        List<ProductResponse> actualResponses = productService.findAllProducts();
-//
-//        // Assert
-//        assertEquals(0, actualResponses.size(), "Expected an empty list of responses");
-//        assertIterableEquals(emptyProductList, actualResponses, "Expected an empty list of responses");
-//
-//        verify(productRepository, times(1)).findAll();
-//    }
-//
-//    @Test
-//    @DisplayName("findAllProducts - Exceção ao tentar buscar lista de produtos")
-//    void findAllProducts_RepositoryExceptionHandling() {
-//        // Arrange
-//        when(productRepository.findAll()).thenThrow(PersistenceException.class);
-//
-//        // Act and Assert
-//        assertThrows(RepositoryException.class, () -> productService.findAllProducts());
-//
-//        verify(productRepository, times(1)).findAll();
-//    }
-//
-//    @Test
-//    @DisplayName("createProduct - Criação bem-sucedida retorna produto criado")
-//    void createProduct_SuccessfulCreation_ReturnsProductResponse() {
-//        // Arrange
-//        Category category = new Category(1L, "Video games");
-//        List<Category> categoryList = Collections.singletonList(category);
-//
-//        List<Long> categoryListId = new ArrayList<>();
-//        categoryListId.add(1L);
-//
-//        ProductRequest productRequest = new ProductRequest(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com", categoryListId);
-//        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//        product.getCategories().addAll(categoryList);
-//        ProductResponse expectedResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//
-//        when(converter.toEntity(productRequest, Product.class)).thenReturn(product);
-//        when(categoryService.findAllCategoriesByIds(categoryListId)).thenReturn(categoryList);
-//        when(productRepository.save(product)).thenReturn(product);
-//        when(converter.toResponse(product, ProductResponse.class)).thenReturn(expectedResponse);
-//
-//        // Act
-//        ProductResponse actualResponse = productService.createProduct(productRequest);
-//
-//        // Assert
-//        assertNotNull(actualResponse, "ProductResponse should not be null");
-//        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
-//
-//        verify(converter, times(1)).toEntity(productRequest, Product.class);
-//        verify(categoryService, times(1)).findAllCategoriesByIds(categoryListId);
-//        verify(productRepository, times(1)).save(product);
-//        verify(converter, times(1)).toResponse(product, ProductResponse.class);
-//    }
-//
-//    @Test
-//    @DisplayName("createProduct - Exceção no repositório ao tentar criar produto")
-//    void createProduct_RepositoryExceptionHandling() {
-//        // Arrange
-//        Category category = new Category(1L, "Video games");
-//        List<Category> categoryList = Collections.singletonList(category);
-//
-//        List<Long> categoryListId = new ArrayList<>();
-//        categoryListId.add(1L);
-//
-//        ProductRequest productRequest = new ProductRequest(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com", categoryListId);
-//        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//        product.getCategories().addAll(categoryList);
-//
-//        when(converter.toEntity(productRequest, Product.class)).thenReturn(product);
-//        when(categoryService.findAllCategoriesByIds(categoryListId)).thenReturn(categoryList);
-//        when(productRepository.save(product)).thenThrow(PersistenceException.class);
-//
-//        // Act and Assert
-//        assertThrows(RepositoryException.class, () -> productService.createProduct(productRequest));
-//
-//        verify(converter, times(1)).toEntity(productRequest, Product.class);
-//        verify(categoryService, times(1)).findAllCategoriesByIds(categoryListId);
-//        verify(productRepository, times(1)).save(product);
-//    }
-//
-//    @Test
-//    @DisplayName("findProductById - Busca bem-sucedida retorna produto")
-//    void findProductById_SuccessfulSearch_ReturnsProductResponse() {
-//        // Arrange
-//        Category category = new Category(1L, "Video games");
-//        List<Category> categoryList = Collections.singletonList(category);
-//
-//        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//        product.getCategories().addAll(categoryList);
-//
-//        ProductResponse expectedResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//
-//        when(converter.toResponse(product, ProductResponse.class)).thenReturn(expectedResponse);
-//        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-//
-//        // Act
-//        ProductResponse actualResponse = productService.findProductById(1L);
-//
-//        // Assert
-//        assertNotNull(actualResponse, "ProductResponse should not be null");
-//        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
-//
-//        verify(converter, times(1)).toResponse(product, ProductResponse.class);
-//        verify(productRepository, times(1)).findById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("findProductById - Exceção ao tentar buscar produto inexistente")
-//    void findProductById_NotFoundExceptionHandling() {
-//        // Arrange
-//        when(productRepository.findById(1L)).thenReturn(Optional.empty());
-//
-//        // Act and Assert
-//        assertThrows(NotFoundException.class, () -> productService.findProductById(1L));
-//
-//        verify(productRepository, times(1)).findById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("updateProduct - Atualização bem-sucedida retorna produto atualizado")
-//    void updateProduct_SuccessfulUpdate_ReturnsProductResponse() {
-//        // Arrange
-//        Category category = new Category(1L, "Video games");
-//        List<Category> categoryList = Collections.singletonList(category);
-//
-//        List<Long> categoryListId = new ArrayList<>();
-//        categoryListId.add(1L);
-//
-//        ProductRequest productRequest = new ProductRequest(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com", categoryListId);
-//        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//        product.getCategories().addAll(categoryList);
-//        ProductResponse expectedResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//
-//        when(converter.toEntity(productRequest, Product.class)).thenReturn(product);
-//        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
-//        when(categoryService.findAllCategoriesByIds(categoryListId)).thenReturn(categoryList);
-//        when(productRepository.save(product)).thenReturn(product);
-//        when(converter.toResponse(product, ProductResponse.class)).thenReturn(expectedResponse);
-//
-//        // Act
-//        ProductResponse actualResponse = productService.updateProduct(productRequest);
-//
-//        // Assert
-//        assertNotNull(actualResponse, "ProductResponse should not be null");
-//        assertEquals(expectedResponse, actualResponse, "Expected and actual response should match");
-//
-//        verify(converter, times(1)).toEntity(productRequest, Product.class);
-//        verify(productRepository, times(1)).findById(product.getId());
-//        verify(categoryService, times(1)).findAllCategoriesByIds(categoryListId);
-//    }
-//
-//    @Test
-//    @DisplayName("updateProduct - Exceção ao tentar atualizar produto inexistente")
-//    void updateProduto_NotFoundExceptionHandling() {
-//        // Arrange
-//        Category category = new Category(1L, "Video games");
-//        List<Category> categoryList = Collections.singletonList(category);
-//
-//        List<Long> categoryListId = new ArrayList<>();
-//        categoryListId.add(1L);
-//
-//        ProductRequest productRequest = new ProductRequest(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com", categoryListId);
-//        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//        product.getCategories().addAll(categoryList);
-//
-//        when(productRepository.findById(productRequest.getId())).thenReturn(Optional.empty());
-//
-//        // Act and Assert
-//        assertThrows(NotFoundException.class, () -> productService.updateProduct(productRequest));
-//
-//        verify(productRepository, times(1)).findById(productRequest.getId());
-//    }
-//
-//    @Test
-//    @DisplayName("updateProduto - Exceção no repositório ao tentar atualizar produto")
-//    void updateProduto_RepositoryExceptionHandling() {
-//        // Arrange
-//        Category category = new Category(1L, "Video games");
-//        List<Category> categoryList = Collections.singletonList(category);
-//
-//        List<Long> categoryListId = new ArrayList<>();
-//        categoryListId.add(1L);
-//
-//        ProductRequest productRequest = new ProductRequest(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com", categoryListId);
-//        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//        product.getCategories().addAll(categoryList);
-//
-//        when(converter.toEntity(productRequest, Product.class)).thenReturn(product);
-//        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
-//        when(categoryService.findAllCategoriesByIds(categoryListId)).thenReturn(categoryList);
-//        when(productRepository.save(product)).thenThrow(PersistenceException.class);
-//
-//        // Act and Assert
-//        assertThrows(RepositoryException.class, () -> productService.updateProduct(productRequest));
-//
-//        verify(converter, times(1)).toEntity(productRequest, Product.class);
-//        verify(productRepository, times(1)).findById(product.getId());
-//        verify(categoryService, times(1)).findAllCategoriesByIds(categoryListId);
-//        verify(productRepository, times(1)).save(product);
-//    }
+    @Test
+    @DisplayName("findAllProducts - Exceção no repositório ao tentar buscar lista de produtos")
+    void findAllProducts_RepositoryExceptionHandling() {
+        // Arrange
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(productRepository.findAll(pageable)).thenThrow(RepositoryException.class);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productRepository.findAll(pageable));
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> productService.findAllProducts(pageable),
+                "Expected RepositoryException to be thrown");
+        verify(productRepository, times(1)).findAll(pageable);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("createProduct - Criação bem-sucedida retorna produto criado")
+    void createProduct_SuccessfulCreation_ReturnsProduct() {
+        // Arrange
+        ProductResponse expectedResponse = productResponse;
+
+        when(dataMapper.map(productRequest, Product.class)).thenReturn(product);
+        when(productRepository.save(product)).thenReturn(product);
+        when(dataMapper.map(product, ProductResponse.class)).thenReturn(expectedResponse);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productRepository.save(product));
+
+        // Act
+        ProductResponse actualResponse = productService.createProduct(productRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "ProductResponse should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(dataMapper, times(1)).map(productRequest, Product.class);
+        verify(productRepository, times(1)).save(product);
+        verify(dataMapper, times(1)).map(product, ProductResponse.class);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("createProduct - Exceção no repositório ao tentar criar produto")
+    void createProduct_RepositoryExceptionHandling() {
+        // Arrange
+        when(dataMapper.map(productRequest, Product.class)).thenReturn(product);
+        when(productRepository.save(product)).thenThrow(RepositoryException.class);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productRepository.save(product));
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> productService.createProduct(productRequest),
+                "Expected RepositoryException to be thrown");
+        verify(dataMapper, times(1)).map(productRequest, Product.class);
+        verify(productRepository, times(1)).save(product);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findProductById - Busca bem-sucedida retorna produto")
+    void findProductById_SuccessfulSearch_ReturnsProduct() {
+        // Arrange
+        ProductResponse expectedResponse = productResponse;
+
+        when(dataMapper.map(product, ProductResponse.class)).thenReturn(expectedResponse);
+        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productRepository.findById(product.getId()));
+
+        // Act
+        ProductResponse actualResponse = productService.findProductById(product.getId());
+
+        // Assert
+        assertNotNull(actualResponse, "Product should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(dataMapper, times(1)).map(product, ProductResponse.class);
+        verify(productRepository, times(1)).findById(product.getId());
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findProductById - Exceção ao tentar buscar produto inexistente")
+    void findProductById_NotFoundExceptionHandling() {
+        // Arrange
+        when(productRepository.findById(product.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productRepository.findById(product.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> productService.findProductById(product.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(productRepository, times(1)).findById(product.getId());
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findProductById - Exceção no repositório ao tentar buscar produto inexistente")
+    void findProductById_RepositoryExceptionHandling() {
+        // Arrange
+        when(productRepository.findById(product.getId())).thenThrow(RepositoryException.class);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productRepository.findById(product.getId()));
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> productService.findProductById(product.getId()),
+                "Expected RepositoryException to be thrown");
+        verify(productRepository, times(1)).findById(product.getId());
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateProduct - Atualização bem-sucedida retorna produto atualizado")
+    void updateProduct_SuccessfulUpdate_ReturnsProduct() {
+        // Arrange
+        ProductResponse expectedResponse = productResponse;
+
+        when(dataMapper.map(eq(productRequest), any(Product.class))).thenReturn(product);
+        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+        when(productRepository.save(product)).thenReturn(product);
+        when(dataMapper.map(eq(product), eq(ProductResponse.class))).thenReturn(expectedResponse);
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation.getArgument(0, SafeFunction.class).execute());
+
+        // Act
+        ProductResponse actualResponse = productService.updateProduct(product.getId(), productRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "Product should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual response should match");
+        verify(dataMapper, times(1)).map(eq(productRequest), any(Product.class));
+        verify(productRepository, times(1)).findById(product.getId());
+        verify(dataMapper, times(1)).map(eq(product), eq(ProductResponse.class));
+        verify(productRepository, times(1)).save(product);
+        verify(catchError, times(2)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateProduct - Exceção ao tentar atualizar produto inexistente")
+    void updateProduto_NotFoundExceptionHandling() {
+        // Arrange
+        when(productRepository.findById(product.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation.getArgument(0, SafeFunction.class).execute());
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> productService.updateProduct(product.getId(), productRequest),
+                "Expected NotFoundException tobe thrown");
+        verify(productRepository, times(1)).findById(product.getId());
+        verify(productRepository, never()).save(product);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateProduto - Exceção no repositório ao tentar atualizar produto")
+    void updateProduto_RepositoryExceptionHandling() {
+        // Arrange
+        when(dataMapper.map(eq(productRequest), any(Product.class))).thenReturn(product);
+        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+        when(productRepository.save(product)).thenThrow(RepositoryException.class);
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation.getArgument(0, SafeFunction.class).execute());
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> productService.updateProduct(product.getId(), productRequest),
+                "Expected RepositoryException to be thrown");
+        verify(dataMapper, times(1)).map(eq(productRequest), any(Product.class));
+        verify(productRepository, times(1)).findById(product.getId());
+        verify(productRepository, times(1)).save(product);
+        verify(catchError, times(2)).run(any(SafeFunction.class));
+    }
 //
 //    @Test
 //    @DisplayName("deleteProduct - Exclusão bem-sucedida do produto")
