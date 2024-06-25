@@ -1,11 +1,12 @@
 package com.rogeriogregorio.ecommercemanager.services;
 
-import com.rogeriogregorio.ecommercemanager.dto.requests.CategoryRequest;
 import com.rogeriogregorio.ecommercemanager.dto.requests.ProductRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductResponse;
+import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Category;
 import com.rogeriogregorio.ecommercemanager.entities.Product;
 import com.rogeriogregorio.ecommercemanager.entities.ProductDiscount;
+import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductRepository;
@@ -281,119 +282,103 @@ class ProductServiceImplTest {
         verify(productRepository, times(1)).save(product);
         verify(catchError, times(2)).run(any(SafeFunction.class));
     }
-//
-//    @Test
-//    @DisplayName("deleteProduct - Exclusão bem-sucedida do produto")
-//    void deleteProduct_DeletesSuccessfully() {
-//        // Arrange
-//        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//
-//        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-//
-//        // Act
-//        productService.deleteProduct(1L);
-//
-//        // Assert
-//        verify(productRepository, times(1)).findById(1L);
-//        verify(productRepository, times(1)).deleteById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("deleteProduct - Exceção ao tentar excluir produto inexistente")
-//    void deleteProduct_NotFoundExceptionHandling() {
-//        // Arrange
-//        when(productRepository.findById(1L)).thenReturn(Optional.empty());
-//
-//        // Act and Assert
-//        assertThrows(NotFoundException.class, () -> productService.deleteProduct(1L));
-//
-//        verify(productRepository, times(1)).findById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("deleteProduct - Exceção no repositório ao tentar excluir produto")
-//    void deleteProduct_RepositoryExceptionHandling() {
-//        // Arrange
-//        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//
-//        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-//        doThrow(PersistenceException.class).when(productRepository).deleteById(1L);
-//
-//        // Act and Assert
-//        assertThrows(RepositoryException.class, () -> productService.deleteProduct(1L));
-//
-//        verify(productRepository, times(1)).findById(1L);
-//        verify(productRepository, times(1)).deleteById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("findProductByName - Busca bem-sucedida pelo nome retorna lista contendo um produto")
-//    void findProductByName_SuccessfulSearch_ReturnsListResponse_OneProduct() {
-//        // Arrange
-//        String productName = "Playstation 5";
-//
-//        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//        List<Product> productList = Collections.singletonList(product);
-//
-//        ProductResponse productResponse = new ProductResponse(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//        List<ProductResponse> expectedResponses = Collections.singletonList(productResponse);
-//
-//        when(productRepository.findByName(eq(productName))).thenReturn(productList);
-//        when(converter.toResponse(eq(product), eq(ProductResponse.class))).thenReturn(productResponse);
-//
-//        // Act
-//        List<ProductResponse> actualResponses = productService.findProductByName("Playstation 5");
-//
-//        // Assert
-//        assertNotNull(actualResponses, "ProductResponses should not be null");
-//        assertEquals(expectedResponses, actualResponses, "Size of ProductResponses should match size of ProductEntities");
-//        assertEquals(productName, actualResponses.get(0).getName(), "Names should match");
-//
-//        verify(productRepository, times(1)).findByName(eq(productName));
-//        verify(converter, times(1)).toResponse(eq(product), eq(ProductResponse.class));
-//    }
-//
-//    @Test
-//    @DisplayName("findProductByName - Busca bem-sucedida pelo nome retorna lista contendo múltiplos produtos")
-//    void findProductByName_SuccessfulSearch_ReturnsListResponse_MultipleProducts() {
-//        // Arrange
-//        String productName = "Playstation 5";
-//
-//        List<Product> productList = new ArrayList<>();
-//        List<ProductResponse> expectedResponses = new ArrayList<>();
-//
-//        for (long i = 1; i <= 10; i++) {
-//            Product product = new Product(i, "Produto" + i, "Descrição" + i, 100.0 + i, "www.url" +i+ ".com");
-//            productList.add(product);
-//
-//            ProductResponse productResponse = new ProductResponse(i, "Produto" + i, "Descrição" + i, 100.0 + i, "www.url" +i+ ".com");
-//            expectedResponses.add(productResponse);
-//
-//            when(converter.toResponse(eq(product), eq(ProductResponse.class))).thenReturn(productResponse);
-//        }
-//
-//        when(productRepository.findByName(eq(productName))).thenReturn(productList);
-//
-//        // Act
-//        List<ProductResponse> actualResponses = productService.findProductByName("Playstation 5");
-//
-//        // Assert
-//        assertNotNull(actualResponses, "ProductResponses should not be null");
-//        assertEquals(expectedResponses, actualResponses, "Size of ProductResponses should match size of ProductEntities");
-//
-//        verify(productRepository, times(1)).findByName(eq(productName));
-//        verify(converter, times(10)).toResponse(any(Product.class), eq(ProductResponse.class));
-//    }
-//
-//    @Test
-//    @DisplayName("findProductByName - Exceção no repositório ao tentar buscar produto pelo nome")
-//    void findProductByName_RepositoryExceptionHandling() {
-//        // Arrange
-//        String productName = "Erro";
-//
-//        when(productRepository.findByName(productName)).thenThrow(PersistenceException.class);
-//
-//        // Act and Assert
-//        assertThrows(RepositoryException.class, () -> productService.findProductByName("Erro"), "Expected RepositoryException for repository error");
-//    }
+
+    @Test
+    @DisplayName("deleteProduct - Exclusão bem-sucedida do produto")
+    void deleteProduct_DeletesSuccessfully() {
+        // Arrange
+        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> productRepository.findById(product.getId()));
+        doAnswer(invocation -> {
+            productRepository.delete(product);
+            return null;
+        }).when(catchError).run(any(SafeProcedure.class));
+        doNothing().when(productRepository).delete(product);
+
+        // Act
+        productService.deleteProduct(product.getId());
+
+        // Assert
+        verify(productRepository, times(1)).findById(product.getId());
+        verify(productRepository, times(1)).delete(product);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
+    }
+
+    @Test
+    @DisplayName("deleteProduct - Exceção ao tentar excluir produto inexistente")
+    void deleteProduct_NotFoundExceptionHandling() {
+        // Arrange
+        when(productRepository.findById(product.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> productRepository.findById(category.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> productService.deleteProduct(product.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(productRepository, times(1)).findById(product.getId());
+        verify(productRepository, never()).delete(product);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("deleteProduct - Exceção no repositório ao tentar excluir produto")
+    void deleteProduct_RepositoryExceptionHandling() {
+        // Arrange
+        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> productRepository.findById(product.getId()));
+        doAnswer(invocation -> {
+            productRepository.delete(product);
+            return null;
+        }).when(catchError).run(any(SafeProcedure.class));
+        doThrow(RepositoryException.class).when(productRepository).delete(product);
+
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> productService.deleteProduct(product.getId()),
+                "Expected RepositoryException to be thrown");
+        verify(productRepository, times(1)).findById(product.getId());
+        verify(productRepository, times(1)).delete(product);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
+    }
+
+    @Test
+    @DisplayName("findProductByName - Busca bem-sucedida pelo nome retorna lista de produtos")
+    void findProductByName_SuccessfulSearch_ReturnsProductList() {
+        // Arrange
+        Pageable pageable = PageRequest.of(0, 10);
+        List<Product> productList = Collections.singletonList(product);
+        List<ProductResponse> expectedResponses = Collections.singletonList(productResponse);
+        PageImpl<Product> page = new PageImpl<>(productList, pageable, productList.size());
+
+        when(productRepository.findByName(product.getName(), pageable)).thenReturn(page);
+        when(dataMapper.map(product, ProductResponse.class)).thenReturn(productResponse);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productRepository.findByName(product.getName(), pageable));
+
+        // Act
+        Page<ProductResponse> actualResponses = productService.findProductByName(product.getName(), pageable);
+
+        // Assert
+        assertNotNull(actualResponses, "Product should not be null");
+        assertEquals(expectedResponses, actualResponses.getContent(), "Expected and actual responses should be equal");
+        assertEquals(product.getName(), actualResponses.getContent().get(0).getName(), "Names should match");
+        verify(productRepository, times(1)).findByName(product.getName(), pageable);
+        verify(dataMapper, times(1)).map(product, ProductResponse.class);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findProductByName - Exceção no repositório ao tentar buscar produto pelo nome")
+    void findProductByName_RepositoryExceptionHandling() {
+        // Arrange
+        Pageable pageable = PageRequest.of(0, 10);
+        when(productRepository.findByName(product.getName(), pageable)).thenThrow(RepositoryException.class);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productRepository.findByName(product.getName(), pageable));
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> productService.findProductByName(product.getName(), pageable),
+                "Expected RepositoryException to be thrown");
+        verify(productRepository, times(1)).findByName(product.getName(), pageable);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
 }
