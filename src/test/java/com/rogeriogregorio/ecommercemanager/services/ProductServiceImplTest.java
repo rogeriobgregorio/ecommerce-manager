@@ -61,7 +61,6 @@ class ProductServiceImplTest {
     private static ProductRequest productRequest;
     private static ProductResponse productResponse;
     private static Category category;
-    private static ProductDiscount productDiscount;
 
     @BeforeEach
     void setUp() {
@@ -70,8 +69,8 @@ class ProductServiceImplTest {
         Set<Category> categoryList = new HashSet<>();
         categoryList.add(category);
 
-        productDiscount = new ProductDiscount(1L, "Dia das Mães",
-                BigDecimal.valueOf(0.15),
+        ProductDiscount productDiscount = new ProductDiscount(1L,
+                "Dia das Mães", BigDecimal.valueOf(0.15),
                 Instant.parse("2024-06-01T00:00:00Z"),
                 Instant.parse("2024-06-07T00:00:00Z"));
 

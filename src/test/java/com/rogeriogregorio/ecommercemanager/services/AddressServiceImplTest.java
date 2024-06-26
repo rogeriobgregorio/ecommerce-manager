@@ -227,7 +227,8 @@ class AddressServiceImplTest {
 
         when(userService.getUserIfExists(addressRequest.getUserId())).thenReturn(user);
         when(addressRepository.findById(address.getId())).thenReturn(Optional.of(address));
-        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation.getArgument(0, SafeFunction.class).execute());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
         when(dataMapper.map(eq(addressRequest), any(Address.class))).thenReturn(address);
         when(addressRepository.save(address)).thenReturn(address);
         when(dataMapper.map(eq(address), eq(AddressResponse.class))).thenReturn(expectedResponse);
@@ -268,7 +269,8 @@ class AddressServiceImplTest {
         // Arrange
         when(userService.getUserIfExists(addressRequest.getUserId())).thenReturn(user);
         when(addressRepository.findById(address.getId())).thenReturn(Optional.of(address));
-        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation.getArgument(0, SafeFunction.class).execute());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
         when(dataMapper.map(eq(addressRequest), any(Address.class))).thenReturn(address);
         when(addressRepository.save(address)).thenThrow(RepositoryException.class);
 

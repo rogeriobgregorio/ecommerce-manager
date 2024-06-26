@@ -63,9 +63,6 @@ class UserServiceImplTest {
     private static UserRequest userRequest;
     private static UserResponse userResponse;
 
-    UserServiceImplTest() {
-    }
-
     @BeforeEach
     void setUp() {
 
