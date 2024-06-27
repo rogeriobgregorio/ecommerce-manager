@@ -13,6 +13,8 @@ import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.OrderServiceImpl;
 import com.rogeriogregorio.ecommercemanager.services.strategy.validations.OrderStatusStrategy;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeFunction;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeProcedure;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
 import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,20 +64,19 @@ class OrderServiceImplTest {
 
     private static User user;
     private static Order order;
-    private static Payment payment;
+    private static DiscountCoupon discountCoupon;
     private static OrderRequest orderRequest;
     private static OrderResponse orderResponse;
-    private static DiscountCoupon discountCoupon;
 
     @BeforeEach
     void setUp() {
 
         discountCoupon = new DiscountCoupon(1L,
                 "PROMO70OFF", BigDecimal.valueOf(0.15),
-                Instant.parse("2024-06-01T00:00:00Z"),
-                Instant.parse("2024-06-07T00:00:00Z"));
+                Instant.parse("2024-06-26T00:00:00Z"),
+                Instant.parse("2024-07-26T00:00:00Z"));
 
-        payment = Payment.newBuilder()
+        Payment payment = Payment.newBuilder()
                 .withId(1L)
                 .withMoment(Instant.now())
                 .withOrder(order)
@@ -120,7 +121,7 @@ class OrderServiceImplTest {
 
         when(dataMapper.map(order, OrderResponse.class)).thenReturn(orderResponse);
         when(orderRepository.findAll(pageable)).thenReturn(page);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> orderRepository.findAll(pageable));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> orderRepository.findAll(pageable));
 
         // Act
         Page<OrderResponse> actualResponses = orderService.findAllOrders(pageable);
@@ -130,159 +131,232 @@ class OrderServiceImplTest {
         assertIterableEquals(expectedResponses, actualResponses, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(order, OrderResponse.class);
         verify(orderRepository, times(1)).findAll(pageable);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
-    @DisplayName("findAllOrders - Exceção ao tentar buscar lista de pedidos")
+    @DisplayName("findAllOrders - Exceção no repositório ao tentar buscar lista de pedidos")
     void findAllOrders_RepositoryExceptionHandling() {
         // Arrange
-        when(orderRepository.findAll()).thenThrow(PersistenceException.class);
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(orderRepository.findAll(pageable)).thenThrow(RepositoryException.class);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> orderRepository.findAll(pageable));
 
         // Act and Assert
-        assertThrows(RepositoryException.class, () -> orderService.findAllOrders(), "Expected RepositoryException to be thrown");
-
-        verify(orderRepository, times(1)).findAll();
+        assertThrows(RepositoryException.class, () -> orderService.findAllOrders(pageable),
+                "Expected RepositoryException to be thrown");
+        verify(orderRepository, times(1)).findAll(pageable);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
-//    @Test
-//    @DisplayName("createOrder - Criação bem-sucedida retorna pedido criado")
-//    void createOrder_SuccessfulCreation_ReturnsOrderResponse() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        OrderRequest orderRequest = new OrderRequest(1L);
-//        Order order = new Order(Instant.now(), OrderStatus.WAITING_PAYMENT, user);
-//        OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
-//
-//        when(userService.getUserIfExists(orderRequest.getClientId())).thenReturn(user);
-//        when(converter.toResponse(order, OrderResponse.class)).thenReturn(expectedResponse);
-//        when(orderRepository.save(order)).thenReturn(order);
-//
-//        // Act
-//        OrderResponse actualResponse = orderService.createOrder(orderRequest);
-//
-//        // Assert
-//        assertNotNull(actualResponse, "OrderResponse should not be null");
-//        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
-//
-//        verify(userService, times(1)).getUserIfExists(orderRequest.getClientId());
-//        verify(converter, times(1)).toResponse(order, OrderResponse.class);
-//        verify(orderRepository, times(1)).save(order);
-//    }
-//
-//    @Test
-//    @DisplayName("createOrder - Exceção no repositório ao tentar criar pedido")
-//    void createOrder_RepositoryExceptionHandling() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        OrderRequest orderRequest = new OrderRequest(1L);
-//        Order order = new Order(Instant.now(), OrderStatus.WAITING_PAYMENT, user);
-//
-//        when(userService.getUserIfExists(orderRequest.getClientId())).thenReturn(user);
-//        when(orderRepository.save(order)).thenThrow(PersistenceException.class);
-//
-//        // Act and Assert
-//        assertThrows(RepositoryException.class, () -> orderService.createOrder(orderRequest), "Expected RepositoryException due to a generic runtime exception");
-//
-//        verify(orderRepository, times(1)).save(order);
-//    }
-//
-//    @Test
-//    @DisplayName("findOrderById - Busca bem-sucedida retorna pedido")
-//    void findOrderById_SuccessfulSearch_ReturnsOrderResponse() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        Order order = new Order(1L, Instant.now(), OrderStatus.PAID, user);
-//        OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, user);
-//
-//        when(converter.toResponse(order, OrderResponse.class)).thenReturn(expectedResponse);
-//        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
-//
-//        // Act
-//        OrderResponse actualResponse = orderService.findOrderById(1L);
-//
-//        // Assert
-//        assertNotNull(actualResponse, "OrderResponse should not be null");
-//        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
-//
-//        verify(converter, times(1)).toResponse(order, OrderResponse.class);
-//        verify(orderRepository, times(1)).findById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("findOrderById - Exceção ao tentar buscar pedido inexistente")
-//    void findOrderById_NotFoundExceptionHandling() {
-//        // Arrange
-//        when(orderRepository.findById(1L)).thenReturn(Optional.empty());
-//
-//        // Act and Assert
-//        assertThrows(NotFoundException.class, () -> orderService.findOrderById(1L), "Expected NotFoundException for non-existent order");
-//
-//        verify(orderRepository, times(1)).findById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("updateOrder - Atualização bem-sucedida retorna pedido atualizado")
-//    void updateOrder_SuccessfulUpdate_ReturnsOrderResponse() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID, 1L);
-//        Order order = new Order(1L, Instant.now(), OrderStatus.PAID, user);
-//        OrderResponse expectedResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, user);
-//
-//        when(orderRepository.findById(orderRequest.getId())).thenReturn(Optional.of(order));
-//        when(orderRepository.save(order)).thenReturn(order);
-//        when(converter.toResponse(order, OrderResponse.class)).thenReturn(expectedResponse);
-//
-//        // Act
-//        OrderResponse actualResponse = orderService.updateOrder(orderRequest);
-//
-//        // Assert
-//        assertNotNull(actualResponse, "OrderResponse should not be null");
-//        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
-//        assertEquals(expectedResponse.getMoment(), actualResponse.getMoment(), "Moments should match");
-//        assertEquals(expectedResponse.getOrderStatus(), actualResponse.getOrderStatus(), "OrderStatus should match");
-//        assertEquals(expectedResponse.getClient(), actualResponse.getClient(), "Clients should match");
-//
-//        verify(orderRepository, times(1)).findById(orderRequest.getId());
-//        verify(orderRepository, times(1)).save(order);
-//        verify(converter, times(1)).toResponse(order, OrderResponse.class);
-//    }
-//
-//    @Test
-//    @DisplayName("updateOrder - Exceção ao tentar atualizar pedido inexistente")
-//    void updateOrder_NotFoundExceptionHandling() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID, 1L);
-//        Order order = new Order(1L, Instant.now(), OrderStatus.PAID, user);
-//
-//        when(orderRepository.findById(orderRequest.getId())).thenReturn(Optional.empty());
-//
-//        // Act and Assert
-//        assertThrows(NotFoundException.class, () -> orderService.updateOrder(orderRequest), "Expected NotFoundException for non-existent order");
-//
-//        verify(orderRepository, times(1)).findById(order.getId());
-//    }
-//
-//    @Test
-//    @DisplayName("updateOrder - Exceção no repositório ao tentar atualizar pedido")
-//    void updateOrder_RepositoryExceptionHandling() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        OrderRequest orderRequest = new OrderRequest(1L, OrderStatus.PAID, 1L);
-//        Order order = new Order(1L, Instant.now(), OrderStatus.PAID, user);
-//
-//        when(orderRepository.findById(orderRequest.getId())).thenReturn(Optional.of(order));
-//        when(orderRepository.save(order)).thenThrow(PersistenceException.class);
-//
-//        // Act and Assert
-//        assertThrows(RepositoryException.class, () -> orderService.updateOrder(orderRequest), "Expected RepositoryException for update failure");
-//
-//        verify(orderRepository, times(1)).findById(order.getId());
-//        verify(orderRepository, times(1)).save(order);
-//    }
-//
+    @Test
+    @DisplayName("createOrder - Criação bem-sucedida retorna pedido criado")
+    void createOrder_SuccessfulCreation_ReturnsOrder() {
+        // Arrange
+        OrderResponse expectedResponse = orderResponse;
+
+        when(userService.getUserIfExists(orderRequest.getClientId())).thenReturn(user);
+        when(dataMapper.map(order, OrderResponse.class)).thenReturn(expectedResponse);
+        when(orderRepository.save(order)).thenReturn(order);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> orderRepository.save(order));
+
+        // Act
+        OrderResponse actualResponse = orderService.createOrder(orderRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "Order should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(userService, times(1)).getUserIfExists(orderRequest.getClientId());
+        verify(dataMapper, times(1)).map(order, OrderResponse.class);
+        verify(orderRepository, times(1)).save(order);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("createOrder - Exceção no repositório ao tentar criar pedido")
+    void createOrder_RepositoryExceptionHandling() {
+        // Arrange
+        when(userService.getUserIfExists(orderRequest.getClientId())).thenReturn(user);
+        when(orderRepository.save(order)).thenThrow(RepositoryException.class);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> orderRepository.save(order));
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> orderService.createOrder(orderRequest),
+                "Expected RepositoryException to be thrown");
+        verify(userService, times(1)).getUserIfExists(orderRequest.getClientId());
+        verify(orderRepository, times(1)).save(order);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findOrderById - Busca bem-sucedida retorna pedido")
+    void findOrderById_SuccessfulSearch_ReturnsOrder() {
+        // Arrange
+        OrderResponse expectedResponse = orderResponse;
+
+        when(dataMapper.map(order, OrderResponse.class)).thenReturn(expectedResponse);
+        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> orderRepository.findById(order.getId()));
+
+        // Act
+        OrderResponse actualResponse = orderService.findOrderById(order.getId());
+
+        // Assert
+        assertNotNull(actualResponse, "Order should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        verify(dataMapper, times(1)).map(order, OrderResponse.class);
+        verify(orderRepository, times(1)).findById(order.getId());
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findOrderById - Exceção ao tentar buscar pedido inexistente")
+    void findOrderById_NotFoundExceptionHandling() {
+        // Arrange
+        when(orderRepository.findById(order.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> orderRepository.findById(order.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> orderService.findOrderById(order.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(orderRepository, times(1)).findById(order.getId());
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findOrderById - Busca bem-sucedida retorna pedido")
+    void findOrderById_RepositoryExceptionHandling() {
+        // Arrange
+        when(orderRepository.findById(order.getId())).thenThrow(RepositoryException.class);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> orderRepository.findById(order.getId()));
+
+        // Assert and Assert
+        assertThrows(RepositoryException.class, () -> orderService.findOrderById(order.getId()),
+                "Expected RepositoryException to be thrown");
+        verify(orderRepository, times(1)).findById(order.getId());
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateOrder - Atualização bem-sucedida retorna pedido atualizado")
+    void updateOrder_SuccessfulUpdate_ReturnsOrder() {
+        // Arrange
+        OrderResponse expectedResponse = orderResponse;
+
+        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+        when(orderRepository.save(order)).thenReturn(order);
+        when(dataMapper.map(order, OrderResponse.class)).thenReturn(expectedResponse);
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
+        when(discountCouponService.findDiscountCouponByCode(order.getCoupon().getCode())).thenReturn(discountCoupon);
+
+        // Act
+        OrderResponse actualResponse = orderService.updateOrder(order.getId(), orderRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "Order should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(orderRepository, times(1)).findById(order.getId());
+        verify(orderRepository, times(1)).save(order);
+        verify(dataMapper, times(1)).map(order, OrderResponse.class);
+        verify(catchError, times(2)).run(any(SafeFunction.class));
+        verify(discountCouponService, times(1)).findDiscountCouponByCode(order.getCoupon().getCode());
+    }
+
+    @Test
+    @DisplayName("updateOrder - Exceção ao tentar atualizar pedido inexistente")
+    void updateOrder_NotFoundExceptionHandling() {
+        // Arrange
+        when(orderRepository.findById(order.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> orderRepository.findById(order.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> orderService.updateOrder(order.getId(), orderRequest),
+                "Expected NotFoundException to be thrown");
+        verify(orderRepository, times(1)).findById(order.getId());
+        verify(orderRepository, never()).save(order);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateOrder - Exceção no repositório ao tentar atualizar pedido")
+    void updateOrder_RepositoryExceptionHandling() {
+        // Arrange
+        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+        when(orderRepository.save(order)).thenThrow(RepositoryException.class);
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
+        when(discountCouponService.findDiscountCouponByCode(order.getCoupon().getCode())).thenReturn(discountCoupon);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> orderService.updateOrder(order.getId(), orderRequest),
+        "Expected RepositoryException to be thrown");
+        verify(orderRepository, times(1)).findById(order.getId());
+        verify(orderRepository, times(1)).save(order);
+        verify(catchError, times(2)).run(any(SafeFunction.class));
+        verify(discountCouponService, times(1)).findDiscountCouponByCode(order.getCoupon().getCode());
+    }
+
+    @Test
+    @DisplayName("updateOrderStatus - Atualização de status do pedido bem-sucedida retorna pedido atualizado")
+    void updateOrderStatus_SuccessfulUpdateOrderStatus_ReturnsOrder() {
+        // Arrange
+        OrderResponse expectedResponse = orderResponse;
+
+        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+        when(orderRepository.save(order)).thenReturn(order);
+        when(dataMapper.map(order, OrderResponse.class)).thenReturn(expectedResponse);
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
+
+        // Act
+        OrderResponse actualResponse = orderService.updateOrderStatus(order.getId(), orderRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "Order should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(orderRepository, times(1)).findById(order.getId());
+        verify(orderRepository, times(1)).save(order);
+        verify(dataMapper, times(1)).map(order, OrderResponse.class);
+        verify(catchError, times(2)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateOrderStatus - Exceção ao tentar atualizar o status do pedido inexistente")
+    void updateOrderStatus_NotFoundExceptionHandling() {
+        // Arrange
+        when(orderRepository.findById(order.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> orderRepository.findById(order.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> orderService.updateOrderStatus(order.getId(), orderRequest),
+                "Expected NotFoundException to be thrown");
+        verify(orderRepository, times(1)).findById(order.getId());
+        verify(orderRepository, never()).save(order);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateOrderStatus - Exceção no repositório ao tentar atualizar o status do pedido")
+    void updateOrderStatus_RepositoryExceptionHandling() {
+        // Arrange
+        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+        when(orderRepository.save(order)).thenThrow(RepositoryException.class);
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> orderService.updateOrderStatus(order.getId(), orderRequest),
+                "Expected RepositoryException to be thrown");
+        verify(orderRepository, times(1)).findById(order.getId());
+        verify(orderRepository, times(1)).save(order);
+        verify(catchError, times(2)).run(any(SafeFunction.class));
+    }
+
 //    @Test
 //    @DisplayName("deleteOrder - Exclusão bem-sucedida do pedido")
 //    void deleteOrder_DeletesOrderSuccessfully() {
