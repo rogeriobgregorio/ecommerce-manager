@@ -80,7 +80,7 @@ class OrderServiceImplTest {
                 .withId(1L)
                 .withMoment(Instant.now())
                 .withOrder(order)
-                .withPaymentStatus(PaymentStatus.CONCLUDED)
+                .withPaymentStatus(PaymentStatus.PROCESSING)
                 .withPaymentType(PaymentType.PIX)
                 .withTxId("b3f1b57e-ec0c-4b23-a6b2-647d2b176d74")
                 .withChargeLink("https://bank.com/paymentqrcode")
@@ -97,13 +97,13 @@ class OrderServiceImplTest {
                 .withClient(user)
                 .withMoment(Instant.now())
                 .withCoupon(discountCoupon)
-                .withOrderStatus(OrderStatus.DELIVERED)
+                .withOrderStatus(OrderStatus.WAITING_PAYMENT)
                 .withPayment(payment)
                 .build();
 
-        orderRequest = new OrderRequest(OrderStatus.DELIVERED, user.getId(), "PROMO70OFF");
+        orderRequest = new OrderRequest(OrderStatus.WAITING_PAYMENT, user.getId(), "PROMO70OFF");
 
-        orderResponse = new OrderResponse(1L, Instant.now(), OrderStatus.DELIVERED, user, discountCoupon);
+        orderResponse = new OrderResponse(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user, discountCoupon);
 
         MockitoAnnotations.openMocks(this);
         orderService = new OrderServiceImpl(orderRepository, userService,
@@ -357,51 +357,64 @@ class OrderServiceImplTest {
         verify(catchError, times(2)).run(any(SafeFunction.class));
     }
 
-//    @Test
-//    @DisplayName("deleteOrder - Exclusão bem-sucedida do pedido")
-//    void deleteOrder_DeletesOrderSuccessfully() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        Order order = new Order(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
-//
-//        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
-//
-//        // Act
-//        orderService.deleteOrder(1L);
-//
-//        // Assert
-//        verify(orderRepository, times(1)).deleteById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("deleteOrder - Exceção ao tentar excluir pedido inexistente")
-//    void deleteOrder_NotFoundExceptionHandling() {
-//        // Arrange
-//        when(orderRepository.findById(1L)).thenReturn(Optional.empty());
-//
-//        // Act and Assert
-//        assertThrows(NotFoundException.class, () -> orderService.deleteOrder(1L), "Expected NotFoundException for non-existent order");
-//
-//        verify(orderRepository, times(1)).findById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("deleteOrder - Exceção no repositório ao tentar excluir pedido")
-//    void deleteOrder_RepositoryExceptionHandling() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        Order order = new Order(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
-//
-//        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
-//        doThrow(PersistenceException.class).when(orderRepository).deleteById(1L);
-//
-//        // Act and Assert
-//        assertThrows(RepositoryException.class, () -> orderService.deleteOrder(1L), "Expected RepositoryException for delete failure");
-//
-//        verify(orderRepository, times(1)).findById(1L);
-//        verify(orderRepository, times(1)).deleteById(1L);
-//    }
-//
+    @Test
+    @DisplayName("deleteOrder - Exclusão bem-sucedida do pedido")
+    void deleteOrder_DeletesOrderSuccessfully() {
+        // Arrange
+        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> orderRepository.findById(order.getId()));
+        doAnswer(invocation -> {
+            orderRepository.delete(order);
+            return null;
+        }).when(catchError).run(any(SafeProcedure.class));
+        doNothing().when(orderRepository).delete(order);
+
+        // Act
+        orderService.deleteOrder(order.getId());
+
+        // Assert
+        verify(orderRepository, times(1)).findById(order.getId());
+        verify(orderRepository, times(1)).delete(order);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
+    }
+
+    @Test
+    @DisplayName("deleteOrder - Exceção ao tentar excluir pedido inexistente")
+    void deleteOrder_NotFoundExceptionHandling() {
+        // Arrange
+        when(orderRepository.findById(order.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> orderRepository.findById(order.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> orderService.deleteOrder(order.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(orderRepository, times(1)).findById(order.getId());
+        verify(orderRepository, never()).delete(order);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("deleteOrder - Exceção no repositório ao tentar excluir pedido")
+    void deleteOrder_RepositoryExceptionHandling() {
+        // Arrange
+        when(orderRepository.findById(order.getId())).thenReturn(Optional.of(order));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> orderRepository.findById(order.getId()));
+        doAnswer(invocation -> {
+            orderRepository.delete(order);
+            return null;
+        }).when(catchError).run(any(SafeProcedure.class));
+        doThrow(RepositoryException.class).when(orderRepository).delete(order);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> orderService.deleteOrder(order.getId()),
+                "Expected RepositoryException to be thrown");
+        verify(orderRepository, times(1)).findById(order.getId());
+        verify(orderRepository, times(1)).delete(order);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
+    }
+
 //    @Test
 //    @DisplayName("deleteOrder - Exceção ao tentar excluir pedido pago")
 //    void deleteOrder_IllegalStateExceptionHandling() {
