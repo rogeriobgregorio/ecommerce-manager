@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/orders")
@@ -78,7 +79,7 @@ public class OrderController {
 
     @GetMapping(value = "/client/{id}")
     public ResponseEntity<List<OrderResponse>> getOrdersByClientId(
-            @PathVariable Long id, Pageable pageable) {
+            @PathVariable UUID id, Pageable pageable) {
 
         return ResponseEntity
                 .status(HttpStatus.OK)

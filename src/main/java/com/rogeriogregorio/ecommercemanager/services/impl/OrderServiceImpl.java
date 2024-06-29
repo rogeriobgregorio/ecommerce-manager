@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -130,7 +131,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional(readOnly = true)
-    public Page<OrderResponse> findOrderByClientId(Long id, Pageable pageable) {
+    public Page<OrderResponse> findOrderByClientId(UUID id, Pageable pageable) {
 
         return catchError.run(() -> orderRepository.findByClient_Id(id, pageable))
                 .map(order -> dataMapper.map(order, OrderResponse.class));

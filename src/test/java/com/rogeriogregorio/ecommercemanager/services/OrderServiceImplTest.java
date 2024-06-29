@@ -415,85 +415,42 @@ class OrderServiceImplTest {
         verify(catchError, times(1)).run(any(SafeProcedure.class));
     }
 
-//    @Test
-//    @DisplayName("deleteOrder - Exceção ao tentar excluir pedido pago")
-//    void deleteOrder_IllegalStateExceptionHandling() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        Order order = new Order(1L, Instant.now(), OrderStatus.PAID, user);
-//
-//        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
-//
-//        // Act and Assert
-//        assertThrows(IllegalStateException.class, () -> orderService.deleteOrder(1L), "Expected IllegalException for delete failure");
-//
-//        verify(orderRepository, times(1)).findById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("findOrderByClientId - Busca bem-sucedida retorna lista contendo um pedido")
-//    void findOrderByClientId_SuccessfulSearch_ReturnsOrderResponse_OneOrder() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        Order order = new Order(1L, Instant.now(), OrderStatus.PAID, user);
-//        List<Order> orderList = Collections.singletonList(order);
-//
-//        OrderResponse orderResponse = new OrderResponse(1L, Instant.now(), OrderStatus.PAID, user);
-//        List<OrderResponse> expectedResponses = Collections.singletonList(orderResponse);
-//
-//        when(converter.toResponse(order, OrderResponse.class)).thenReturn(orderResponse);
-//        when(orderRepository.findByClient_Id(1L)).thenReturn(Optional.of(orderList));
-//
-//        // Act
-//        List<OrderResponse> actualResponses = orderService.findOrderByClientId(1L);
-//
-//        // Assert
-//        assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with one order");
-//        assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with one order");
-//
-//        verify(converter, times(1)).toResponse(order, OrderResponse.class);
-//        verify(orderRepository, times(1)).findByClient_Id(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("findOrderByClientId - Busca bem-sucedida retorna lista contendo múltiplos pedidos")
-//    void findOrderByClientId_SuccessfulSearch_ReturnsListResponse_MultipleOrders() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        List<Order> orderList = new ArrayList<>();
-//        List<OrderResponse> expectedResponses = new ArrayList<>();
-//        for (int i = 1; i <= 10; i++) {
-//            Order order = new Order((long) i, Instant.now(), OrderStatus.PAID, user);
-//            orderList.add(order);
-//
-//            OrderResponse orderResponse = new OrderResponse((long) i, Instant.now(), OrderStatus.PAID, user);
-//            expectedResponses.add(orderResponse);
-//
-//            when(converter.toResponse(order, OrderResponse.class)).thenReturn(orderResponse);
-//        }
-//
-//        when(orderRepository.findByClient_Id(1L)).thenReturn(Optional.of(orderList));
-//
-//        // Act
-//        List<OrderResponse> actualResponses = orderService.findOrderByClientId(1L);
-//
-//        // Assert
-//        assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with multiple orders");
-//        assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with multiple orders");
-//
-//        verify(converter, times(10)).toResponse(any(Order.class), eq(OrderResponse.class));
-//        verify(orderRepository, times(1)).findByClient_Id(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("findOrderByClientId - Exceção ao retornar lista de pedidos vazia")
-//    void findOrderByClientId_SuccessfulSearch_ReturnsEmptyList() {
-//        // Arrange
-//        when(orderRepository.findByClient_Id(1L)).thenReturn(Optional.empty());
-//
-//        // Act and Assert
-//        assertThrows(NotFoundException.class, () -> orderService.findOrderByClientId(1L), "Expected NotFoundException to be thrown");
-//
-//        verify(orderRepository, times(1)).findByClient_Id(1L);
-//    }
+    @Test
+    @DisplayName("findOrderByClientId - Busca bem-sucedida retorna lista de pedidos")
+    void findOrderByClientId_SuccessfulSearch_ReturnsOrderList() {
+        // Arrange
+        Pageable pageable = PageRequest.of(0, 10);
+        List<Order> orderList = Collections.singletonList(order);
+        List<OrderResponse> expectedResponses = Collections.singletonList(orderResponse);
+        PageImpl<Order> page = new PageImpl<>(orderList, pageable, orderList.size());
+
+        when(dataMapper.map(order, OrderResponse.class)).thenReturn(orderResponse);
+        when(orderRepository.findByClient_Id(user.getId(), pageable)).thenReturn(page);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> orderRepository.findByClient_Id(user.getId(), pageable));
+
+        // Act
+        Page<OrderResponse> actualResponses = orderService.findOrderByClientId(user.getId(), pageable);
+
+        // Assert
+        assertEquals(expectedResponses.size(), actualResponses.getContent().size(), "Expected a list with one object");
+        assertIterableEquals(expectedResponses, actualResponses, "Expected and actual responses should be equal");
+        verify(dataMapper, times(1)).map(order, OrderResponse.class);
+        verify(orderRepository, times(1)).findByClient_Id(user.getId(), pageable);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findOrderByClientId - Exceção no repositório ao tentar buscar pedido pelo id do cliente")
+    void findOrderByClientId_RepositoryExceptionHandling() {
+        // Arrange
+        Pageable pageable = PageRequest.of(0, 10);
+        when(orderRepository.findByClient_Id(user.getId(), pageable)).thenThrow(RepositoryException.class);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> orderRepository.findByClient_Id(user.getId(), pageable));
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> orderService.findOrderByClientId(user.getId(), pageable),
+                "Expected RepositoryException to be thrown");
+        verify(orderRepository, times(1)).findByClient_Id(user.getId(), pageable);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
 }
