@@ -1,66 +1,80 @@
-//package com.rogeriogregorio.ecommercemanager.services;
-//
-//import com.rogeriogregorio.ecommercemanager.dto.requests.OrderItemRequest;
-//import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
-//import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
-//import com.rogeriogregorio.ecommercemanager.entities.*;
-//import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
-//import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
-//import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
-//import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
-//import com.rogeriogregorio.ecommercemanager.services.impl.PaymentServiceImpl;
-//import com.rogeriogregorio.ecommercemanager.services.strategy.validations.OrderStrategy;
-//import jakarta.persistence.PersistenceException;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.DisplayName;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.MockitoAnnotations;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//
-//import java.time.Instant;
-//import java.util.ArrayList;
-//import java.util.Collections;
-//import java.util.List;
-//import java.util.Optional;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.Mockito.*;
-//
-//@ExtendWith(MockitoExtension.class)
-//class PaymentServiceImplTest {
-//
-//    @Mock
-//    private PaymentRepository paymentRepository;
-//
-//    @Mock
-//    private InventoryItemService inventoryItemService;
-//
-//    @Mock
-//    private StockMovementService stockMovementService;
-//
-//    @Mock
-//    private OrderService orderService;
-//
-//    @Mock
-//    private Converter converter;
-//
-//    @Mock
-//    private List<OrderStrategy> validators;
-//
-//    @InjectMocks
-//    private PaymentServiceImpl paymentService;
-//
-//    PaymentServiceImplTest() {
-//    }
-//
-//    @BeforeEach
-//    void setUp() {
-//        MockitoAnnotations.openMocks(this);
-//        paymentService = new PaymentServiceImpl(paymentRepository, inventoryItemService, stockMovementService, mailService, orderService, discountCouponService, discountCouponService1, converter, validators);
-//    }
+package com.rogeriogregorio.ecommercemanager.services;
+
+import com.rogeriogregorio.ecommercemanager.dto.requests.OrderItemRequest;
+import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
+import com.rogeriogregorio.ecommercemanager.dto.responses.PaymentResponse;
+import com.rogeriogregorio.ecommercemanager.entities.*;
+import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
+import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
+import com.rogeriogregorio.ecommercemanager.mail.MailService;
+import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
+import com.rogeriogregorio.ecommercemanager.services.impl.PaymentServiceImpl;
+import com.rogeriogregorio.ecommercemanager.services.strategy.payments.PaymentStrategy;
+import com.rogeriogregorio.ecommercemanager.services.strategy.validations.OrderStrategy;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
+import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
+import jakarta.persistence.PersistenceException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class PaymentServiceImplTest {
+
+    @Mock
+    private PaymentRepository paymentRepository;
+
+    @Mock
+    private InventoryItemService inventoryItemService;
+
+    @Mock
+    private StockMovementService stockMovementService;
+
+    @Mock
+    private OrderService orderService;
+
+    @Mock
+    private MailService mailService;
+
+    @Mock
+    private List<PaymentStrategy> paymentMethods;
+
+    @Mock
+    private CatchError catchError;
+
+    @Mock
+    private DataMapper dataMapper;
+
+    @Mock
+    private List<OrderStrategy> validators;
+
+    @InjectMocks
+    private PaymentServiceImpl paymentService;
+
+    @BeforeEach
+    void setUp() {
+
+
+
+        MockitoAnnotations.openMocks(this);
+        paymentService = new PaymentServiceImpl(paymentRepository, inventoryItemService, stockMovementService,
+                mailService, orderService, validators, paymentMethods, catchError, dataMapper);
+    }
 //
 //    @Test
 //    @DisplayName("findAllPayments - Busca bem-sucedida retorna lista contendo um pagamento")
@@ -306,4 +320,4 @@
 //
 //        verify(paymentRepository, times(1)).findById(1L);
 //    }
-//}
+}
