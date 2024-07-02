@@ -141,69 +141,22 @@ class PaymentServiceImplTest {
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 
-//    @Test
-//    @DisplayName("findAllPayments - Busca bem-sucedida retorna lista contendo múltiplos pagamentos")
-//    void findAllPayments_SuccessfulSearch_ReturnsListResponse_MultiplePayments() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        Order order = new Order(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, user);
-//
-//        List<Payment> paymentList = new ArrayList<>();
-//        List<PaymentResponse> expectedResponses = new ArrayList<>();
-//
-//        for (int i = 1; i <= 10; i++) {
-//            Payment payment = new Payment((long) i, Instant.now(), order);
-//            paymentList.add(payment);
-//
-//            PaymentResponse paymentResponse = new PaymentResponse((long) i, Instant.now(), order);
-//            expectedResponses.add(paymentResponse);
-//
-//            when(converter.toResponse(payment, PaymentResponse.class)).thenReturn(paymentResponse);
-//        }
-//
-//        when(paymentRepository.findAll()).thenReturn(paymentList);
-//
-//        // Act
-//        List<PaymentResponse> actualResponses = paymentService.findAllPayments();
-//
-//        // Assert
-//        assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with multiple payments");
-//        assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with multiple payments");
-//
-//        verify(converter, times(10)).toResponse(any(Payment.class), eq(PaymentResponse.class));
-//        verify(paymentRepository, times(1)).findAll();
-//    }
-//
-//    @Test
-//    @DisplayName("findAllPayments - Busca bem-sucedida retorna lista de pagamentos vazia")
-//    void findAllPayments_SuccessfulSearch_ReturnsEmptyList() {
-//        // Arrange
-//        List<Payment> emptyPaymentList = new ArrayList<>();
-//
-//        when(paymentRepository.findAll()).thenReturn(emptyPaymentList);
-//
-//        // Act
-//        List<PaymentResponse> actualResponses = paymentService.findAllPayments();
-//
-//        // Assert
-//        assertEquals(0, actualResponses.size(), "Expected an empty list of responses");
-//        assertIterableEquals(emptyPaymentList, actualResponses, "Expected an empty list of responses");
-//
-//        verify(paymentRepository, times(1)).findAll();
-//    }
-//
-//    @Test
-//    @DisplayName("findAllPayments - Exceção ao tentar buscar lista de pagamentos")
-//    void findAllPayments_RepositoryExceptionHandling() {
-//        // Arrange
-//        when(paymentRepository.findAll()).thenThrow(PersistenceException.class);
-//
-//        // Act and Assert
-//        assertThrows(RepositoryException.class, () -> paymentService.findAllPayments());
-//
-//        verify(paymentRepository, times(1)).findAll();
-//    }
-//
+    @Test
+    @DisplayName("findAllPayments - Exceção ao tentar buscar lista de pagamentos")
+    void findAllPayments_RepositoryExceptionHandling() {
+        // Arrange
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(paymentRepository.findAll(pageable)).thenThrow(RepositoryException.class);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> paymentRepository.findAll(pageable));
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> paymentService.findAllPayments(pageable),
+                "Expected RepositoryException to be thrown");
+        verify(paymentRepository, times(1)).findAll(pageable);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
 //    @Test
 //    @DisplayName("createPayment - Criação bem-sucedida retorna pagamento criado")
 //    void createPayment_SuccessfulCreation_ReturnsPaymentResponse() {
