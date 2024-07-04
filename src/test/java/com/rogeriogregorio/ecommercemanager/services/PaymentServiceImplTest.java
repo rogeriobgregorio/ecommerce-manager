@@ -32,6 +32,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
 
@@ -71,8 +72,6 @@ class PaymentServiceImplTest {
     @InjectMocks
     private PaymentServiceImpl paymentService;
 
-
-    private static User user;
     private static Order order;
     private static Payment payment;
     private static PaymentRequest paymentRequest;
@@ -82,10 +81,34 @@ class PaymentServiceImplTest {
     @BeforeEach
     void setUp() {
 
-        user = User.newBuilder()
+        User user = User.newBuilder()
                 .withId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
                 .withName("Admin").withEmail("admin@email.com").withPhone("11912345678")
                 .withCpf("72482581052").withPassword("Password123$").withRole(UserRole.ADMIN)
+                .build();
+
+        Address address = Address.newBuilder()
+                .withId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
+                .withStreet("Rua ABC, 123").withCity("São Paulo").withState("SP")
+                .withCep("01234-567").withCountry("Brasil").withUser(user)
+                .build();
+
+        user.setAddress(address);
+
+        Category category = new Category(1L, "Computers");
+        Set<Category> categoryList = new HashSet<>();
+        categoryList.add(category);
+
+        ProductDiscount productDiscount = new ProductDiscount(1L,
+                "Dia das Mães", BigDecimal.valueOf(0.15),
+                Instant.parse("2024-06-01T00:00:00Z"),
+                Instant.parse("2024-06-07T00:00:00Z"));
+
+        Product product = Product.newBuilder()
+                .withId(1L).withName("Intel i5-10400F").withDescription("Intel Core Processor")
+                .withPrice(BigDecimal.valueOf(579.99)).withCategories(categoryList)
+                .withImgUrl("https://example.com/i5-10400F.jpg")
+                .withProductDiscount(productDiscount)
                 .build();
 
         order = Order.newBuilder()
@@ -96,6 +119,17 @@ class PaymentServiceImplTest {
                 .withOrderStatus(OrderStatus.WAITING_PAYMENT)
                 .withPayment(payment)
                 .build();
+
+        OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
+
+        OrderItem orderItem = OrderItem.newBuilder()
+                .withOrder(order)
+                .withProduct(product)
+                .withQuantity(orderItemRequest.getQuantity())
+                .withPrice(product.getPrice())
+                .build();
+
+        order.getItems().add(orderItem);
 
         payment = Payment.newBuilder()
                 .withId(1L)
@@ -157,44 +191,31 @@ class PaymentServiceImplTest {
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 
-//    @Test
-//    @DisplayName("createPayment - Criação bem-sucedida retorna pagamento criado")
-//    void createPayment_SuccessfulCreation_ReturnsPaymentResponse() {
-//        // Arrange
-//        Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-//
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        user.setAddress(address);
-//
-//        Order order = new Order(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
-//        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//
-//        OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
-//        OrderItem orderItem = new OrderItem(order, product, orderItemRequest.getQuantity(), product.getPrice());
-//
-//        order.getItems().add(orderItem);
-//
-//        PaymentRequest paymentRequest = new PaymentRequest(1L);
-//        Payment payment = new Payment(Instant.now(), order);
-//        PaymentResponse expectedResponse = new PaymentResponse(1L, Instant.now(), order);
-//
-//        when(orderService.findOrderById(paymentRequest.getOrderId())).thenReturn(order);
+    @Test
+    @DisplayName("createPayment - Criação bem-sucedida retorna pagamento criado")
+    void createPayment_SuccessfulCreation_ReturnsPaymentResponse() {
+        // Arrange
+        PaymentResponse expectedResponse = paymentResponse;
+
+        when(orderService.getOrderIfExists(paymentRequest.getOrderId())).thenReturn(order);
 //        doNothing().when(orderService).savePaidOrder(order);
-//        when(paymentRepository.save(payment)).thenReturn(payment);
-//        when(converter.toResponse(payment, PaymentResponse.class)).thenReturn(expectedResponse);
-//
-//        // Act
-//        PaymentResponse actualResponse = paymentService.createPaymentProcess(paymentRequest);
-//
-//        // Assert
-//        assertNotNull(actualResponse, "paymentResponse should not be null");
-//        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
-//
-//        verify(orderService, times(1)).findOrderById(paymentRequest.getOrderId());
+        when(paymentRepository.save(payment)).thenReturn(payment);
+        when(dataMapper.map(payment, PaymentResponse.class)).thenReturn(expectedResponse);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> paymentRepository.save(payment));
+
+        // Act
+        PaymentResponse actualResponse = paymentService.createPaymentProcess(paymentRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "paymentResponse should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+
+        verify(orderService, times(1)).findOrderById(paymentRequest.getOrderId());
 //        verify(orderService, times(1)).savePaidOrder(order);
-//        verify(paymentRepository, times(1)).save(payment);
-//        verify(converter, times(1)).toResponse(payment, PaymentResponse.class);
-//    }
+        verify(paymentRepository, times(1)).save(payment);
+        verify(dataMapper, times(1)).map(payment, PaymentResponse.class);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
 //
 //    @Test
 //    @DisplayName("createPayment - Exceção no repositório ao tentar criar pagamento")
