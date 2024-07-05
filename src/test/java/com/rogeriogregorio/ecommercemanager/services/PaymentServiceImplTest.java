@@ -35,6 +35,7 @@ import org.springframework.data.domain.Pageable;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -78,6 +79,9 @@ class PaymentServiceImplTest {
     private static PaymentResponse paymentResponse;
     private static DiscountCoupon discountCoupon;
 
+    @Mock
+    private static PaymentStrategy paymentStrategy;
+
     @BeforeEach
     void setUp() {
 
@@ -118,6 +122,7 @@ class PaymentServiceImplTest {
                 .withCoupon(discountCoupon)
                 .withOrderStatus(OrderStatus.WAITING_PAYMENT)
                 .withPayment(payment)
+                .withItems(new HashSet<>())
                 .build();
 
         OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
@@ -146,14 +151,28 @@ class PaymentServiceImplTest {
         paymentResponse = new PaymentResponse(1L, Instant.now(), order, "b3f1b57e-ec0c-4b23-a6b2-647d2b176d74",
                 PaymentType.PIX, "https://bank.com/paymentqrcode", PaymentStatus.PROCESSING);
 
+        paymentStrategy = new PaymentStrategy() {
+            @Override
+            public PaymentType getSupportedPaymentMethod() {
+                return PaymentType.PIX;
+            }
+
+            @Override
+            public Payment createPayment(Order order) {
+                return payment;
+            }
+        };
+
+        paymentMethods.add(paymentStrategy);
+
         MockitoAnnotations.openMocks(this);
         paymentService = new PaymentServiceImpl(paymentRepository, inventoryItemService, stockMovementService,
                 mailService, orderService, validators, paymentMethods, catchError, dataMapper);
     }
 
     @Test
-    @DisplayName("findAllPayments - Busca bem-sucedida retorna lista contendo um pagamento")
-    void findAllPayments_SuccessfulSearch_ReturnsListResponse_OnePayment() {
+    @DisplayName("findAllPayments - Busca bem-sucedida retorna lista de pagamentos")
+    void findAllPayments_SuccessfulSearch_ReturnsPaymentList() {
         // Arrange
         Pageable pageable = PageRequest.of(0, 10);
         List<Payment> paymentList = Collections.singletonList(payment);
@@ -193,12 +212,13 @@ class PaymentServiceImplTest {
 
     @Test
     @DisplayName("createPayment - Criação bem-sucedida retorna pagamento criado")
-    void createPayment_SuccessfulCreation_ReturnsPaymentResponse() {
+    void createPayment_SuccessfulCreation_ReturnsPayment() {
         // Arrange
         PaymentResponse expectedResponse = paymentResponse;
 
         when(orderService.getOrderIfExists(paymentRequest.getOrderId())).thenReturn(order);
-//        doNothing().when(orderService).savePaidOrder(order);
+        when(paymentStrategy.getSupportedPaymentMethod()).thenReturn(PaymentType.PIX);
+        when(paymentStrategy.createPayment(order)).thenReturn(payment);
         when(paymentRepository.save(payment)).thenReturn(payment);
         when(dataMapper.map(payment, PaymentResponse.class)).thenReturn(expectedResponse);
         when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> paymentRepository.save(payment));
@@ -210,8 +230,7 @@ class PaymentServiceImplTest {
         assertNotNull(actualResponse, "paymentResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
 
-        verify(orderService, times(1)).findOrderById(paymentRequest.getOrderId());
-//        verify(orderService, times(1)).savePaidOrder(order);
+        verify(orderService, times(1)).getOrderIfExists(paymentRequest.getOrderId());
         verify(paymentRepository, times(1)).save(payment);
         verify(dataMapper, times(1)).map(payment, PaymentResponse.class);
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
