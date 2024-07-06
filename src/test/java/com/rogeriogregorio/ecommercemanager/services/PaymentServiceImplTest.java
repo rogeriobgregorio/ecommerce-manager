@@ -1,5 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.services;
 
+import com.rogeriogregorio.ecommercemanager.dto.PixChargeDto;
+import com.rogeriogregorio.ecommercemanager.dto.PixQRCodeDto;
 import com.rogeriogregorio.ecommercemanager.dto.requests.OrderItemRequest;
 import com.rogeriogregorio.ecommercemanager.dto.requests.PaymentRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.OrderResponse;
@@ -15,6 +17,7 @@ import com.rogeriogregorio.ecommercemanager.mail.MailService;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.PaymentServiceImpl;
 import com.rogeriogregorio.ecommercemanager.services.strategy.payments.PaymentStrategy;
+import com.rogeriogregorio.ecommercemanager.services.strategy.payments.methods.PixPayment;
 import com.rogeriogregorio.ecommercemanager.services.strategy.validations.OrderStrategy;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
@@ -35,6 +38,7 @@ import org.springframework.data.domain.Pageable;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -80,7 +84,7 @@ class PaymentServiceImplTest {
     private static DiscountCoupon discountCoupon;
 
     @Mock
-    private static PaymentStrategy paymentStrategy;
+    private PaymentStrategy paymentStrategy;
 
     @BeforeEach
     void setUp() {
@@ -151,18 +155,9 @@ class PaymentServiceImplTest {
         paymentResponse = new PaymentResponse(1L, Instant.now(), order, "b3f1b57e-ec0c-4b23-a6b2-647d2b176d74",
                 PaymentType.PIX, "https://bank.com/paymentqrcode", PaymentStatus.PROCESSING);
 
-        paymentStrategy = new PaymentStrategy() {
-            @Override
-            public PaymentType getSupportedPaymentMethod() {
-                return PaymentType.PIX;
-            }
-
-            @Override
-            public Payment createPayment(Order order) {
-                return payment;
-            }
-        };
-
+        when(paymentStrategy.getSupportedPaymentMethod()).thenReturn(PaymentType.PIX);
+        when(paymentStrategy.createPayment(any(Order.class))).thenReturn(payment);
+        List<PaymentStrategy> paymentMethods = new ArrayList<>();
         paymentMethods.add(paymentStrategy);
 
         MockitoAnnotations.openMocks(this);
@@ -217,8 +212,6 @@ class PaymentServiceImplTest {
         PaymentResponse expectedResponse = paymentResponse;
 
         when(orderService.getOrderIfExists(paymentRequest.getOrderId())).thenReturn(order);
-        when(paymentStrategy.getSupportedPaymentMethod()).thenReturn(PaymentType.PIX);
-        when(paymentStrategy.createPayment(order)).thenReturn(payment);
         when(paymentRepository.save(payment)).thenReturn(payment);
         when(dataMapper.map(payment, PaymentResponse.class)).thenReturn(expectedResponse);
         when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> paymentRepository.save(payment));
@@ -227,9 +220,8 @@ class PaymentServiceImplTest {
         PaymentResponse actualResponse = paymentService.createPaymentProcess(paymentRequest);
 
         // Assert
-        assertNotNull(actualResponse, "paymentResponse should not be null");
+        assertNotNull(actualResponse, "payment should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
-
         verify(orderService, times(1)).getOrderIfExists(paymentRequest.getOrderId());
         verify(paymentRepository, times(1)).save(payment);
         verify(dataMapper, times(1)).map(payment, PaymentResponse.class);
