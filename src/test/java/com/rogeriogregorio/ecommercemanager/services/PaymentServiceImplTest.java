@@ -16,6 +16,7 @@ import com.rogeriogregorio.ecommercemanager.services.strategy.payments.PaymentSt
 import com.rogeriogregorio.ecommercemanager.services.strategy.validations.OrderStrategy;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
+import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -56,9 +57,6 @@ class PaymentServiceImplTest {
 
     @Mock
     private MailService mailService;
-
-    @Mock
-    private List<PaymentStrategy> paymentMethods;
 
     @Mock
     private CatchError catchError;
@@ -222,39 +220,23 @@ class PaymentServiceImplTest {
         verify(dataMapper, times(1)).map(payment, PaymentResponse.class);
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
-//
-//    @Test
-//    @DisplayName("createPayment - Exceção no repositório ao tentar criar pagamento")
-//    void createPayment_RepositoryExceptionHandling() {
-//        // Arrange
-//        Address address = new Address(1L, "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil");
-//
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        user.setAddress(address);
-//
-//        Order order = new Order(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
-//        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//
-//        OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
-//        OrderItem orderItem = new OrderItem(order, product, orderItemRequest.getQuantity(), product.getPrice());
-//
-//        order.getItems().add(orderItem);
-//
-//        PaymentRequest paymentRequest = new PaymentRequest(1L);
-//        Payment payment = new Payment(Instant.now(), order);
-//
-//        when(orderService.findOrderById(paymentRequest.getOrderId())).thenReturn(order);
-//        doNothing().when(orderService).savePaidOrder(order);
-//        when(paymentRepository.save(payment)).thenThrow(PersistenceException.class);
-//
-//        // Act and Assert
-//        assertThrows(RepositoryException.class, () -> paymentService.createPaymentProcess(paymentRequest), "Expected RepositoryException due to a generic runtime exception");
-//
-//        verify(orderService, times(1)).findOrderById(paymentRequest.getOrderId());
-//        verify(orderService, times(1)).savePaidOrder(order);
-//        verify(paymentRepository, times(1)).save(payment);
-//    }
-//
+
+    @Test
+    @DisplayName("createPayment - Exceção no repositório ao tentar criar pagamento")
+    void createPayment_RepositoryExceptionHandling() {
+        // Arrange
+        when(orderService.getOrderIfExists(paymentRequest.getOrderId())).thenReturn(order);
+        when(paymentRepository.save(payment)).thenThrow(RepositoryException.class);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> paymentRepository.save(payment));
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> paymentService.createPaymentProcess(paymentRequest),
+                "Expected RepositoryException to be thrown");
+        verify(orderService, times(1)).getOrderIfExists(paymentRequest.getOrderId());
+        verify(paymentRepository, times(1)).save(payment);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
 //    @Test
 //    @DisplayName("findPaymentById - Busca bem-sucedida retorna pagamento")
 //    void findCategoryById_SuccessfulSearch_ReturnsOrderResponse() {
