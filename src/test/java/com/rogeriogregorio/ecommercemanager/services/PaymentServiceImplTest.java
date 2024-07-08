@@ -237,30 +237,28 @@ class PaymentServiceImplTest {
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 
-//    @Test
-//    @DisplayName("findPaymentById - Busca bem-sucedida retorna pagamento")
-//    void findCategoryById_SuccessfulSearch_ReturnsOrderResponse() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        Order order = new Order(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
-//
-//        Payment payment = new Payment(Instant.now(), order);
-//        PaymentResponse expectedResponse = new PaymentResponse(1L, Instant.now(), order);
-//
-//        when(converter.toResponse(payment, PaymentResponse.class)).thenReturn(expectedResponse);
-//        when(paymentRepository.findById(1L)).thenReturn(Optional.of(payment));
-//
-//        // Act
-//        PaymentResponse actualResponse = paymentService.findPaymentById(1L);
-//
-//        // Assert
-//        assertNotNull(actualResponse, "paymentResponse should not be null");
-//        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
-//
-//        verify(converter, times(1)).toResponse(payment, PaymentResponse.class);
-//        verify(paymentRepository, times(1)).findById(1L);
-//    }
-//
+    @Test
+    @DisplayName("findPaymentById - Busca bem-sucedida retorna pagamento")
+    void findCategoryById_SuccessfulSearch_ReturnsPayment() {
+        // Arrange
+        PaymentResponse expectedResponse = paymentResponse;
+
+        when(dataMapper.map(payment, PaymentResponse.class)).thenReturn(expectedResponse);
+        when(paymentRepository.findById(1L)).thenReturn(Optional.of(payment));
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> paymentRepository.findById(payment.getId()));
+
+        // Act
+        PaymentResponse actualResponse = paymentService.findPaymentById(1L);
+
+        // Assert
+        assertNotNull(actualResponse, "payment should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(dataMapper, times(1)).map(payment, PaymentResponse.class);
+        verify(paymentRepository, times(1)).findById(1L);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
 //    @Test
 //    @DisplayName("findPaymentById - Exceção ao tentar buscar pagamento inexistente")
 //    void findPayment_NotFoundExceptionHandling() {
