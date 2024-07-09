@@ -8,6 +8,7 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentStatus;
 import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.mail.MailService;
 import com.rogeriogregorio.ecommercemanager.repositories.PaymentRepository;
@@ -259,18 +260,20 @@ class PaymentServiceImplTest {
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 
-//    @Test
-//    @DisplayName("findPaymentById - Exceção ao tentar buscar pagamento inexistente")
-//    void findPayment_NotFoundExceptionHandling() {
-//        // Arrange
-//        when(paymentRepository.findById(1L)).thenReturn(Optional.empty());
-//
-//        // Act and Assert
-//        assertThrows(NotFoundException.class, () -> paymentService.findPaymentById(1L));
-//
-//        verify(paymentRepository, times(1)).findById(1L);
-//    }
-//
+    @Test
+    @DisplayName("findPaymentById - Exceção ao tentar buscar pagamento inexistente")
+    void findPayment_NotFoundExceptionHandling() {
+        // Arrange
+        when(paymentRepository.findById(payment.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> paymentRepository.findById(payment.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> paymentService.findPaymentById(payment.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(paymentRepository, times(1)).findById(payment.getId());
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
 //    @Test
 //    @DisplayName("deletePayment - Exclusão bem-sucedida do pedido")
 //    void deletePayment_DeletesPaymentSuccessfully() {
