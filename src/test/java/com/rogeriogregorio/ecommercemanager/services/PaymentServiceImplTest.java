@@ -16,6 +16,8 @@ import com.rogeriogregorio.ecommercemanager.services.impl.PaymentServiceImpl;
 import com.rogeriogregorio.ecommercemanager.services.strategy.payments.PaymentStrategy;
 import com.rogeriogregorio.ecommercemanager.services.strategy.validations.OrderStrategy;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeFunction;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeProcedure;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
 import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
@@ -170,7 +172,7 @@ class PaymentServiceImplTest {
 
         when(dataMapper.map(payment, PaymentResponse.class)).thenReturn(paymentResponse);
         when(paymentRepository.findAll(pageable)).thenReturn(page);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> paymentRepository.findAll(pageable));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> paymentRepository.findAll(pageable));
 
         // Act
         Page<PaymentResponse> actualResponses = paymentService.findAllPayments(pageable);
@@ -180,7 +182,7 @@ class PaymentServiceImplTest {
         assertIterableEquals(expectedResponses, actualResponses, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(payment, PaymentResponse.class);
         verify(paymentRepository, times(1)).findAll(pageable);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -190,13 +192,13 @@ class PaymentServiceImplTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         when(paymentRepository.findAll(pageable)).thenThrow(RepositoryException.class);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> paymentRepository.findAll(pageable));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> paymentRepository.findAll(pageable));
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> paymentService.findAllPayments(pageable),
                 "Expected RepositoryException to be thrown");
         verify(paymentRepository, times(1)).findAll(pageable);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -208,7 +210,7 @@ class PaymentServiceImplTest {
         when(orderService.getOrderIfExists(paymentRequest.getOrderId())).thenReturn(order);
         when(paymentRepository.save(payment)).thenReturn(payment);
         when(dataMapper.map(payment, PaymentResponse.class)).thenReturn(expectedResponse);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> paymentRepository.save(payment));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> paymentRepository.save(payment));
 
         // Act
         PaymentResponse actualResponse = paymentService.createPaymentProcess(paymentRequest);
@@ -219,7 +221,7 @@ class PaymentServiceImplTest {
         verify(orderService, times(1)).getOrderIfExists(paymentRequest.getOrderId());
         verify(paymentRepository, times(1)).save(payment);
         verify(dataMapper, times(1)).map(payment, PaymentResponse.class);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -228,14 +230,14 @@ class PaymentServiceImplTest {
         // Arrange
         when(orderService.getOrderIfExists(paymentRequest.getOrderId())).thenReturn(order);
         when(paymentRepository.save(payment)).thenThrow(RepositoryException.class);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> paymentRepository.save(payment));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> paymentRepository.save(payment));
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> paymentService.createPaymentProcess(paymentRequest),
                 "Expected RepositoryException to be thrown");
         verify(orderService, times(1)).getOrderIfExists(paymentRequest.getOrderId());
         verify(paymentRepository, times(1)).save(payment);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -245,8 +247,8 @@ class PaymentServiceImplTest {
         PaymentResponse expectedResponse = paymentResponse;
 
         when(dataMapper.map(payment, PaymentResponse.class)).thenReturn(expectedResponse);
-        when(paymentRepository.findById(1L)).thenReturn(Optional.of(payment));
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> paymentRepository.findById(payment.getId()));
+        when(paymentRepository.findById(payment.getId())).thenReturn(Optional.of(payment));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> paymentRepository.findById(payment.getId()));
 
         // Act
         PaymentResponse actualResponse = paymentService.findPaymentById(1L);
@@ -257,7 +259,7 @@ class PaymentServiceImplTest {
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(payment, PaymentResponse.class);
         verify(paymentRepository, times(1)).findById(1L);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -265,60 +267,70 @@ class PaymentServiceImplTest {
     void findPayment_NotFoundExceptionHandling() {
         // Arrange
         when(paymentRepository.findById(payment.getId())).thenReturn(Optional.empty());
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> paymentRepository.findById(payment.getId()));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> paymentRepository.findById(payment.getId()));
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> paymentService.findPaymentById(payment.getId()),
                 "Expected NotFoundException to be thrown");
         verify(paymentRepository, times(1)).findById(payment.getId());
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
-//    @Test
-//    @DisplayName("deletePayment - Exclusão bem-sucedida do pedido")
-//    void deletePayment_DeletesPaymentSuccessfully() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        Order order = new Order(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
-//
-//        Payment payment = new Payment(Instant.now(), order);
-//
-//        when(paymentRepository.findById(1L)).thenReturn(Optional.of(payment));
-//
-//        // Act
-//        paymentService.deletePayment(1L);
-//
-//        // Assert
-//        verify(paymentRepository, times(1)).findById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("deletePayment - Exceção ao tentar excluir pagamento inexistente")
-//    void deletePayment_NotFoundExceptionHandling() {
-//        // Arrange
-//        when(paymentRepository.findById(1L)).thenReturn(Optional.empty());
-//
-//        // Act and Assert
-//        assertThrows(NotFoundException.class, () -> paymentService.deletePayment(1L));
-//
-//        verify(paymentRepository, times(1)).findById(1L);
-//    }
-//
-//    @Test
-//    @DisplayName("deletePayment - Exceção no repositório ao tentar excluir pagamento")
-//    void deletePayment_RepositoryExceptionHandling() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        Order order = new Order(1L, Instant.now(), OrderStatus.WAITING_PAYMENT, user);
-//
-//        Payment payment = new Payment(Instant.now(), order);
-//
-//        when(paymentRepository.findById(1L)).thenReturn(Optional.of(payment));
-//        doThrow(PersistenceException.class).when(paymentRepository).deleteById(1L);
-//
-//        // Act and Assert
-//        assertThrows(RepositoryException.class, () -> paymentService.deletePayment(1L), "Expected RepositoryException for delete failure");
-//
-//        verify(paymentRepository, times(1)).findById(1L);
-//    }
+    @Test
+    @DisplayName("deletePayment - Exclusão bem-sucedida do pedido")
+    void deletePayment_DeletesPaymentSuccessfully() {
+        // Arrange
+        when(paymentRepository.findById(payment.getId())).thenReturn(Optional.of(payment));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> paymentRepository.findById(payment.getId()));
+        doAnswer(invocation -> {
+           paymentRepository.delete(payment);
+            return null;
+        }).when(catchError).run(any(SafeProcedure.class));
+        doNothing().when(paymentRepository).delete(payment);
+
+        // Act
+        paymentService.deletePayment(payment.getId());
+
+        // Assert
+        verify(paymentRepository, times(1)).findById(payment.getId());
+        verify(paymentRepository, times(1)).delete(payment);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
+    }
+
+    @Test
+    @DisplayName("deletePayment - Exceção ao tentar excluir pagamento inexistente")
+    void deletePayment_NotFoundExceptionHandling() {
+        // Arrange
+        when(paymentRepository.findById(payment.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> paymentRepository.findById(payment.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> paymentService.deletePayment(payment.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(paymentRepository, times(1)).findById(payment.getId());
+        verify(paymentRepository, never()).delete(payment);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("deletePayment - Exceção no repositório ao tentar excluir pagamento")
+    void deletePayment_RepositoryExceptionHandling() {
+        // Arrange
+        when(paymentRepository.findById(payment.getId())).thenReturn(Optional.of(payment));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> paymentRepository.findById(payment.getId()));
+        doAnswer(invocation -> {
+            paymentRepository.delete(payment);
+            return null;
+        }).when(catchError).run(any(SafeProcedure.class));
+        doThrow(RepositoryException.class).when(paymentRepository).delete(payment);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> paymentService.deletePayment(payment.getId()),
+                "Expected RepositoryException to be thrown");
+        verify(paymentRepository, times(1)).findById(payment.getId());
+        verify(paymentRepository, times(1)).delete(payment);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
+    }
 }
