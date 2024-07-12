@@ -7,10 +7,12 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentStatus;
 import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
+import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderItemRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.OrderItemServiceImpl;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
+import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,8 +30,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,6 +58,7 @@ class OrderItemServiceImplTest {
     private OrderItemServiceImpl orderItemService;
 
     private static Order order;
+    private static Product product;
     private static OrderItem orderItem;
     private static OrderItemRequest orderItemRequest;
     private static OrderItemResponse orderItemResponse;
@@ -88,7 +90,7 @@ class OrderItemServiceImplTest {
                 Instant.parse("2024-06-01T00:00:00Z"),
                 Instant.parse("2024-06-07T00:00:00Z"));
 
-        Product product = Product.newBuilder()
+        product = Product.newBuilder()
                 .withId(1L).withName("Intel i5-10400F").withDescription("Intel Core Processor")
                 .withPrice(BigDecimal.valueOf(579.99)).withCategories(categoryList)
                 .withImgUrl("https://example.com/i5-10400F.jpg")
@@ -150,103 +152,47 @@ class OrderItemServiceImplTest {
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 
-//    @Test
-//    @DisplayName("findAllOrderItems - Busca bem-sucedida retorna lista contendo itens de múltiplos pedidos")
-//    void findAllOrderItems_SuccessfulSearch_ReturnsListResponse_MultipleOrderItems() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//
-//        List<OrderItem> orderItemList = new ArrayList<>();
-//        List<OrderItemResponse> expectedResponses = new ArrayList<>();
-//
-//        for (int i = 1; i <= 10; i++) {
-//            Order o1 = new Order((long) i, Instant.now(), OrderStatus.PAID, user);
-//
-//            OrderItem orderItem = new OrderItem(o1, product, 1, 4099.0);
-//            orderItemList.add(orderItem);
-//
-//            OrderItemResponse orderItemResponse = new OrderItemResponse(o1, product, 1, 4099.0);
-//            expectedResponses.add(orderItemResponse);
-//
-//            when(converter.toResponse(orderItem, OrderItemResponse.class)).thenReturn(orderItemResponse);
-//        }
-//
-//        when(orderItemRepository.findAll()).thenReturn(orderItemList);
-//
-//        // Act
-//        List<OrderItemResponse> actualResponses = orderItemService.findAllOrderItems();
-//
-//        // Assert
-//        assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with multiple orderItem");
-//        assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with multiple categories");
-//
-//        verify(converter, times(10)).toResponse(any(OrderItem.class), eq(OrderItemResponse.class));
-//        verify(orderItemRepository, times(1)).findAll();
-//    }
-//
-//    @Test
-//    @DisplayName("findAllOrderItems - Busca bem-sucedida retorna lista de itens de pedidos vazia")
-//    void findAllOrderItems_SuccessfulSearch_ReturnsEmptyList() {
-//        // Arrange
-//        List<OrderItem> emptyOrderItemList = new ArrayList<>();
-//
-//        when(orderItemRepository.findAll()).thenReturn(emptyOrderItemList);
-//
-//        // Act
-//        List<OrderItemResponse> actualResponses = orderItemService.findAllOrderItems();
-//
-//        // Assert
-//        assertEquals(0, actualResponses.size(), "Expected an empty list of responses");
-//        assertIterableEquals(emptyOrderItemList, actualResponses, "Expected an empty list of responses");
-//
-//        verify(orderItemRepository, times(1)).findAll();
-//    }
-//
-//    @Test
-//    @DisplayName("findAllOrderItems - Exceção ao tentar buscar lista de itens de pedidos")
-//    void findAllOrderItems_RepositoryExceptionHandling() {
-//        // Arrange
-//        when(orderItemRepository.findAll()).thenThrow(PersistenceException.class);
-//
-//        // Act and Assert
-//        assertThrows(RepositoryException.class, () -> orderItemService.findAllOrderItems());
-//
-//        verify(orderItemRepository, times(1)).findAll();
-//    }
-//
-//    @Test
-//    @DisplayName("createOrderItem - Criação bem-sucedida retorna item do pedido criado")
-//    void createOrderItem_SuccessfulCreation_ReturnsOrderItemResponse() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        Order order = new Order(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, user);
-//
-//        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//
-//        OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
-//        OrderItem orderItem = new OrderItem(order, product, orderItemRequest.getQuantity(), product.getPrice());
-//
-//        OrderItemResponse expectedResponse = new OrderItemResponse(order, product, orderItemRequest.getQuantity(), product.getPrice());
-//
-//        when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(order);
-//        when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(product);
-//        when(converter.toResponse(orderItem, OrderItemResponse.class)).thenReturn(expectedResponse);
-//        when(orderItemRepository.save(orderItem)).thenReturn(orderItem);
-//
-//        // Act
-//        OrderItemResponse actualResponse = orderItemService.createOrderItem(orderItemRequest);
-//
-//        // Assert
-//        assertNotNull(actualResponse, "OrderItemResponse should not be null");
-//        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
-//
-//        verify(orderService, times(2)).findOrderById(orderItemRequest.getOrderId());
-//        verify(productService, times(1)).findProductById(orderItemRequest.getProductId());
-//        verify(orderItemRepository, times(1)).save(orderItem);
-//        verify(converter, times(1)).toResponse(orderItem, OrderItemResponse.class);
-//    }
-//
+    @Test
+    @DisplayName("findAllOrderItems - Exceção no repositório ao tentar buscar lista de itens de pedidos")
+    void findAllOrderItems_RepositoryExceptionHandling() {
+        // Arrange
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(orderItemRepository.findAll()).thenThrow(RepositoryException.class);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.findAll());
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> orderItemService.findAllOrderItems(pageable),
+                "Expected PersistenceException to be thrown");
+        verify(orderItemRepository, times(1)).findAll();
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("createOrderItem - Criação bem-sucedida retorna item do pedido criado")
+    void createOrderItem_SuccessfulCreation_ReturnsOrderItemResponse() {
+        // Arrange
+        OrderItemResponse expectedResponse = new OrderItemResponse(order, product, orderItemRequest.getQuantity(), product.getPrice());
+
+        when(orderService.getOrderIfExists(orderItemRequest.getOrderId())).thenReturn(order);
+        when(productService.getProductIfExists(orderItemRequest.getProductId())).thenReturn(product);
+        when(dataMapper.map(orderItem, OrderItemResponse.class)).thenReturn(expectedResponse);
+        when(orderItemRepository.save(orderItem)).thenReturn(orderItem);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.save(orderItem));
+
+        // Act
+        OrderItemResponse actualResponse = orderItemService.createOrderItem(orderItemRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "OrderItemResponse should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(orderService, times(1)).getOrderIfExists(orderItemRequest.getOrderId());
+        verify(productService, times(1)).getProductIfExists(orderItemRequest.getProductId());
+        verify(orderItemRepository, times(1)).save(orderItem);
+        verify(dataMapper, times(1)).map(orderItem, OrderItemResponse.class);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
 //    @Test
 //    @DisplayName("createOrderItem - Exceção no repositório ao tentar criar item do pedido")
 //    void createOrderItem_RepositoryExceptionHandling() {
