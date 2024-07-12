@@ -2,12 +2,14 @@ package com.rogeriogregorio.ecommercemanager.dto.responses;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rogeriogregorio.ecommercemanager.entities.Order;
+import com.rogeriogregorio.ecommercemanager.entities.OrderItem;
 import com.rogeriogregorio.ecommercemanager.entities.Product;
 import com.rogeriogregorio.ecommercemanager.entities.primarykeys.OrderItemPK;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public class OrderItemResponse implements Serializable {
 
@@ -22,20 +24,20 @@ public class OrderItemResponse implements Serializable {
     }
 
     public OrderItemResponse(Order order, Product product,
-                             Integer quantity, Double price) {
+                             Integer quantity, BigDecimal price) {
 
         id.setOrder(order);
         id.setProduct(product);
         this.quantity = quantity;
-        this.price = BigDecimal.valueOf(price);
+        this.price = price;
     }
 
     @JsonIgnore
-    public Order getOrderEntity() {
+    public Order getOrder() {
         return id.getOrder();
     }
 
-    public void setOrderEntity(Order order) {
+    public void setOrder(Order order) {
         id.setOrder(order);
     }
 
@@ -59,8 +61,8 @@ public class OrderItemResponse implements Serializable {
         return price;
     }
 
-    public void setPrice(Double price) {
-        this.price = BigDecimal.valueOf(price);
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
     public BigDecimal getSubTotal() {

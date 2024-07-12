@@ -1,88 +1,155 @@
-//package com.rogeriogregorio.ecommercemanager.services;
-//
-//import com.rogeriogregorio.ecommercemanager.dto.requests.OrderItemRequest;
-//import com.rogeriogregorio.ecommercemanager.dto.responses.OrderItemResponse;
-//import com.rogeriogregorio.ecommercemanager.entities.*;
-//import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
-//import com.rogeriogregorio.ecommercemanager.entities.primarykeys.OrderItemPK;
-//import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
-//import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
-//import com.rogeriogregorio.ecommercemanager.repositories.OrderItemRepository;
-//import com.rogeriogregorio.ecommercemanager.services.impl.OrderItemServiceImpl;
-//import jakarta.persistence.PersistenceException;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.DisplayName;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.MockitoAnnotations;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//
-//import java.time.Instant;
-//import java.util.ArrayList;
-//import java.util.Collections;
-//import java.util.List;
-//import java.util.Optional;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.Mockito.*;
-//
-//@ExtendWith(MockitoExtension.class)
-//class OrderItemServiceImplTest {
-//
-//    @Mock
-//    private OrderItemRepository orderItemRepository;
-//
-//    @Mock
-//    private InventoryItemService inventoryItemService;
-//
-//    @Mock
-//    private ProductService productService;
-//
-//    @Mock
-//    private OrderService orderService;
-//
-//    @Mock
-//    private Converter converter;
-//
-//    @InjectMocks
-//    private OrderItemServiceImpl orderItemService;
-//
-//    @BeforeEach
-//    void setUp() {
-//        MockitoAnnotations.openMocks(this);
-//        orderItemService = new OrderItemServiceImpl(orderItemRepository, inventoryItemService, productService, orderService, converter, mapper);
-//    }
-//
-//    @Test
-//    @DisplayName("findAllOrderItems - Busca bem-sucedida retorna lista contendo itens de um pedido")
-//    void findAllOrderItems_SuccessfulSearch_ReturnsListResponse_OneOrderItem() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        Order order = new Order(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.PAID, user);
-//        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//
-//        OrderItem orderItem = new OrderItem(order, product, 1, 4099.0);
-//        List<OrderItem> orderItemList = Collections.singletonList(orderItem);
-//
-//        OrderItemResponse orderItemResponse = new OrderItemResponse(order, product, 1, 4099.0);
-//        List<OrderItemResponse> expectedResponses = Collections.singletonList(orderItemResponse);
-//
-//        when(converter.toResponse(orderItem, OrderItemResponse.class)).thenReturn(orderItemResponse);
-//        when(orderItemRepository.findAll()).thenReturn(orderItemList);
-//
-//        // Act
-//        List<OrderItemResponse> actualResponses = orderItemService.findAllOrderItems();
-//
-//        // Assert
-//        assertEquals(expectedResponses.size(), actualResponses.size(), "Expected a list of responses with one orderItem");
-//        assertIterableEquals(expectedResponses, actualResponses, "Expected a list of responses with one category");
-//
-//        verify(converter, times(1)).toResponse(orderItem, OrderItemResponse.class);
-//        verify(orderItemRepository, times(1)).findAll();
-//    }
-//
+package com.rogeriogregorio.ecommercemanager.services;
+
+import com.rogeriogregorio.ecommercemanager.dto.requests.OrderItemRequest;
+import com.rogeriogregorio.ecommercemanager.dto.responses.OrderItemResponse;
+import com.rogeriogregorio.ecommercemanager.entities.*;
+import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
+import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentStatus;
+import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
+import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
+import com.rogeriogregorio.ecommercemanager.repositories.OrderItemRepository;
+import com.rogeriogregorio.ecommercemanager.services.impl.OrderItemServiceImpl;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError;
+import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class OrderItemServiceImplTest {
+
+    @Mock
+    private OrderItemRepository orderItemRepository;
+
+    @Mock
+    private InventoryItemService inventoryItemService;
+
+    @Mock
+    private ProductService productService;
+
+    @Mock
+    private OrderService orderService;
+
+    @Mock
+    private CatchError catchError;
+
+    @Mock
+    private DataMapper dataMapper;
+
+    @InjectMocks
+    private OrderItemServiceImpl orderItemService;
+
+    private static Order order;
+    private static OrderItem orderItem;
+    private static OrderItemRequest orderItemRequest;
+    private static OrderItemResponse orderItemResponse;
+
+    @BeforeEach
+    void setUp() {
+
+        DiscountCoupon discountCoupon = new DiscountCoupon(1L,
+                "PROMO70OFF", BigDecimal.valueOf(0.15),
+                Instant.parse("2024-06-26T00:00:00Z"),
+                Instant.parse("2024-07-26T00:00:00Z"));
+
+        Payment payment = Payment.newBuilder()
+                .withId(1L)
+                .withMoment(Instant.now())
+                .withOrder(order)
+                .withPaymentStatus(PaymentStatus.PROCESSING)
+                .withPaymentType(PaymentType.PIX)
+                .withTxId("b3f1b57e-ec0c-4b23-a6b2-647d2b176d74")
+                .withChargeLink("https://bank.com/paymentqrcode")
+                .build();
+
+        Category category = new Category(1L, "Computers");
+        Set<Category> categoryList = new HashSet<>();
+        categoryList.add(category);
+
+        ProductDiscount productDiscount = new ProductDiscount(1L,
+                "Dia das Mães", BigDecimal.valueOf(0.15),
+                Instant.parse("2024-06-01T00:00:00Z"),
+                Instant.parse("2024-06-07T00:00:00Z"));
+
+        Product product = Product.newBuilder()
+                .withId(1L).withName("Intel i5-10400F").withDescription("Intel Core Processor")
+                .withPrice(BigDecimal.valueOf(579.99)).withCategories(categoryList)
+                .withImgUrl("https://example.com/i5-10400F.jpg")
+                .withProductDiscount(productDiscount)
+                .build();
+
+        User user = User.newBuilder()
+                .withId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
+                .withName("Admin").withEmail("admin@email.com").withPhone("11912345678")
+                .withCpf("72482581052").withPassword("Password123$").withRole(UserRole.ADMIN)
+                .build();
+
+        order = Order.newBuilder()
+                .withId(1L)
+                .withClient(user)
+                .withMoment(Instant.now())
+                .withCoupon(discountCoupon)
+                .withOrderStatus(OrderStatus.WAITING_PAYMENT)
+                .withPayment(payment)
+                .build();
+
+        orderItem = OrderItem.newBuilder()
+                .withOrder(order)
+                .withProduct(product)
+                .withPrice(BigDecimal.valueOf(579.99))
+                .withQuantity(1)
+                .build();
+
+        orderItemRequest = new OrderItemRequest(1L, 1L, 1);
+
+        orderItemResponse = new OrderItemResponse(order, product, 1, BigDecimal.valueOf(579.99));
+
+        MockitoAnnotations.openMocks(this);
+        orderItemService = new OrderItemServiceImpl(orderItemRepository, inventoryItemService,
+                productService, orderService, catchError, dataMapper);
+    }
+
+    @Test
+    @DisplayName("findAllOrderItems - Busca bem-sucedida retorna lista de itens de pedido")
+    void findAllOrderItems_SuccessfulSearch_ReturnsOrderItemList() {
+        // Arrange
+        Pageable pageable = PageRequest.of(0, 10);
+        List<OrderItem> orderItemList = Collections.singletonList(orderItem);
+        List<OrderItemResponse> expectedResponses = Collections.singletonList(orderItemResponse);
+        PageImpl<OrderItem> page = new PageImpl<>(orderItemList, pageable, orderItemList.size());
+
+        when(dataMapper.map(orderItem, OrderItemResponse.class)).thenReturn(orderItemResponse);
+        when(orderItemRepository.findAll(pageable)).thenReturn(page);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.findAll(pageable));
+
+        // Act
+        Page<OrderItemResponse> actualResponses = orderItemService.findAllOrderItems(pageable);
+
+        // Assert
+        assertEquals(expectedResponses.size(), actualResponses.getContent().size(), "Expected a list with one object");
+        assertIterableEquals(expectedResponses, actualResponses, "Expected and actual responses should be equal");
+        verify(dataMapper, times(1)).map(orderItem, OrderItemResponse.class);
+        verify(orderItemRepository, times(1)).findAll(pageable);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
 //    @Test
 //    @DisplayName("findAllOrderItems - Busca bem-sucedida retorna lista contendo itens de múltiplos pedidos")
 //    void findAllOrderItems_SuccessfulSearch_ReturnsListResponse_MultipleOrderItems() {
@@ -463,4 +530,4 @@
 //        verify(orderService, times(1)).findOrderById(orderItemRequest.getOrderId());
 //        verify(productService, times(1)).findProductById(orderItemRequest.getProductId());
 //    }
-//}
+}

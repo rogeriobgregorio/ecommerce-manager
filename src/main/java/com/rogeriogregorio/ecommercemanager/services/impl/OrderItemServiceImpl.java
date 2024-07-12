@@ -52,8 +52,8 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Transactional(readOnly = true)
     public Page<OrderItemResponse> findAllOrderItems(Pageable pageable) {
 
-        return catchError.run(() -> orderItemRepository.findAll(pageable)
-                .map(orderItem -> dataMapper.map(orderItem, OrderItemResponse.class)));
+        return catchError.run(() -> orderItemRepository.findAll(pageable))
+                .map(orderItem -> dataMapper.map(orderItem, OrderItemResponse.class));
     }
 
     @Transactional
