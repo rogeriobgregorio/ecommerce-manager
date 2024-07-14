@@ -172,7 +172,7 @@ class OrderItemServiceImplTest {
 
     @Test
     @DisplayName("createOrderItem - Criação bem-sucedida retorna item do pedido criado")
-    void createOrderItem_SuccessfulCreation_ReturnsOrderItemResponse() {
+    void createOrderItem_SuccessfulCreation_ReturnsOrderItem() {
         // Arrange
         OrderItemResponse expectedResponse = new OrderItemResponse(order, product, orderItemRequest.getQuantity(), product.getPrice());
 
@@ -214,8 +214,8 @@ class OrderItemServiceImplTest {
     }
 
     @Test
-    @DisplayName("findOrderItemById - Busca bem-sucedida retorna item(s) do pedido")
-    void findOrderItemById_SuccessfulSearch_ReturnsOrderItemResponse() {
+    @DisplayName("findOrderItemById - Busca bem-sucedida retorna item do pedido")
+    void findOrderItemById_SuccessfulSearch_ReturnsOrderItem() {
         // Arrange
         OrderItemResponse expectedResponse = orderItemResponse;
 
@@ -235,7 +235,6 @@ class OrderItemServiceImplTest {
         // Assert
         assertNotNull(actualResponse, "OrderItemResponse should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
-
         verify(orderService, times(1)).getOrderIfExists(orderItemRequest.getOrderId());
         verify(productService, times(1)).getProductIfExists(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).findById(id);
@@ -258,61 +257,50 @@ class OrderItemServiceImplTest {
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> orderItemService.findOrderItemById(1L, 1L),
-                "Expected NotFoundException for non-existent order item");
-
+                "Expected NotFoundException to be thrown");
         verify(orderService, times(1)).getOrderIfExists(orderItemRequest.getOrderId());
         verify(productService, times(1)).getProductIfExists(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).findById(id);
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 
-//    @Test
-//    @DisplayName("updateOrderItem - Atualização bem-sucedida retorna item do pedido atualizado")
-//    void updateOrderItem_SuccessfulUpdate_ReturnsUserResponse() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        Order order = new Order(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.WAITING_PAYMENT, user);
-//
-//        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//
-//        OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
-//        OrderItem orderItem = new OrderItem(order, product, orderItemRequest.getQuantity(), product.getPrice());
-//
-//        OrderItemResponse expectedResponse = new OrderItemResponse(order, product, 1, 4099.0);
-//
-//        when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(order);
-//        when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(product);
-//        when(orderItemRepository.save(orderItem)).thenReturn(orderItem);
-//        when(converter.toResponse(orderItem, OrderItemResponse.class)).thenReturn(expectedResponse);
-//
-//        // Act
-//        OrderItemResponse actualResponse = orderItemService.updateOrderItem(orderItemRequest);
-//
-//        // Assert
-//        assertNotNull(actualResponse, "OrderItemResponse should not be null");
-//        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
-//
-//        verify(orderService, times(2)).findOrderById(orderItemRequest.getOrderId());
-//        verify(productService, times(1)).findProductById(orderItemRequest.getProductId());
-//        verify(orderItemRepository, times(1)).save(orderItem);
-//        verify(converter, times(1)).toResponse(orderItem, OrderItemResponse.class);
-//    }
-//
-//    @Test
-//    @DisplayName("updateOrderItemById - Exceção ao tentar atualizar item do pedido inexistente")
-//    void updateOrderItemById_NotFoundExceptionHandling() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
-//
-//        when(orderService.findOrderById(orderItemRequest.getOrderId())).thenThrow(NotFoundException.class);
-//
-//        // Act and Assert
-//        assertThrows(NotFoundException.class, () -> orderItemService.updateOrderItem(orderItemRequest), "Expected NotFoundException for non-existent order item");
-//
-//        verify(orderService, times(1)).findOrderById(orderItemRequest.getOrderId());
-//    }
-//
+    @Test
+    @DisplayName("updateOrderItem - Atualização bem-sucedida retorna item do pedido atualizado")
+    void updateOrderItem_SuccessfulUpdate_ReturnsOrderItem() {
+        // Arrange
+        OrderItemResponse expectedResponse = orderItemResponse;
+
+        when(orderService.getOrderIfExists(orderItemRequest.getOrderId())).thenReturn(order);
+        when(productService.getProductIfExists(orderItemRequest.getProductId())).thenReturn(product);
+        when(orderItemRepository.save(orderItem)).thenReturn(orderItem);
+        when(dataMapper.map(orderItem, OrderItemResponse.class)).thenReturn(expectedResponse);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.save(orderItem));
+
+        // Act
+        OrderItemResponse actualResponse = orderItemService.updateOrderItem(orderItemRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "OrderItemResponse should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(orderService, times(1)).getOrderIfExists(orderItemRequest.getOrderId());
+        verify(productService, times(1)).getProductIfExists(orderItemRequest.getProductId());
+        verify(orderItemRepository, times(1)).save(orderItem);
+        verify(dataMapper, times(1)).map(orderItem, OrderItemResponse.class);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateOrderItemById - Exceção ao tentar atualizar item do pedido inexistente")
+    void updateOrderItemById_NotFoundExceptionHandling() {
+        // Arrange
+        when(orderService.getOrderIfExists(orderItemRequest.getOrderId())).thenThrow(NotFoundException.class);
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> orderItemService.updateOrderItem(orderItemRequest),
+                "Expected NotFoundException to be thrown");
+        verify(orderService, times(1)).getOrderIfExists(orderItemRequest.getOrderId());
+    }
+
 //    @Test
 //    @DisplayName("updateOrderItemById - Exceção ao tentar atualizar item do pedido")
 //    void updateOrderItemById_RepositoryExceptionHandling() {
