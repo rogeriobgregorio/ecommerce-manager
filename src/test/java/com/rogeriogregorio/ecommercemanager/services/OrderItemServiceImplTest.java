@@ -301,30 +301,24 @@ class OrderItemServiceImplTest {
         verify(orderService, times(1)).getOrderIfExists(orderItemRequest.getOrderId());
     }
 
-//    @Test
-//    @DisplayName("updateOrderItemById - Exceção ao tentar atualizar item do pedido")
-//    void updateOrderItemById_RepositoryExceptionHandling() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        Order order = new Order(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.WAITING_PAYMENT, user);
-//
-//        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//
-//        OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
-//        OrderItem orderItem = new OrderItem(order, product, orderItemRequest.getQuantity(), product.getPrice());
-//
-//        when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(order);
-//        when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(product);
-//        doThrow(PersistenceException.class).when(orderItemRepository).save(orderItem);
-//
-//        // Act and Assert
-//        assertThrows(RepositoryException.class, () -> orderItemService.updateOrderItem(orderItemRequest), "Expected RepositoryException for non-existent order item");
-//
-//        verify(orderService, times(2)).findOrderById(orderItemRequest.getOrderId());
-//        verify(productService, times(1)).findProductById(orderItemRequest.getProductId());
-//        verify(orderItemRepository, times(1)).save(orderItem);
-//    }
-//
+    @Test
+    @DisplayName("updateOrderItemById - Exceção ao tentar atualizar item do pedido")
+    void updateOrderItemById_RepositoryExceptionHandling() {
+        // Arrange
+        when(orderService.getOrderIfExists(orderItemRequest.getOrderId())).thenReturn(order);
+        when(productService.getProductIfExists(orderItemRequest.getProductId())).thenReturn(product);
+        when(orderItemRepository.save(orderItem)).thenThrow(RepositoryException.class);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.save(orderItem));
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> orderItemService.updateOrderItem(orderItemRequest),
+                "Expected RepositoryException to be thrown");
+        verify(orderService, times(1)).getOrderIfExists(orderItemRequest.getOrderId());
+        verify(productService, times(1)).getProductIfExists(orderItemRequest.getProductId());
+        verify(orderItemRepository, times(1)).save(orderItem);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
 //    @Test
 //    @DisplayName("deleteOrderItem - Exclusão bem-sucedida do item do pedido")
 //    void deleteOrderItem_DeletesSuccessfully() {
