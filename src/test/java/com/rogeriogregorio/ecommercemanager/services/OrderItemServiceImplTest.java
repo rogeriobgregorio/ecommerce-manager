@@ -319,33 +319,31 @@ class OrderItemServiceImplTest {
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 
-//    @Test
-//    @DisplayName("deleteOrderItem - Exclusão bem-sucedida do item do pedido")
-//    void deleteOrderItem_DeletesSuccessfully() {
-//        // Arrange
-//        User user = new User(1L, "João Silva", "joao@email.com", "11912345678", "senha123");
-//        Order order = new Order(1L, Instant.parse("2019-06-20T19:53:07Z"), OrderStatus.WAITING_PAYMENT, user);
-//
-//        Product product = new Product(1L, "Playstation 5", "Video game console", 4099.0, "www.url.com");
-//
-//        OrderItemRequest orderItemRequest = new OrderItemRequest(1L, 1L, 1);
-//
-//        OrderItemPK id = new OrderItemPK();
-//        id.setOrder(order);
-//        id.setProduct(product);
-//
-//        when(orderService.findOrderById(orderItemRequest.getOrderId())).thenReturn(order);
-//        when(productService.findProductById(orderItemRequest.getProductId())).thenReturn(product);
-//
-//        // Act
-//        orderItemService.deleteOrderItem(1L, 1L);
-//
-//        // Assert
-//        verify(orderService, times(2)).findOrderById(orderItemRequest.getOrderId());
-//        verify(productService, times(1)).findProductById(orderItemRequest.getProductId());
-//        verify(orderItemRepository, times(1)).deleteById(id);
-//    }
-//
+    @Test
+    @DisplayName("deleteOrderItem - Exclusão bem-sucedida do item do pedido")
+    void deleteOrderItem_DeletesSuccessfully() {
+        // Arrange
+        OrderItemPK id = new OrderItemPK();
+        id.setOrder(order);
+        id.setProduct(product);
+
+        when(orderService.getOrderIfExists(orderItemRequest.getOrderId())).thenReturn(order);
+        when(productService.getProductIfExists(orderItemRequest.getProductId())).thenReturn(product);
+        doAnswer(invocation -> {
+            orderItemRepository.deleteById(id);
+            return null;
+        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+
+        // Act
+        orderItemService.deleteOrderItem(1L, 1L);
+
+        // Assert
+        verify(orderService, times(2)).getOrderIfExists(orderItemRequest.getOrderId());
+        verify(productService, times(1)).getProductIfExists(orderItemRequest.getProductId());
+        verify(orderItemRepository, times(1)).deleteById(id);
+        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+    }
+
 //    @Test
 //    @DisplayName("deleteOrderItem - Exceção ao tentar excluir item do pedido inexistente")
 //    void deleteOrderItem_NotFoundExceptionHandling() {
