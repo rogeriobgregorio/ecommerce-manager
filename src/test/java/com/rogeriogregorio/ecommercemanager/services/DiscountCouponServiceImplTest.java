@@ -5,6 +5,7 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.DiscountCouponResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Address;
 import com.rogeriogregorio.ecommercemanager.entities.DiscountCoupon;
+import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.DiscountCouponRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.DiscountCouponServiceImpl;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
@@ -27,8 +28,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -72,7 +72,7 @@ class DiscountCouponServiceImplTest {
     }
 
     @Test
-    @DisplayName("findAllDiscountCoupons - Busca bem-sucedida retorna lista de cupons de disconto")
+    @DisplayName("findAllDiscountCoupons - Busca bem-sucedida retorna lista de cupons de desconto")
     void findAllDiscountCoupons_SuccessfulSearch_ReturnsDiscountCouponsList() {
         // Arrange
         Pageable pageable = PageRequest.of(0, 10);
@@ -94,4 +94,21 @@ class DiscountCouponServiceImplTest {
         verify(discountCouponRepository, times(1)).findAll(pageable);
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
+
+    @Test
+    @DisplayName("findAllDiscountCoupons - Exceção no repositório tentar buscar lista de cupons de desconto")
+    void findAllDiscountCoupons_RepositoryExceptionHandling() {
+        // Arrange
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(discountCouponRepository.findAll()).thenThrow(RepositoryException.class);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findAll());
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> discountCouponService.findAllDiscountCoupons(pageable),
+                "Expected RepositoryException to be thrown");
+        verify(discountCouponRepository, times(1)).findAll();
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
 }

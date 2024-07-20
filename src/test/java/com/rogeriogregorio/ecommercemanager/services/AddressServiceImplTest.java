@@ -119,7 +119,7 @@ class AddressServiceImplTest {
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> addressService.findAllAddresses(pageable),
-                "Expected PersistenceException to be thrown");
+                "Expected RepositoryException to be thrown");
         verify(addressRepository, times(1)).findAll();
         verify(catchError, times(1)).run(any(SafeFunction.class));
     }
