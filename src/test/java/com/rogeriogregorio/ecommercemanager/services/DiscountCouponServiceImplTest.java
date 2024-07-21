@@ -31,6 +31,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class DiscountCouponServiceImplTest {
@@ -111,4 +112,42 @@ class DiscountCouponServiceImplTest {
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 
+    @Test
+    @DisplayName("createDiscountCoupon - Criação bem-sucedida retorna cupom de desconto criado")
+    void createDiscountCoupon_SuccessfulCreation_ReturnsDiscountCoupon() {
+        // Arrange
+        DiscountCouponResponse expectedResponse = discountCouponResponse;
+
+        when(dataMapper.map(discountCouponRequest, DiscountCoupon.class)).thenReturn(discountCoupon);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.save(discountCoupon));
+        when(discountCouponRepository.save(discountCoupon)).thenReturn(discountCoupon);
+        when(dataMapper.map(discountCoupon, DiscountCouponResponse.class)).thenReturn(expectedResponse);
+
+        // Act
+        DiscountCouponResponse actualResponse = discountCouponService.createDiscountCoupon(discountCouponRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "Address should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(dataMapper, times(1)).map(discountCouponRequest, DiscountCoupon.class);
+        verify(discountCouponRepository, times(1)).save(discountCoupon);
+        verify(dataMapper, times(1)).map(discountCoupon, DiscountCouponResponse.class);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("createDiscountCoupon - Exceção no repositório ao tentar criar cupom de desconto")
+    void createDiscountCoupon_RepositoryExceptionHandling() {
+        // Arrange
+        when(dataMapper.map(discountCouponRequest, DiscountCoupon.class)).thenReturn(discountCoupon);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.save(discountCoupon));
+        when(discountCouponRepository.save(discountCoupon)).thenThrow(RepositoryException.class);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> discountCouponService.createDiscountCoupon(discountCouponRequest),
+                "Expected RepositoryException to be thrown");
+        verify(dataMapper, times(1)).map(discountCouponRequest, DiscountCoupon.class);
+        verify(discountCouponRepository, times(1)).save(discountCoupon);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
 }
