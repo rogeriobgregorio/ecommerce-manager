@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -127,7 +128,7 @@ class DiscountCouponServiceImplTest {
         DiscountCouponResponse actualResponse = discountCouponService.createDiscountCoupon(discountCouponRequest);
 
         // Assert
-        assertNotNull(actualResponse, "Address should not be null");
+        assertNotNull(actualResponse, "Discount coupon should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(discountCouponRequest, DiscountCoupon.class);
         verify(discountCouponRepository, times(1)).save(discountCoupon);
@@ -148,6 +149,28 @@ class DiscountCouponServiceImplTest {
                 "Expected RepositoryException to be thrown");
         verify(dataMapper, times(1)).map(discountCouponRequest, DiscountCoupon.class);
         verify(discountCouponRepository, times(1)).save(discountCoupon);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findDiscountCouponById - Busca bem-sucedida retorna cupom de desconto")
+    void findDiscountCouponById_SuccessfulSearch_ReturnsDiscountCoupon() {
+        // Arrange
+        DiscountCouponResponse expectedResponse = discountCouponResponse;
+
+        when(discountCouponRepository.findById(discountCoupon.getId())).thenReturn(Optional.of(discountCoupon));
+        when(dataMapper.map(discountCoupon, DiscountCouponResponse.class)).thenReturn(expectedResponse);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
+
+        // Act
+        DiscountCouponResponse actualResponse = discountCouponService.findDiscountCouponById(discountCoupon.getId());
+
+        // Assert
+        assertNotNull(actualResponse, "Discount coupon should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
+        verify(dataMapper, times(1)).map(discountCoupon, DiscountCouponResponse.class);
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 }
