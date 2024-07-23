@@ -5,6 +5,7 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.DiscountCouponResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Address;
 import com.rogeriogregorio.ecommercemanager.entities.DiscountCoupon;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.DiscountCouponRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.DiscountCouponServiceImpl;
@@ -171,6 +172,34 @@ class DiscountCouponServiceImplTest {
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
         verify(dataMapper, times(1)).map(discountCoupon, DiscountCouponResponse.class);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findDiscountCouponById - Exceção ao tentar buscar cupom de desconto inexistente")
+    void findDiscountCouponById_NotFoundExceptionHandling() {
+        // Arrange
+        when(discountCouponRepository.findById(discountCoupon.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> discountCouponService.findDiscountCouponById(discountCoupon.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findDiscountCouponById - Exceção no repositório ao tentar buscar cupom de desconto")
+    void findDiscountCouponById_RepositoryExceptionHandling() {
+        // Arrange
+        when(discountCouponRepository.findById(discountCoupon.getId())).thenThrow(RepositoryException.class);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
+
+        // Assert and Assert
+        assertThrows(RepositoryException.class, () -> discountCouponService.findDiscountCouponById(discountCoupon.getId()),
+                "Expected RepositoryException to be thrown");
+        verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 }
