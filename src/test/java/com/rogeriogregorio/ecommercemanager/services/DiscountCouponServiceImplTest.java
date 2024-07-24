@@ -202,4 +202,31 @@ class DiscountCouponServiceImplTest {
         verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
+
+    @Test
+    @DisplayName("updateDiscountCoupon - Atualização bem-sucedida retorna cupom de desconto atualizado")
+    void updateDiscountCoupon_SuccessfulUpdate_ReturnsDiscountCoupon() {
+        // Arrange
+        DiscountCouponResponse expectedResponse = discountCouponResponse;
+
+        when(discountCouponRepository.findById(discountCoupon.getId())).thenReturn(Optional.of(discountCoupon));
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, CatchError.SafeFunction.class).execute());
+        when(dataMapper.map(eq(discountCouponRequest), any(DiscountCoupon.class))).thenReturn(discountCoupon);
+        when(discountCouponRepository.save(discountCoupon)).thenReturn(discountCoupon);
+        when(dataMapper.map(eq(discountCoupon), eq(DiscountCouponResponse.class))).thenReturn(expectedResponse);
+
+        // Act
+        DiscountCouponResponse actualResponse = discountCouponService.updateDiscountCoupon(discountCoupon.getId(), discountCouponRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "DiscountCoupon should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
+        verify(dataMapper, times(1)).map(eq(discountCouponRequest), any(DiscountCoupon.class));
+        verify(discountCouponRepository, times(1)).save(discountCoupon);
+        verify(dataMapper, times(1)).map(eq(discountCoupon), eq(DiscountCouponResponse.class));
+        verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
+    }
 }
