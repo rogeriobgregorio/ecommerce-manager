@@ -229,4 +229,38 @@ class DiscountCouponServiceImplTest {
         verify(dataMapper, times(1)).map(eq(discountCoupon), eq(DiscountCouponResponse.class));
         verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
     }
+
+    @Test
+    @DisplayName("updateDiscountCoupon - Exceção ao tentar atualizar cupom de desconto inexistente")
+    void updateDiscountCoupon_NotFoundExceptionHandling() {
+        // Arrange
+        when(discountCouponRepository.findById(discountCoupon.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> discountCouponService.updateDiscountCoupon(discountCoupon.getId(), discountCouponRequest),
+                "Expected NotFoundException to be thrown");
+        verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
+        verify(discountCouponRepository, never()).save(discountCoupon);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateDiscountCoupon - Exceção no repositório ao tentar atualizar cupom de desconto")
+    void updateAddress_RepositoryExceptionHandling() {
+        // Arrange
+        when(discountCouponRepository.findById(discountCoupon.getId())).thenReturn(Optional.of(discountCoupon));
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, CatchError.SafeFunction.class).execute());
+        when(dataMapper.map(eq(discountCouponRequest), any(DiscountCoupon.class))).thenReturn(discountCoupon);
+        when(discountCouponRepository.save(discountCoupon)).thenThrow(RepositoryException.class);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> discountCouponService.updateDiscountCoupon(discountCoupon.getId(), discountCouponRequest),
+                "Expected RepositoryException to be thrown");
+        verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
+        verify(dataMapper, times(1)).map(eq(discountCouponRequest), any(DiscountCoupon.class));
+        verify(discountCouponRepository, times(1)).save(discountCoupon);
+        verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
+    }
 }
