@@ -285,4 +285,40 @@ class DiscountCouponServiceImplTest {
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
         verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
     }
+
+    @Test
+    @DisplayName("deleteDiscountCoupon - Exceção ao tentar excluir cupom de desconto inexistente")
+    void deleteDiscountCoupon_NotFoundExceptionHandling() {
+        // Arrange
+        when(discountCouponRepository.findById(discountCoupon.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> discountCouponService.deleteDiscountCoupon(discountCoupon.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
+        verify(discountCouponRepository, never()).delete(discountCoupon);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("deleteDiscountCoupon - Exceção no repositório ao tentar excluir cupom de desconto")
+    void deleteDiscountCoupon_RepositoryExceptionHandling() {
+        // Arrange
+        when(discountCouponRepository.findById(discountCoupon.getId())).thenReturn(Optional.of(discountCoupon));
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
+        doAnswer(invocation -> {
+            discountCouponRepository.delete(discountCoupon);
+            return null;
+        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        doThrow(RepositoryException.class).when(discountCouponRepository).delete(discountCoupon);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> discountCouponService.deleteDiscountCoupon(discountCoupon.getId()),
+                "Expected RepositoryException to be thrown");
+        verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
+        verify(discountCouponRepository, times(1)).delete(discountCoupon);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+    }
 }
