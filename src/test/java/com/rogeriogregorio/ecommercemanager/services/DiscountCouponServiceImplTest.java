@@ -263,4 +263,26 @@ class DiscountCouponServiceImplTest {
         verify(discountCouponRepository, times(1)).save(discountCoupon);
         verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
     }
+
+    @Test
+    @DisplayName("deleteDiscountCoupon - Exclusão bem-sucedida do cupom de desconto")
+    void deleteDiscountCoupon_DeletesAddressSuccessfully() {
+        // Arrange
+        when(discountCouponRepository.findById(discountCoupon.getId())).thenReturn(Optional.of(discountCoupon));
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
+        doAnswer(invocation -> {
+            discountCouponRepository.delete(discountCoupon);
+            return null;
+        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        doNothing().when(discountCouponRepository).delete(discountCoupon);
+
+        // Act
+        discountCouponService.deleteDiscountCoupon(discountCoupon.getId());
+
+        // Assert
+        verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
+        verify(discountCouponRepository, times(1)).delete(discountCoupon);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+    }
 }
