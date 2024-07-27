@@ -321,4 +321,24 @@ class DiscountCouponServiceImplTest {
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
         verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
     }
+
+    @Test
+    @DisplayName("findDiscountCouponByCode - Busca bem-sucedida retorna cupom de desconto")
+    void findDiscountCouponByCode_SuccessfulSearch_ReturnsDiscountCoupon() {
+        // Arrange
+        DiscountCoupon expectedResponse = discountCoupon;
+
+        when(discountCouponRepository.findByCode(discountCoupon.getCode())).thenReturn(Optional.of(discountCoupon));
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findByCode(discountCoupon.getCode()));
+
+        // Act
+        DiscountCoupon actualResponse = discountCouponService.findDiscountCouponByCode(discountCoupon.getCode());
+
+        // Assert
+        assertNotNull(actualResponse, "Discount coupon should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(discountCouponRepository, times(1)).findByCode(discountCoupon.getCode());
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
 }
