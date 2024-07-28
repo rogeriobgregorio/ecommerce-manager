@@ -341,4 +341,18 @@ class DiscountCouponServiceImplTest {
         verify(discountCouponRepository, times(1)).findByCode(discountCoupon.getCode());
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
+
+    @Test
+    @DisplayName("findDiscountCouponByCode - Exceção ao tentar buscar cupom de desconto inexistente")
+    void findDiscountCouponByCode_NotFoundExceptionHandling() {
+        // Arrange
+        when(discountCouponRepository.findByCode(discountCoupon.getCode())).thenReturn(Optional.empty());
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findByCode(discountCoupon.getCode()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> discountCouponService.findDiscountCouponByCode(discountCoupon.getCode()),
+                "Expected NotFoundException to be thrown");
+        verify(discountCouponRepository, times(1)).findByCode(discountCoupon.getCode());
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
 }
