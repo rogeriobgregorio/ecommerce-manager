@@ -6,6 +6,7 @@ import com.rogeriogregorio.ecommercemanager.entities.InventoryItem;
 import com.rogeriogregorio.ecommercemanager.entities.Product;
 import com.rogeriogregorio.ecommercemanager.entities.ProductDiscount;
 import com.rogeriogregorio.ecommercemanager.entities.enums.StockStatus;
+import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.InventoryItemRepository;
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.InventoryItemServiceImpl;
@@ -31,8 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -116,6 +116,22 @@ class InventoryItemServiceImplTest {
         assertIterableEquals(expectedResponses, actualResponse, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(inventoryItem, InventoryItemResponse.class);
         verify(inventoryItemRepository, times(1)).findAll(pageable);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findAllInventoryItems - Exceção no repositório tentar buscar itens do inventário")
+    void findAllInventoryItems_RepositoryExceptionHandling() {
+        // Arrange
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(inventoryItemRepository.findAll()).thenThrow(RepositoryException.class);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> inventoryItemRepository.findAll());
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> inventoryItemService.findAllInventoryItems(pageable),
+                "Expected RepositoryException to be thrown");
+        verify(inventoryItemRepository, times(1)).findAll();
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 }
