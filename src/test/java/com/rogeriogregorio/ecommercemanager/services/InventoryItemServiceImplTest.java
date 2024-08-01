@@ -144,9 +144,25 @@ class InventoryItemServiceImplTest {
         // Arrange
         InventoryItemResponse expectedResponse = inventoryItemResponse;
 
-        when(inventoryItemRepository.existsByProduct(product)).thenReturn(true);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> inventoryItemRepository.save(inventoryItem));
-        when(inventoryItemRepository.save(inventoryItem)).thenReturn(inventoryItem);
+        when(productService.getProductIfExists(product.getId())).thenReturn(product);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> {
+            CatchError.SafeFunction<?> safeFunction = invocation.getArgument(0);
+            Object result = safeFunction.execute();
+            if (result instanceof Boolean) {
+                return result;
+            } else if (result instanceof InventoryItem) {
+                return result;
+            } else if (result instanceof StockMovement) {
+                return result;
+            }
+            return null;
+        });
+        when(inventoryItemRepository.existsByProduct(product)).thenReturn(false);
+        when(inventoryItemRepository.save(any(InventoryItem.class))).thenAnswer(invocation -> {
+            InventoryItem item = invocation.getArgument(0);
+            item.setId(1L);
+            return item;
+        });
         when(dataMapper.map(inventoryItem, InventoryItemResponse.class)).thenReturn(expectedResponse);
 
         // Act
@@ -155,8 +171,9 @@ class InventoryItemServiceImplTest {
         // Assert
         assertNotNull(actualResponse, "Inventory item should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
-        verify(inventoryItemRepository, times(1)).save(inventoryItem);
+        verify(inventoryItemRepository, times(1)).save(any(InventoryItem.class));
         verify(dataMapper, times(1)).map(inventoryItem, InventoryItemResponse.class);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(3)).run(any(CatchError.SafeFunction.class));
     }
+
 }
