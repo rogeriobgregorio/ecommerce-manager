@@ -1,10 +1,9 @@
 package com.rogeriogregorio.ecommercemanager.services;
 
+import com.rogeriogregorio.ecommercemanager.dto.requests.InventoryItemRequest;
+import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.InventoryItemResponse;
-import com.rogeriogregorio.ecommercemanager.entities.Category;
-import com.rogeriogregorio.ecommercemanager.entities.InventoryItem;
-import com.rogeriogregorio.ecommercemanager.entities.Product;
-import com.rogeriogregorio.ecommercemanager.entities.ProductDiscount;
+import com.rogeriogregorio.ecommercemanager.entities.*;
 import com.rogeriogregorio.ecommercemanager.entities.enums.StockStatus;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.InventoryItemRepository;
@@ -58,7 +57,9 @@ class InventoryItemServiceImplTest {
     private InventoryItemServiceImpl inventoryItemService;
 
     private static InventoryItem inventoryItem;
+    private static InventoryItemRequest inventoryItemRequest;
     private static InventoryItemResponse inventoryItemResponse;
+    private static Product product;
 
     @BeforeEach
     void setUp() {
@@ -72,7 +73,7 @@ class InventoryItemServiceImplTest {
                 Instant.parse("2024-06-01T00:00:00Z"),
                 Instant.parse("2024-06-07T00:00:00Z"));
 
-        Product product = Product.newBuilder()
+        product = Product.newBuilder()
                 .withId(1L).withName("Intel i5-10400F").withDescription("Intel Core Processor")
                 .withPrice(BigDecimal.valueOf(579.99)).withCategories(categoryList)
                 .withImgUrl("https://example.com/i5-10400F.jpg")
@@ -86,6 +87,8 @@ class InventoryItemServiceImplTest {
                 .withProduct(product)
                 .withQuantityInStock(10)
                 .build();
+
+        inventoryItemRequest = new InventoryItemRequest(1L, 10, StockStatus.AVAILABLE);
 
         inventoryItemResponse = new InventoryItemResponse(1L, product, 10, 1, 1);
 
@@ -132,6 +135,28 @@ class InventoryItemServiceImplTest {
         assertThrows(RepositoryException.class, () -> inventoryItemService.findAllInventoryItems(pageable),
                 "Expected RepositoryException to be thrown");
         verify(inventoryItemRepository, times(1)).findAll();
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("createInventoryItem - Criação bem-sucedida retorna item do inventário criado")
+    void createInventoryItem_SuccessfulCreation_ReturnsInventoryItem() {
+        // Arrange
+        InventoryItemResponse expectedResponse = inventoryItemResponse;
+
+        when(inventoryItemRepository.existsByProduct(product)).thenReturn(true);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> inventoryItemRepository.save(inventoryItem));
+        when(inventoryItemRepository.save(inventoryItem)).thenReturn(inventoryItem);
+        when(dataMapper.map(inventoryItem, InventoryItemResponse.class)).thenReturn(expectedResponse);
+
+        // Act
+        InventoryItemResponse actualResponse = inventoryItemService.createInventoryItem(inventoryItemRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "Inventory item should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(inventoryItemRepository, times(1)).save(inventoryItem);
+        verify(dataMapper, times(1)).map(inventoryItem, InventoryItemResponse.class);
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 }
