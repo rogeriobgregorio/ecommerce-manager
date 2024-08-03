@@ -173,7 +173,36 @@ class InventoryItemServiceImplTest {
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(inventoryItemRepository, times(1)).save(any(InventoryItem.class));
         verify(dataMapper, times(1)).map(inventoryItem, InventoryItemResponse.class);
+        verify(productService, times(1)).getProductIfExists(product.getId());
         verify(catchError, times(3)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("createInventoryItem - Exceção no repositório ao tentar item do inventário criado")
+    void createInventoryItem_RepositoryExceptionHandling() {
+        // Arrange
+        when(productService.getProductIfExists(product.getId())).thenReturn(product);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> {
+            CatchError.SafeFunction<?> safeFunction = invocation.getArgument(0);
+            Object result = safeFunction.execute();
+            if (result instanceof Boolean) {
+                return result;
+            } else if (result instanceof InventoryItem) {
+                return result;
+            } else if (result instanceof StockMovement) {
+                return result;
+            }
+            return null;
+        });
+        when(inventoryItemRepository.existsByProduct(product)).thenReturn(false);
+        when(inventoryItemRepository.save(any(InventoryItem.class))).thenThrow(RepositoryException.class);
+
+        // Assert
+        assertThrows(RepositoryException.class, () -> inventoryItemService.createInventoryItem(inventoryItemRequest),
+                "Expected RepositoryException to be thrown");
+        verify(inventoryItemRepository, times(1)).save(any(InventoryItem.class));
+        verify(productService, times(1)).getProductIfExists(product.getId());
+        verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
     }
 
 }
