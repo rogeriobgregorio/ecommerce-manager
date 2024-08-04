@@ -26,10 +26,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -205,4 +202,25 @@ class InventoryItemServiceImplTest {
         verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
     }
 
+    @Test
+    @DisplayName("findInventoryItemById - Busca bem-sucedida retorna item do inventário")
+    void findInventoryItemById_SuccessfulSearch_ReturnsInventoryItem() {
+        // Arrange
+        InventoryItemResponse expectedResponse = inventoryItemResponse;
+
+        when(inventoryItemRepository.findById(inventoryItem.getId())).thenReturn(Optional.of(inventoryItem));
+        when(dataMapper.map(inventoryItem, InventoryItemResponse.class)).thenReturn(expectedResponse);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
+
+        // Act
+        InventoryItemResponse actualResponse = inventoryItemService.findInventoryItemById(inventoryItem.getId());
+
+        // Assert
+        assertNotNull(actualResponse, "Inventory item should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
+        verify(dataMapper, times(1)).map(inventoryItem, InventoryItemResponse.class);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
 }
