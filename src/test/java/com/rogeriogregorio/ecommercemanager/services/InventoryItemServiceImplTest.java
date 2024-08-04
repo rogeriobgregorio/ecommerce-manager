@@ -5,6 +5,7 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.InventoryItemResponse;
 import com.rogeriogregorio.ecommercemanager.entities.*;
 import com.rogeriogregorio.ecommercemanager.entities.enums.StockStatus;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.InventoryItemRepository;
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
@@ -221,6 +222,34 @@ class InventoryItemServiceImplTest {
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
         verify(dataMapper, times(1)).map(inventoryItem, InventoryItemResponse.class);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findInventoryItemById - Exceção ao tentar buscar item do inventário inexistente")
+    void findInventoryItemById_NotFoundExceptionHandling() {
+        // Arrange
+        when(inventoryItemRepository.findById(inventoryItem.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () ->inventoryItemService.findInventoryItemById(inventoryItem.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findInventoryItemById - Exceção no repositório ao tentar buscar item do inventário")
+    void findAddressById_RepositoryExceptionHandling() {
+        // Arrange
+        when(inventoryItemRepository.findById(inventoryItem.getId())).thenThrow(RepositoryException.class);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
+
+        // Assert and Assert
+        assertThrows(RepositoryException.class, () -> inventoryItemService.findInventoryItemById(inventoryItem.getId()),
+                "Expected RepositoryException to be thrown");
+        verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 }

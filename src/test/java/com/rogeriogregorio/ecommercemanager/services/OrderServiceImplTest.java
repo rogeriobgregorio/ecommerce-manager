@@ -80,7 +80,7 @@ class OrderServiceImplTest {
         discountCoupon = new DiscountCoupon(1L,
                 "PROMO70OFF", BigDecimal.valueOf(0.15),
                 Instant.parse("2024-06-26T00:00:00Z"),
-                Instant.parse("2024-07-26T00:00:00Z"));
+                Instant.parse("2025-07-26T00:00:00Z"));
 
         Payment payment = Payment.newBuilder()
                 .withId(1L)
