@@ -241,7 +241,7 @@ class InventoryItemServiceImplTest {
 
     @Test
     @DisplayName("findInventoryItemById - Exceção no repositório ao tentar buscar item do inventário")
-    void findAddressById_RepositoryExceptionHandling() {
+    void findInventoryItemById_RepositoryExceptionHandling() {
         // Arrange
         when(inventoryItemRepository.findById(inventoryItem.getId())).thenThrow(RepositoryException.class);
         when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
@@ -251,5 +251,30 @@ class InventoryItemServiceImplTest {
                 "Expected RepositoryException to be thrown");
         verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateInventoryItem - Atualização bem-sucedida retorna item do inventário atualizado")
+    void updateInventoryItem_SuccessfulUpdate_ReturnsInventoryItem() {
+        // Arrange
+        InventoryItemResponse expectedResponse = inventoryItemResponse;
+
+        when(inventoryItemRepository.findById(inventoryItem.getId())).thenReturn(Optional.of(inventoryItem));
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, CatchError.SafeFunction.class).execute());
+        when(inventoryItemRepository.save(inventoryItem)).thenReturn(inventoryItem);
+        when(dataMapper.map(eq(inventoryItem), eq(InventoryItemResponse.class))).thenReturn(expectedResponse);
+
+        // Act
+        InventoryItemResponse actualResponse = inventoryItemService.updateInventoryItem(inventoryItem.getId(), inventoryItemRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "Inventory item should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
+        verify(inventoryItemRepository, times(1)).save(inventoryItem);
+        verify(dataMapper, times(1)).map(eq(inventoryItem), eq(InventoryItemResponse.class));
+        verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
     }
 }
