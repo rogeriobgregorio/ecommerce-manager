@@ -277,4 +277,36 @@ class InventoryItemServiceImplTest {
         verify(dataMapper, times(1)).map(eq(inventoryItem), eq(InventoryItemResponse.class));
         verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
     }
+
+    @Test
+    @DisplayName("updateInventoryItem - Exceção ao tentar atualizar item do inventário inexistente")
+    void updateInventoryItem_NotFoundExceptionHandling() {
+        // Arrange
+        when(inventoryItemRepository.findById(inventoryItem.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> inventoryItemService.updateInventoryItem(inventoryItem.getId(), inventoryItemRequest),
+                "Expected NotFoundException to be thrown");
+        verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
+        verify(inventoryItemRepository, never()).save(inventoryItem);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateInventoryItem - Exceção no repositório ao tentar atualizar endereço")
+    void updateInventoryItem_RepositoryExceptionHandling() {
+        // Arrange
+        when(inventoryItemRepository.findById(inventoryItem.getId())).thenReturn(Optional.of(inventoryItem));
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, CatchError.SafeFunction.class).execute());
+        when(inventoryItemRepository.save(inventoryItem)).thenThrow(RepositoryException.class);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> inventoryItemService.updateInventoryItem(inventoryItem.getId(), inventoryItemRequest),
+                "Expected RepositoryException to be thrown");
+        verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
+        verify(inventoryItemRepository, times(1)).save(inventoryItem);
+        verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
+    }
 }
