@@ -294,7 +294,7 @@ class InventoryItemServiceImplTest {
     }
 
     @Test
-    @DisplayName("updateInventoryItem - Exceção no repositório ao tentar atualizar endereço")
+    @DisplayName("updateInventoryItem - Exceção no repositório ao tentar atualizar item do inventário")
     void updateInventoryItem_RepositoryExceptionHandling() {
         // Arrange
         when(inventoryItemRepository.findById(inventoryItem.getId())).thenReturn(Optional.of(inventoryItem));
@@ -308,5 +308,27 @@ class InventoryItemServiceImplTest {
         verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
         verify(inventoryItemRepository, times(1)).save(inventoryItem);
         verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("deleteInventoryItem - Exclusão bem-sucedida do item do inventário")
+    void deleteInventoryItem_DeletesInventoryItemSuccessfully() {
+        // Arrange
+        when(inventoryItemRepository.findById(inventoryItem.getId())).thenReturn(Optional.of(inventoryItem));
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
+        doAnswer(invocation -> {
+            inventoryItemRepository.delete(inventoryItem);
+            return null;
+        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        doNothing().when(inventoryItemRepository).delete(inventoryItem);
+
+        // Act
+        inventoryItemService.deleteInventoryItem(inventoryItem.getId());
+
+        // Assert
+        verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
+        verify(inventoryItemRepository, times(1)).delete(inventoryItem);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
     }
 }
