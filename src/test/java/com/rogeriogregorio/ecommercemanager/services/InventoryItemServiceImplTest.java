@@ -331,4 +331,40 @@ class InventoryItemServiceImplTest {
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
         verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
     }
+
+    @Test
+    @DisplayName("deleteInventoryItem - Exceção ao tentar excluir item do inventário inexistente")
+    void deleteInventoryItem_NotFoundExceptionHandling() {
+        // Arrange
+        when(inventoryItemRepository.findById(inventoryItem.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> inventoryItemService.deleteInventoryItem(inventoryItem.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
+        verify(inventoryItemRepository, never()).delete(inventoryItem);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("deleteInventoryItem - Exceção no repositório ao tentar excluir item do inventário")
+    void deleteInventoryItem_RepositoryExceptionHandling() {
+        // Arrange
+        when(inventoryItemRepository.findById(inventoryItem.getId())).thenReturn(Optional.of(inventoryItem));
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
+        doAnswer(invocation -> {
+            inventoryItemRepository.delete(inventoryItem);
+            return null;
+        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        doThrow(RepositoryException.class).when(inventoryItemRepository).delete(inventoryItem);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> inventoryItemService.deleteInventoryItem(inventoryItem.getId()),
+                "Expected RepositoryException to be thrown");
+        verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
+        verify(inventoryItemRepository, times(1)).delete(inventoryItem);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+    }
 }
