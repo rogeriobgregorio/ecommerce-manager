@@ -133,4 +133,20 @@ class NotificationServiceImplTest {
         verify(dataMapper, times(1)).map(notification, NotificationResponse.class);
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
+
+    @Test
+    @DisplayName("createNotification - Exceção no repositório ao tentar criar notificação")
+    void createNotification_RepositoryExceptionHandling() {
+        // Arrange
+        when(dataMapper.map(notificationRequest, Notification.class)).thenReturn(notification);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> notificationRepository.save(notification));
+        when(notificationRepository.save(notification)).thenThrow(RepositoryException.class);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> notificationService.createNotification(notificationRequest),
+                "Expected RepositoryException to be thrown");
+        verify(dataMapper, times(1)).map(notificationRequest, Notification.class);
+        verify(notificationRepository, times(1)).save(notification);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
 }
