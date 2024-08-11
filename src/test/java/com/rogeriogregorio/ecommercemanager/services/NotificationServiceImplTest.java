@@ -111,5 +111,26 @@ class NotificationServiceImplTest {
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 
+    @Test
+    @DisplayName("createNotification - Criação bem-sucedida retorna notificação criada")
+    void createNotification_SuccessfulCreation_ReturnsNotification() {
+        // Arrange
+        NotificationResponse expectedResponse = notificationResponse;
 
+        when(dataMapper.map(notificationRequest, Notification.class)).thenReturn(notification);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> notificationRepository.save(notification));
+        when(notificationRepository.save(notification)).thenReturn(notification);
+        when(dataMapper.map(notification, NotificationResponse.class)).thenReturn(expectedResponse);
+
+        // Act
+        NotificationResponse actualResponse = notificationService.createNotification(notificationRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "Notification should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(dataMapper, times(1)).map(notificationRequest, Notification.class);
+        verify(notificationRepository, times(1)).save(notification);
+        verify(dataMapper, times(1)).map(notification, NotificationResponse.class);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
 }
