@@ -30,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -147,6 +148,28 @@ class NotificationServiceImplTest {
                 "Expected RepositoryException to be thrown");
         verify(dataMapper, times(1)).map(notificationRequest, Notification.class);
         verify(notificationRepository, times(1)).save(notification);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findNotificationById - Busca bem-sucedida retorna notificação")
+    void findNotificationById_SuccessfulSearch_ReturnsNotification() {
+        // Arrange
+        NotificationResponse expectedResponse = notificationResponse;
+
+        when(notificationRepository.findById(notification.getId())).thenReturn(Optional.of(notification));
+        when(dataMapper.map(notification, NotificationResponse.class)).thenReturn(expectedResponse);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> notificationRepository.findById(notification.getId()));
+
+        // Act
+        NotificationResponse actualResponse = notificationService.findNotificationById(notification.getId());
+
+        // Assert
+        assertNotNull(actualResponse, "Notification should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(notificationRepository, times(1)).findById(notification.getId());
+        verify(dataMapper, times(1)).map(notification, NotificationResponse.class);
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 }
