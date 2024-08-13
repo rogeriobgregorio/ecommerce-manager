@@ -8,6 +8,7 @@ import com.rogeriogregorio.ecommercemanager.entities.Address;
 import com.rogeriogregorio.ecommercemanager.entities.Notification;
 import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.NotificationRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.AddressServiceImpl;
@@ -170,6 +171,34 @@ class NotificationServiceImplTest {
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(notificationRepository, times(1)).findById(notification.getId());
         verify(dataMapper, times(1)).map(notification, NotificationResponse.class);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findNotificationById - Exceção ao tentar buscar notificação inexistente")
+    void findNotificationById_NotFoundExceptionHandling() {
+        // Arrange
+        when(notificationRepository.findById(notification.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> notificationRepository.findById(notification.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> notificationService.findNotificationById(notification.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(notificationRepository, times(1)).findById(notification.getId());
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findNotificationById - Exceção no repositório ao tentar buscar endereço")
+    void findNotificationById_RepositoryExceptionHandling() {
+        // Arrange
+        when(notificationRepository.findById(notification.getId())).thenThrow(RepositoryException.class);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> notificationRepository.findById(notification.getId()));
+
+        // Assert and Assert
+        assertThrows(RepositoryException.class, () -> notificationService.findNotificationById(notification.getId()),
+                "Expected RepositoryException to be thrown");
+        verify(notificationRepository, times(1)).findById(notification.getId());
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 }
