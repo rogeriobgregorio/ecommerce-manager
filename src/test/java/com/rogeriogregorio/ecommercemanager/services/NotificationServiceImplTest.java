@@ -189,7 +189,7 @@ class NotificationServiceImplTest {
     }
 
     @Test
-    @DisplayName("findNotificationById - Exceção no repositório ao tentar buscar endereço")
+    @DisplayName("findNotificationById - Exceção no repositório ao tentar buscar notificação")
     void findNotificationById_RepositoryExceptionHandling() {
         // Arrange
         when(notificationRepository.findById(notification.getId())).thenThrow(RepositoryException.class);
@@ -200,5 +200,32 @@ class NotificationServiceImplTest {
                 "Expected RepositoryException to be thrown");
         verify(notificationRepository, times(1)).findById(notification.getId());
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateNotification - Atualização bem-sucedida retorna notificação atualizada")
+    void updateAddress_SuccessfulUpdate_ReturnsAddress() {
+        // Arrange
+        NotificationResponse expectedResponse = notificationResponse;
+
+        when(notificationRepository.findById(notification.getId())).thenReturn(Optional.of(notification));
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, CatchError.SafeFunction.class).execute());
+        when(dataMapper.map(eq(notificationRequest), any(Notification.class))).thenReturn(notification);
+        when(notificationRepository.save(notification)).thenReturn(notification);
+        when(dataMapper.map(eq(notification), eq(NotificationResponse.class))).thenReturn(expectedResponse);
+
+        // Act
+        NotificationResponse actualResponse = notificationService.updateNotification(notification.getId(), notificationRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "Address should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(notificationRepository, times(1)).findById(notification.getId());
+        verify(dataMapper, times(1)).map(eq(notificationRequest), any(Notification.class));
+        verify(notificationRepository, times(1)).save(notification);
+        verify(dataMapper, times(1)).map(eq(notification), eq(NotificationResponse.class));
+        verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
     }
 }
