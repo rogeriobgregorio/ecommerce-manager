@@ -262,4 +262,26 @@ class NotificationServiceImplTest {
         verify(notificationRepository, times(1)).save(notification);
         verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
     }
+
+    @Test
+    @DisplayName("deleteNotification - Exclusão bem-sucedida da notificação")
+    void deleteNotification_DeletesAddressSuccessfully() {
+        // Arrange
+        when(notificationRepository.findById(notification.getId())).thenReturn(Optional.of(notification));
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> notificationRepository.findById(notification.getId()));
+        doAnswer(invocation -> {
+            notificationRepository.delete(notification);
+            return null;
+        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        doNothing().when(notificationRepository).delete(notification);
+
+        // Act
+        notificationService.deleteNotification(notification.getId());
+
+        // Assert
+        verify(notificationRepository, times(1)).findById(notification.getId());
+        verify(notificationRepository, times(1)).delete(notification);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+    }
 }
