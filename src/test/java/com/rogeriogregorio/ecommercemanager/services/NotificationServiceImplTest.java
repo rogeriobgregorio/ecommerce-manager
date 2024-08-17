@@ -284,4 +284,40 @@ class NotificationServiceImplTest {
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
         verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
     }
+
+    @Test
+    @DisplayName("deleteNotification - Exceção ao tentar excluir notificação inexistente")
+    void deleteNotification_NotFoundExceptionHandling() {
+        // Arrange
+        when(notificationRepository.findById(notification.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> notificationRepository.findById(notification.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> notificationService.deleteNotification(notification.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(notificationRepository, times(1)).findById(notification.getId());
+        verify(notificationRepository, never()).delete(notification);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("deleteNotification - Exceção no repositório ao tentar excluir notificação")
+    void deleteNotification_RepositoryExceptionHandling() {
+        // Arrange
+        when(notificationRepository.findById(notification.getId())).thenReturn(Optional.of(notification));
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> notificationRepository.findById(notification.getId()));
+        doAnswer(invocation -> {
+            notificationRepository.delete(notification);
+            return null;
+        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        doThrow(RepositoryException.class).when(notificationRepository).delete(notification);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> notificationService.deleteNotification(notification.getId()),
+                "Expected RepositoryException to be thrown");
+        verify(notificationRepository, times(1)).findById(notification.getId());
+        verify(notificationRepository, times(1)).delete(notification);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+    }
 }
