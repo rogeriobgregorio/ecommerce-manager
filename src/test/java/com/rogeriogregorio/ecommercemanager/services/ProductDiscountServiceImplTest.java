@@ -5,6 +5,7 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductDiscountResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Address;
 import com.rogeriogregorio.ecommercemanager.entities.ProductDiscount;
+import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductDiscountRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.ProductDiscountServiceImpl;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
@@ -27,8 +28,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -94,6 +94,22 @@ class ProductDiscountServiceImplTest {
         assertIterableEquals(expectedResponses, actualResponse, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(productDiscount, ProductDiscountResponse.class);
         verify(productDiscountRepository, times(1)).findAll(pageable);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findAllProductDiscounts - Exceção no repositório tentar buscar lista de desconto de produtos")
+    void findAllAddresses_RepositoryExceptionHandling() {
+        // Arrange
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(productDiscountRepository.findAll()).thenThrow(RepositoryException.class);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.findAll());
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> productDiscountService.findAllProductDiscounts(pageable),
+                "Expected RepositoryException to be thrown");
+        verify(productDiscountRepository, times(1)).findAll();
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 }
