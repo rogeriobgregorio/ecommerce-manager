@@ -99,7 +99,7 @@ class ProductDiscountServiceImplTest {
 
     @Test
     @DisplayName("findAllProductDiscounts - Exceção no repositório tentar buscar lista de desconto de produtos")
-    void findAllAddresses_RepositoryExceptionHandling() {
+    void findAllProductDiscounts_RepositoryExceptionHandling() {
         // Arrange
         Pageable pageable = PageRequest.of(0, 10);
 
@@ -110,6 +110,45 @@ class ProductDiscountServiceImplTest {
         assertThrows(RepositoryException.class, () -> productDiscountService.findAllProductDiscounts(pageable),
                 "Expected RepositoryException to be thrown");
         verify(productDiscountRepository, times(1)).findAll();
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("createProductDiscount - Criação bem-sucedida retorna desconto de produto criado")
+    void createProductDiscount_SuccessfulCreation_ReturnsProductDiscount() {
+        // Arrange
+        ProductDiscountResponse expectedResponse = productDiscountResponse;
+
+        when(dataMapper.map(productDiscountRequest, ProductDiscount.class)).thenReturn(productDiscount);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.save(productDiscount));
+        when(productDiscountRepository.save(productDiscount)).thenReturn(productDiscount);
+        when(dataMapper.map(productDiscount, ProductDiscountResponse.class)).thenReturn(expectedResponse);
+
+        // Act
+        ProductDiscountResponse actualResponse = productDiscountService.createProductDiscount(productDiscountRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "Address should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(dataMapper, times(1)).map(productDiscountRequest, ProductDiscount.class);
+        verify(productDiscountRepository, times(1)).save(productDiscount);
+        verify(dataMapper, times(1)).map(productDiscount, ProductDiscountResponse.class);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("createProductDiscount - Exceção no repositório ao tentar criar desconto de produto")
+    void createProductDiscount_RepositoryExceptionHandling() {
+        // Arrange
+        when(dataMapper.map(productDiscountRequest, ProductDiscount.class)).thenReturn(productDiscount);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.save(productDiscount));
+        when(productDiscountRepository.save(productDiscount)).thenThrow(RepositoryException.class);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> productDiscountService.createProductDiscount(productDiscountRequest),
+                "Expected RepositoryException to be thrown");
+        verify(dataMapper, times(1)).map(productDiscountRequest, ProductDiscount.class);
+        verify(productDiscountRepository, times(1)).save(productDiscount);
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 }
