@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -149,6 +150,28 @@ class ProductDiscountServiceImplTest {
                 "Expected RepositoryException to be thrown");
         verify(dataMapper, times(1)).map(productDiscountRequest, ProductDiscount.class);
         verify(productDiscountRepository, times(1)).save(productDiscount);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findProductDiscountById - Busca bem-sucedida retorna desconto de produto")
+    void findAddressById_SuccessfulSearch_ReturnsProductDiscount() {
+        // Arrange
+        ProductDiscountResponse expectedResponse = productDiscountResponse;
+
+        when(productDiscountRepository.findById(productDiscount.getId())).thenReturn(Optional.of(productDiscount));
+        when(dataMapper.map(productDiscount, ProductDiscountResponse.class)).thenReturn(expectedResponse);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.findById(productDiscount.getId()));
+
+        // Act
+        ProductDiscountResponse actualResponse = productDiscountService.findProductDiscountById(productDiscount.getId());
+
+        // Assert
+        assertNotNull(actualResponse, "Address should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
+        verify(dataMapper, times(1)).map(productDiscount, ProductDiscountResponse.class);
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 }
