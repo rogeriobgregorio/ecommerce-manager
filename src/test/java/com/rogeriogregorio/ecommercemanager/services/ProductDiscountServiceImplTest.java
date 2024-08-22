@@ -5,6 +5,7 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductDiscountResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Address;
 import com.rogeriogregorio.ecommercemanager.entities.ProductDiscount;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductDiscountRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.ProductDiscountServiceImpl;
@@ -129,7 +130,7 @@ class ProductDiscountServiceImplTest {
         ProductDiscountResponse actualResponse = productDiscountService.createProductDiscount(productDiscountRequest);
 
         // Assert
-        assertNotNull(actualResponse, "Address should not be null");
+        assertNotNull(actualResponse, "Product discount should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(productDiscountRequest, ProductDiscount.class);
         verify(productDiscountRepository, times(1)).save(productDiscount);
@@ -155,7 +156,7 @@ class ProductDiscountServiceImplTest {
 
     @Test
     @DisplayName("findProductDiscountById - Busca bem-sucedida retorna desconto de produto")
-    void findAddressById_SuccessfulSearch_ReturnsProductDiscount() {
+    void findProductDiscountById_SuccessfulSearch_ReturnsProductDiscount() {
         // Arrange
         ProductDiscountResponse expectedResponse = productDiscountResponse;
 
@@ -167,11 +168,39 @@ class ProductDiscountServiceImplTest {
         ProductDiscountResponse actualResponse = productDiscountService.findProductDiscountById(productDiscount.getId());
 
         // Assert
-        assertNotNull(actualResponse, "Address should not be null");
+        assertNotNull(actualResponse, "Product discount should not be null");
         assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
         verify(dataMapper, times(1)).map(productDiscount, ProductDiscountResponse.class);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findProductDiscountById - Exceção ao tentar buscar desconto de produto inexistente")
+    void findProductDiscountById_NotFoundExceptionHandling() {
+        // Arrange
+        when(productDiscountRepository.findById(productDiscount.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.findById(productDiscount.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> productDiscountService.findProductDiscountById(productDiscount.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findProductDiscountById - Exceção no repositório ao tentar buscar desconto de produto")
+    void findProductDiscountById_RepositoryExceptionHandling() {
+        // Arrange
+        when(productDiscountRepository.findById(productDiscount.getId())).thenThrow(RepositoryException.class);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.findById(productDiscount.getId()));
+
+        // Assert and Assert
+        assertThrows(RepositoryException.class, () -> productDiscountService.findProductDiscountById(productDiscount.getId()),
+                "Expected RepositoryException to be thrown");
+        verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 }
