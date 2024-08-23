@@ -203,4 +203,65 @@ class ProductDiscountServiceImplTest {
         verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
+
+    @Test
+    @DisplayName("updateProductDiscount - Atualização bem-sucedida retorna desconto de produto atualizado")
+    void updateProductDiscount_SuccessfulUpdate_ReturnsProductDiscount() {
+        // Arrange
+        ProductDiscountResponse expectedResponse = productDiscountResponse;
+
+        when(productDiscountRepository.findById(productDiscount.getId())).thenReturn(Optional.of(productDiscount));
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, CatchError.SafeFunction.class).execute());
+        when(dataMapper.map(eq(productDiscountRequest), any(ProductDiscount.class))).thenReturn(productDiscount);
+        when(productDiscountRepository.save(productDiscount)).thenReturn(productDiscount);
+        when(dataMapper.map(eq(productDiscount), eq(ProductDiscountResponse.class))).thenReturn(expectedResponse);
+
+        // Act
+        ProductDiscountResponse actualResponse = productDiscountService.updateProductDiscount(productDiscount.getId(), productDiscountRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "Product discount should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
+        verify(dataMapper, times(1)).map(eq(productDiscountRequest), any(ProductDiscount.class));
+        verify(productDiscountRepository, times(1)).save(productDiscount);
+        verify(dataMapper, times(1)).map(eq(productDiscount), eq(ProductDiscountResponse.class));
+        verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateProductDiscount - Exceção ao tentar atualizar desconto de produto inexistente")
+    void updateProductDiscount_NotFoundExceptionHandling() {
+        // Arrange
+        when(productDiscountRepository.findById(productDiscount.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> productDiscountRepository.findById(productDiscount.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> productDiscountService.updateProductDiscount(productDiscount.getId(), productDiscountRequest),
+                "Expected NotFoundException to be thrown");
+        verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
+        verify(productDiscountRepository, never()).save(productDiscount);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateProductDiscount - Exceção no repositório ao tentar atualizar desconto de produto")
+    void updateProductDiscount_RepositoryExceptionHandling() {
+        // Arrange
+        when(productDiscountRepository.findById(productDiscount.getId())).thenReturn(Optional.of(productDiscount));
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, CatchError.SafeFunction.class).execute());
+        when(dataMapper.map(eq(productDiscountRequest), any(ProductDiscount.class))).thenReturn(productDiscount);
+        when(productDiscountRepository.save(productDiscount)).thenThrow(RepositoryException.class);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> productDiscountService.updateProductDiscount(productDiscount.getId(), productDiscountRequest),
+                "Expected RepositoryException to be thrown");
+        verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
+        verify(dataMapper, times(1)).map(eq(productDiscountRequest), any(ProductDiscount.class));
+        verify(productDiscountRepository, times(1)).save(productDiscount);
+        verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
+    }
 }
