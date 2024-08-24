@@ -264,4 +264,26 @@ class ProductDiscountServiceImplTest {
         verify(productDiscountRepository, times(1)).save(productDiscount);
         verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
     }
+
+    @Test
+    @DisplayName("deleteProductDiscount - Exclusão bem-sucedida do desconto de produto")
+    void deleteProductDiscount_DeletesProductDiscountSuccessfully() {
+        // Arrange
+        when(productDiscountRepository.findById(productDiscount.getId())).thenReturn(Optional.of(productDiscount));
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> productDiscountRepository.findById(productDiscount.getId()));
+        doAnswer(invocation -> {
+            productDiscountRepository.delete(productDiscount);
+            return null;
+        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        doNothing().when(productDiscountRepository).delete(productDiscount);
+
+        // Act
+        productDiscountService.deleteProductDiscount(productDiscount.getId());
+
+        // Assert
+        verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
+        verify(productDiscountRepository, times(1)).delete(productDiscount);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+    }
 }
