@@ -286,4 +286,40 @@ class ProductDiscountServiceImplTest {
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
         verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
     }
+
+    @Test
+    @DisplayName("deleteProductDiscount - Exceção ao tentar excluir desconto de produto inexistente")
+    void deleteProductDiscount_NotFoundExceptionHandling() {
+        // Arrange
+        when(productDiscountRepository.findById(productDiscount.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> productDiscountRepository.findById(productDiscount.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> productDiscountService.deleteProductDiscount(productDiscount.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
+        verify(productDiscountRepository, never()).delete(productDiscount);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("deleteProductDiscount - Exceção no repositório ao tentar excluir desconto de produto")
+    void deleteAddress_RepositoryExceptionHandling() {
+        // Arrange
+        when(productDiscountRepository.findById(productDiscount.getId())).thenReturn(Optional.of(productDiscount));
+        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> productDiscountRepository.findById(productDiscount.getId()));
+        doAnswer(invocation -> {
+            productDiscountRepository.delete(productDiscount);
+            return null;
+        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        doThrow(RepositoryException.class).when(productDiscountRepository).delete(productDiscount);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> productDiscountService.deleteProductDiscount(productDiscount.getId()),
+                "Expected RepositoryException to be thrown");
+        verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
+        verify(productDiscountRepository, times(1)).delete(productDiscount);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+    }
 }
