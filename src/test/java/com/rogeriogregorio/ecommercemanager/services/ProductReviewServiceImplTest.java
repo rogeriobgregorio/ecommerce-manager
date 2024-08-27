@@ -5,6 +5,7 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductReviewResponse;
 import com.rogeriogregorio.ecommercemanager.entities.*;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
+import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductReviewRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.ProductReviewServiceImpl;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
@@ -26,8 +27,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -121,6 +121,22 @@ class ProductReviewServiceImplTest {
         assertIterableEquals(expectedResponses, actualResponse, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(productReview, ProductReviewResponse.class);
         verify(productReviewRepository, times(1)).findAll(pageable);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findAllProductReviews - Exceção no repositório tentar buscar lista de reviews de produtos")
+    void findAllProductReviews_RepositoryExceptionHandling() {
+        // Arrange
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(productReviewRepository.findAll()).thenThrow(RepositoryException.class);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.findAll());
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> productReviewService.findAllProductReviews(pageable),
+                "Expected RepositoryException to be thrown");
+        verify(productReviewRepository, times(1)).findAll();
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 }
