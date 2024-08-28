@@ -4,6 +4,9 @@ import com.rogeriogregorio.ecommercemanager.dto.requests.ProductReviewRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductReviewResponse;
 import com.rogeriogregorio.ecommercemanager.entities.*;
+import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
+import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentStatus;
+import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductReviewRepository;
@@ -52,8 +55,9 @@ class ProductReviewServiceImplTest {
     @InjectMocks
     private ProductReviewServiceImpl productReviewService;
 
-    private static User user;
+    private static Order order;
     private static Product product;
+    private static Payment payment;
     private static ProductReview productReview;
     private static ProductReviewRequest productReviewRequest;
     private static ProductReviewResponse productReviewResponse;
@@ -61,10 +65,34 @@ class ProductReviewServiceImplTest {
     @BeforeEach
     void setUp() {
 
-        user = User.newBuilder()
+        DiscountCoupon discountCoupon = new DiscountCoupon(1L,
+                "PROMO70OFF", BigDecimal.valueOf(0.15),
+                Instant.parse("2024-06-26T00:00:00Z"),
+                Instant.parse("2024-07-26T00:00:00Z"));
+
+        User user = User.newBuilder()
                 .withId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
                 .withName("Admin").withEmail("admin@email.com").withPhone("11912345678")
                 .withCpf("72482581052").withPassword("Password123$").withRole(UserRole.ADMIN)
+                .build();
+
+        order = Order.newBuilder()
+                .withId(1L)
+                .withClient(user)
+                .withMoment(Instant.now())
+                .withCoupon(discountCoupon)
+                .withOrderStatus(OrderStatus.DELIVERED)
+                .withPayment(payment)
+                .build();
+
+        payment = Payment.newBuilder()
+                .withId(1L)
+                .withMoment(Instant.now())
+                .withOrder(order)
+                .withPaymentStatus(PaymentStatus.CONCLUDED)
+                .withPaymentType(PaymentType.PIX)
+                .withTxId("b3f1b57e-ec0c-4b23-a6b2-647d2b176d74")
+                .withChargeLink("https://bank.com/paymentqrcode")
                 .build();
 
         Category category = new Category(1L, "Computers");
@@ -139,4 +167,32 @@ class ProductReviewServiceImplTest {
         verify(productReviewRepository, times(1)).findAll();
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
+
+    @Test
+    @DisplayName("createProductReviews - Criação bem-sucedida retorna review de produto criado")
+    void createProductReviews_SuccessfulCreation_ReturnsAddress() {
+        // Arrange
+        ProductReviewResponse expectedResponse = productReviewResponse;
+        User mockUser = mock(User.class);
+
+        when(mockUser.getPurchasedProducts()).thenReturn(Set.of(product));
+        when(userService.getUserIfExists(productReviewRequest.getUserId())).thenReturn(mockUser);
+        when(productService.getProductIfExists(productReviewRequest.getProductId())).thenReturn(product);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.save(productReview));
+        when(productReviewRepository.save(productReview)).thenReturn(productReview);
+        when(dataMapper.map(productReview, ProductReviewResponse.class)).thenReturn(expectedResponse);
+
+        // Act
+        ProductReviewResponse actualResponse = productReviewService.createProductReview(productReviewRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "Product review should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
+        verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
+        verify(productReviewRepository, times(1)).save(productReview);
+        verify(dataMapper, times(1)).map(productReview, ProductReviewResponse.class);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
 }
