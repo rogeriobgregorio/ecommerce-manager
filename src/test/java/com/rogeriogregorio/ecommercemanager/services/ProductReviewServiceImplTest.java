@@ -33,6 +33,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class ProductReviewServiceImplTest {
@@ -195,4 +196,24 @@ class ProductReviewServiceImplTest {
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 
+    @Test
+    @DisplayName("createProductReview - Exceção no repositório ao tentar criar review de produto")
+    void createProductReview_RepositoryExceptionHandling() {
+        // Arrange
+        User mockUser = mock(User.class);
+
+        when(mockUser.getPurchasedProducts()).thenReturn(Set.of(product));
+        when(userService.getUserIfExists(productReviewRequest.getUserId())).thenReturn(mockUser);
+        when(productService.getProductIfExists(productReviewRequest.getProductId())).thenReturn(product);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.save(productReview));
+        when(productReviewRepository.save(productReview)).thenThrow(RepositoryException.class);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> productReviewService.createProductReview(productReviewRequest),
+                "Expected RepositoryException to be thrown");
+        verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
+        verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
+        verify(productReviewRepository, times(1)).save(productReview);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
 }
