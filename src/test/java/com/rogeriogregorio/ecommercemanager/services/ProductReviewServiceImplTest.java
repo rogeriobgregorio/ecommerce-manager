@@ -2,12 +2,15 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.ProductReviewRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
+import com.rogeriogregorio.ecommercemanager.dto.responses.OrderItemResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductReviewResponse;
 import com.rogeriogregorio.ecommercemanager.entities.*;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentStatus;
 import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
+import com.rogeriogregorio.ecommercemanager.entities.primarykeys.OrderItemPK;
+import com.rogeriogregorio.ecommercemanager.entities.primarykeys.ProductReviewPK;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductReviewRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.ProductReviewServiceImpl;
@@ -57,6 +60,7 @@ class ProductReviewServiceImplTest {
     private ProductReviewServiceImpl productReviewService;
 
     private static Order order;
+    private static User user;
     private static Product product;
     private static Payment payment;
     private static ProductReview productReview;
@@ -71,7 +75,7 @@ class ProductReviewServiceImplTest {
                 Instant.parse("2024-06-26T00:00:00Z"),
                 Instant.parse("2024-07-26T00:00:00Z"));
 
-        User user = User.newBuilder()
+        user = User.newBuilder()
                 .withId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
                 .withName("Admin").withEmail("admin@email.com").withPhone("11912345678")
                 .withCpf("72482581052").withPassword("Password123$").withRole(UserRole.ADMIN)
@@ -214,6 +218,35 @@ class ProductReviewServiceImplTest {
         verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
         verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
         verify(productReviewRepository, times(1)).save(productReview);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findProductReviewById - Busca bem-sucedida retorna review de produto")
+    void findProductReviewById_SuccessfulSearch_ReturnsProductReview() {
+        // Arrange
+        ProductReviewResponse expectedResponse = productReviewResponse;
+
+        ProductReviewPK id = new ProductReviewPK();
+        id.setUser(user);
+        id.setProduct(product);
+
+        when(userService.getUserIfExists(productReviewRequest.getUserId())).thenReturn(user);
+        when(productService.getProductIfExists(productReviewRequest.getProductId())).thenReturn(product);
+        when(dataMapper.map(productReview, ProductReviewResponse.class)).thenReturn(expectedResponse);
+        when(productReviewRepository.findById(id)).thenReturn(Optional.of(productReview));
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.findById(id));
+
+        // Act
+        ProductReviewResponse actualResponse = productReviewService.findProductReviewById(1L, user.getId());
+
+        // Assert
+        assertNotNull(actualResponse, "ProductReview should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
+        verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
+        verify(productReviewRepository, times(1)).findById(id);
+        verify(dataMapper, times(1)).map(productReview, ProductReviewResponse.class);
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 }

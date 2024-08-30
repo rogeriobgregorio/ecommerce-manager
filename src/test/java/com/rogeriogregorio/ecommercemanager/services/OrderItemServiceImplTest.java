@@ -233,7 +233,7 @@ class OrderItemServiceImplTest {
         OrderItemResponse actualResponse = orderItemService.findOrderItemById(1L, 1L);
 
         // Assert
-        assertNotNull(actualResponse, "OrderItemResponse should not be null");
+        assertNotNull(actualResponse, "OrderItem should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(orderService, times(1)).getOrderIfExists(orderItemRequest.getOrderId());
         verify(productService, times(1)).getProductIfExists(orderItemRequest.getProductId());
