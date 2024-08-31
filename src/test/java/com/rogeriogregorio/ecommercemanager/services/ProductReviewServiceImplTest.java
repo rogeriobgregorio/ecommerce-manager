@@ -11,6 +11,7 @@ import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.entities.primarykeys.OrderItemPK;
 import com.rogeriogregorio.ecommercemanager.entities.primarykeys.ProductReviewPK;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductReviewRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.ProductReviewServiceImpl;
@@ -247,6 +248,28 @@ class ProductReviewServiceImplTest {
         verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
         verify(productReviewRepository, times(1)).findById(id);
         verify(dataMapper, times(1)).map(productReview, ProductReviewResponse.class);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findProductReviewById - Exceção ao tentar buscar review de produto inexistente")
+    void findOrderItemById_NotFoundExceptionHandling() {
+        // Arrange
+        ProductReviewPK id = new ProductReviewPK();
+        id.setUser(user);
+        id.setProduct(product);
+
+        when(userService.getUserIfExists(productReviewRequest.getUserId())).thenReturn(user);
+        when(productService.getProductIfExists(productReviewRequest.getProductId())).thenReturn(product);
+        when(productReviewRepository.findById(id)).thenReturn(Optional.empty());
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.findById(id));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> productReviewService.findProductReviewById(1L, user.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
+        verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
+        verify(productReviewRepository, times(1)).findById(id);
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
     }
 }
