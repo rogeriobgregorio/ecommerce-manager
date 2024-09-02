@@ -253,7 +253,7 @@ class ProductReviewServiceImplTest {
 
     @Test
     @DisplayName("findProductReviewById - Exceção ao tentar buscar review de produto inexistente")
-    void findOrderItemById_NotFoundExceptionHandling() {
+    void findProductReviewById_NotFoundExceptionHandling() {
         // Arrange
         ProductReviewPK id = new ProductReviewPK();
         id.setUser(user);
@@ -267,6 +267,28 @@ class ProductReviewServiceImplTest {
         // Act and Assert
         assertThrows(NotFoundException.class, () -> productReviewService.findProductReviewById(1L, user.getId()),
                 "Expected NotFoundException to be thrown");
+        verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
+        verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
+        verify(productReviewRepository, times(1)).findById(id);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findProductReviewById - Exceção ao tentar buscar review de produto")
+    void findProductReviewById_RepositoryExceptionHandling() {
+        // Arrange
+        ProductReviewPK id = new ProductReviewPK();
+        id.setUser(user);
+        id.setProduct(product);
+
+        when(userService.getUserIfExists(productReviewRequest.getUserId())).thenReturn(user);
+        when(productService.getProductIfExists(productReviewRequest.getProductId())).thenReturn(product);
+        when(productReviewRepository.findById(id)).thenThrow(RepositoryException.class);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.findById(id));
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> productReviewService.findProductReviewById(1L, user.getId()),
+                "Expected RepositoryException to be thrown");
         verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
         verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
         verify(productReviewRepository, times(1)).findById(id);
@@ -292,5 +314,122 @@ class ProductReviewServiceImplTest {
         verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
         verify(productReviewRepository, times(1)).save(productReview);
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateProductReview - Exceção ao tentar atualizar review de produto inexistente")
+    void updateProductReview_NotFoundExceptionHandling() {
+        // Arrange
+        User mockUser = mock(User.class);
+
+        when(mockUser.getPurchasedProducts()).thenReturn(Set.of(product));
+        when(userService.getUserIfExists(productReviewRequest.getUserId())).thenReturn(mockUser);
+        when(productService.getProductIfExists(productReviewRequest.getProductId())).thenReturn(product);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.save(productReview));
+        when(productReviewRepository.save(productReview)).thenThrow(NotFoundException.class);
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> productReviewService.updateProductReview(productReviewRequest),
+                "Expected NotFoundException to be thrown");
+        verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
+        verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
+        verify(productReviewRepository, times(1)).save(productReview);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateProductReview - Exceção ao tentar atualizar review de produto")
+    void updateProductReview_RepositoryExceptionHandling() {
+        // Arrange
+        User mockUser = mock(User.class);
+
+        when(mockUser.getPurchasedProducts()).thenReturn(Set.of(product));
+        when(userService.getUserIfExists(productReviewRequest.getUserId())).thenReturn(mockUser);
+        when(productService.getProductIfExists(productReviewRequest.getProductId())).thenReturn(product);
+        when(productReviewRepository.save(productReview)).thenThrow(RepositoryException.class);
+        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.save(productReview));
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> productReviewService.updateProductReview(productReviewRequest),
+                "Expected RepositoryException to be thrown");
+        verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
+        verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
+        verify(productReviewRepository, times(1)).save(productReview);
+        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("deleteProductReview - Exclusão bem-sucedida do review de produto")
+    void deleteProductReview_DeletesSuccessfully() {
+        // Arrange
+        ProductReviewPK id = new ProductReviewPK();
+        id.setUser(user);
+        id.setProduct(product);
+
+        when(userService.getUserIfExists(productReviewRequest.getUserId())).thenReturn(user);
+        when(productService.getProductIfExists(productReviewRequest.getProductId())).thenReturn(product);
+        doAnswer(invocation -> {
+            productReviewRepository.deleteById(id);
+            return null;
+        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+
+        // Act
+        productReviewService.deleteProductReview(1L, user.getId());
+
+        // Assert
+        verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
+        verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
+        verify(productReviewRepository, times(1)).deleteById(id);
+        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+    }
+
+    @Test
+    @DisplayName("deleteProductReview - Exceção ao tentar excluir review de produto inexistente")
+    void deleteProductReview_NotFoundExceptionHandling() {
+        // Arrange
+        ProductReviewPK id = new ProductReviewPK();
+        id.setUser(user);
+        id.setProduct(product);
+
+        when(userService.getUserIfExists(productReviewRequest.getUserId())).thenReturn(user);
+        when(productService.getProductIfExists(productReviewRequest.getProductId())).thenReturn(product);
+        doThrow(NotFoundException.class).when(productReviewRepository).deleteById(id);
+        doAnswer(invocation -> {
+            productReviewRepository.deleteById(id);
+            return null;
+        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> productReviewService.deleteProductReview(1L, user.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
+        verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
+        verify(productReviewRepository, times(1)).deleteById(id);
+        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+    }
+
+    @Test
+    @DisplayName("deleteProductReview - Exceção ao tentar excluir review de produto")
+    void deleteProductReview_RepositoryExceptionHandling() {
+        // Arrange
+        ProductReviewPK id = new ProductReviewPK();
+        id.setUser(user);
+        id.setProduct(product);
+
+        when(userService.getUserIfExists(productReviewRequest.getUserId())).thenReturn(user);
+        when(productService.getProductIfExists(productReviewRequest.getProductId())).thenReturn(product);
+        doThrow(RepositoryException.class).when(productReviewRepository).deleteById(id);
+        doAnswer(invocation -> {
+            productReviewRepository.deleteById(id);
+            return null;
+        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> productReviewService.deleteProductReview(1L, user.getId()),
+                "Expected RepositoryException to be thrown");
+        verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
+        verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
+        verify(productReviewRepository, times(1)).deleteById(id);
+        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
     }
 }
