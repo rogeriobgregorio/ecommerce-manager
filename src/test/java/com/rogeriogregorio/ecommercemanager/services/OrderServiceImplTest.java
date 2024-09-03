@@ -14,7 +14,6 @@ import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.OrderServiceImpl;
-import com.rogeriogregorio.ecommercemanager.services.strategy.payments.PaymentStrategy;
 import com.rogeriogregorio.ecommercemanager.services.strategy.validations.OrderStatusStrategy;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeFunction;

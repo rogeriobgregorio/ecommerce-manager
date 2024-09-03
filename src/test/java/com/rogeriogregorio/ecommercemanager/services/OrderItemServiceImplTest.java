@@ -13,8 +13,9 @@ import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.OrderItemRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.OrderItemServiceImpl;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeFunction;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeProcedure;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -141,7 +142,7 @@ class OrderItemServiceImplTest {
 
         when(dataMapper.map(orderItem, OrderItemResponse.class)).thenReturn(orderItemResponse);
         when(orderItemRepository.findAll(pageable)).thenReturn(page);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.findAll(pageable));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.findAll(pageable));
 
         // Act
         Page<OrderItemResponse> actualResponses = orderItemService.findAllOrderItems(pageable);
@@ -151,7 +152,7 @@ class OrderItemServiceImplTest {
         assertIterableEquals(expectedResponses, actualResponses, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(orderItem, OrderItemResponse.class);
         verify(orderItemRepository, times(1)).findAll(pageable);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -167,7 +168,7 @@ class OrderItemServiceImplTest {
         assertThrows(RepositoryException.class, () -> orderItemService.findAllOrderItems(pageable),
                 "Expected PersistenceException to be thrown");
         verify(orderItemRepository, times(1)).findAll();
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -180,7 +181,7 @@ class OrderItemServiceImplTest {
         when(productService.getProductIfExists(orderItemRequest.getProductId())).thenReturn(product);
         when(dataMapper.map(orderItem, OrderItemResponse.class)).thenReturn(expectedResponse);
         when(orderItemRepository.save(orderItem)).thenReturn(orderItem);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.save(orderItem));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.save(orderItem));
 
         // Act
         OrderItemResponse actualResponse = orderItemService.createOrderItem(orderItemRequest);
@@ -192,7 +193,7 @@ class OrderItemServiceImplTest {
         verify(productService, times(1)).getProductIfExists(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).save(orderItem);
         verify(dataMapper, times(1)).map(orderItem, OrderItemResponse.class);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -202,7 +203,7 @@ class OrderItemServiceImplTest {
         when(orderService.getOrderIfExists(orderItemRequest.getOrderId())).thenReturn(order);
         when(productService.getProductIfExists(orderItemRequest.getProductId())).thenReturn(product);
         when(orderItemRepository.save(orderItem)).thenThrow(RepositoryException.class);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.save(orderItem));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.save(orderItem));
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> orderItemService.createOrderItem(orderItemRequest));
@@ -210,7 +211,7 @@ class OrderItemServiceImplTest {
         verify(orderService, times(1)).getOrderIfExists(orderItemRequest.getOrderId());
         verify(productService, times(1)).getProductIfExists(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).save(orderItem);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -227,19 +228,19 @@ class OrderItemServiceImplTest {
         when(productService.getProductIfExists(orderItemRequest.getProductId())).thenReturn(product);
         when(dataMapper.map(orderItem, OrderItemResponse.class)).thenReturn(expectedResponse);
         when(orderItemRepository.findById(id)).thenReturn(Optional.of(orderItem));
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.findById(id));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.findById(id));
 
         // Act
         OrderItemResponse actualResponse = orderItemService.findOrderItemById(1L, 1L);
 
         // Assert
-        assertNotNull(actualResponse, "OrderItem should not be null");
+        assertNotNull(actualResponse, "Order item should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(orderService, times(1)).getOrderIfExists(orderItemRequest.getOrderId());
         verify(productService, times(1)).getProductIfExists(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).findById(id);
         verify(dataMapper, times(1)).map(orderItem, OrderItemResponse.class);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -253,7 +254,7 @@ class OrderItemServiceImplTest {
         when(orderService.getOrderIfExists(orderItemRequest.getOrderId())).thenReturn(order);
         when(productService.getProductIfExists(orderItemRequest.getProductId())).thenReturn(product);
         when(orderItemRepository.findById(id)).thenReturn(Optional.empty());
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.findById(id));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.findById(id));
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> orderItemService.findOrderItemById(1L, 1L),
@@ -261,7 +262,7 @@ class OrderItemServiceImplTest {
         verify(orderService, times(1)).getOrderIfExists(orderItemRequest.getOrderId());
         verify(productService, times(1)).getProductIfExists(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).findById(id);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -274,7 +275,7 @@ class OrderItemServiceImplTest {
         when(productService.getProductIfExists(orderItemRequest.getProductId())).thenReturn(product);
         when(orderItemRepository.save(orderItem)).thenReturn(orderItem);
         when(dataMapper.map(orderItem, OrderItemResponse.class)).thenReturn(expectedResponse);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.save(orderItem));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.save(orderItem));
 
         // Act
         OrderItemResponse actualResponse = orderItemService.updateOrderItem(orderItemRequest);
@@ -286,7 +287,7 @@ class OrderItemServiceImplTest {
         verify(productService, times(1)).getProductIfExists(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).save(orderItem);
         verify(dataMapper, times(1)).map(orderItem, OrderItemResponse.class);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -308,7 +309,7 @@ class OrderItemServiceImplTest {
         when(orderService.getOrderIfExists(orderItemRequest.getOrderId())).thenReturn(order);
         when(productService.getProductIfExists(orderItemRequest.getProductId())).thenReturn(product);
         when(orderItemRepository.save(orderItem)).thenThrow(RepositoryException.class);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.save(orderItem));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> orderItemRepository.save(orderItem));
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> orderItemService.updateOrderItem(orderItemRequest),
@@ -316,7 +317,7 @@ class OrderItemServiceImplTest {
         verify(orderService, times(1)).getOrderIfExists(orderItemRequest.getOrderId());
         verify(productService, times(1)).getProductIfExists(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).save(orderItem);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -332,7 +333,7 @@ class OrderItemServiceImplTest {
         doAnswer(invocation -> {
             orderItemRepository.deleteById(id);
             return null;
-        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        }).when(catchError).run(any(SafeProcedure.class));
 
         // Act
         orderItemService.deleteOrderItem(1L, 1L);
@@ -341,7 +342,7 @@ class OrderItemServiceImplTest {
         verify(orderService, times(2)).getOrderIfExists(orderItemRequest.getOrderId());
         verify(productService, times(1)).getProductIfExists(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).deleteById(id);
-        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
     }
 
     @Test
@@ -370,7 +371,7 @@ class OrderItemServiceImplTest {
         doAnswer(invocation -> {
             orderItemRepository.deleteById(id);
             return null;
-        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        }).when(catchError).run(any(SafeProcedure.class));
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> orderItemService.deleteOrderItem(1L, 1L),
@@ -378,6 +379,6 @@ class OrderItemServiceImplTest {
         verify(orderService, times(2)).getOrderIfExists(orderItemRequest.getOrderId());
         verify(productService, times(1)).getProductIfExists(orderItemRequest.getProductId());
         verify(orderItemRepository, times(1)).deleteById(id);
-        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
     }
 }

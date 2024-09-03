@@ -1,21 +1,20 @@
 package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.ProductReviewRequest;
-import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
-import com.rogeriogregorio.ecommercemanager.dto.responses.OrderItemResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductReviewResponse;
 import com.rogeriogregorio.ecommercemanager.entities.*;
 import com.rogeriogregorio.ecommercemanager.entities.enums.OrderStatus;
 import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentStatus;
 import com.rogeriogregorio.ecommercemanager.entities.enums.PaymentType;
 import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
-import com.rogeriogregorio.ecommercemanager.entities.primarykeys.OrderItemPK;
 import com.rogeriogregorio.ecommercemanager.entities.primarykeys.ProductReviewPK;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductReviewRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.ProductReviewServiceImpl;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeFunction;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeProcedure;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,7 +36,6 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class ProductReviewServiceImplTest {
@@ -60,7 +58,6 @@ class ProductReviewServiceImplTest {
     @InjectMocks
     private ProductReviewServiceImpl productReviewService;
 
-    private static Order order;
     private static User user;
     private static Product product;
     private static Payment payment;
@@ -82,7 +79,7 @@ class ProductReviewServiceImplTest {
                 .withCpf("72482581052").withPassword("Password123$").withRole(UserRole.ADMIN)
                 .build();
 
-        order = Order.newBuilder()
+        Order order = Order.newBuilder()
                 .withId(1L)
                 .withClient(user)
                 .withMoment(Instant.now())
@@ -145,7 +142,7 @@ class ProductReviewServiceImplTest {
 
         when(dataMapper.map(productReview, ProductReviewResponse.class)).thenReturn(productReviewResponse);
         when(productReviewRepository.findAll(pageable)).thenReturn(page);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.findAll(pageable));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.findAll(pageable));
 
         // Act
         Page<ProductReviewResponse> actualResponse = productReviewService.findAllProductReviews(pageable);
@@ -155,7 +152,7 @@ class ProductReviewServiceImplTest {
         assertIterableEquals(expectedResponses, actualResponse, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(productReview, ProductReviewResponse.class);
         verify(productReviewRepository, times(1)).findAll(pageable);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -165,18 +162,18 @@ class ProductReviewServiceImplTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         when(productReviewRepository.findAll()).thenThrow(RepositoryException.class);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.findAll());
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.findAll());
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> productReviewService.findAllProductReviews(pageable),
                 "Expected RepositoryException to be thrown");
         verify(productReviewRepository, times(1)).findAll();
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
-    @DisplayName("createProductReviews - Criação bem-sucedida retorna review de produto criado")
-    void createProductReviews_SuccessfulCreation_ReturnsAddress() {
+    @DisplayName("createProductReview - Criação bem-sucedida retorna review de produto criado")
+    void createProductReview_SuccessfulCreation_ReturnsProductReview() {
         // Arrange
         ProductReviewResponse expectedResponse = productReviewResponse;
         User mockUser = mock(User.class);
@@ -184,7 +181,7 @@ class ProductReviewServiceImplTest {
         when(mockUser.getPurchasedProducts()).thenReturn(Set.of(product));
         when(userService.getUserIfExists(productReviewRequest.getUserId())).thenReturn(mockUser);
         when(productService.getProductIfExists(productReviewRequest.getProductId())).thenReturn(product);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.save(productReview));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.save(productReview));
         when(productReviewRepository.save(productReview)).thenReturn(productReview);
         when(dataMapper.map(productReview, ProductReviewResponse.class)).thenReturn(expectedResponse);
 
@@ -198,7 +195,7 @@ class ProductReviewServiceImplTest {
         verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
         verify(productReviewRepository, times(1)).save(productReview);
         verify(dataMapper, times(1)).map(productReview, ProductReviewResponse.class);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -210,7 +207,7 @@ class ProductReviewServiceImplTest {
         when(mockUser.getPurchasedProducts()).thenReturn(Set.of(product));
         when(userService.getUserIfExists(productReviewRequest.getUserId())).thenReturn(mockUser);
         when(productService.getProductIfExists(productReviewRequest.getProductId())).thenReturn(product);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.save(productReview));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.save(productReview));
         when(productReviewRepository.save(productReview)).thenThrow(RepositoryException.class);
 
         // Act and Assert
@@ -219,7 +216,7 @@ class ProductReviewServiceImplTest {
         verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
         verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
         verify(productReviewRepository, times(1)).save(productReview);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -236,7 +233,7 @@ class ProductReviewServiceImplTest {
         when(productService.getProductIfExists(productReviewRequest.getProductId())).thenReturn(product);
         when(dataMapper.map(productReview, ProductReviewResponse.class)).thenReturn(expectedResponse);
         when(productReviewRepository.findById(id)).thenReturn(Optional.of(productReview));
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.findById(id));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.findById(id));
 
         // Act
         ProductReviewResponse actualResponse = productReviewService.findProductReviewById(1L, user.getId());
@@ -248,7 +245,7 @@ class ProductReviewServiceImplTest {
         verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
         verify(productReviewRepository, times(1)).findById(id);
         verify(dataMapper, times(1)).map(productReview, ProductReviewResponse.class);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -262,7 +259,7 @@ class ProductReviewServiceImplTest {
         when(userService.getUserIfExists(productReviewRequest.getUserId())).thenReturn(user);
         when(productService.getProductIfExists(productReviewRequest.getProductId())).thenReturn(product);
         when(productReviewRepository.findById(id)).thenReturn(Optional.empty());
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.findById(id));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.findById(id));
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> productReviewService.findProductReviewById(1L, user.getId()),
@@ -270,7 +267,7 @@ class ProductReviewServiceImplTest {
         verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
         verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
         verify(productReviewRepository, times(1)).findById(id);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -284,7 +281,7 @@ class ProductReviewServiceImplTest {
         when(userService.getUserIfExists(productReviewRequest.getUserId())).thenReturn(user);
         when(productService.getProductIfExists(productReviewRequest.getProductId())).thenReturn(product);
         when(productReviewRepository.findById(id)).thenThrow(RepositoryException.class);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.findById(id));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.findById(id));
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> productReviewService.findProductReviewById(1L, user.getId()),
@@ -292,7 +289,7 @@ class ProductReviewServiceImplTest {
         verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
         verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
         verify(productReviewRepository, times(1)).findById(id);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -304,7 +301,7 @@ class ProductReviewServiceImplTest {
         when(mockUser.getPurchasedProducts()).thenReturn(Set.of(product));
         when(userService.getUserIfExists(productReviewRequest.getUserId())).thenReturn(mockUser);
         when(productService.getProductIfExists(productReviewRequest.getProductId())).thenReturn(product);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.save(productReview));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.save(productReview));
         when(productReviewRepository.save(productReview)).thenThrow(RepositoryException.class);
 
         // Act and Assert
@@ -313,7 +310,7 @@ class ProductReviewServiceImplTest {
         verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
         verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
         verify(productReviewRepository, times(1)).save(productReview);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -325,7 +322,7 @@ class ProductReviewServiceImplTest {
         when(mockUser.getPurchasedProducts()).thenReturn(Set.of(product));
         when(userService.getUserIfExists(productReviewRequest.getUserId())).thenReturn(mockUser);
         when(productService.getProductIfExists(productReviewRequest.getProductId())).thenReturn(product);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.save(productReview));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.save(productReview));
         when(productReviewRepository.save(productReview)).thenThrow(NotFoundException.class);
 
         // Act and Assert
@@ -334,7 +331,7 @@ class ProductReviewServiceImplTest {
         verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
         verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
         verify(productReviewRepository, times(1)).save(productReview);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -347,7 +344,7 @@ class ProductReviewServiceImplTest {
         when(userService.getUserIfExists(productReviewRequest.getUserId())).thenReturn(mockUser);
         when(productService.getProductIfExists(productReviewRequest.getProductId())).thenReturn(product);
         when(productReviewRepository.save(productReview)).thenThrow(RepositoryException.class);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.save(productReview));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productReviewRepository.save(productReview));
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> productReviewService.updateProductReview(productReviewRequest),
@@ -355,7 +352,7 @@ class ProductReviewServiceImplTest {
         verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
         verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
         verify(productReviewRepository, times(1)).save(productReview);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -371,7 +368,7 @@ class ProductReviewServiceImplTest {
         doAnswer(invocation -> {
             productReviewRepository.deleteById(id);
             return null;
-        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        }).when(catchError).run(any(SafeProcedure.class));
 
         // Act
         productReviewService.deleteProductReview(1L, user.getId());
@@ -380,7 +377,7 @@ class ProductReviewServiceImplTest {
         verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
         verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
         verify(productReviewRepository, times(1)).deleteById(id);
-        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
     }
 
     @Test
@@ -397,7 +394,7 @@ class ProductReviewServiceImplTest {
         doAnswer(invocation -> {
             productReviewRepository.deleteById(id);
             return null;
-        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        }).when(catchError).run(any(SafeProcedure.class));
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> productReviewService.deleteProductReview(1L, user.getId()),
@@ -405,7 +402,7 @@ class ProductReviewServiceImplTest {
         verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
         verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
         verify(productReviewRepository, times(1)).deleteById(id);
-        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
     }
 
     @Test
@@ -422,7 +419,7 @@ class ProductReviewServiceImplTest {
         doAnswer(invocation -> {
             productReviewRepository.deleteById(id);
             return null;
-        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        }).when(catchError).run(any(SafeProcedure.class));
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> productReviewService.deleteProductReview(1L, user.getId()),
@@ -430,6 +427,6 @@ class ProductReviewServiceImplTest {
         verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
         verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
         verify(productReviewRepository, times(1)).deleteById(id);
-        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
     }
 }

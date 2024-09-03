@@ -1,7 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.InventoryItemRequest;
-import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.InventoryItemResponse;
 import com.rogeriogregorio.ecommercemanager.entities.*;
 import com.rogeriogregorio.ecommercemanager.entities.enums.StockStatus;
@@ -11,6 +10,8 @@ import com.rogeriogregorio.ecommercemanager.repositories.InventoryItemRepository
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.InventoryItemServiceImpl;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeFunction;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeProcedure;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -107,7 +108,7 @@ class InventoryItemServiceImplTest {
 
         when(dataMapper.map(inventoryItem, InventoryItemResponse.class)).thenReturn(inventoryItemResponse);
         when(inventoryItemRepository.findAll(pageable)).thenReturn(page);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> inventoryItemRepository.findAll(pageable));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> inventoryItemRepository.findAll(pageable));
 
         // Act
         Page<InventoryItemResponse> actualResponse = inventoryItemService.findAllInventoryItems(pageable);
@@ -117,7 +118,7 @@ class InventoryItemServiceImplTest {
         assertIterableEquals(expectedResponses, actualResponse, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(inventoryItem, InventoryItemResponse.class);
         verify(inventoryItemRepository, times(1)).findAll(pageable);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -127,13 +128,13 @@ class InventoryItemServiceImplTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         when(inventoryItemRepository.findAll()).thenThrow(RepositoryException.class);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> inventoryItemRepository.findAll());
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> inventoryItemRepository.findAll());
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> inventoryItemService.findAllInventoryItems(pageable),
                 "Expected RepositoryException to be thrown");
         verify(inventoryItemRepository, times(1)).findAll();
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -143,8 +144,8 @@ class InventoryItemServiceImplTest {
         InventoryItemResponse expectedResponse = inventoryItemResponse;
 
         when(productService.getProductIfExists(product.getId())).thenReturn(product);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> {
-            CatchError.SafeFunction<?> safeFunction = invocation.getArgument(0);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> {
+            SafeFunction<?> safeFunction = invocation.getArgument(0);
             Object result = safeFunction.execute();
             if (result instanceof Boolean) {
                 return result;
@@ -172,7 +173,7 @@ class InventoryItemServiceImplTest {
         verify(inventoryItemRepository, times(1)).save(any(InventoryItem.class));
         verify(dataMapper, times(1)).map(inventoryItem, InventoryItemResponse.class);
         verify(productService, times(1)).getProductIfExists(product.getId());
-        verify(catchError, times(3)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(3)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -180,8 +181,8 @@ class InventoryItemServiceImplTest {
     void createInventoryItem_RepositoryExceptionHandling() {
         // Arrange
         when(productService.getProductIfExists(product.getId())).thenReturn(product);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> {
-            CatchError.SafeFunction<?> safeFunction = invocation.getArgument(0);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> {
+            SafeFunction<?> safeFunction = invocation.getArgument(0);
             Object result = safeFunction.execute();
             if (result instanceof Boolean) {
                 return result;
@@ -200,7 +201,7 @@ class InventoryItemServiceImplTest {
                 "Expected RepositoryException to be thrown");
         verify(inventoryItemRepository, times(1)).save(any(InventoryItem.class));
         verify(productService, times(1)).getProductIfExists(product.getId());
-        verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(2)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -211,7 +212,7 @@ class InventoryItemServiceImplTest {
 
         when(inventoryItemRepository.findById(inventoryItem.getId())).thenReturn(Optional.of(inventoryItem));
         when(dataMapper.map(inventoryItem, InventoryItemResponse.class)).thenReturn(expectedResponse);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
 
         // Act
         InventoryItemResponse actualResponse = inventoryItemService.findInventoryItemById(inventoryItem.getId());
@@ -222,7 +223,7 @@ class InventoryItemServiceImplTest {
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
         verify(dataMapper, times(1)).map(inventoryItem, InventoryItemResponse.class);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -230,13 +231,13 @@ class InventoryItemServiceImplTest {
     void findInventoryItemById_NotFoundExceptionHandling() {
         // Arrange
         when(inventoryItemRepository.findById(inventoryItem.getId())).thenReturn(Optional.empty());
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
 
         // Act and Assert
         assertThrows(NotFoundException.class, () ->inventoryItemService.findInventoryItemById(inventoryItem.getId()),
                 "Expected NotFoundException to be thrown");
         verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -244,13 +245,13 @@ class InventoryItemServiceImplTest {
     void findInventoryItemById_RepositoryExceptionHandling() {
         // Arrange
         when(inventoryItemRepository.findById(inventoryItem.getId())).thenThrow(RepositoryException.class);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
 
         // Assert and Assert
         assertThrows(RepositoryException.class, () -> inventoryItemService.findInventoryItemById(inventoryItem.getId()),
                 "Expected RepositoryException to be thrown");
         verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -260,8 +261,8 @@ class InventoryItemServiceImplTest {
         InventoryItemResponse expectedResponse = inventoryItemResponse;
 
         when(inventoryItemRepository.findById(inventoryItem.getId())).thenReturn(Optional.of(inventoryItem));
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> invocation
-                .getArgument(0, CatchError.SafeFunction.class).execute());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
         when(inventoryItemRepository.save(inventoryItem)).thenReturn(inventoryItem);
         when(dataMapper.map(eq(inventoryItem), eq(InventoryItemResponse.class))).thenReturn(expectedResponse);
 
@@ -275,7 +276,7 @@ class InventoryItemServiceImplTest {
         verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
         verify(inventoryItemRepository, times(1)).save(inventoryItem);
         verify(dataMapper, times(1)).map(eq(inventoryItem), eq(InventoryItemResponse.class));
-        verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(2)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -283,14 +284,14 @@ class InventoryItemServiceImplTest {
     void updateInventoryItem_NotFoundExceptionHandling() {
         // Arrange
         when(inventoryItemRepository.findById(inventoryItem.getId())).thenReturn(Optional.empty());
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> inventoryItemService.updateInventoryItem(inventoryItem.getId(), inventoryItemRequest),
                 "Expected NotFoundException to be thrown");
         verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
         verify(inventoryItemRepository, never()).save(inventoryItem);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -298,8 +299,8 @@ class InventoryItemServiceImplTest {
     void updateInventoryItem_RepositoryExceptionHandling() {
         // Arrange
         when(inventoryItemRepository.findById(inventoryItem.getId())).thenReturn(Optional.of(inventoryItem));
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> invocation
-                .getArgument(0, CatchError.SafeFunction.class).execute());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
         when(inventoryItemRepository.save(inventoryItem)).thenThrow(RepositoryException.class);
 
         // Act and Assert
@@ -307,7 +308,7 @@ class InventoryItemServiceImplTest {
                 "Expected RepositoryException to be thrown");
         verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
         verify(inventoryItemRepository, times(1)).save(inventoryItem);
-        verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(2)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -315,11 +316,11 @@ class InventoryItemServiceImplTest {
     void deleteInventoryItem_DeletesInventoryItemSuccessfully() {
         // Arrange
         when(inventoryItemRepository.findById(inventoryItem.getId())).thenReturn(Optional.of(inventoryItem));
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
         doAnswer(invocation -> {
             inventoryItemRepository.delete(inventoryItem);
             return null;
-        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        }).when(catchError).run(any(SafeProcedure.class));
         doNothing().when(inventoryItemRepository).delete(inventoryItem);
 
         // Act
@@ -328,8 +329,8 @@ class InventoryItemServiceImplTest {
         // Assert
         verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
         verify(inventoryItemRepository, times(1)).delete(inventoryItem);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
-        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
     }
 
     @Test
@@ -337,14 +338,14 @@ class InventoryItemServiceImplTest {
     void deleteInventoryItem_NotFoundExceptionHandling() {
         // Arrange
         when(inventoryItemRepository.findById(inventoryItem.getId())).thenReturn(Optional.empty());
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> inventoryItemService.deleteInventoryItem(inventoryItem.getId()),
                 "Expected NotFoundException to be thrown");
         verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
         verify(inventoryItemRepository, never()).delete(inventoryItem);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -352,11 +353,11 @@ class InventoryItemServiceImplTest {
     void deleteInventoryItem_RepositoryExceptionHandling() {
         // Arrange
         when(inventoryItemRepository.findById(inventoryItem.getId())).thenReturn(Optional.of(inventoryItem));
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> inventoryItemRepository.findById(inventoryItem.getId()));
         doAnswer(invocation -> {
             inventoryItemRepository.delete(inventoryItem);
             return null;
-        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        }).when(catchError).run(any(SafeProcedure.class));
         doThrow(RepositoryException.class).when(inventoryItemRepository).delete(inventoryItem);
 
         // Act and Assert
@@ -364,7 +365,7 @@ class InventoryItemServiceImplTest {
                 "Expected RepositoryException to be thrown");
         verify(inventoryItemRepository, times(1)).findById(inventoryItem.getId());
         verify(inventoryItemRepository, times(1)).delete(inventoryItem);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
-        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
     }
 }

@@ -19,7 +19,6 @@ import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeFunction;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeProcedure;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -77,7 +76,6 @@ class PaymentServiceImplTest {
     private static Payment payment;
     private static PaymentRequest paymentRequest;
     private static PaymentResponse paymentResponse;
-    private static DiscountCoupon discountCoupon;
 
     @Mock
     private PaymentStrategy paymentStrategy;
@@ -119,7 +117,6 @@ class PaymentServiceImplTest {
                 .withId(1L)
                 .withClient(user)
                 .withMoment(Instant.now())
-                .withCoupon(discountCoupon)
                 .withOrderStatus(OrderStatus.WAITING_PAYMENT)
                 .withPayment(payment)
                 .withItems(new HashSet<>())
@@ -264,7 +261,7 @@ class PaymentServiceImplTest {
 
     @Test
     @DisplayName("findPaymentById - Exceção ao tentar buscar pagamento inexistente")
-    void findPayment_NotFoundExceptionHandling() {
+    void findPaymentById_NotFoundExceptionHandling() {
         // Arrange
         when(paymentRepository.findById(payment.getId())).thenReturn(Optional.empty());
         when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> paymentRepository.findById(payment.getId()));

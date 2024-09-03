@@ -2,11 +2,9 @@ package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.ProductRequest;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductResponse;
-import com.rogeriogregorio.ecommercemanager.dto.responses.UserResponse;
 import com.rogeriogregorio.ecommercemanager.entities.Category;
 import com.rogeriogregorio.ecommercemanager.entities.Product;
 import com.rogeriogregorio.ecommercemanager.entities.ProductDiscount;
-import com.rogeriogregorio.ecommercemanager.entities.User;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductRepository;
@@ -15,7 +13,6 @@ import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeFunction;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeProcedure;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
-import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -251,7 +248,7 @@ class ProductServiceImplTest {
 
     @Test
     @DisplayName("updateProduct - Exceção ao tentar atualizar produto inexistente")
-    void updateProduto_NotFoundExceptionHandling() {
+    void updateProduct_NotFoundExceptionHandling() {
         // Arrange
         when(productRepository.findById(product.getId())).thenReturn(Optional.empty());
         when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation.getArgument(0, SafeFunction.class).execute());
@@ -265,8 +262,8 @@ class ProductServiceImplTest {
     }
 
     @Test
-    @DisplayName("updateProduto - Exceção no repositório ao tentar atualizar produto")
-    void updateProduto_RepositoryExceptionHandling() {
+    @DisplayName("updateProduct - Exceção no repositório ao tentar atualizar produto")
+    void updateProduct_RepositoryExceptionHandling() {
         // Arrange
         when(dataMapper.map(eq(productRequest), any(Product.class))).thenReturn(product);
         when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));

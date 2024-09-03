@@ -15,7 +15,6 @@ import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeFunction;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeProcedure;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
 import com.rogeriogregorio.ecommercemanager.utils.PasswordHelper;
-import jakarta.persistence.PersistenceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

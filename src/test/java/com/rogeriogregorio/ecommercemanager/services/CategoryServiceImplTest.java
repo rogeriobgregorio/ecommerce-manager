@@ -200,7 +200,8 @@ class CategoryServiceImplTest {
         when(dataMapper.map(eq(categoryRequest), any(Category.class))).thenReturn(category);
         when(dataMapper.map(eq(category), eq(CategoryResponse.class))).thenReturn(expectedResponse);
         when(categoryRepository.save(category)).thenReturn(category);
-        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation.getArgument(0, SafeFunction.class).execute());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
 
         // Act
         CategoryResponse actualResponse = categoryService.updateCategory(category.getId(), categoryRequest);
@@ -221,7 +222,8 @@ class CategoryServiceImplTest {
     void updateCategory_NotFoundExceptionHandling() {
         // Arrange
         when(categoryRepository.findById(category.getId())).thenReturn(Optional.empty());
-        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation.getArgument(0, SafeFunction.class).execute());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> categoryService.updateCategory(category.getId(), categoryRequest),
@@ -237,7 +239,8 @@ class CategoryServiceImplTest {
         // Arrange
         when(dataMapper.map(eq(categoryRequest), any(Category.class))).thenReturn(category);
         when(categoryRepository.findById(category.getId())).thenReturn(Optional.of(category));
-        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation.getArgument(0, SafeFunction.class).execute());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
         when(categoryRepository.save(category)).thenThrow(RepositoryException.class);
 
         // Act and Assert

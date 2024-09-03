@@ -1,19 +1,15 @@
 package com.rogeriogregorio.ecommercemanager.services;
 
-import com.rogeriogregorio.ecommercemanager.dto.requests.AddressRequest;
 import com.rogeriogregorio.ecommercemanager.dto.requests.NotificationRequest;
-import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.NotificationResponse;
-import com.rogeriogregorio.ecommercemanager.entities.Address;
 import com.rogeriogregorio.ecommercemanager.entities.Notification;
-import com.rogeriogregorio.ecommercemanager.entities.User;
-import com.rogeriogregorio.ecommercemanager.entities.enums.UserRole;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.NotificationRepository;
-import com.rogeriogregorio.ecommercemanager.services.impl.AddressServiceImpl;
 import com.rogeriogregorio.ecommercemanager.services.impl.NotificationServiceImpl;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeFunction;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeProcedure;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,7 +28,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -84,7 +79,7 @@ class NotificationServiceImplTest {
 
         when(dataMapper.map(notification, NotificationResponse.class)).thenReturn(notificationResponse);
         when(notificationRepository.findAll(pageable)).thenReturn(page);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> notificationRepository.findAll(pageable));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> notificationRepository.findAll(pageable));
 
         // Act
         Page<NotificationResponse> actualResponse = notificationService.findAllNotifications(pageable);
@@ -94,7 +89,7 @@ class NotificationServiceImplTest {
         assertIterableEquals(expectedResponses, actualResponse, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(notification, NotificationResponse.class);
         verify(notificationRepository, times(1)).findAll(pageable);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -104,13 +99,13 @@ class NotificationServiceImplTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         when(notificationRepository.findAll()).thenThrow(RepositoryException.class);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> notificationRepository.findAll());
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> notificationRepository.findAll());
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> notificationService.findAllNotifications(pageable),
                 "Expected RepositoryException to be thrown");
         verify(notificationRepository, times(1)).findAll();
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -120,7 +115,7 @@ class NotificationServiceImplTest {
         NotificationResponse expectedResponse = notificationResponse;
 
         when(dataMapper.map(notificationRequest, Notification.class)).thenReturn(notification);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> notificationRepository.save(notification));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> notificationRepository.save(notification));
         when(notificationRepository.save(notification)).thenReturn(notification);
         when(dataMapper.map(notification, NotificationResponse.class)).thenReturn(expectedResponse);
 
@@ -133,7 +128,7 @@ class NotificationServiceImplTest {
         verify(dataMapper, times(1)).map(notificationRequest, Notification.class);
         verify(notificationRepository, times(1)).save(notification);
         verify(dataMapper, times(1)).map(notification, NotificationResponse.class);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -141,7 +136,7 @@ class NotificationServiceImplTest {
     void createNotification_RepositoryExceptionHandling() {
         // Arrange
         when(dataMapper.map(notificationRequest, Notification.class)).thenReturn(notification);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> notificationRepository.save(notification));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> notificationRepository.save(notification));
         when(notificationRepository.save(notification)).thenThrow(RepositoryException.class);
 
         // Act and Assert
@@ -149,7 +144,7 @@ class NotificationServiceImplTest {
                 "Expected RepositoryException to be thrown");
         verify(dataMapper, times(1)).map(notificationRequest, Notification.class);
         verify(notificationRepository, times(1)).save(notification);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -160,7 +155,7 @@ class NotificationServiceImplTest {
 
         when(notificationRepository.findById(notification.getId())).thenReturn(Optional.of(notification));
         when(dataMapper.map(notification, NotificationResponse.class)).thenReturn(expectedResponse);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> notificationRepository.findById(notification.getId()));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> notificationRepository.findById(notification.getId()));
 
         // Act
         NotificationResponse actualResponse = notificationService.findNotificationById(notification.getId());
@@ -171,7 +166,7 @@ class NotificationServiceImplTest {
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(notificationRepository, times(1)).findById(notification.getId());
         verify(dataMapper, times(1)).map(notification, NotificationResponse.class);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -179,13 +174,13 @@ class NotificationServiceImplTest {
     void findNotificationById_NotFoundExceptionHandling() {
         // Arrange
         when(notificationRepository.findById(notification.getId())).thenReturn(Optional.empty());
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> notificationRepository.findById(notification.getId()));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> notificationRepository.findById(notification.getId()));
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> notificationService.findNotificationById(notification.getId()),
                 "Expected NotFoundException to be thrown");
         verify(notificationRepository, times(1)).findById(notification.getId());
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -193,24 +188,24 @@ class NotificationServiceImplTest {
     void findNotificationById_RepositoryExceptionHandling() {
         // Arrange
         when(notificationRepository.findById(notification.getId())).thenThrow(RepositoryException.class);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> notificationRepository.findById(notification.getId()));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> notificationRepository.findById(notification.getId()));
 
         // Assert and Assert
         assertThrows(RepositoryException.class, () -> notificationService.findNotificationById(notification.getId()),
                 "Expected RepositoryException to be thrown");
         verify(notificationRepository, times(1)).findById(notification.getId());
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
     @DisplayName("updateNotification - Atualização bem-sucedida retorna notificação atualizada")
-    void updateAddress_SuccessfulUpdate_ReturnsAddress() {
+    void updateNotification_SuccessfulUpdate_ReturnsNotification() {
         // Arrange
         NotificationResponse expectedResponse = notificationResponse;
 
         when(notificationRepository.findById(notification.getId())).thenReturn(Optional.of(notification));
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> invocation
-                .getArgument(0, CatchError.SafeFunction.class).execute());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
         when(dataMapper.map(eq(notificationRequest), any(Notification.class))).thenReturn(notification);
         when(notificationRepository.save(notification)).thenReturn(notification);
         when(dataMapper.map(eq(notification), eq(NotificationResponse.class))).thenReturn(expectedResponse);
@@ -219,14 +214,14 @@ class NotificationServiceImplTest {
         NotificationResponse actualResponse = notificationService.updateNotification(notification.getId(), notificationRequest);
 
         // Assert
-        assertNotNull(actualResponse, "Address should not be null");
+        assertNotNull(actualResponse, "Notification should not be null");
         assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(notificationRepository, times(1)).findById(notification.getId());
         verify(dataMapper, times(1)).map(eq(notificationRequest), any(Notification.class));
         verify(notificationRepository, times(1)).save(notification);
         verify(dataMapper, times(1)).map(eq(notification), eq(NotificationResponse.class));
-        verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(2)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -234,23 +229,23 @@ class NotificationServiceImplTest {
     void updateNotification_NotFoundExceptionHandling() {
         // Arrange
         when(notificationRepository.findById(notification.getId())).thenReturn(Optional.empty());
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> notificationRepository.findById(notification.getId()));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> notificationRepository.findById(notification.getId()));
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> notificationService.updateNotification(notification.getId(), notificationRequest),
                 "Expected NotFoundException to be thrown");
         verify(notificationRepository, times(1)).findById(notification.getId());
         verify(notificationRepository, never()).save(notification);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
     @DisplayName("updateNotification - Exceção no repositório ao tentar atualizar notificação")
-    void updateAddress_RepositoryExceptionHandling() {
+    void updateNotification_RepositoryExceptionHandling() {
         // Arrange
         when(notificationRepository.findById(notification.getId())).thenReturn(Optional.of(notification));
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> invocation
-                .getArgument(0, CatchError.SafeFunction.class).execute());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
         when(dataMapper.map(eq(notificationRequest), any(Notification.class))).thenReturn(notification);
         when(notificationRepository.save(notification)).thenThrow(RepositoryException.class);
 
@@ -260,7 +255,7 @@ class NotificationServiceImplTest {
         verify(notificationRepository, times(1)).findById(notification.getId());
         verify(dataMapper, times(1)).map(eq(notificationRequest), any(Notification.class));
         verify(notificationRepository, times(1)).save(notification);
-        verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(2)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -268,11 +263,11 @@ class NotificationServiceImplTest {
     void deleteNotification_DeletesAddressSuccessfully() {
         // Arrange
         when(notificationRepository.findById(notification.getId())).thenReturn(Optional.of(notification));
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> notificationRepository.findById(notification.getId()));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> notificationRepository.findById(notification.getId()));
         doAnswer(invocation -> {
             notificationRepository.delete(notification);
             return null;
-        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        }).when(catchError).run(any(SafeProcedure.class));
         doNothing().when(notificationRepository).delete(notification);
 
         // Act
@@ -281,8 +276,8 @@ class NotificationServiceImplTest {
         // Assert
         verify(notificationRepository, times(1)).findById(notification.getId());
         verify(notificationRepository, times(1)).delete(notification);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
-        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
     }
 
     @Test
@@ -290,14 +285,14 @@ class NotificationServiceImplTest {
     void deleteNotification_NotFoundExceptionHandling() {
         // Arrange
         when(notificationRepository.findById(notification.getId())).thenReturn(Optional.empty());
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> notificationRepository.findById(notification.getId()));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> notificationRepository.findById(notification.getId()));
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> notificationService.deleteNotification(notification.getId()),
                 "Expected NotFoundException to be thrown");
         verify(notificationRepository, times(1)).findById(notification.getId());
         verify(notificationRepository, never()).delete(notification);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -305,11 +300,11 @@ class NotificationServiceImplTest {
     void deleteNotification_RepositoryExceptionHandling() {
         // Arrange
         when(notificationRepository.findById(notification.getId())).thenReturn(Optional.of(notification));
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> notificationRepository.findById(notification.getId()));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> notificationRepository.findById(notification.getId()));
         doAnswer(invocation -> {
             notificationRepository.delete(notification);
             return null;
-        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        }).when(catchError).run(any(SafeProcedure.class));
         doThrow(RepositoryException.class).when(notificationRepository).delete(notification);
 
         // Act and Assert
@@ -317,7 +312,7 @@ class NotificationServiceImplTest {
                 "Expected RepositoryException to be thrown");
         verify(notificationRepository, times(1)).findById(notification.getId());
         verify(notificationRepository, times(1)).delete(notification);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
-        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
     }
 }

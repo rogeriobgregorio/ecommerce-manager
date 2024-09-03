@@ -1,15 +1,15 @@
 package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.ProductDiscountRequest;
-import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.ProductDiscountResponse;
-import com.rogeriogregorio.ecommercemanager.entities.Address;
 import com.rogeriogregorio.ecommercemanager.entities.ProductDiscount;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.ProductDiscountRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.ProductDiscountServiceImpl;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeFunction;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeProcedure;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -76,7 +76,7 @@ class ProductDiscountServiceImplTest {
     }
 
     @Test
-    @DisplayName("findAllProductDiscounts - Busca bem-sucedida retorna lista de desconto de produtos")
+    @DisplayName("findAllProductDiscounts - Busca bem-sucedida retorna lista de descontos de produtos")
     void findAllProductDiscounts_SuccessfulSearch_ReturnsProductDiscountsList() {
         // Arrange
         Pageable pageable = PageRequest.of(0, 10);
@@ -86,7 +86,7 @@ class ProductDiscountServiceImplTest {
 
         when(dataMapper.map(productDiscount, ProductDiscountResponse.class)).thenReturn(productDiscountResponse);
         when(productDiscountRepository.findAll(pageable)).thenReturn(page);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.findAll(pageable));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.findAll(pageable));
 
         // Act
         Page<ProductDiscountResponse> actualResponse = productDiscountService.findAllProductDiscounts(pageable);
@@ -96,23 +96,23 @@ class ProductDiscountServiceImplTest {
         assertIterableEquals(expectedResponses, actualResponse, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(productDiscount, ProductDiscountResponse.class);
         verify(productDiscountRepository, times(1)).findAll(pageable);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
-    @DisplayName("findAllProductDiscounts - Exceção no repositório tentar buscar lista de desconto de produtos")
+    @DisplayName("findAllProductDiscounts - Exceção no repositório tentar buscar lista de descontos de produtos")
     void findAllProductDiscounts_RepositoryExceptionHandling() {
         // Arrange
         Pageable pageable = PageRequest.of(0, 10);
 
         when(productDiscountRepository.findAll()).thenThrow(RepositoryException.class);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.findAll());
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.findAll());
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> productDiscountService.findAllProductDiscounts(pageable),
                 "Expected RepositoryException to be thrown");
         verify(productDiscountRepository, times(1)).findAll();
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -122,7 +122,7 @@ class ProductDiscountServiceImplTest {
         ProductDiscountResponse expectedResponse = productDiscountResponse;
 
         when(dataMapper.map(productDiscountRequest, ProductDiscount.class)).thenReturn(productDiscount);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.save(productDiscount));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.save(productDiscount));
         when(productDiscountRepository.save(productDiscount)).thenReturn(productDiscount);
         when(dataMapper.map(productDiscount, ProductDiscountResponse.class)).thenReturn(expectedResponse);
 
@@ -135,7 +135,7 @@ class ProductDiscountServiceImplTest {
         verify(dataMapper, times(1)).map(productDiscountRequest, ProductDiscount.class);
         verify(productDiscountRepository, times(1)).save(productDiscount);
         verify(dataMapper, times(1)).map(productDiscount, ProductDiscountResponse.class);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -143,7 +143,7 @@ class ProductDiscountServiceImplTest {
     void createProductDiscount_RepositoryExceptionHandling() {
         // Arrange
         when(dataMapper.map(productDiscountRequest, ProductDiscount.class)).thenReturn(productDiscount);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.save(productDiscount));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.save(productDiscount));
         when(productDiscountRepository.save(productDiscount)).thenThrow(RepositoryException.class);
 
         // Act and Assert
@@ -151,7 +151,7 @@ class ProductDiscountServiceImplTest {
                 "Expected RepositoryException to be thrown");
         verify(dataMapper, times(1)).map(productDiscountRequest, ProductDiscount.class);
         verify(productDiscountRepository, times(1)).save(productDiscount);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -162,7 +162,7 @@ class ProductDiscountServiceImplTest {
 
         when(productDiscountRepository.findById(productDiscount.getId())).thenReturn(Optional.of(productDiscount));
         when(dataMapper.map(productDiscount, ProductDiscountResponse.class)).thenReturn(expectedResponse);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.findById(productDiscount.getId()));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.findById(productDiscount.getId()));
 
         // Act
         ProductDiscountResponse actualResponse = productDiscountService.findProductDiscountById(productDiscount.getId());
@@ -173,7 +173,7 @@ class ProductDiscountServiceImplTest {
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
         verify(dataMapper, times(1)).map(productDiscount, ProductDiscountResponse.class);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -181,13 +181,13 @@ class ProductDiscountServiceImplTest {
     void findProductDiscountById_NotFoundExceptionHandling() {
         // Arrange
         when(productDiscountRepository.findById(productDiscount.getId())).thenReturn(Optional.empty());
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.findById(productDiscount.getId()));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.findById(productDiscount.getId()));
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> productDiscountService.findProductDiscountById(productDiscount.getId()),
                 "Expected NotFoundException to be thrown");
         verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -195,13 +195,13 @@ class ProductDiscountServiceImplTest {
     void findProductDiscountById_RepositoryExceptionHandling() {
         // Arrange
         when(productDiscountRepository.findById(productDiscount.getId())).thenThrow(RepositoryException.class);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.findById(productDiscount.getId()));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> productDiscountRepository.findById(productDiscount.getId()));
 
         // Assert and Assert
         assertThrows(RepositoryException.class, () -> productDiscountService.findProductDiscountById(productDiscount.getId()),
                 "Expected RepositoryException to be thrown");
         verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -211,8 +211,8 @@ class ProductDiscountServiceImplTest {
         ProductDiscountResponse expectedResponse = productDiscountResponse;
 
         when(productDiscountRepository.findById(productDiscount.getId())).thenReturn(Optional.of(productDiscount));
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> invocation
-                .getArgument(0, CatchError.SafeFunction.class).execute());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
         when(dataMapper.map(eq(productDiscountRequest), any(ProductDiscount.class))).thenReturn(productDiscount);
         when(productDiscountRepository.save(productDiscount)).thenReturn(productDiscount);
         when(dataMapper.map(eq(productDiscount), eq(ProductDiscountResponse.class))).thenReturn(expectedResponse);
@@ -228,7 +228,7 @@ class ProductDiscountServiceImplTest {
         verify(dataMapper, times(1)).map(eq(productDiscountRequest), any(ProductDiscount.class));
         verify(productDiscountRepository, times(1)).save(productDiscount);
         verify(dataMapper, times(1)).map(eq(productDiscount), eq(ProductDiscountResponse.class));
-        verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(2)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -236,14 +236,14 @@ class ProductDiscountServiceImplTest {
     void updateProductDiscount_NotFoundExceptionHandling() {
         // Arrange
         when(productDiscountRepository.findById(productDiscount.getId())).thenReturn(Optional.empty());
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> productDiscountRepository.findById(productDiscount.getId()));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> productDiscountRepository.findById(productDiscount.getId()));
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> productDiscountService.updateProductDiscount(productDiscount.getId(), productDiscountRequest),
                 "Expected NotFoundException to be thrown");
         verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
         verify(productDiscountRepository, never()).save(productDiscount);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -251,8 +251,8 @@ class ProductDiscountServiceImplTest {
     void updateProductDiscount_RepositoryExceptionHandling() {
         // Arrange
         when(productDiscountRepository.findById(productDiscount.getId())).thenReturn(Optional.of(productDiscount));
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> invocation
-                .getArgument(0, CatchError.SafeFunction.class).execute());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
         when(dataMapper.map(eq(productDiscountRequest), any(ProductDiscount.class))).thenReturn(productDiscount);
         when(productDiscountRepository.save(productDiscount)).thenThrow(RepositoryException.class);
 
@@ -262,7 +262,7 @@ class ProductDiscountServiceImplTest {
         verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
         verify(dataMapper, times(1)).map(eq(productDiscountRequest), any(ProductDiscount.class));
         verify(productDiscountRepository, times(1)).save(productDiscount);
-        verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(2)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -270,11 +270,11 @@ class ProductDiscountServiceImplTest {
     void deleteProductDiscount_DeletesProductDiscountSuccessfully() {
         // Arrange
         when(productDiscountRepository.findById(productDiscount.getId())).thenReturn(Optional.of(productDiscount));
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> productDiscountRepository.findById(productDiscount.getId()));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> productDiscountRepository.findById(productDiscount.getId()));
         doAnswer(invocation -> {
             productDiscountRepository.delete(productDiscount);
             return null;
-        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        }).when(catchError).run(any(SafeProcedure.class));
         doNothing().when(productDiscountRepository).delete(productDiscount);
 
         // Act
@@ -283,8 +283,8 @@ class ProductDiscountServiceImplTest {
         // Assert
         verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
         verify(productDiscountRepository, times(1)).delete(productDiscount);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
-        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
     }
 
     @Test
@@ -292,14 +292,14 @@ class ProductDiscountServiceImplTest {
     void deleteProductDiscount_NotFoundExceptionHandling() {
         // Arrange
         when(productDiscountRepository.findById(productDiscount.getId())).thenReturn(Optional.empty());
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> productDiscountRepository.findById(productDiscount.getId()));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> productDiscountRepository.findById(productDiscount.getId()));
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> productDiscountService.deleteProductDiscount(productDiscount.getId()),
                 "Expected NotFoundException to be thrown");
         verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
         verify(productDiscountRepository, never()).delete(productDiscount);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -307,11 +307,11 @@ class ProductDiscountServiceImplTest {
     void deleteAddress_RepositoryExceptionHandling() {
         // Arrange
         when(productDiscountRepository.findById(productDiscount.getId())).thenReturn(Optional.of(productDiscount));
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> productDiscountRepository.findById(productDiscount.getId()));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> productDiscountRepository.findById(productDiscount.getId()));
         doAnswer(invocation -> {
             productDiscountRepository.delete(productDiscount);
             return null;
-        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        }).when(catchError).run(any(SafeProcedure.class));
         doThrow(RepositoryException.class).when(productDiscountRepository).delete(productDiscount);
 
         // Act and Assert
@@ -319,7 +319,7 @@ class ProductDiscountServiceImplTest {
                 "Expected RepositoryException to be thrown");
         verify(productDiscountRepository, times(1)).findById(productDiscount.getId());
         verify(productDiscountRepository, times(1)).delete(productDiscount);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
-        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
     }
 }

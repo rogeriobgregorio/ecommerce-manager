@@ -1,15 +1,15 @@
 package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.DiscountCouponRequest;
-import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.DiscountCouponResponse;
-import com.rogeriogregorio.ecommercemanager.entities.Address;
 import com.rogeriogregorio.ecommercemanager.entities.DiscountCoupon;
 import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.DiscountCouponRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.DiscountCouponServiceImpl;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeFunction;
+import com.rogeriogregorio.ecommercemanager.utils.CatchError.SafeProcedure;
 import com.rogeriogregorio.ecommercemanager.utils.DataMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,7 +33,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class DiscountCouponServiceImplTest {
@@ -85,7 +84,7 @@ class DiscountCouponServiceImplTest {
 
         when(dataMapper.map(discountCoupon, DiscountCouponResponse.class)).thenReturn(discountCouponResponse);
         when(discountCouponRepository.findAll(pageable)).thenReturn(page);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findAll(pageable));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findAll(pageable));
 
         // Act
         Page<DiscountCouponResponse> actualResponse = discountCouponService.findAllDiscountCoupons(pageable);
@@ -95,7 +94,7 @@ class DiscountCouponServiceImplTest {
         assertIterableEquals(expectedResponses, actualResponse, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(discountCoupon, DiscountCouponResponse.class);
         verify(discountCouponRepository, times(1)).findAll(pageable);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -105,13 +104,13 @@ class DiscountCouponServiceImplTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         when(discountCouponRepository.findAll()).thenThrow(RepositoryException.class);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findAll());
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findAll());
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> discountCouponService.findAllDiscountCoupons(pageable),
                 "Expected RepositoryException to be thrown");
         verify(discountCouponRepository, times(1)).findAll();
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -121,7 +120,7 @@ class DiscountCouponServiceImplTest {
         DiscountCouponResponse expectedResponse = discountCouponResponse;
 
         when(dataMapper.map(discountCouponRequest, DiscountCoupon.class)).thenReturn(discountCoupon);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.save(discountCoupon));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.save(discountCoupon));
         when(discountCouponRepository.save(discountCoupon)).thenReturn(discountCoupon);
         when(dataMapper.map(discountCoupon, DiscountCouponResponse.class)).thenReturn(expectedResponse);
 
@@ -134,7 +133,7 @@ class DiscountCouponServiceImplTest {
         verify(dataMapper, times(1)).map(discountCouponRequest, DiscountCoupon.class);
         verify(discountCouponRepository, times(1)).save(discountCoupon);
         verify(dataMapper, times(1)).map(discountCoupon, DiscountCouponResponse.class);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -142,7 +141,7 @@ class DiscountCouponServiceImplTest {
     void createDiscountCoupon_RepositoryExceptionHandling() {
         // Arrange
         when(dataMapper.map(discountCouponRequest, DiscountCoupon.class)).thenReturn(discountCoupon);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.save(discountCoupon));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.save(discountCoupon));
         when(discountCouponRepository.save(discountCoupon)).thenThrow(RepositoryException.class);
 
         // Act and Assert
@@ -150,7 +149,7 @@ class DiscountCouponServiceImplTest {
                 "Expected RepositoryException to be thrown");
         verify(dataMapper, times(1)).map(discountCouponRequest, DiscountCoupon.class);
         verify(discountCouponRepository, times(1)).save(discountCoupon);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -161,7 +160,7 @@ class DiscountCouponServiceImplTest {
 
         when(discountCouponRepository.findById(discountCoupon.getId())).thenReturn(Optional.of(discountCoupon));
         when(dataMapper.map(discountCoupon, DiscountCouponResponse.class)).thenReturn(expectedResponse);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
 
         // Act
         DiscountCouponResponse actualResponse = discountCouponService.findDiscountCouponById(discountCoupon.getId());
@@ -172,7 +171,7 @@ class DiscountCouponServiceImplTest {
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
         verify(dataMapper, times(1)).map(discountCoupon, DiscountCouponResponse.class);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -180,13 +179,13 @@ class DiscountCouponServiceImplTest {
     void findDiscountCouponById_NotFoundExceptionHandling() {
         // Arrange
         when(discountCouponRepository.findById(discountCoupon.getId())).thenReturn(Optional.empty());
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> discountCouponService.findDiscountCouponById(discountCoupon.getId()),
                 "Expected NotFoundException to be thrown");
         verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -194,13 +193,13 @@ class DiscountCouponServiceImplTest {
     void findDiscountCouponById_RepositoryExceptionHandling() {
         // Arrange
         when(discountCouponRepository.findById(discountCoupon.getId())).thenThrow(RepositoryException.class);
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
 
         // Assert and Assert
         assertThrows(RepositoryException.class, () -> discountCouponService.findDiscountCouponById(discountCoupon.getId()),
                 "Expected RepositoryException to be thrown");
         verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -210,8 +209,8 @@ class DiscountCouponServiceImplTest {
         DiscountCouponResponse expectedResponse = discountCouponResponse;
 
         when(discountCouponRepository.findById(discountCoupon.getId())).thenReturn(Optional.of(discountCoupon));
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> invocation
-                .getArgument(0, CatchError.SafeFunction.class).execute());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
         when(dataMapper.map(eq(discountCouponRequest), any(DiscountCoupon.class))).thenReturn(discountCoupon);
         when(discountCouponRepository.save(discountCoupon)).thenReturn(discountCoupon);
         when(dataMapper.map(eq(discountCoupon), eq(DiscountCouponResponse.class))).thenReturn(expectedResponse);
@@ -227,7 +226,7 @@ class DiscountCouponServiceImplTest {
         verify(dataMapper, times(1)).map(eq(discountCouponRequest), any(DiscountCoupon.class));
         verify(discountCouponRepository, times(1)).save(discountCoupon);
         verify(dataMapper, times(1)).map(eq(discountCoupon), eq(DiscountCouponResponse.class));
-        verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(2)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -235,14 +234,14 @@ class DiscountCouponServiceImplTest {
     void updateDiscountCoupon_NotFoundExceptionHandling() {
         // Arrange
         when(discountCouponRepository.findById(discountCoupon.getId())).thenReturn(Optional.empty());
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> discountCouponService.updateDiscountCoupon(discountCoupon.getId(), discountCouponRequest),
                 "Expected NotFoundException to be thrown");
         verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
         verify(discountCouponRepository, never()).save(discountCoupon);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -250,8 +249,8 @@ class DiscountCouponServiceImplTest {
     void updateAddress_RepositoryExceptionHandling() {
         // Arrange
         when(discountCouponRepository.findById(discountCoupon.getId())).thenReturn(Optional.of(discountCoupon));
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> invocation
-                .getArgument(0, CatchError.SafeFunction.class).execute());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
         when(dataMapper.map(eq(discountCouponRequest), any(DiscountCoupon.class))).thenReturn(discountCoupon);
         when(discountCouponRepository.save(discountCoupon)).thenThrow(RepositoryException.class);
 
@@ -261,7 +260,7 @@ class DiscountCouponServiceImplTest {
         verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
         verify(dataMapper, times(1)).map(eq(discountCouponRequest), any(DiscountCoupon.class));
         verify(discountCouponRepository, times(1)).save(discountCoupon);
-        verify(catchError, times(2)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(2)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -269,11 +268,11 @@ class DiscountCouponServiceImplTest {
     void deleteDiscountCoupon_DeletesAddressSuccessfully() {
         // Arrange
         when(discountCouponRepository.findById(discountCoupon.getId())).thenReturn(Optional.of(discountCoupon));
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
         doAnswer(invocation -> {
             discountCouponRepository.delete(discountCoupon);
             return null;
-        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        }).when(catchError).run(any(SafeProcedure.class));
         doNothing().when(discountCouponRepository).delete(discountCoupon);
 
         // Act
@@ -282,8 +281,8 @@ class DiscountCouponServiceImplTest {
         // Assert
         verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
         verify(discountCouponRepository, times(1)).delete(discountCoupon);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
-        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
     }
 
     @Test
@@ -291,14 +290,14 @@ class DiscountCouponServiceImplTest {
     void deleteDiscountCoupon_NotFoundExceptionHandling() {
         // Arrange
         when(discountCouponRepository.findById(discountCoupon.getId())).thenReturn(Optional.empty());
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> discountCouponService.deleteDiscountCoupon(discountCoupon.getId()),
                 "Expected NotFoundException to be thrown");
         verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
         verify(discountCouponRepository, never()).delete(discountCoupon);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -306,11 +305,11 @@ class DiscountCouponServiceImplTest {
     void deleteDiscountCoupon_RepositoryExceptionHandling() {
         // Arrange
         when(discountCouponRepository.findById(discountCoupon.getId())).thenReturn(Optional.of(discountCoupon));
-        when(catchError.run(any(CatchError.SafeFunction.class))).then(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> discountCouponRepository.findById(discountCoupon.getId()));
         doAnswer(invocation -> {
             discountCouponRepository.delete(discountCoupon);
             return null;
-        }).when(catchError).run(any(CatchError.SafeProcedure.class));
+        }).when(catchError).run(any(SafeProcedure.class));
         doThrow(RepositoryException.class).when(discountCouponRepository).delete(discountCoupon);
 
         // Act and Assert
@@ -318,8 +317,8 @@ class DiscountCouponServiceImplTest {
                 "Expected RepositoryException to be thrown");
         verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
         verify(discountCouponRepository, times(1)).delete(discountCoupon);
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
-        verify(catchError, times(1)).run(any(CatchError.SafeProcedure.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
     }
 
     @Test
@@ -329,7 +328,7 @@ class DiscountCouponServiceImplTest {
         DiscountCoupon expectedResponse = discountCoupon;
 
         when(discountCouponRepository.findByCode(discountCoupon.getCode())).thenReturn(Optional.of(discountCoupon));
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findByCode(discountCoupon.getCode()));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findByCode(discountCoupon.getCode()));
 
         // Act
         DiscountCoupon actualResponse = discountCouponService.findDiscountCouponByCode(discountCoupon.getCode());
@@ -339,7 +338,7 @@ class DiscountCouponServiceImplTest {
         assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(discountCouponRepository, times(1)).findByCode(discountCoupon.getCode());
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 
     @Test
@@ -347,12 +346,12 @@ class DiscountCouponServiceImplTest {
     void findDiscountCouponByCode_NotFoundExceptionHandling() {
         // Arrange
         when(discountCouponRepository.findByCode(discountCoupon.getCode())).thenReturn(Optional.empty());
-        when(catchError.run(any(CatchError.SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findByCode(discountCoupon.getCode()));
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> discountCouponRepository.findByCode(discountCoupon.getCode()));
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> discountCouponService.findDiscountCouponByCode(discountCoupon.getCode()),
                 "Expected NotFoundException to be thrown");
         verify(discountCouponRepository, times(1)).findByCode(discountCoupon.getCode());
-        verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeFunction.class));
     }
 }
