@@ -6,6 +6,8 @@ import com.rogeriogregorio.ecommercemanager.dto.responses.StockMovementResponse;
 import com.rogeriogregorio.ecommercemanager.entities.*;
 import com.rogeriogregorio.ecommercemanager.entities.enums.MovementType;
 import com.rogeriogregorio.ecommercemanager.entities.enums.StockStatus;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
+import com.rogeriogregorio.ecommercemanager.exceptions.RepositoryException;
 import com.rogeriogregorio.ecommercemanager.repositories.StockMovementRepository;
 import com.rogeriogregorio.ecommercemanager.services.impl.StockMovementServiceImpl;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
@@ -29,10 +31,10 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -55,6 +57,7 @@ class StockMovementServiceImplTest {
     private StockMovementServiceImpl stockMovementService;
 
     private static StockMovement stockMovement;
+    private static InventoryItem inventoryItem;
     private static StockMovementRequest stockMovementRequest;
     private static StockMovementResponse stockMovementResponse;
 
@@ -76,7 +79,7 @@ class StockMovementServiceImplTest {
                 .withProductDiscount(productDiscount)
                 .build();
 
-        InventoryItem inventoryItem = InventoryItem.newBuilder()
+        inventoryItem = InventoryItem.newBuilder()
                 .withId(1L)
                 .withQuantitySold(1)
                 .withStockStatus(StockStatus.AVAILABLE)
@@ -91,6 +94,10 @@ class StockMovementServiceImplTest {
                 .withQuantityMoved(10)
                 .withMoment(Instant.now())
                 .build();
+
+        stockMovementRequest = new StockMovementRequest(1L, MovementType.ENTRANCE, 10);
+
+        stockMovementResponse = new StockMovementResponse(1L, Instant.now(), inventoryItem, MovementType.ENTRANCE, 10);
 
         MockitoAnnotations.openMocks(this);
         stockMovementService = new StockMovementServiceImpl(stockMovementRepository, inventoryItemService, catchError, dataMapper);
@@ -118,5 +125,137 @@ class StockMovementServiceImplTest {
         verify(dataMapper, times(1)).map(stockMovement, StockMovementResponse.class);
         verify(stockMovementRepository, times(1)).findAll(pageable);
         verify(catchError, times(1)).run(any(CatchError.SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findAllStockMovements - Exceção no repositório tentar buscar lista de movimentações do estoque")
+    void findAllStockMovements_RepositoryExceptionHandling() {
+        // Arrange
+        Pageable pageable = PageRequest.of(0, 10);
+
+        when(stockMovementRepository.findAll()).thenThrow(RepositoryException.class);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> stockMovementRepository.findAll());
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> stockMovementService.findAllStockMovements(pageable),
+                "Expected RepositoryException to be thrown");
+        verify(stockMovementRepository, times(1)).findAll();
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("createStockMovement - Criação bem-sucedida retorna movimentação do estoque criada")
+    void createStockMovement_SuccessfulCreation_ReturnsStockMovement() {
+        // Arrange
+        StockMovementResponse expectedResponse = stockMovementResponse;
+
+        when(inventoryItemService.getInventoryItemIfExists(stockMovementRequest.getInventoryItemId())).thenReturn(inventoryItem);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> stockMovementRepository.save(stockMovement));
+        when(stockMovementRepository.save(stockMovement)).thenReturn(stockMovement);
+        when(dataMapper.map(stockMovement, StockMovementResponse.class)).thenReturn(expectedResponse);
+
+        // Act
+        StockMovementResponse actualResponse = stockMovementService.createStockMovement(stockMovementRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "Stock movement should not be null");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(inventoryItemService, times(1)).getInventoryItemIfExists(stockMovementRequest.getInventoryItemId());
+        verify(stockMovementRepository, times(1)).save(stockMovement);
+        verify(dataMapper, times(1)).map(stockMovement, StockMovementResponse.class);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("createStockMovement - Exceção no repositório ao tentar criar movimentação do estoque")
+    void createStockMovement_RepositoryExceptionHandling() {
+        // Arrange
+        when(inventoryItemService.getInventoryItemIfExists(stockMovementRequest.getInventoryItemId())).thenReturn(inventoryItem);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> stockMovementRepository.save(stockMovement));
+        when(stockMovementRepository.save(stockMovement)).thenThrow(RepositoryException.class);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> stockMovementService.createStockMovement(stockMovementRequest),
+                "Expected RepositoryException to be thrown");
+        verify(inventoryItemService, times(1)).getInventoryItemIfExists(stockMovementRequest.getInventoryItemId());
+        verify(stockMovementRepository, times(1)).save(stockMovement);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findStockMovementById - Busca bem-sucedida retorna movimentação do estoque")
+    void findStockMovementById_SuccessfulSearch_ReturnsAddress() {
+        // Arrange
+        StockMovementResponse expectedResponse = stockMovementResponse;
+
+        when(stockMovementRepository.findById(stockMovement.getId())).thenReturn(Optional.of(stockMovement));
+        when(dataMapper.map(stockMovement, StockMovementResponse.class)).thenReturn(expectedResponse);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> stockMovementRepository.findById(stockMovement.getId()));
+
+        // Act
+        StockMovementResponse actualResponse = stockMovementService.findStockMovementById(stockMovement.getId());
+
+        // Assert
+        assertNotNull(actualResponse, "Stock movement should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(stockMovementRepository, times(1)).findById(stockMovement.getId());
+        verify(dataMapper, times(1)).map(stockMovement, StockMovementResponse.class);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findStockMovementById - Exceção ao tentar buscar movimentação do estoque inexistente")
+    void findStockMovementById_NotFoundExceptionHandling() {
+        // Arrange
+        when(stockMovementRepository.findById(stockMovement.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> stockMovementRepository.findById(stockMovement.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> stockMovementService.findStockMovementById(stockMovement.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(stockMovementRepository, times(1)).findById(stockMovement.getId());
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("findStockMovementById - Exceção no repositório ao tentar buscar movimentação do estoque")
+    void findStockMovementById_RepositoryExceptionHandling() {
+        // Arrange
+        when(stockMovementRepository.findById(stockMovement.getId())).thenThrow(RepositoryException.class);
+        when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> stockMovementRepository.findById(stockMovement.getId()));
+
+        // Assert and Assert
+        assertThrows(RepositoryException.class, () -> stockMovementService.findStockMovementById(stockMovement.getId()),
+                "Expected RepositoryException to be thrown");
+        verify(stockMovementRepository, times(1)).findById(stockMovement.getId());
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateStockMovement - Atualização bem-sucedida retorna movimentação do estoque atualizada")
+    void updateStockMovement_SuccessfulUpdate_ReturnsStockMovement() {
+        // Arrange
+        StockMovementResponse expectedResponse = stockMovementResponse;
+
+        when(inventoryItemService.getInventoryItemIfExists(stockMovementRequest.getInventoryItemId())).thenReturn(inventoryItem);
+        when(stockMovementRepository.findById(stockMovement.getId())).thenReturn(Optional.of(stockMovement));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
+        when(stockMovementRepository.save(stockMovement)).thenReturn(stockMovement);
+        when(dataMapper.map(eq(stockMovement), eq(StockMovementResponse.class))).thenReturn(expectedResponse);
+
+        // Act
+        StockMovementResponse actualResponse = stockMovementService.updateStockMovement(stockMovement.getId(), stockMovementRequest);
+
+        // Assert
+        assertNotNull(actualResponse, "Address should not be null");
+        assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
+        assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
+        verify(stockMovementRepository, times(1)).findById(stockMovement.getId());
+        verify(inventoryItemService, times(1)).getInventoryItemIfExists(stockMovementRequest.getInventoryItemId());
+        verify(stockMovementRepository, times(1)).save(stockMovement);
+        verify(dataMapper, times(1)).map(eq(stockMovement), eq(StockMovementResponse.class));
+        verify(catchError, times(2)).run(any(SafeFunction.class));
     }
 }

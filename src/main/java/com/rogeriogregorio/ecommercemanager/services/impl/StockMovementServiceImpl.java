@@ -77,7 +77,7 @@ public class StockMovementServiceImpl implements StockMovementService {
 
         Long inventoryItemId = stockMovementRequest.getInventoryItemId();
         InventoryItem inventoryItem = inventoryItemService.getInventoryItemIfExists(inventoryItemId);
-        StockMovement currentStockMovement = getUserIfExists(id).toBuilder()
+        StockMovement currentStockMovement = getStockMovementIfExists(id).toBuilder()
                 .withMoment(Instant.now())
                 .withInventoryItem(inventoryItem)
                 .withMovementType(stockMovementRequest.getMovementType())
@@ -92,13 +92,13 @@ public class StockMovementServiceImpl implements StockMovementService {
     @Transactional
     public void deleteStockMovement(Long id) {
 
-        StockMovement stockMovement = getUserIfExists(id);
+        StockMovement stockMovement = getStockMovementIfExists(id);
 
         catchError.run(() -> stockMovementRepository.delete(stockMovement));
         LOGGER.info("Stock movement deleted: {}", stockMovement);
     }
 
-    public StockMovement getUserIfExists(Long id) {
+    public StockMovement getStockMovementIfExists(Long id) {
 
         return catchError.run(() -> stockMovementRepository.findById(id))
                 .orElseThrow(() -> new NotFoundException("Inventory movement not found with ID: " + id + "."));
