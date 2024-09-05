@@ -258,4 +258,20 @@ class StockMovementServiceImplTest {
         verify(dataMapper, times(1)).map(eq(stockMovement), eq(StockMovementResponse.class));
         verify(catchError, times(2)).run(any(SafeFunction.class));
     }
+
+    @Test
+    @DisplayName("updateStockMovement - Exceção ao tentar atualizar movimentação do estoque inexistente")
+    void updateStockMovement_NotFoundExceptionHandling() {
+        // Arrange
+        when(stockMovementRepository.findById(stockMovement.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> stockMovementService.updateStockMovement(stockMovement.getId(), stockMovementRequest),
+                "Expected NotFoundException to be thrown");
+        verify(stockMovementRepository, times(1)).findById(stockMovement.getId());
+        verify(stockMovementRepository, never()).save(stockMovement);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
 }
