@@ -1,5 +1,5 @@
 # E-Commerce Manager
-[![Status](https://img.shields.io/badge/Status-Em&nbsp;Desenvolvimento-yellow.svg)](https://github.com/seu-usuario/seu-projeto)
+[![Status](https://img.shields.io/badge/Status-Concluído-brightgreen.svg)](https://github.com/seu-usuario/seu-projeto)
 
 O **E-Commerce Manager** é uma API REST robusta para gestão de E-Commerce. Construída em Java e Ecossistema Spring, 
 prioriza código limpo e implementação de princípios SOLID, além de Design Patterns para criar um software flexível, 
