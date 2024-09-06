@@ -249,7 +249,7 @@ class StockMovementServiceImplTest {
         StockMovementResponse actualResponse = stockMovementService.updateStockMovement(stockMovement.getId(), stockMovementRequest);
 
         // Assert
-        assertNotNull(actualResponse, "Address should not be null");
+        assertNotNull(actualResponse, "Stock movement should not be null");
         assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(stockMovementRepository, times(1)).findById(stockMovement.getId());
@@ -273,5 +273,82 @@ class StockMovementServiceImplTest {
         verify(stockMovementRepository, times(1)).findById(stockMovement.getId());
         verify(stockMovementRepository, never()).save(stockMovement);
         verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("updateStockMovement - Exceção no repositório ao tentar atualizar movimentação do estoque")
+    void updateStockMovement_RepositoryExceptionHandling() {
+        // Arrange
+        when(inventoryItemService.getInventoryItemIfExists(stockMovementRequest.getInventoryItemId())).thenReturn(inventoryItem);
+        when(stockMovementRepository.findById(stockMovement.getId())).thenReturn(Optional.of(stockMovement));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
+        when(stockMovementRepository.save(stockMovement)).thenThrow(RepositoryException.class);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> stockMovementService.updateStockMovement(stockMovement.getId(), stockMovementRequest),
+                "Expected RepositoryException to be thrown");
+        verify(inventoryItemService, times(1)).getInventoryItemIfExists(stockMovementRequest.getInventoryItemId());
+        verify(stockMovementRepository, times(1)).findById(stockMovement.getId());
+        verify(stockMovementRepository, times(1)).save(stockMovement);
+        verify(catchError, times(2)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("deleteStockMovement - Exclusão bem-sucedida da movimentação do estoque")
+    void deleteStockMovement_DeletesAddressSuccessfully() {
+        // Arrange
+        when(stockMovementRepository.findById(stockMovement.getId())).thenReturn(Optional.of(stockMovement));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> stockMovementRepository.findById(stockMovement.getId()));
+        doAnswer(invocation -> {
+            stockMovementRepository.delete(stockMovement);
+            return null;
+        }).when(catchError).run(any(SafeProcedure.class));
+        doNothing().when(stockMovementRepository).delete(stockMovement);
+
+        // Act
+        stockMovementService.deleteStockMovement(stockMovement.getId());
+
+        // Assert
+        verify(stockMovementRepository, times(1)).findById(stockMovement.getId());
+        verify(stockMovementRepository, times(1)).delete(stockMovement);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
+    }
+
+    @Test
+    @DisplayName("deleteStockMovement - Exceção ao tentar excluir movimentação do estoque inexistente")
+    void deleteStockMovement_NotFoundExceptionHandling() {
+        // Arrange
+        when(stockMovementRepository.findById(stockMovement.getId())).thenReturn(Optional.empty());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> stockMovementRepository.findById(stockMovement.getId()));
+
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> stockMovementService.deleteStockMovement(stockMovement.getId()),
+                "Expected NotFoundException to be thrown");
+        verify(stockMovementRepository, times(1)).findById(stockMovement.getId());
+        verify(stockMovementRepository, never()).delete(stockMovement);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+    }
+
+    @Test
+    @DisplayName("deleteStockMovement - Exceção no repositório ao tentar excluir movimentação do estoque")
+    void deleteStockMovement_RepositoryExceptionHandling() {
+        // Arrange
+        when(stockMovementRepository.findById(stockMovement.getId())).thenReturn(Optional.of(stockMovement));
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> stockMovementRepository.findById(stockMovement.getId()));
+        doAnswer(invocation -> {
+            stockMovementRepository.delete(stockMovement);
+            return null;
+        }).when(catchError).run(any(SafeProcedure.class));
+        doThrow(RepositoryException.class).when(stockMovementRepository).delete(stockMovement);
+
+        // Act and Assert
+        assertThrows(RepositoryException.class, () -> stockMovementService.deleteStockMovement(stockMovement.getId()),
+                "Expected RepositoryException to be thrown");
+        verify(stockMovementRepository, times(1)).findById(stockMovement.getId());
+        verify(stockMovementRepository, times(1)).delete(stockMovement);
+        verify(catchError, times(1)).run(any(SafeFunction.class));
+        verify(catchError, times(1)).run(any(SafeProcedure.class));
     }
 }
