@@ -93,8 +93,12 @@ class OrderServiceImplTest {
 
         user = User.newBuilder()
                 .withId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
-                .withName("Admin").withEmail("admin@email.com").withPhone("11912345678")
-                .withCpf("72482581052").withPassword("Password123$").withRole(UserRole.ADMIN)
+                .withName("Admin")
+                .withEmail("admin@email.com")
+                .withPhone("11912345678")
+                .withCpf("72482581052")
+                .withPassword("Password123$")
+                .withRole(UserRole.ADMIN)
                 .build();
 
         order = Order.newBuilder()

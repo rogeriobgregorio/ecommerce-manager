@@ -107,8 +107,11 @@ class PaymentServiceImplTest {
                 Instant.parse("2024-06-07T00:00:00Z"));
 
         Product product = Product.newBuilder()
-                .withId(1L).withName("Intel i5-10400F").withDescription("Intel Core Processor")
-                .withPrice(BigDecimal.valueOf(579.99)).withCategories(categoryList)
+                .withId(1L)
+                .withName("Intel i5-10400F")
+                .withDescription("Intel Core Processor")
+                .withPrice(BigDecimal.valueOf(579.99))
+                .withCategories(categoryList)
                 .withImgUrl("https://example.com/i5-10400F.jpg")
                 .withProductDiscount(productDiscount)
                 .build();
@@ -213,7 +216,7 @@ class PaymentServiceImplTest {
         PaymentResponse actualResponse = paymentService.createPaymentProcess(paymentRequest);
 
         // Assert
-        assertNotNull(actualResponse, "payment should not be null");
+        assertNotNull(actualResponse, "Payment should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(orderService, times(1)).getOrderIfExists(paymentRequest.getOrderId());
         verify(paymentRepository, times(1)).save(payment);
@@ -251,7 +254,7 @@ class PaymentServiceImplTest {
         PaymentResponse actualResponse = paymentService.findPaymentById(1L);
 
         // Assert
-        assertNotNull(actualResponse, "payment should not be null");
+        assertNotNull(actualResponse, "Payment should not be null");
         assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(payment, PaymentResponse.class);

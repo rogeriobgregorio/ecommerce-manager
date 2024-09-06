@@ -94,16 +94,22 @@ class OrderItemServiceImplTest {
                 Instant.parse("2024-06-07T00:00:00Z"));
 
         product = Product.newBuilder()
-                .withId(1L).withName("Intel i5-10400F").withDescription("Intel Core Processor")
-                .withPrice(BigDecimal.valueOf(579.99)).withCategories(categoryList)
+                .withId(1L).withName("Intel i5-10400F")
+                .withDescription("Intel Core Processor")
+                .withPrice(BigDecimal.valueOf(579.99))
+                .withCategories(categoryList)
                 .withImgUrl("https://example.com/i5-10400F.jpg")
                 .withProductDiscount(productDiscount)
                 .build();
 
         User user = User.newBuilder()
                 .withId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
-                .withName("Admin").withEmail("admin@email.com").withPhone("11912345678")
-                .withCpf("72482581052").withPassword("Password123$").withRole(UserRole.ADMIN)
+                .withName("Admin")
+                .withEmail("admin@email.com")
+                .withPhone("11912345678")
+                .withCpf("72482581052")
+                .withPassword("Password123$")
+                .withRole(UserRole.ADMIN)
                 .build();
 
         order = Order.newBuilder()
@@ -281,7 +287,7 @@ class OrderItemServiceImplTest {
         OrderItemResponse actualResponse = orderItemService.updateOrderItem(orderItemRequest);
 
         // Assert
-        assertNotNull(actualResponse, "OrderItemResponse should not be null");
+        assertNotNull(actualResponse, "Order item should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(orderService, times(1)).getOrderIfExists(orderItemRequest.getOrderId());
         verify(productService, times(1)).getProductIfExists(orderItemRequest.getProductId());
@@ -322,7 +328,7 @@ class OrderItemServiceImplTest {
 
     @Test
     @DisplayName("deleteOrderItem - Exclusão bem-sucedida do item do pedido")
-    void deleteOrderItem_DeletesSuccessfully() {
+    void deleteOrderItem_DeletesOrderItemSuccessfully() {
         // Arrange
         OrderItemPK id = new OrderItemPK();
         id.setOrder(order);

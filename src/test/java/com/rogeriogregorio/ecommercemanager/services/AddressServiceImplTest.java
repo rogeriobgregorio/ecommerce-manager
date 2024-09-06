@@ -64,18 +64,27 @@ class AddressServiceImplTest {
 
         user = User.newBuilder()
                 .withId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
-                .withName("Admin").withEmail("admin@email.com").withPhone("11912345678")
-                .withCpf("72482581052").withPassword("Password123$").withRole(UserRole.ADMIN)
+                .withName("Admin")
+                .withEmail("admin@email.com")
+                .withPhone("11912345678")
+                .withCpf("72482581052")
+                .withPassword("Password123$")
+                .withRole(UserRole.ADMIN)
                 .build();
 
         address = Address.newBuilder()
                 .withId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
-                .withStreet("Rua ABC, 123").withCity("São Paulo").withState("SP")
-                .withCep("01234-567").withCountry("Brasil").withUser(user)
+                .withStreet("Rua ABC, 123")
+                .withCity("São Paulo")
+                .withState("SP")
+                .withCep("01234-567")
+                .withCountry("Brasil")
+                .withUser(user)
                 .build();
 
-        addressRequest = new AddressRequest("Rua ABC, 123", "São Paulo", "SP", "01234-567",
-                "Brasil", UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
+        addressRequest = new AddressRequest("Rua ABC, 123",
+                "São Paulo", "SP", "01234-567", "Brasil",
+                UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
 
         addressResponse = new AddressResponse(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"),
                 "Rua ABC, 123", "São Paulo", "SP", "01234-567", "Brasil", user);

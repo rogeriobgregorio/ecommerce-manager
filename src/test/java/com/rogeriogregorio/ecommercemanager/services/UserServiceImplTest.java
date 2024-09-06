@@ -67,14 +67,22 @@ class UserServiceImplTest {
 
         user = User.newBuilder()
                 .withId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
-                .withName("Admin").withEmail("admin@email.com").withPhone("11912345678")
-                .withCpf("72482581052").withPassword("Password123$").withRole(UserRole.ADMIN)
+                .withName("Admin")
+                .withEmail("admin@email.com")
+                .withPhone("11912345678")
+                .withCpf("72482581052")
+                .withPassword("Password123$")
+                .withRole(UserRole.ADMIN)
                 .build();
 
         Address address = Address.newBuilder()
                 .withId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
-                .withStreet("Rua ABC, 123").withCity("São Paulo").withState("SP")
-                .withCep("01234-567").withCountry("Brasil").withUser(user)
+                .withStreet("Rua ABC, 123")
+                .withCity("São Paulo")
+                .withState("SP")
+                .withCep("01234-567")
+                .withCountry("Brasil")
+                .withUser(user)
                 .build();
 
         userRequest = new UserRequest(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"),
@@ -295,7 +303,7 @@ class UserServiceImplTest {
 
     @Test
     @DisplayName("deleteUser - Exclusão bem-sucedida do usuário")
-    void deleteUser_DeletesSuccessfully() {
+    void deleteUser_DeletesUserSuccessfully() {
         // Arrange
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(catchError.run(any(SafeFunction.class))).then(invocation -> userRepository.findById(user.getId()));

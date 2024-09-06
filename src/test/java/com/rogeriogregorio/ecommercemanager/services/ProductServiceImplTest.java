@@ -72,8 +72,11 @@ class ProductServiceImplTest {
                 Instant.parse("2024-06-07T00:00:00Z"));
 
         product = Product.newBuilder()
-                .withId(1L).withName("Intel i5-10400F").withDescription("Intel Core Processor")
-                .withPrice(BigDecimal.valueOf(579.99)).withCategories(categoryList)
+                .withId(1L)
+                .withName("Intel i5-10400F")
+                .withDescription("Intel Core Processor")
+                .withPrice(BigDecimal.valueOf(579.99))
+                .withCategories(categoryList)
                 .withImgUrl("https://example.com/i5-10400F.jpg")
                 .withProductDiscount(productDiscount)
                 .build();
@@ -146,7 +149,7 @@ class ProductServiceImplTest {
         ProductResponse actualResponse = productService.createProduct(productRequest);
 
         // Assert
-        assertNotNull(actualResponse, "ProductResponse should not be null");
+        assertNotNull(actualResponse, "Product should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(productRequest, Product.class);
         verify(productRepository, times(1)).save(product);
@@ -251,7 +254,8 @@ class ProductServiceImplTest {
     void updateProduct_NotFoundExceptionHandling() {
         // Arrange
         when(productRepository.findById(product.getId())).thenReturn(Optional.empty());
-        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation.getArgument(0, SafeFunction.class).execute());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> productService.updateProduct(product.getId(), productRequest),
@@ -268,7 +272,8 @@ class ProductServiceImplTest {
         when(dataMapper.map(eq(productRequest), any(Product.class))).thenReturn(product);
         when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
         when(productRepository.save(product)).thenThrow(RepositoryException.class);
-        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation.getArgument(0, SafeFunction.class).execute());
+        when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
+                .getArgument(0, SafeFunction.class).execute());
 
         // Act and Assert
         assertThrows(RepositoryException.class, () -> productService.updateProduct(product.getId(), productRequest),
@@ -281,7 +286,7 @@ class ProductServiceImplTest {
 
     @Test
     @DisplayName("deleteProduct - Exclusão bem-sucedida do produto")
-    void deleteProduct_DeletesSuccessfully() {
+    void deleteProduct_DeletesProductSuccessfully() {
         // Arrange
         when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
         when(catchError.run(any(SafeFunction.class))).then(invocation -> productRepository.findById(product.getId()));

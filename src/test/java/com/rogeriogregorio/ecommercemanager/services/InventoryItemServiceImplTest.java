@@ -73,8 +73,11 @@ class InventoryItemServiceImplTest {
                 Instant.parse("2024-06-07T00:00:00Z"));
 
         product = Product.newBuilder()
-                .withId(1L).withName("Intel i5-10400F").withDescription("Intel Core Processor")
-                .withPrice(BigDecimal.valueOf(579.99)).withCategories(categoryList)
+                .withId(1L)
+                .withName("Intel i5-10400F")
+                .withDescription("Intel Core Processor")
+                .withPrice(BigDecimal.valueOf(579.99))
+                .withCategories(categoryList)
                 .withImgUrl("https://example.com/i5-10400F.jpg")
                 .withProductDiscount(productDiscount)
                 .build();
@@ -147,11 +150,7 @@ class InventoryItemServiceImplTest {
         when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> {
             SafeFunction<?> safeFunction = invocation.getArgument(0);
             Object result = safeFunction.execute();
-            if (result instanceof Boolean) {
-                return result;
-            } else if (result instanceof InventoryItem) {
-                return result;
-            } else if (result instanceof StockMovement) {
+            if (result instanceof Boolean || result instanceof InventoryItem || result instanceof StockMovement) {
                 return result;
             }
             return null;
@@ -184,11 +183,7 @@ class InventoryItemServiceImplTest {
         when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> {
             SafeFunction<?> safeFunction = invocation.getArgument(0);
             Object result = safeFunction.execute();
-            if (result instanceof Boolean) {
-                return result;
-            } else if (result instanceof InventoryItem) {
-                return result;
-            } else if (result instanceof StockMovement) {
+            if (result instanceof Boolean || result instanceof InventoryItem || result instanceof StockMovement) {
                 return result;
             }
             return null;

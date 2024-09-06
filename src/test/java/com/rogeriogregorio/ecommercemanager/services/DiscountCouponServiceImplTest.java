@@ -219,7 +219,7 @@ class DiscountCouponServiceImplTest {
         DiscountCouponResponse actualResponse = discountCouponService.updateDiscountCoupon(discountCoupon.getId(), discountCouponRequest);
 
         // Assert
-        assertNotNull(actualResponse, "DiscountCoupon should not be null");
+        assertNotNull(actualResponse, "Discount coupon should not be null");
         assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(discountCouponRepository, times(1)).findById(discountCoupon.getId());
@@ -246,7 +246,7 @@ class DiscountCouponServiceImplTest {
 
     @Test
     @DisplayName("updateDiscountCoupon - Exceção no repositório ao tentar atualizar cupom de desconto")
-    void updateAddress_RepositoryExceptionHandling() {
+    void updateDiscountCoupon_RepositoryExceptionHandling() {
         // Arrange
         when(discountCouponRepository.findById(discountCoupon.getId())).thenReturn(Optional.of(discountCoupon));
         when(catchError.run(any(SafeFunction.class))).then(invocation -> invocation
@@ -265,7 +265,7 @@ class DiscountCouponServiceImplTest {
 
     @Test
     @DisplayName("deleteDiscountCoupon - Exclusão bem-sucedida do cupom de desconto")
-    void deleteDiscountCoupon_DeletesAddressSuccessfully() {
+    void deleteDiscountCoupon_DeletesDiscountCouponSuccessfully() {
         // Arrange
         when(discountCouponRepository.findById(discountCoupon.getId())).thenReturn(Optional.of(discountCoupon));
         when(catchError.run(any(SafeFunction.class))).then(invocation -> discountCouponRepository.findById(discountCoupon.getId()));

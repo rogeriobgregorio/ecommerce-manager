@@ -1,7 +1,6 @@
 package com.rogeriogregorio.ecommercemanager.services;
 
 import com.rogeriogregorio.ecommercemanager.dto.requests.StockMovementRequest;
-import com.rogeriogregorio.ecommercemanager.dto.responses.AddressResponse;
 import com.rogeriogregorio.ecommercemanager.dto.responses.StockMovementResponse;
 import com.rogeriogregorio.ecommercemanager.entities.*;
 import com.rogeriogregorio.ecommercemanager.entities.enums.MovementType;
@@ -73,8 +72,11 @@ class StockMovementServiceImplTest {
         Set<Category> categoryList = Set.of(category);
 
         Product product = Product.newBuilder()
-                .withId(1L).withName("Intel i5-10400F").withDescription("Intel Core Processor")
-                .withPrice(BigDecimal.valueOf(579.99)).withCategories(categoryList)
+                .withId(1L)
+                .withName("Intel i5-10400F")
+                .withDescription("Intel Core Processor")
+                .withPrice(BigDecimal.valueOf(579.99))
+                .withCategories(categoryList)
                 .withImgUrl("https://example.com/i5-10400F.jpg")
                 .withProductDiscount(productDiscount)
                 .build();
@@ -296,7 +298,7 @@ class StockMovementServiceImplTest {
 
     @Test
     @DisplayName("deleteStockMovement - Exclusão bem-sucedida da movimentação do estoque")
-    void deleteStockMovement_DeletesAddressSuccessfully() {
+    void deleteStockMovement_DeletesStockMovementSuccessfully() {
         // Arrange
         when(stockMovementRepository.findById(stockMovement.getId())).thenReturn(Optional.of(stockMovement));
         when(catchError.run(any(SafeFunction.class))).then(invocation -> stockMovementRepository.findById(stockMovement.getId()));

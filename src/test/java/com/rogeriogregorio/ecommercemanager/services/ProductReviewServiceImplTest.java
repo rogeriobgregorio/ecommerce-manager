@@ -75,8 +75,12 @@ class ProductReviewServiceImplTest {
 
         user = User.newBuilder()
                 .withId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"))
-                .withName("Admin").withEmail("admin@email.com").withPhone("11912345678")
-                .withCpf("72482581052").withPassword("Password123$").withRole(UserRole.ADMIN)
+                .withName("Admin")
+                .withEmail("admin@email.com")
+                .withPhone("11912345678")
+                .withCpf("72482581052")
+                .withPassword("Password123$")
+                .withRole(UserRole.ADMIN)
                 .build();
 
         Order order = Order.newBuilder()
@@ -239,7 +243,7 @@ class ProductReviewServiceImplTest {
         ProductReviewResponse actualResponse = productReviewService.findProductReviewById(1L, user.getId());
 
         // Assert
-        assertNotNull(actualResponse, "ProductReview should not be null");
+        assertNotNull(actualResponse, "Product review should not be null");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(userService, times(1)).getUserIfExists(productReviewRequest.getUserId());
         verify(productService, times(1)).getProductIfExists(productReviewRequest.getProductId());
@@ -357,7 +361,7 @@ class ProductReviewServiceImplTest {
 
     @Test
     @DisplayName("deleteProductReview - Exclusão bem-sucedida do review de produto")
-    void deleteProductReview_DeletesSuccessfully() {
+    void deleteProductReview_DeletesProductReviewSuccessfully() {
         // Arrange
         ProductReviewPK id = new ProductReviewPK();
         id.setUser(user);

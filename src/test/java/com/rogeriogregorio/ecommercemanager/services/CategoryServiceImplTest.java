@@ -154,7 +154,7 @@ class CategoryServiceImplTest {
         CategoryResponse actualResponse = categoryService.findCategoryById(category.getId());
 
         // Assert
-        assertNotNull(actualResponse, "category should not be null");
+        assertNotNull(actualResponse, "Category should not be null");
         assertEquals(expectedResponse.getId(), actualResponse.getId(), "IDs should match");
         assertEquals(expectedResponse, actualResponse, "Expected and actual responses should be equal");
         verify(dataMapper, times(1)).map(category, CategoryResponse.class);
@@ -164,7 +164,7 @@ class CategoryServiceImplTest {
 
     @Test
     @DisplayName("findCategoryById - Exceção ao tentar buscar categoria inexistente")
-    void findCategory_NotFoundExceptionHandling() {
+    void findCategoryById_NotFoundExceptionHandling() {
         // Arrange
         when(categoryRepository.findById(category.getId())).thenReturn(Optional.empty());
         when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> categoryRepository.findById(category.getId()));
@@ -178,7 +178,7 @@ class CategoryServiceImplTest {
 
     @Test
     @DisplayName("findCategoryById - Exceção no repositório ao tentar buscar categoria")
-    void findCategory_RepositoryExceptionHandling() {
+    void findCategoryById_RepositoryExceptionHandling() {
         // Arrange
         when(categoryRepository.findById(category.getId())).thenThrow(RepositoryException.class);
         when(catchError.run(any(SafeFunction.class))).thenAnswer(invocation -> categoryRepository.findById(category.getId()));

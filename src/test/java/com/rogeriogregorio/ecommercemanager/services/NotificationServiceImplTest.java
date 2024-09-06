@@ -55,8 +55,10 @@ class NotificationServiceImplTest {
     @BeforeEach
     void setUp() {
 
-        notification = new Notification(1L, Instant.parse("2024-06-26T00:00:00Z"),
-                Instant.parse("2024-07-26T00:00:00Z"), "Title", "Message");
+        notification = new Notification(1L,
+                Instant.parse("2024-06-26T00:00:00Z"),
+                Instant.parse("2024-07-26T00:00:00Z"),
+                "Title", "Message");
 
         notificationRequest = new NotificationRequest(Instant.parse("2024-06-26T00:00:00Z"),
                 Instant.parse("2024-07-26T00:00:00Z"), "Title", "Message");
@@ -260,7 +262,7 @@ class NotificationServiceImplTest {
 
     @Test
     @DisplayName("deleteNotification - Exclusão bem-sucedida da notificação")
-    void deleteNotification_DeletesAddressSuccessfully() {
+    void deleteNotification_DeletesNotificationSuccessfully() {
         // Arrange
         when(notificationRepository.findById(notification.getId())).thenReturn(Optional.of(notification));
         when(catchError.run(any(SafeFunction.class))).then(invocation -> notificationRepository.findById(notification.getId()));
