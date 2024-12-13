@@ -7,10 +7,13 @@ import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.security.AuthorizationService;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class AuthorizationServiceImpl implements AuthorizationService {
@@ -51,5 +54,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 .build();
 
         catchError.run(() -> userRepository.save(admin));
+    }
+
+    @PreDestroy
+    public void deleteDefaultAdminOnShutdown() {
+
+        Optional<User> admin = userRepository.findByEmail("admin@email.com");
+        catchError.run(() ->admin.ifPresent(userRepository::delete));
     }
 }
