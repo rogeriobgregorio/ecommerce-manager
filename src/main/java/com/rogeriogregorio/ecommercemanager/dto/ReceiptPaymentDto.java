@@ -8,7 +8,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ReceiptPaymentDto implements Serializable {
 
@@ -52,7 +51,7 @@ public class ReceiptPaymentDto implements Serializable {
                         .getName()
                         + " (Quantity: " + item.getQuantity()
                         + ", Subtotal: " + item.getSubTotal() + ")"
-                ).collect(Collectors.toList());
+                ).toList();
         this.subtotal = order.getSubTotal();
         if (order.isDiscountCouponPresent() && order.getCoupon().isValid()) {
             this.discount = order.getCoupon().getDiscount();
@@ -65,10 +64,12 @@ public class ReceiptPaymentDto implements Serializable {
     @Override
     public String toString() {
 
+        final String separationLine = "====================\n";
+
         StringBuilder receipt = new StringBuilder();
         receipt.append("E-COMMERCE MANAGER\n");
         receipt.append("Recibo de Pagamento\n");
-        receipt.append("====================\n");
+        receipt.append(separationLine);
         receipt.append("Id do pagamento: ").append(paymentId).append("\n");
         receipt.append("Data: ").append(paymentMoment).append("\n");
         receipt.append("Id da transação: ").append(transactionId).append("\n");
@@ -76,7 +77,7 @@ public class ReceiptPaymentDto implements Serializable {
         receipt.append("Status do pagamento: ").append(paymentStatus).append("\n");
         receipt.append("Link da cobrança: ").append(chargeLink).append("\n");
         receipt.append("\nDetalhes do Pedido\n");
-        receipt.append("====================\n");
+        receipt.append(separationLine);
         receipt.append("Id do pedido: ").append(orderId).append("\n");
         receipt.append("Data do pedido: ").append(orderMoment).append("\n");
         receipt.append("Status do pedido: ").append(orderStatus).append("\n");
@@ -88,7 +89,7 @@ public class ReceiptPaymentDto implements Serializable {
         receipt.append("\nSubtotal: ").append(subtotal).append("\n");
         receipt.append("Desconto: ").append(discount).append("%\n");
         receipt.append("Valor total pago: ").append(totalAmountPaid).append("\n");
-        receipt.append("====================\n");
+        receipt.append(separationLine);
         receipt.append("Muito obrigado pela sua compra!\n");
 
         return receipt.toString();
