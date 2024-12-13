@@ -1,6 +1,7 @@
 package com.rogeriogregorio.ecommercemanager.security.config;
 
 import com.rogeriogregorio.ecommercemanager.dto.UserAuthDetailsDto;
+import com.rogeriogregorio.ecommercemanager.exceptions.NotFoundException;
 import com.rogeriogregorio.ecommercemanager.repositories.UserRepository;
 import com.rogeriogregorio.ecommercemanager.security.TokenService;
 import com.rogeriogregorio.ecommercemanager.utils.CatchError;
@@ -63,6 +64,6 @@ public class SecurityFilterConfig extends OncePerRequestFilter {
 
         return catchError.run(() -> userRepository.findByEmail(email))
                 .map(UserAuthDetailsDto::new)
-                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+                .orElseThrow(() -> new NotFoundException("User not found: " + email));
     }
 }
