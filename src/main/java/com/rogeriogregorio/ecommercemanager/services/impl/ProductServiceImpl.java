@@ -69,7 +69,7 @@ public class ProductServiceImpl implements ProductService {
 
         return catchError.run(() -> productRepository.findById(id))
                 .map(product -> dataMapper.map(product, ProductResponse.class))
-                .orElseThrow(() -> new NotFoundException("Product response not found with ID: " + id + "."));
+                .orElseThrow(() -> new NotFoundException("Product not found with ID: " + id + "."));
     }
 
     @Transactional
@@ -104,7 +104,7 @@ public class ProductServiceImpl implements ProductService {
     public Product getProductIfExists(Long id) {
 
         return catchError.run(() -> productRepository.findById(id))
-                .orElseThrow(() -> new NotFoundException("Product response not found with ID: " + id + "."));
+                .orElseThrow(() -> new NotFoundException("Product not found with ID: " + id + "."));
     }
 
     private Set<Category> validateCategory(ProductRequest productRequest) {
