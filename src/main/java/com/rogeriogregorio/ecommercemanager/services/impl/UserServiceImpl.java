@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
 
         return catchError.run(() -> userRepository.findById(id))
                 .map(user -> dataMapper.map(user, UserResponse.class))
-                .orElseThrow(() -> new NotFoundException("User response not found with ID: " + id + "."));
+                .orElseThrow(() -> new NotFoundException("User not found with ID: " + id + "."));
     }
 
     @Transactional
