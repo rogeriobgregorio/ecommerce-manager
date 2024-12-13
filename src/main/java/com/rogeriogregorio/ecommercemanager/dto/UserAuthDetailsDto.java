@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 public class UserAuthDetailsDto implements UserDetails {
@@ -24,7 +24,7 @@ public class UserAuthDetailsDto implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
-        Map<UserRole, SimpleGrantedAuthority> roleAuthorityMap = new HashMap<>();
+        Map<UserRole, SimpleGrantedAuthority> roleAuthorityMap = new EnumMap<>(UserRole.class);
         roleAuthorityMap.put(UserRole.CLIENT, new SimpleGrantedAuthority("ROLE_CLIENT"));
         roleAuthorityMap.put(UserRole.MANAGER, new SimpleGrantedAuthority("ROLE_MANAGER"));
         roleAuthorityMap.put(UserRole.ADMIN, new SimpleGrantedAuthority("ROLE_ADMIN"));
