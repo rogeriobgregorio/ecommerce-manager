@@ -25,7 +25,7 @@ gerenciamento de:
 **Gestão de Pedidos e Pagamentos:**
    - Pedidos
    - Itens de pedido
-   - Pagamentos consumindo a API do Banco EfíBank
+   - Pagamento por PIX consumindo a API do Banco EfíBank
 
 **Gestão de Promoções e Descontos:**
    - Desconto em produtos
@@ -41,13 +41,30 @@ gerenciamento de:
    - Envio de emails para entrega de recibo de compra e redefinição de senha
 
 
-
 ## Modelo Conceitual
 
 **Diagrama Entidade-Relacionamento**
 ![der-ecommerce-manager](https://github.com/rogeriobgregorio/ecommerce-manager/raw/main/diagrams/der-ecommerce-manager.png)
 
-## Funcionalidades implementadas até o momento
+
+## Stack utilizada
+
+   - Java 17
+   - Spring 
+   - Spring Data JPA
+   - Hibernate
+   - Spring Security
+   - JWT
+   - Junit
+   - Mockito
+   - Log4J2
+   - Spring Mail
+   - Efí Bank SDK
+   - Spring Retry
+   - H2 Database
+
+
+## Funcionalidades e Rotas
 
 | Descrição                                                    | Método HTTP | Endpoint                                     | Autorizações                |
 |--------------------------------------------------------------|-------------|----------------------------------------------|-----------------------------|
@@ -129,3 +146,31 @@ gerenciamento de:
 | Listar pix pagas                                             | GET         | /api/v1/pix/charges/search                   | ADMIN, MANAGER, CLIENT      |
 | Receber da API banco atualizações de pagamento das cobranças | GET         | /api/v1/webhook/pix                          | certificado de autenticação |
 | Receber da API do banco teste de conexão                     | GET         | /api/v1/webhook                              | certificado de autenticação |
+
+## Rodando localmente
+Siga as etapas abaixo para configurar e executar o projeto Java com Spring localmente:
+
+1. Certifique-se de ter o Java 17 JDK instalado. Caso não tenha, faça o download e a instalação a partir do site oficial da [Oracle](https://oracle.com/).
+
+2. Clone o repositório do projeto:
+```bash
+  git clone https://github.com/rogeriobgregorio/ecommerce-manager
+```
+
+3. Acesse o diretório do projeto:
+```bash
+  cd ecommerce-manager
+```
+
+4. Execute o projeto:
+```bash
+  ./mvnw spring-boot:run
+```
+Caso prefira, abra o projeto em uma IDE, como IntelliJ por exemplo, e execute o projeto.
+
+Após concluir essas etapas, o seu servidor Spring estará em execução localmente na porta 8080.
+
+## Autor
+#### Rogério Bernardo Gregório
+- Linkedin: [linkedin.com/in/rogeriogregorio](https://linkedin.com/in/rogeriogregorio)
+- Email: [bernardo.rogerio93@gmail.com](mailto:bernardo.rogerio93@gmail.com)
